@@ -1,0 +1,8 @@
+Sondow-Pudlak Conditional Collision Box
+Copyright 2026 James.
+
+This public-alpha research artifact records an interface-level conditional
+proof-complexity collision framework for the Euler-Mascheroni constant. It
+includes a Lean-checked conditional collision theorem, certificate architecture,
+paper drafts, and an axiom/audit boundary. If you use or extend this work,
+please cite the repository and the corresponding public release.

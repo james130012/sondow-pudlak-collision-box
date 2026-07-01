@@ -10,6 +10,18 @@
 
 本项目的目标是把剩余 mathematical obligations（数学义务）和 proof-complexity obligations（证明复杂度义务）显式化，而不是把它们藏在成功编译背后。
 
+## 优先权、引用与贡献边界
+
+本仓库记录的是 Sondow-Pudlak conditional collision box（Sondow-Pudlak 条件性对撞盒）的 public-alpha timestamp（公开 alpha 时间戳）。如果你使用、改写或继续推进这里的接口、证书结构、Lean 形式化路线或论文表述，请引用本仓库和对应 release（版本发布）；引用信息见 [`CITATION.cff`](CITATION.cff)。
+
+当前已公开的核心贡献包括：
+
+- 一个把 Sondow collapse（Sondow 坍缩）与 Pudlak-Friedman-Buss finite-consistency lower bound（有限一致性下界）放入共同 proof-length coordinate（证明长度坐标）的 certificate architecture（证书架构）；
+- 一个 Lean-checked interface-level theorem（Lean 检查的接口级定理），在显式输入下推出 `¬ is_rational euler_mascheroni`；
+- 一个明确的 axiom ledger（公理账本）和 audit boundary（审计边界），说明哪些 witness（见证）已经机器检查组合，哪些仍是 external/abstract inputs（外部/抽象输入）。
+
+贡献者可以提交 pull request（拉取请求）继续内部化 witness（见证）或改进文档，但不应把当前 public-alpha 版本表述为已经无条件证明 γ 无理。任何基于本项目的后续工作都应清楚区分：本仓库已经给出的 interface/collision architecture（接口/对撞架构），以及后续作者新增闭合的 external witness（外部见证）或 internal proof（内部证明）。
+
 ## 主要入口
 
 - 英文论文草稿：[`paper/paper_new_en.md`](paper/paper_new_en.md)
@@ -113,6 +125,18 @@ This repository is a Lean 4 research artifact for a conditional proof-complexity
 ```
 
 The goal of this project is to make the remaining mathematical and proof-complexity obligations explicit, not to hide them behind successful compilation.
+
+## Priority, Citation, and Contribution Boundary
+
+This repository records a public-alpha timestamp for the Sondow-Pudlak conditional collision box. If you use, adapt, or extend the interfaces, certificate architecture, Lean formalization route, or paper exposition in this repository, please cite this repository and the corresponding release; see [`CITATION.cff`](CITATION.cff).
+
+The core public contributions at this stage are:
+
+- a certificate architecture that places Sondow collapse and Pudlak-Friedman-Buss finite-consistency lower bounds on a common proof-length coordinate;
+- a Lean-checked interface-level theorem deriving `¬ is_rational euler_mascheroni` under explicit inputs;
+- an axiom ledger and audit boundary explaining which witnesses are machine-checked in the composition and which remain external or abstract inputs.
+
+Contributors may submit pull requests to internalize witnesses or improve the documentation, but this public-alpha version should not be described as an unconditional proof of the irrationality of γ. Any follow-up work based on this project should distinguish the interface/collision architecture provided here from any external witness or internal proof newly closed by later authors.
 
 ## Main Entry Points
 

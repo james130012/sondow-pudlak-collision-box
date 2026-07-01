@@ -4,7 +4,8 @@ Date: 2026-07-02
 
 ## Current Release Target
 
-`v0.1.0-public-alpha`: interface-level conditional collision box.
+`v0.1.2-public-alpha`: interface-level conditional collision box with public
+priority, citation, and audit-boundary metadata.
 
 ## Completed at This Stage
 
