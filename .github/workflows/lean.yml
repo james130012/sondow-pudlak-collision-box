@@ -12,7 +12,7 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           use-mathlib-cache: true
-          build-args: |
+          build-args: >-
             EulerLimit.StrengthenedConsistency
             EulerLimit.ProjectionBridge
             integration.SondowProjectPudlakInstantiation
