@@ -1,0 +1,13 @@
+.lake/
+.elan/
+*.olean
+*.ilean
+*.c
+*.o
+*.so
+*.trace
+*.aux
+*.log
+*.out
+*.pdf
+/.DS_Store

@@ -1,0 +1,40 @@
+# Lean/Lake build outputs and downloaded dependencies
+.lake/
+
+# Lean compiler artifacts, in case they are produced outside .lake
+*.olean
+*.ilean
+*.olean.hash
+*.ilean.hash
+*.trace
+
+# Generated intermediate files
+*.c
+*.c.hash
+*.setup.json
+
+# Local editor and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local environments and caches
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Temporary logs and packaged exports
+*.log
+*.tmp
+*.bak
+*.zip
+*.tar
+*.tar.gz

@@ -1,0 +1,588 @@
+/-
+Copyright (c) 2026 James. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: James
+-/
+import Mathlib.Data.Real.Basic
+import Mathlib.Tactic
+import Mathlib.Topology.Basic
+
+/-!
+# Proof-complexity core interfaces
+
+This module contains the lightweight syntactic and complexity interfaces shared
+by the Sondow route and the local Hilbert proof-calculus model.
+-/
+
+-- Inductive type representing the formal proof systems
+inductive ProofSystem
+  | S21 -- Buss bounded arithmetic S_2^1, used as the verification base
+  | PA  -- Peano Arithmetic (first-order)
+  | Z2  -- Second-Order Arithmetic (with analysis)
+
+-- Proof length must also specify what is being counted.  The line-count and
+-- symbol/bit-size conventions can behave very differently in first-order logic.
+inductive ProofLengthMeasure
+  | symbolSize
+  | lineCount
+  | bitSize
+
+-- A proof-complexity statement must refer to formula codes, not bare `Prop`.
+-- This keeps the current model intensional enough to later attach an actual
+-- proof calculus, Gödel coding, and length measure.
+inductive FormulaFamily
+  | sondowIdentity
+  | sondowExplicitIdentity
+  | sondowCertificateValid
+  | sondowTailBoundCertificate
+  | sondowDenominatorCertificate
+  | sondowProductLogCertificate
+  | partialConsistency
+  | strengthenedPartialConsistency
+  | sondowReflectionGraft
+
+structure FormulaCode where
+  family : FormulaFamily
+  index : ℕ
+
+def sondowIdentityCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowIdentity, index := n }
+
+def sondowExplicitIdentityCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowExplicitIdentity, index := n }
+
+def sondowCertificateValidCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowCertificateValid, index := n }
+
+def sondowTailBoundCertificateCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowTailBoundCertificate, index := n }
+
+def sondowDenominatorCertificateCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowDenominatorCertificate, index := n }
+
+def sondowProductLogCertificateCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowProductLogCertificate, index := n }
+
+def partialConsistencyCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.partialConsistency, index := n }
+
+def strengthenedPartialConsistencyCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.strengthenedPartialConsistency, index := n }
+
+def sondowReflectionGraftCode (n : ℕ) : FormulaCode :=
+  { family := FormulaFamily.sondowReflectionGraft, index := n }
+
+-- Abstract proof-length symbol for the model layer.  This declaration does not
+-- assert any lower bound, upper bound, soundness theorem, or existence of a
+-- concrete PA proof calculus.  Concrete routes must supply calibration fields
+-- such as `proof_length_eq_minProofCodeSize`, `proof_length_exact`, or explicit
+-- lower-bound packages before conclusions can use it.
+axiom proof_length : ProofSystem → ProofLengthMeasure → FormulaCode → ℝ
+
+-- A concrete proof-code semantics for a chosen formula-code fragment.  It
+-- separates the proof code carrier, the checker relation, and the size measure.
+universe q
+
+structure ProofCodeSemantics (relevant : FormulaCode → Prop) where
+  Code : Type q
+  checks : Code → FormulaCode → Prop
+  size : Code → ℕ
+  complete :
+    ∀ code : FormulaCode, relevant code → ∃ c : Code, checks c code
+
+def ProofCodeSemantics.HasProofCodeOfSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (code : FormulaCode) (k : ℕ) : Prop :=
+  ∃ c : sem.Code, sem.checks c code ∧ sem.size c ≤ k
+
+theorem ProofCodeSemantics.exists_hasProofCodeOfSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    {code : FormulaCode} (hcode : relevant code) :
+    ∃ k : ℕ, sem.HasProofCodeOfSize code k := by
+  rcases sem.complete code hcode with ⟨c, hc⟩
+  exact ⟨sem.size c, c, hc, le_rfl⟩
+
+noncomputable def ProofCodeSemantics.minProofCodeSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (code : FormulaCode) (hcode : relevant code) : ℕ :=
+  by
+    classical
+    exact Nat.find (sem.exists_hasProofCodeOfSize hcode)
+
+theorem ProofCodeSemantics.hasProofCodeOfSize_minProofCodeSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    {code : FormulaCode} (hcode : relevant code) :
+    sem.HasProofCodeOfSize code (sem.minProofCodeSize code hcode) := by
+  classical
+  exact Nat.find_spec (sem.exists_hasProofCodeOfSize hcode)
+
+theorem ProofCodeSemantics.minProofCodeSize_le_of_hasProofCodeOfSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    {code : FormulaCode} (hcode : relevant code) {k : ℕ}
+    (hk : sem.HasProofCodeOfSize code k) :
+    sem.minProofCodeSize code hcode ≤ k := by
+  classical
+  exact Nat.find_min' (sem.exists_hasProofCodeOfSize hcode) hk
+
+-- A total Nat-valued length function generated by a concrete proof-code
+-- semantics on its intended fragment.  Outside the fragment it uses a fallback
+-- length, so replacing the project-level `proof_length` can be staged without
+-- assigning meanings to unrelated formula families.
+noncomputable def ProofCodeSemantics.semanticProofLength
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) (code : FormulaCode) : ℕ := by
+  classical
+  exact if hcode : relevant code then sem.minProofCodeSize code hcode
+    else fallback code
+
+theorem ProofCodeSemantics.semanticProofLength_eq_minProofCodeSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) {code : FormulaCode} (hcode : relevant code) :
+    sem.semanticProofLength fallback code =
+      sem.minProofCodeSize code hcode := by
+  classical
+  simp [ProofCodeSemantics.semanticProofLength, hcode]
+
+theorem ProofCodeSemantics.semanticProofLength_eq_fallback
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) {code : FormulaCode} (hcode : ¬ relevant code) :
+    sem.semanticProofLength fallback code = fallback code := by
+  classical
+  simp [ProofCodeSemantics.semanticProofLength, hcode]
+
+-- Real-valued project length induced by a concrete proof checker.  This is the
+-- Cook-Reckhow style route: once proof codes, a checker relation, and a size
+-- measure are fixed, the proof length of a formula is the minimum accepted
+-- proof-code size on the intended fragment, with a staged fallback elsewhere.
+noncomputable def ProofCodeSemantics.projectLength
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) (code : FormulaCode) : ℝ :=
+  sem.semanticProofLength fallback code
+
+theorem ProofCodeSemantics.projectLength_eq_minProofCodeSize
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) {code : FormulaCode} (hcode : relevant code) :
+    sem.projectLength fallback code =
+      sem.minProofCodeSize code hcode := by
+  rw [ProofCodeSemantics.projectLength,
+    sem.semanticProofLength_eq_minProofCodeSize fallback hcode]
+
+theorem ProofCodeSemantics.projectLength_eq_fallback
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (fallback : FormulaCode → ℕ) {code : FormulaCode} (hcode : ¬ relevant code) :
+    sem.projectLength fallback code = fallback code := by
+  rw [ProofCodeSemantics.projectLength,
+    sem.semanticProofLength_eq_fallback fallback hcode]
+
+-- A semantic source for the abstract `proof_length`: a concrete Nat-valued
+-- code-length model whose values agree with the project-level real-valued
+-- `proof_length` on a specified family of formula codes.
+structure ProjectProofLengthSemantics
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (length : FormulaCode → ℕ) (relevant : FormulaCode → Prop) : Prop where
+  proof_length_eq :
+    ∀ code : FormulaCode, relevant code →
+      proof_length T measure code = length code
+
+structure ProofLengthCodeSemantics
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (relevant : FormulaCode → Prop) where
+  proof_code_semantics : ProofCodeSemantics.{q} relevant
+  fallback_length : FormulaCode → ℕ
+
+noncomputable def ProofLengthCodeSemantics.length
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (model : ProofLengthCodeSemantics T measure relevant) :
+    FormulaCode → ℕ :=
+  model.proof_code_semantics.semanticProofLength model.fallback_length
+
+structure ProofLengthCodeSemantics.Calibration
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (model : ProofLengthCodeSemantics T measure relevant) : Prop where
+  proof_length_eq_length :
+    ∀ code : FormulaCode, relevant code →
+      proof_length T measure code = model.length code
+
+theorem ProofLengthCodeSemantics.Calibration.toProjectProofLengthSemantics
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    {model : ProofLengthCodeSemantics T measure relevant}
+    (hcal : model.Calibration) :
+    ProjectProofLengthSemantics T measure model.length relevant where
+  proof_length_eq := hcal.proof_length_eq_length
+
+def ProofCodeSemantics.toProjectProofLengthSemantics
+    {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)
+    (T : ProofSystem) (measure : ProofLengthMeasure) (length : FormulaCode → ℕ)
+    (hlength :
+      ∀ code : FormulaCode, ∀ hcode : relevant code,
+        length code = sem.minProofCodeSize code hcode)
+    (hproof_length :
+      ∀ code : FormulaCode, ∀ hcode : relevant code,
+        proof_length T measure code = sem.minProofCodeSize code hcode) :
+    ProjectProofLengthSemantics T measure length relevant where
+  proof_length_eq := by
+    intro code hcode
+    rw [hproof_length code hcode]
+    rw [hlength code hcode]
+
+-- Compatibility convention for older statements.  The proof-complexity audit
+-- recommends symbol/bit-size over bare line count; existing conditional
+-- theorems are kept on symbol size until a real calculus is selected.
+def defaultProofLengthMeasure : ProofLengthMeasure :=
+  ProofLengthMeasure.symbolSize
+
+noncomputable def default_proof_length (T : ProofSystem) (φ : FormulaCode) : ℝ :=
+  proof_length T defaultProofLengthMeasure φ
+
+-- Definition of polynomial bound for complexity growth
+def is_polynomial_bound (f : ℕ → ℝ) : Prop :=
+  ∃ (c : ℝ) (k : ℕ), ∀ n : ℕ, f n ≤ c * ((n : ℝ) + 1)^k
+
+theorem is_polynomial_bound.linear_rescale
+    {f : ℕ → ℝ} (hf : is_polynomial_bound f)
+    {C D : ℝ} (hC : 0 ≤ C) (hD : 0 ≤ D) :
+    is_polynomial_bound (fun n : ℕ => C * f n + D) := by
+  rcases hf with ⟨c, k, hc⟩
+  refine ⟨C * c + D, k, ?_⟩
+  intro n
+  have hbase : (1 : ℝ) ≤ (n : ℝ) + 1 := by
+    nlinarith [show (0 : ℝ) ≤ (n : ℝ) by exact Nat.cast_nonneg n]
+  have hpow : (1 : ℝ) ≤ ((n : ℝ) + 1)^k :=
+    one_le_pow₀ hbase
+  have hmul : C * f n ≤ C * (c * ((n : ℝ) + 1)^k) :=
+    mul_le_mul_of_nonneg_left (hc n) hC
+  have hDpow : D ≤ D * ((n : ℝ) + 1)^k := by
+    nlinarith [mul_le_mul_of_nonneg_left hpow hD]
+  nlinarith
+
+theorem is_polynomial_bound_of_le
+    {f g : ℕ → ℝ} (hfg : ∀ n : ℕ, f n ≤ g n)
+    (hg : is_polynomial_bound g) :
+    is_polynomial_bound f := by
+  rcases hg with ⟨c, k, hc⟩
+  exact ⟨c, k, fun n => le_trans (hfg n) (hc n)⟩
+
+theorem is_polynomial_bound.nonneg_coefficient
+    {f : ℕ → ℝ} (hf : is_polynomial_bound f) :
+    ∃ (c : ℝ) (k : ℕ), 0 ≤ c ∧
+      ∀ n : ℕ, f n ≤ c * ((n : ℝ) + 1)^k := by
+  rcases hf with ⟨c, k, hc⟩
+  refine ⟨|c|, k, abs_nonneg c, ?_⟩
+  intro n
+  have hbase_nonneg : 0 ≤ (n : ℝ) + 1 := by
+    positivity
+  have hpow_nonneg : 0 ≤ ((n : ℝ) + 1)^k :=
+    pow_nonneg hbase_nonneg k
+  exact (hc n).trans (mul_le_mul_of_nonneg_right (le_abs_self c) hpow_nonneg)
+
+theorem is_polynomial_bound.comp_nat
+    {f : ℕ → ℝ} {ρ : ℕ → ℕ}
+    (hf : is_polynomial_bound f)
+    (hρ : is_polynomial_bound (fun n : ℕ => (ρ n : ℝ))) :
+    is_polynomial_bound (fun n : ℕ => f (ρ n)) := by
+  rcases hf.nonneg_coefficient with ⟨cf, kf, hcf_nonneg, hcf⟩
+  rcases hρ.nonneg_coefficient with ⟨cρ, kρ, hcρ_nonneg, hcρ⟩
+  refine ⟨cf * (cρ + 1)^kf, kρ * kf, ?_⟩
+  intro n
+  have hnbase : 1 ≤ (n : ℝ) + 1 := by
+    nlinarith [show (0 : ℝ) ≤ (n : ℝ) by exact Nat.cast_nonneg n]
+  have hnbase_nonneg : 0 ≤ (n : ℝ) + 1 := by positivity
+  have hnbase_pow_nonneg : 0 ≤ ((n : ℝ) + 1)^kρ :=
+    pow_nonneg hnbase_nonneg kρ
+  have hone_le_pow : 1 ≤ ((n : ℝ) + 1)^kρ :=
+    one_le_pow₀ hnbase
+  have hρ_bound := hcρ n
+  have hρ_nonneg : 0 ≤ (ρ n : ℝ) := by exact Nat.cast_nonneg (ρ n)
+  have hρ_add_bound :
+      (ρ n : ℝ) + 1 ≤ (cρ + 1) * ((n : ℝ) + 1)^kρ := by
+    have h1 :
+        (1 : ℝ) ≤ 1 * ((n : ℝ) + 1)^kρ := by
+      simpa using hone_le_pow
+    calc
+      (ρ n : ℝ) + 1 ≤ cρ * ((n : ℝ) + 1)^kρ +
+          1 * ((n : ℝ) + 1)^kρ := by
+        exact add_le_add hρ_bound h1
+      _ = (cρ + 1) * ((n : ℝ) + 1)^kρ := by ring
+  have hcρ_add_nonneg : 0 ≤ cρ + 1 := by nlinarith
+  have hρ_add_nonneg : 0 ≤ (ρ n : ℝ) + 1 := by positivity
+  have hpow_arg :
+      ((ρ n : ℝ) + 1)^kf ≤
+        ((cρ + 1) * ((n : ℝ) + 1)^kρ)^kf :=
+    pow_le_pow_left₀ hρ_add_nonneg hρ_add_bound kf
+  have htarget_nonneg :
+      0 ≤ ((cρ + 1) * ((n : ℝ) + 1)^kρ)^kf :=
+    pow_nonneg (mul_nonneg hcρ_add_nonneg hnbase_pow_nonneg) kf
+  have hmul_pow :
+      ((cρ + 1) * ((n : ℝ) + 1)^kρ)^kf =
+        (cρ + 1)^kf * ((n : ℝ) + 1)^(kρ * kf) := by
+    rw [mul_pow, ← pow_mul]
+  calc
+    f (ρ n) ≤ cf * (((ρ n : ℝ) + 1)^kf) := hcf (ρ n)
+    _ ≤ cf * (((cρ + 1) * ((n : ℝ) + 1)^kρ)^kf) := by
+      exact mul_le_mul_of_nonneg_left hpow_arg hcf_nonneg
+    _ = cf * ((cρ + 1)^kf * ((n : ℝ) + 1)^(kρ * kf)) := by
+      rw [hmul_pow]
+    _ = cf * (cρ + 1)^kf * ((n : ℝ) + 1)^(kρ * kf) := by ring
+
+open Filter
+
+structure EventualLowerBound
+    (T : ProofSystem) (measure : ProofLengthMeasure) (φ : ℕ → FormulaCode) :
+    Prop where
+  lower_bound :
+    ∀ f : ℕ → ℝ, is_polynomial_bound f →
+      ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧ proof_length T measure (φ n) > f n
+
+theorem EventualLowerBound.of_frequently
+    {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
+    (hfreq :
+      ∀ f : ℕ → ℝ, is_polynomial_bound f →
+        ∃ᶠ n in atTop, proof_length T measure (φ n) > f n) :
+    EventualLowerBound T measure φ where
+  lower_bound := by
+    intro f hf N
+    exact (Filter.frequently_atTop.mp (hfreq f hf)) N
+
+structure StrongProofLengthLowerBound
+    (T : ProofSystem) (measure : ProofLengthMeasure) (φ : ℕ → FormulaCode) :
+    Prop where
+  frequently_beats_every_polynomial :
+    ∀ f : ℕ → ℝ, is_polynomial_bound f →
+      ∃ᶠ n in atTop, proof_length T measure (φ n) > f n
+
+structure StrongLowerBoundTransfer
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (source target : ℕ → FormulaCode) : Prop where
+  transfer :
+    ∀ f : ℕ → ℝ, is_polynomial_bound f →
+      ∃ g : ℕ → ℝ, is_polynomial_bound g ∧
+        ((∃ᶠ n in atTop, proof_length T measure (source n) > g n) →
+            ∃ᶠ n in atTop, proof_length T measure (target n) > f n)
+
+theorem StrongProofLengthLowerBound.transfer
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (hsource : StrongProofLengthLowerBound T measure source)
+    (htransfer : StrongLowerBoundTransfer T measure source target) :
+    StrongProofLengthLowerBound T measure target where
+  frequently_beats_every_polynomial := by
+    intro f hf
+    rcases htransfer.transfer f hf with ⟨g, hg_poly, htransfer_g⟩
+    exact htransfer_g (hsource.frequently_beats_every_polynomial g hg_poly)
+
+theorem StrongProofLengthLowerBound.congr
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (hsource : StrongProofLengthLowerBound T measure source)
+    (hcode : ∀ n : ℕ, source n = target n) :
+    StrongProofLengthLowerBound T measure target where
+  frequently_beats_every_polynomial := by
+    intro f hf
+    exact (hsource.frequently_beats_every_polynomial f hf).mono
+      (fun n hn => by simpa [hcode n] using hn)
+
+theorem StrongProofLengthLowerBound.congr_symm
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (htarget : StrongProofLengthLowerBound T measure target)
+    (hcode : ∀ n : ℕ, source n = target n) :
+    StrongProofLengthLowerBound T measure source where
+  frequently_beats_every_polynomial := by
+    intro f hf
+    exact (htarget.frequently_beats_every_polynomial f hf).mono
+      (fun n hn => by simpa [hcode n] using hn)
+
+theorem StrongLowerBoundTransfer.comp
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source middle target : ℕ → FormulaCode}
+    (h₁ : StrongLowerBoundTransfer T measure source middle)
+    (h₂ : StrongLowerBoundTransfer T measure middle target) :
+    StrongLowerBoundTransfer T measure source target where
+  transfer := by
+    intro f hf
+    rcases h₂.transfer f hf with ⟨g, hg_poly, hg_to_target⟩
+    rcases h₁.transfer g hg_poly with ⟨k, hk_poly, hk_to_middle⟩
+    exact ⟨k, hk_poly, fun hsource => hg_to_target (hk_to_middle hsource)⟩
+
+theorem StrongProofLengthLowerBound.toEventualLowerBound
+    {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
+    (h : StrongProofLengthLowerBound T measure φ) :
+    EventualLowerBound T measure φ :=
+  EventualLowerBound.of_frequently h.frequently_beats_every_polynomial
+
+structure PolynomialCofinalScale (ρ : ℕ → ℕ) : Prop where
+  cofinal : ∀ M : ℕ, ∃ N : ℕ, ∀ n : ℕ, N ≤ n → M ≤ ρ n
+  polynomial_substitution :
+    ∀ f : ℕ → ℝ, is_polynomial_bound f →
+      is_polynomial_bound (fun n : ℕ => f (ρ n))
+
+theorem PolynomialCofinalScale.id :
+    PolynomialCofinalScale (fun n : ℕ => n) where
+  cofinal := by
+    intro M
+    exact ⟨M, fun n hn => hn⟩
+  polynomial_substitution := by
+    intro f hf
+    simpa using hf
+
+theorem PolynomialCofinalScale.of_id_le_and_polynomial_bound
+    {ρ : ℕ → ℕ}
+    (hid : ∀ n : ℕ, n ≤ ρ n)
+    (hpoly : is_polynomial_bound (fun n : ℕ => (ρ n : ℝ))) :
+    PolynomialCofinalScale ρ where
+  cofinal := by
+    intro M
+    exact ⟨M, fun n hn => le_trans hn (hid n)⟩
+  polynomial_substitution := by
+    intro f hf
+    exact hf.comp_nat hpoly
+
+theorem PolynomialCofinalScale.comp
+    {ρ σ : ℕ → ℕ}
+    (hρ : PolynomialCofinalScale ρ)
+    (hσ : PolynomialCofinalScale σ) :
+    PolynomialCofinalScale (fun n : ℕ => ρ (σ n)) where
+  cofinal := by
+    intro M
+    rcases hρ.cofinal M with ⟨Nρ, hNρ⟩
+    rcases hσ.cofinal Nρ with ⟨Nσ, hNσ⟩
+    exact ⟨Nσ, fun n hn => hNρ (σ n) (hNσ n hn)⟩
+  polynomial_substitution := by
+    intro f hf
+    exact hσ.polynomial_substitution
+      (fun m : ℕ => f (ρ m)) (hρ.polynomial_substitution f hf)
+
+theorem frequently_atTop_of_frequently_scale
+    {ρ : ℕ → ℕ} (hscale : PolynomialCofinalScale ρ) {P : ℕ → Prop}
+    (hfreq : ∃ᶠ n in atTop, P (ρ n)) :
+    ∃ᶠ m in atTop, P m := by
+  rw [Filter.frequently_atTop] at hfreq ⊢
+  intro M
+  rcases hscale.cofinal M with ⟨N, hN⟩
+  rcases hfreq N with ⟨n, hn_ge, hnP⟩
+  exact ⟨ρ n, hN n hn_ge, hnP⟩
+
+theorem StrongLowerBoundTransfer.of_polynomial_cofinal_scale
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {φ : ℕ → FormulaCode} {ρ : ℕ → ℕ}
+    (hscale : PolynomialCofinalScale ρ) :
+    StrongLowerBoundTransfer T measure (fun n : ℕ => φ (ρ n)) φ where
+  transfer := by
+    intro f hf
+    refine ⟨fun n : ℕ => f (ρ n), hscale.polynomial_substitution f hf, ?_⟩
+    intro hfreq
+    exact frequently_atTop_of_frequently_scale hscale hfreq
+
+structure ProofLengthProjection
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (source target : ℕ → FormulaCode) : Prop where
+  source_le_target :
+    ∀ n : ℕ, proof_length T measure (source n) ≤ proof_length T measure (target n)
+
+-- A more realistic projection shape for proof-calculus transformations:
+-- extracting the right conjunct from a proof of `A ∧ B` usually adds a fixed
+-- rule/axiom tail, so it gives a linear bound rather than the zero-overhead
+-- monotonicity encoded by `ProofLengthProjection`.
+structure LinearProofLengthProjection
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (source target : ℕ → FormulaCode) where
+  C : ℝ
+  D : ℝ
+  C_pos : 0 < C
+  D_nonneg : 0 ≤ D
+  source_le_linear_target :
+    ∀ n : ℕ,
+      proof_length T measure (source n) ≤
+        C * proof_length T measure (target n) + D
+
+structure ConstantProofLengthProjection
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (source target : ℕ → FormulaCode) where
+  D : ℝ
+  D_nonneg : 0 ≤ D
+  source_le_target_add :
+    ∀ n : ℕ,
+      proof_length T measure (source n) ≤
+        proof_length T measure (target n) + D
+
+theorem ProofLengthProjection.refl
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (φ : ℕ → FormulaCode) :
+    ProofLengthProjection T measure φ φ where
+  source_le_target := by
+    intro n
+    rfl
+
+def ConstantProofLengthProjection.refl
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (φ : ℕ → FormulaCode) :
+    ConstantProofLengthProjection T measure φ φ where
+  D := 0
+  D_nonneg := by norm_num
+  source_le_target_add := by
+    intro n
+    simp
+
+def LinearProofLengthProjection.refl
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (φ : ℕ → FormulaCode) :
+    LinearProofLengthProjection T measure φ φ where
+  C := 1
+  D := 0
+  C_pos := by norm_num
+  D_nonneg := by norm_num
+  source_le_linear_target := by
+    intro n
+    simp
+
+def ConstantProofLengthProjection.toLinearProofLengthProjection
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (h : ConstantProofLengthProjection T measure source target) :
+    LinearProofLengthProjection T measure source target where
+  C := 1
+  D := h.D
+  C_pos := by norm_num
+  D_nonneg := h.D_nonneg
+  source_le_linear_target := by
+    intro n
+    simpa using h.source_le_target_add n
+
+def ProofLengthProjection.toStrongLowerBoundTransfer
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (h : ProofLengthProjection T measure source target) :
+    StrongLowerBoundTransfer T measure source target where
+  transfer := by
+    intro f hf
+    refine ⟨f, hf, ?_⟩
+    intro hfreq
+    exact hfreq.mono fun n hn => lt_of_lt_of_le hn (h.source_le_target n)
+
+def LinearProofLengthProjection.toStrongLowerBoundTransfer
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (h : LinearProofLengthProjection T measure source target) :
+    StrongLowerBoundTransfer T measure source target where
+  transfer := by
+    intro f hf
+    refine ⟨fun n => h.C * f n + h.D,
+      hf.linear_rescale h.C_pos.le h.D_nonneg, ?_⟩
+    intro hfreq
+    exact hfreq.mono fun n hn => by
+      have hle := h.source_le_linear_target n
+      nlinarith [h.C_pos, hn, hle]
+
+theorem EventualLowerBound.transfer_of_projection
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {source target : ℕ → FormulaCode}
+    (hsource : EventualLowerBound T measure source)
+    (hprojection : ProofLengthProjection T measure source target) :
+    EventualLowerBound T measure target where
+  lower_bound := by
+    intro f hf N
+    rcases hsource.lower_bound f hf N with ⟨n, hn_ge, hn_gt⟩
+    exact ⟨n, hn_ge, lt_of_lt_of_le hn_gt (hprojection.source_le_target n)⟩

@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as a Lean 4 research artifact."
+title: "Sondow-Pudlak Conditional Collision Box"
+version: "0.1.0-public-alpha"
+date-released: "2026-07-02"
+repository-code: "https://github.com/james130012/sondow-pudlak-collision-box"
+license: "Apache-2.0"
+authors:
+  - family-names: "James"
+preferred-citation:
+  type: article
+  title: "A Conditional Proof-Complexity Collision Framework for the Irrationality of Euler's Constant"
+  authors:
+    - family-names: "James"
+  year: 2026
+  url: "https://github.com/james130012/sondow-pudlak-collision-box"

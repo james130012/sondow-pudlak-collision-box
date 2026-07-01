@@ -1,0 +1,18 @@
+name = "bounded_arithmetic_lab"
+version = "0.1.0"
+keywords = ["bounded-arithmetic", "proof-complexity", "formalization"]
+defaultTargets = ["BoundedArithmeticLab"]
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.31.0"
+
+[[lean_lib]]
+name = "BoundedArithmeticLab"
