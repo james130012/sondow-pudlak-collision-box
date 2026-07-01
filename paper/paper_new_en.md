@@ -5,7 +5,7 @@
 The irrationality of the Euler-Mascheroni constant γ remains open. This paper does not claim an unconditional proof of γ ∉ ℚ. Instead, it formulates a conditional proof-complexity framework in which Sondow's criterion supplies a rationality-to-short-proof collapse, while Pudlak-Friedman-Buss finite consistency lower bounds supply a long-proof obstruction. The central point is not merely to have an upper bound and a lower bound, but to place both on the same formula family, in the same proof system, and under the same proof-length measure. A Lean 4 formalization checks the interface-level composition: once the stated external mathematical inputs and proof-length calibration witnesses are supplied, the formal chain derives
 
 ```math
-\neg \operatorname{is\_rational}(\gamma).
+\neg \mathrm{is\_rational}(\gamma).
 ```
 
 The contribution is to turn a broad Gödel-speedup heuristic into a precise conditional collision theorem, with the remaining mathematical risks isolated in explicit certificates.
@@ -51,13 +51,13 @@ All formula families are encoded as `FormulaCode`; all proof lengths are interpr
 The central idea can be compressed into a proof-length collision pattern. Let C_n be the final family in the common measurement box. Under the rationality assumption, the Sondow-collapse side is expected to give an upper bound
 
 ```math
-\operatorname{Len}_{PA}(C_n)\le U(n),
+\mathrm{Len}_{PA}(C_n)\le U(n),
 ```
 
 where Len_PA denotes PA symbol-size proof length and U(n) is the bound produced by the short-certificate verification mechanism. On the other hand, the Pudlak-Friedman-Buss lower-bound side is expected to give
 
 ```math
-L(n)\le \operatorname{Len}_{PA}(C_n).
+L(n)\le \mathrm{Len}_{PA}(C_n).
 ```
 
 If the calibrations identify the middle term as the same object, and if for all sufficiently large n,
@@ -69,11 +69,11 @@ U(n)<L(n),
 then a contradiction follows. Thus the real content of the project is not merely to exhibit one upper bound and one lower bound, but to prove that their middle term is literally the same proof-length coordinate:
 
 ```math
-\operatorname{Len}_{PA}^{Sondow}(C_n)
+\mathrm{Len}_{PA}^{Sondow}(C_n)
 =
-\operatorname{Len}_{PA}^{Pudlak}(C_n)
+\mathrm{Len}_{PA}^{Pudlak}(C_n)
 =
-\operatorname{proof\_length}\; ProofSystem.PA\; ProofLengthMeasure.symbolSize\; C_n.
+\mathrm{proof\_length}\; ProofSystem.PA\; ProofLengthMeasure.symbolSize\; C_n.
 ```
 
 This explains why proof-length calibration is central. Without calibration, the upper and lower bounds may both be true but incomparable. With calibration, they become statements about the same object and can collide.
@@ -106,7 +106,7 @@ Assume the following inputs are provided.
 Then the Lean composition derives
 
 ```math
-\neg \operatorname{is\_rational}(\gamma).
+\neg \mathrm{is\_rational}(\gamma).
 ```
 
 This is a conditional theorem. It does not internally prove Sondow's criterion, Pudlak's Theorem 5, or the PA proof-length function from first principles. It proves that, once these inputs are supplied in the required interfaces, the subsequent encoding transfers, length calibrations, projections, and final contradiction are machine checked.
@@ -118,7 +118,7 @@ More precisely, the interface-level theorem has the following logical form:
 ```math
 \mathcal S\;\wedge\;\mathcal P\;\wedge\;\mathcal E\;\wedge\;\mathcal L\;\wedge\;\mathcal T
 \;\Longrightarrow\;
-\neg \operatorname{is\_rational}(\gamma).
+\neg \mathrm{is\_rational}(\gamma).
 ```
 
 Here:
@@ -158,7 +158,7 @@ coordinate. This requires two kinds of calibration. One reduces the strengthened
 The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they are incompatible. Hence the rationality hypothesis is impossible under the stated inputs, and
 
 ```math
-\neg \operatorname{is\_rational}(\gamma)
+\neg \mathrm{is\_rational}(\gamma)
 ```
 
 follows.
