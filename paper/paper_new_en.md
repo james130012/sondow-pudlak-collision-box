@@ -2,10 +2,12 @@
 
 ## Abstract
 
-The irrationality of the Euler-Mascheroni constant $\gamma$ remains open. This paper does not claim an unconditional proof of $\gamma\notin\mathbb Q$. Instead, it formulates a conditional proof-complexity framework in which Sondow's criterion supplies a rationality-to-short-proof collapse, while Pudlak-Friedman-Buss finite consistency lower bounds supply a long-proof obstruction. The central point is not merely to have an upper bound and a lower bound, but to place both on the same formula family, in the same proof system, and under the same proof-length measure. A Lean 4 formalization checks the interface-level composition: once the stated external mathematical inputs and proof-length calibration witnesses are supplied, the formal chain derives
-$$
+The irrationality of the Euler-Mascheroni constant γ remains open. This paper does not claim an unconditional proof of γ ∉ ℚ. Instead, it formulates a conditional proof-complexity framework in which Sondow's criterion supplies a rationality-to-short-proof collapse, while Pudlak-Friedman-Buss finite consistency lower bounds supply a long-proof obstruction. The central point is not merely to have an upper bound and a lower bound, but to place both on the same formula family, in the same proof system, and under the same proof-length measure. A Lean 4 formalization checks the interface-level composition: once the stated external mathematical inputs and proof-length calibration witnesses are supplied, the formal chain derives
+
+```math
 \neg \operatorname{is\_rational}(\gamma).
-$$
+```
+
 The contribution is to turn a broad Gödel-speedup heuristic into a precise conditional collision theorem, with the remaining mathematical risks isolated in explicit certificates.
 
 Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency; proof complexity; Peano Arithmetic; Lean 4; conditional theorem.
@@ -13,10 +15,12 @@ Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency
 ## 1. The Problem and the Strategy
 
 The Euler-Mascheroni constant is
-$$
+
+```math
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right).
-$$
-Unlike $\pi$ and $e$, the arithmetic status of $\gamma$ is unknown. Sondow's work gives integral and product criteria related to the rationality of $\gamma$. In broad terms, these criteria connect rationality of $\gamma$ with eventual identities involving fractional parts of logarithmic products. If such identities can be represented by compressed certificates, then the rationality hypothesis may induce a proof-length collapse.
+```
+
+Unlike π and e, the arithmetic status of γ is unknown. Sondow's work gives integral and product criteria related to the rationality of γ. In broad terms, these criteria connect rationality of γ with eventual identities involving fractional parts of logarithmic products. If such identities can be represented by compressed certificates, then the rationality hypothesis may induce a proof-length collapse.
 
 This observation alone cannot prove irrationality. A contradiction requires a lower bound for the same formula family, in the same formal system, and under the same length measure. At present there is no standard proof-complexity lower bound for the natural Sondow certificate family itself. Therefore this paper follows a more conservative model route: the Sondow certificate is combined with a finite-consistency or reflection payload, allowing the lower-bound side to use Pudlak-Friedman-Buss finite consistency lower bounds.
 
@@ -26,11 +30,11 @@ This route is less natural than proving a lower bound for the native Sondow fami
 
 We separate three objects.
 
-First, $A$ denotes the Sondow collapse side. It is not a single formula, but a mechanism by which the assumption $\gamma\in\mathbb Q$ yields a family of short, checkable certificates.
+First, A denotes the Sondow collapse side. It is not a single formula, but a mechanism by which the assumption γ ∈ ℚ yields a family of short, checkable certificates.
 
-Second, $B$ denotes the Pudlak-Friedman-Buss lower-bound side. It acts on finite consistency or reflection formulas, such as statements asserting that there is no PA proof of contradiction of length at most $n$. This side comes from proof-length lower bounds, not from Sondow's analysis.
+Second, B denotes the Pudlak-Friedman-Buss lower-bound side. It acts on finite consistency or reflection formulas, such as statements asserting that there is no PA proof of contradiction of length at most n. This side comes from proof-length lower bounds, not from Sondow's analysis.
 
-Third, $C$ is the common measurement object. It must receive both the short-proof upper bound from $A$ and the lower bound from $B$. If the two sides live in different encodings, proof systems, or length measures, no contradiction follows. The core question is therefore whether both sides can be projected to the same $C$.
+Third, C is the common measurement object. It must receive both the short-proof upper bound from A and the lower bound from B. If the two sides live in different encodings, proof systems, or length measures, no contradiction follows. The core question is therefore whether both sides can be projected to the same C.
 
 In the Lean model this common coordinate is represented by:
 
@@ -44,40 +48,47 @@ All formula families are encoded as `FormulaCode`; all proof lengths are interpr
 
 ### 2.1 The Core Collision Equation
 
-The central idea can be compressed into a proof-length collision pattern. Let $C_n$ be the final family in the common measurement box. Under the rationality assumption, the Sondow-collapse side is expected to give an upper bound
-$$
+The central idea can be compressed into a proof-length collision pattern. Let C_n be the final family in the common measurement box. Under the rationality assumption, the Sondow-collapse side is expected to give an upper bound
+
+```math
 \operatorname{Len}_{PA}(C_n)\le U(n),
-$$
-where $\operatorname{Len}_{PA}$ denotes PA symbol-size proof length and $U(n)$ is the bound produced by the short-certificate verification mechanism. On the other hand, the Pudlak-Friedman-Buss lower-bound side is expected to give
-$$
+```
+
+where Len_PA denotes PA symbol-size proof length and U(n) is the bound produced by the short-certificate verification mechanism. On the other hand, the Pudlak-Friedman-Buss lower-bound side is expected to give
+
+```math
 L(n)\le \operatorname{Len}_{PA}(C_n).
-$$
-If the calibrations identify the middle term as the same object, and if for all sufficiently large $n$,
-$$
+```
+
+If the calibrations identify the middle term as the same object, and if for all sufficiently large n,
+
+```math
 U(n)<L(n),
-$$
+```
+
 then a contradiction follows. Thus the real content of the project is not merely to exhibit one upper bound and one lower bound, but to prove that their middle term is literally the same proof-length coordinate:
-$$
+
+```math
 \operatorname{Len}_{PA}^{Sondow}(C_n)
 =
 \operatorname{Len}_{PA}^{Pudlak}(C_n)
 =
 \operatorname{proof\_length}\; ProofSystem.PA\; ProofLengthMeasure.symbolSize\; C_n.
-$$
+```
 
 This explains why proof-length calibration is central. Without calibration, the upper and lower bounds may both be true but incomparable. With calibration, they become statements about the same object and can collide.
 
-### 2.2 How $B$ Enters $C$
+### 2.2 How B Enters C
 
-The Pudlak lower bound is naturally about finite-consistency or reflection formulas $B_n$, not about the native Sondow analytic formulas. The bridge used here is payload grafting and local projection. Informally, $C_n$ is not an arbitrary conjunction of $A_n$ and $B_n$. It is a checkable proxy formula carrying the information needed for the Sondow short verification while its reflection payload projects back to the finite-consistency family covered by the Pudlak lower bound.
+The Pudlak lower bound is naturally about finite-consistency or reflection formulas B_n, not about the native Sondow analytic formulas. The bridge used here is payload grafting and local projection. Informally, C_n is not an arbitrary conjunction of A_n and B_n. It is a checkable proxy formula carrying the information needed for the Sondow short verification while its reflection payload projects back to the finite-consistency family covered by the Pudlak lower bound.
 
 An audit of this step has to check three facts.
 
-1. Formula equality: the local `FormulaCode` family $C_n$ must agree pointwise with the source-side finite-consistency family, or a proved projection must preserve the relevant proof-length relation.
+1. Formula equality: the local `FormulaCode` family C_n must agree pointwise with the source-side finite-consistency family, or a proved projection must preserve the relevant proof-length relation.
 2. Proof-system equality: both sides must be stated in `ProofSystem.PA`.
 3. Length-measure equality: both sides must use `ProofLengthMeasure.symbolSize`; it is not acceptable for one side to use number of lines and the other to use encoded bit length.
 
-The current Lean development separates these facts into explicit certificates. This avoids the common mistake of putting “$B$ has a lower bound” and “$C$ has a short proof” in the same paragraph without proving that they are jointly measurable.
+The current Lean development separates these facts into explicit certificates. This avoids the common mistake of putting “B has a lower bound” and “C has a short proof” in the same paragraph without proving that they are jointly measurable.
 
 ## 3. The Conditional Main Theorem
 
@@ -86,36 +97,39 @@ The main theorem should be read conditionally.
 **Theorem 1, interface-level Sondow-Pudlak collision.**
 Assume the following inputs are provided.
 
-1. A Sondow collapse input: under $\gamma\in\mathbb Q$, the Sondow side produces verifiable short certificates.
+1. A Sondow collapse input: under γ ∈ ℚ, the Sondow side produces verifiable short certificates.
 2. A Pudlak-Friedman-Buss finite consistency lower-bound input, instantiated for the selected finite-consistency or reflection family.
 3. Encoding and projection inputs, showing that the external finite-consistency family agrees with, is equivalent to, or projects to the local `FormulaCode` family.
 4. Proof-length calibration inputs, identifying the abstract `proof_length` with the relevant checked-code proof-length models on the formula families used in the collision.
 5. Payload-truth inputs, ensuring that the reflection payload expresses the intended finite-consistency content.
 
 Then the Lean composition derives
-$$
+
+```math
 \neg \operatorname{is\_rational}(\gamma).
-$$
+```
 
 This is a conditional theorem. It does not internally prove Sondow's criterion, Pudlak's Theorem 5, or the PA proof-length function from first principles. It proves that, once these inputs are supplied in the required interfaces, the subsequent encoding transfers, length calibrations, projections, and final contradiction are machine checked.
 
 ### 3.1 Formal Theorem Schema
 
 More precisely, the interface-level theorem has the following logical form:
-$$
+
+```math
 \mathcal S\;\wedge\;\mathcal P\;\wedge\;\mathcal E\;\wedge\;\mathcal L\;\wedge\;\mathcal T
 \;\Longrightarrow\;
 \neg \operatorname{is\_rational}(\gamma).
-$$
+```
+
 Here:
 
-- $\mathcal S$ is the Sondow collapse certificate;
-- $\mathcal P$ is the Pudlak lower-bound certificate;
-- $\mathcal E$ is the encoding/projection certificate;
-- $\mathcal L$ is the proof-length calibration certificate;
-- $\mathcal T$ is the payload-truth certificate.
+- 𝒮 is the Sondow collapse certificate;
+- 𝒫 is the Pudlak lower-bound certificate;
+- ℰ is the encoding/projection certificate;
+- ℒ is the proof-length calibration certificate;
+- 𝒯 is the payload-truth certificate.
 
-The point of this schema is that unfinished inputs are not hidden inside words such as “obvious” or “by definition.” They appear either as theorem parameters or in the axiom audit. The present scientific claim is that this implication is Lean checked, not that $\neg \operatorname{is\_rational}(\gamma)$ has been proved unconditionally.
+The point of this schema is that unfinished inputs are not hidden inside words such as “obvious” or “by definition.” They appear either as theorem parameters or in the axiom audit. The present scientific claim is that this implication is Lean checked, not that ¬ is_rational(γ) has been proved unconditionally.
 
 ### 3.2 No Hidden Weakening of the Statement
 
@@ -125,13 +139,13 @@ Although the theorem is conditional, the target conclusion is not weakened. The 
 ¬ is_rational euler_mascheroni
 ```
 
-The conditionality is entirely on the input side. In particular, the formalization does not prove a vacuous implication unrelated to $\gamma$. Each input has a concrete role in the collision chain. If a certificate proves only a weaker family equality or uses a different proof-length convention, it cannot instantiate the current interface and the collision box cannot be called.
+The conditionality is entirely on the input side. In particular, the formalization does not prove a vacuous implication unrelated to γ. Each input has a concrete role in the collision chain. If a certificate proves only a weaker family equality or uses a different proof-length convention, it cannot instantiate the current interface and the collision box cannot be called.
 
 ## 4. Proof Outline
 
 The proof has four steps.
 
-The first step is the Sondow upper bound. Assume $\gamma\in\mathbb Q$. Under the Sondow criterion and the verification bridge, rationality yields a short-proof collapse. Informally, a decision problem involving integrals, logarithmic products, and eventual fractional-part identities is replaced by the verification of a finite certificate. In the formal model the shortness is not obtained by hiding huge integers or products in one line; it is accounted for through fixed theorem references and binary indices.
+The first step is the Sondow upper bound. Assume γ ∈ ℚ. Under the Sondow criterion and the verification bridge, rationality yields a short-proof collapse. Informally, a decision problem involving integrals, logarithmic products, and eventual fractional-part identities is replaced by the verification of a finite certificate. In the formal model the shortness is not obtained by hiding huge integers or products in one line; it is accounted for through fixed theorem references and binary indices.
 
 The second step is lower-bound standardization. Pudlak-Friedman-Buss lower bounds are usually stated for finite consistency families. To use them in the present framework, the formula family appearing in the literature must be identified with, or projected to, the local formula-code family. The formalization separates this into raw encoding certificates, rescaling data, and lower-bound certificates.
 
@@ -142,9 +156,11 @@ proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
 coordinate. This requires two kinds of calibration. One reduces the strengthened-to-partial side to exact family equalities. The other aligns the local Hilbert checked-code model with the abstract PA proof length on the relevant formula families.
 
 The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they are incompatible. Hence the rationality hypothesis is impossible under the stated inputs, and
-$$
+
+```math
 \neg \operatorname{is\_rational}(\gamma)
-$$
+```
+
 follows.
 
 From an engineering viewpoint, these four steps form a compiler-correctness problem. The Sondow side, the Pudlak side, and the local Hilbert/PA checker are not written in the same language. One must prove that translation between them preserves the proof-length statement that is supposed to collide. The Lean modules split these translations into small certificates and compose them.
@@ -234,7 +250,7 @@ These tasks do not undermine the present theorem. They define exactly what must 
 
 ### 7.1 Appropriate Public Status of the Current Version
 
-The present manuscript is best read as the paper accompanying a public-alpha research artifact, not as a final unconditional solution of the irrationality of $\gamma$. The appropriate public claims are:
+The present manuscript is best read as the paper accompanying a public-alpha research artifact, not as a final unconditional solution of the irrationality of γ. The appropriate public claims are:
 
 1. a Lean-checked conditional collision theorem;
 2. a precise certificate architecture;
@@ -245,7 +261,7 @@ The inappropriate claims are: an unconditional proof of the irrationality of Eul
 
 ## 8. Conclusion
 
-This paper presents a conditional proof-complexity collision framework for Euler's constant. Its core contribution is not an unconditional proof of $\gamma\notin\mathbb Q$, but the following precise conditional claim: if the Sondow rationality collapse, the finite-consistency lower bound, the encoding projections, and the proof-length calibrations are supplied in the specified interfaces, then they are incompatible on the same PA symbol-size proof-length coordinate, and the Lean-checked composition derives $\neg\operatorname{is\_rational}(\gamma)$.
+This paper presents a conditional proof-complexity collision framework for Euler's constant. Its core contribution is not an unconditional proof of γ ∉ ℚ, but the following precise conditional claim: if the Sondow rationality collapse, the finite-consistency lower bound, the encoding projections, and the proof-length calibrations are supplied in the specified interfaces, then they are incompatible on the same PA symbol-size proof-length coordinate, and the Lean-checked composition derives ¬ is_rational(γ).
 
 The value of the result is that it turns a broad Gödel-speedup intuition into an auditable formula-family collision problem. It also gives a clear roadmap for future work: internalize or precisely cite each external input until the conditional framework contracts into a stronger theorem.
 
