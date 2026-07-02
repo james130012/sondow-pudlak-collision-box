@@ -72,7 +72,8 @@ and therefore imply
 L(n)\le U(n).
 ```
 
-If, at the same time, for all sufficiently large n,
+This also requires an independent gap condition, or growth-domination certificate. It does not follow automatically from the fact that the Pudlak side supplies a long-proof lower bound; the lower bound alone only says that
+`\mathrm{Len}_{PA}(C_n)` is at least `L(n)`. For a collision, one must also prove, or explicitly assume as an input, that the Sondow-side upper-bound function `U(n)` is eventually strictly smaller than the Pudlak-side lower-bound function `L(n)`. That is, if at the same time, for all sufficiently large n,
 
 ```math
 U(n)\lt L(n),

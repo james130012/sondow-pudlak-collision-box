@@ -73,7 +73,8 @@ L(n)\le \mathrm{Len}_{PA}(C_n)\le U(n),
 L(n)\le U(n).
 ```
 
-如果同时对充分大的 n 有
+这里还需要一个独立的 gap condition（间隙条件）或 growth domination certificate（增长支配证书）。它不是由“Pudlak 侧给出长证明下界”自动推出的；下界本身只说明
+`\mathrm{Len}_{PA}(C_n)` 至少为 `L(n)`。要发生对撞，还必须另外证明或作为明确输入给出：Sondow 侧的上界函数 `U(n)` 最终严格小于 Pudlak 侧的下界函数 `L(n)`。也就是说，如果同时对充分大的 n 有
 
 ```math
 U(n)\lt L(n),
