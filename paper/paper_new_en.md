@@ -75,7 +75,7 @@ L(n)\le U(n).
 If, at the same time, for all sufficiently large n,
 
 ```math
-U(n)<L(n),
+U(n)\lt L(n),
 ```
 
 then a contradiction follows. Thus the real content of the project is not merely to exhibit one upper bound and one lower bound, but to prove that their middle term is literally the same proof-length coordinate:
