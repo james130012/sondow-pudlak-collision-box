@@ -60,7 +60,19 @@ where Len_PA denotes PA symbol-size proof length and U(n) is the bound produced 
 L(n)\le \mathrm{Len}_{PA}(C_n).
 ```
 
-If the calibrations identify the middle term as the same object, and if for all sufficiently large n,
+If the calibrations identify the middle term as the same object, then the first two inequalities combine into
+
+```math
+L(n)\le \mathrm{Len}_{PA}(C_n)\le U(n),
+```
+
+and therefore imply
+
+```math
+L(n)\le U(n).
+```
+
+If, at the same time, for all sufficiently large n,
 
 ```math
 U(n)<L(n),
@@ -155,7 +167,7 @@ proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
 ```
 coordinate. This requires two kinds of calibration. One reduces the strengthened-to-partial side to exact family equalities. The other aligns the local Hilbert checked-code model with the abstract PA proof length on the relevant formula families.
 
-The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they are incompatible. Hence the rationality hypothesis is impossible under the stated inputs, and
+The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. Hence the rationality hypothesis is impossible under the stated inputs, and
 
 ```math
 \neg \mathrm{is\_rational}(\gamma)
