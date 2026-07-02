@@ -152,6 +152,94 @@ theorem traceCompletion_to_projectLocalPudlakCollision
   irrational_of_project_local_collapse_conclusion_and_pudlak_transfer
     hcompletion.toCollapseConclusion hpudlak htransfer
 
+/-- Tail-collision endpoint for the current upper-bound route.  Compared with
+`irrational_of_project_local_collapse_conclusion_and_pudlak_transfer`, this
+does not require an all-index PA short-proof upper package: the upper side is
+assembled from the local S²₁ kernel, the eventual Sondow component compiler,
+and the root proof-length convention. -/
+theorem irrational_of_project_tailCompiler_rootConvention_kernel_pudlak_transfer
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (hpudlak : _root_.PudlakFiniteConsistencyLowerBoundPackage)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  irrational_of_sondowReflectionGraft_mainEventualCompiler_rootConvention_kernel_tailLowerBound
+    hcollapse kernel compiler hroot
+    (hpudlak.eventualReflectionGraftLowerBound_of_transfer htransfer)
+
+theorem irrational_of_project_tailCompiler_rootConvention_kernel_pudlak_projection
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (hpudlak : _root_.PudlakFiniteConsistencyLowerBoundPackage)
+    (hprojection : _root_.PartialConsistencyToReflectionGraftProjection) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  irrational_of_project_tailCompiler_rootConvention_kernel_pudlak_transfer
+    hcollapse kernel compiler hroot hpudlak
+    (_root_.partial_consistency_to_reflection_graft_transfer hprojection)
+
+theorem irrational_of_project_tailCompiler_checkedCodeConventionWitness_kernel_pudlak_transfer
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hwitness : SondowReflectionGraftRootCheckedCodeConventionWitness)
+    (hpudlak : _root_.PudlakFiniteConsistencyLowerBoundPackage)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  irrational_of_project_tailCompiler_rootConvention_kernel_pudlak_transfer
+    hcollapse kernel compiler hwitness.toRootProofLengthConvention
+    hpudlak htransfer
+
+theorem irrational_of_project_tailCompiler_checkedCodeConventionWitness_kernel_pudlak_projection
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hwitness : SondowReflectionGraftRootCheckedCodeConventionWitness)
+    (hpudlak : _root_.PudlakFiniteConsistencyLowerBoundPackage)
+    (hprojection : _root_.PartialConsistencyToReflectionGraftProjection) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  irrational_of_project_tailCompiler_checkedCodeConventionWitness_kernel_pudlak_transfer
+    hcollapse kernel compiler hwitness hpudlak
+    (_root_.partial_consistency_to_reflection_graft_transfer hprojection)
+
+theorem irrational_of_project_tailCompiler_splitRootCalibrations_kernel_pudlak_transfer
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hs21root : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hparoot : SondowReflectionGraftRootPAProofLengthCalibration)
+    (hpudlak : _root_.PudlakFiniteConsistencyLowerBoundPackage)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  irrational_of_project_tailCompiler_rootConvention_kernel_pudlak_transfer
+    hcollapse kernel compiler
+    (SondowReflectionGraftRootProofLengthConvention.ofSplitCalibrations
+      hs21root hparoot)
+    hpudlak htransfer
+
 end SondowMainCheckedCodeBridge
 
 end

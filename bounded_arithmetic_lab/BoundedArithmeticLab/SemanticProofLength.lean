@@ -35,4 +35,24 @@ theorem semanticBAProofLength_le_size
     exact Nat.cast_nonneg q.size
   · exact ⟨p, hp, rfl⟩
 
+theorem semanticBAProofLength_pa_le_bussS21
+    (target : ℕ → BAFormula) {n : ℕ}
+    (hnonempty :
+      ∃ p : BAProofObject BussS21Axiom, p.conclusion = target n) :
+    semanticBAProofLength PAAxiom target n ≤
+      semanticBAProofLength BussS21Axiom target n := by
+  dsimp [semanticBAProofLength]
+  refine le_csInf ?_ ?_
+  · rcases hnonempty with ⟨p, hp⟩
+    exact ⟨(p.size : ℝ), ⟨p, hp, rfl⟩⟩
+  · intro r hr
+    rcases hr with ⟨p, hp, rfl⟩
+    have hle :
+        semanticBAProofLength PAAxiom target n ≤
+          ((p.mapAxioms bussS21Axiom_subset_pa).size : ℝ) :=
+      semanticBAProofLength_le_size PAAxiom target
+        (p.mapAxioms bussS21Axiom_subset_pa) hp
+    change semanticBAProofLength PAAxiom target n ≤ (p.size : ℝ)
+    simpa [BAProofObject.size_mapAxioms] using hle
+
 end BoundedArithmeticLab
