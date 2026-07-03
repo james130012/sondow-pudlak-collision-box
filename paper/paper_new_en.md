@@ -91,6 +91,17 @@ then a contradiction follows. Thus the real content of the project is not merely
 
 This explains why proof-length calibration is central. Without calibration, the upper and lower bounds may both be true but incomparable. With calibration, they become statements about the same object and can collide.
 
+In the Lean formalization, this reasoning is split into three audit-facing
+entry points. `EventualStrictGap` records the additional eventual strict gap
+`U(n) < L(n)`. `EventualLowerBound.toProofLengthGap` turns the Pudlak-side
+lower-bound certificate into a proof-length lower bound for the same `C_n`.
+Finally, `collisionCore_from_lower_upper_gap` combines the upper bound, the
+lower bound, and the strict gap on the same object to derive the contradiction.
+The integration layer exposes this route through `finalPudlakGapCertificate`
+and `not_rational_from_audited_upper_gap_box_collisionCore`, so an auditor can
+check directly that the lower bound, upper bound, gap, and common measurement
+all live on the same PA symbol-size proof-length coordinate.
+
 ### 2.2 How B Enters C
 
 The Pudlak lower bound is naturally about finite-consistency or reflection formulas B_n, not about the native Sondow analytic formulas. The bridge used here is payload grafting and local projection. Informally, C_n is not an arbitrary conjunction of A_n and B_n. It is a checkable proxy formula carrying the information needed for the Sondow short verification while its reflection payload projects back to the finite-consistency family covered by the Pudlak lower bound.
@@ -168,7 +179,7 @@ proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
 ```
 coordinate. This requires two kinds of calibration. One reduces the strengthened-to-partial side to exact family equalities. The other aligns the local Hilbert checked-code model with the abstract PA proof length on the relevant formula families.
 
-The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. Hence the rationality hypothesis is impossible under the stated inputs, and
+The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. This gap condition is not automatic from the Pudlak lower bound; it enters the collision box as an independent growth-domination certificate. Hence the rationality hypothesis is impossible under the stated inputs, and
 
 ```math
 \neg \mathrm{is\_rational}(\gamma)

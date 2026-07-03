@@ -5,6 +5,7 @@ Authors: James
 -/
 import EulerLimit.PartialConsistency
 import EulerLimit.MiniHilbert
+import EulerLimit.ProofComplexityCore
 /-!
 # Gödel-Sondow Coupling Hypothesis Formalization
 This module formalizes the Euler-Mascheroni constant limit definition,
@@ -301,13 +302,36 @@ theorem eventual_certificate_collision
   have h_le_n := h_short n (h_accept n hn_ge)
   linarith
 
+/-- Audit-facing form of `eventual_certificate_collision`.  It factors the
+final contradiction through the explicit gap certificate
+`f n < proof_length T measure (φ n)`, making clear that the gap is a separate
+object obtained from the Pudlak lower bound for the selected upper function. -/
+theorem eventual_certificate_collision_via_gap_certificate
+    {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
+    (accepted_eventually_under_rationality :
+      is_rational euler_mascheroni →
+        ∃ N : ℕ, ∀ n : ℕ, N ≤ n → accepted_certificate (φ n))
+    (short_proofs_of_accepted_certificates :
+      ∃ f : ℕ → ℝ, is_polynomial_bound f ∧
+        ∀ n : ℕ, accepted_certificate (φ n) →
+          proof_length T measure (φ n) ≤ f n)
+    (lower_bound : EventualLowerBound T measure φ) :
+    ¬ (is_rational euler_mascheroni) := by
+  intro h_rat
+  rcases accepted_eventually_under_rationality h_rat with ⟨N, h_accept⟩
+  rcases short_proofs_of_accepted_certificates with ⟨f, h_poly, h_short⟩
+  exact
+    collisionCore_from_lower_upper_gap
+      (lower_bound.toProofLengthGap f h_poly) N
+      (fun n hn_ge => h_short n (h_accept n hn_ge))
+
 theorem eventual_certificate_collision_of_inputs
     {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
     (hcollapse : EventualCertificateCollapseInputs φ)
     (hverify : EventualShortVerificationBridge T measure φ)
     (hlower : EventualLowerBound T measure φ) :
     ¬ (is_rational euler_mascheroni) :=
-  eventual_certificate_collision
+  eventual_certificate_collision_via_gap_certificate
     hcollapse.accepted_eventually_under_rationality
     hverify.short_proofs_of_accepted_certificates
     hlower

@@ -3103,6 +3103,18 @@ theorem FormulaCodeHilbertInterpretation.familyExactness_iff_minCheckedExactness
     fun h =>
       PAHilbertProjectionFamilyExactness.ofMinCheckedExactness h.1 h.2⟩
 
+/-- Short audit name: exact family equality is equivalent to the split
+min-checked exactness certificates. -/
+theorem FormulaCodeHilbertInterpretation.exactFamily_iff_splitMinChecked
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    PAHilbertProjectionFamilyExactness interp ↔
+      PAHilbertPartialConsistencyMinCheckedExactness interp ∧
+        PAHilbertReflectionGraftMinCheckedExactness interp :=
+  interp.familyExactness_iff_minCheckedExactness
+
 theorem PAHilbertProjectionFamilyExactness.of_projectCheckedCodeProofLengthSemantics
     {Ax : L.BoundedFormula α n → Prop}
     {A B : ℕ → L.BoundedFormula α n}
@@ -3163,6 +3175,19 @@ theorem FormulaCodeHilbertInterpretation.projectCheckedCodeSemantics_iff_familyE
       interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode ↔
       PAHilbertProjectionFamilyExactness interp :=
   (interp.familyExactness_iff_projectCheckedCodeSemantics).symm
+
+/-- Short audit name: local checked-code proof-length convention is equivalent
+to exact family equality on the Pudlak projection fragment. -/
+theorem FormulaCodeHilbertInterpretation.checkedConvention_iff_exactFamily
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    ProjectProofLengthSemantics
+      ProofSystem.PA ProofLengthMeasure.symbolSize
+      interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode ↔
+      PAHilbertProjectionFamilyExactness interp :=
+  interp.projectCheckedCodeSemantics_iff_familyExactness
 
 theorem PAHilbertPartialConsistencyMinCheckedExactness.of_projectCheckedCodeProofLengthSemantics
     {Ax : L.BoundedFormula α n → Prop}

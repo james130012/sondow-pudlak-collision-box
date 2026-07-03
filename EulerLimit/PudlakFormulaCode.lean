@@ -188,6 +188,20 @@ theorem PudlakFiniteConsistencyLowerBoundPackage.eventualReflectionGraftLowerBou
   reflection_graft_eventual_lower_bound_of_partial_consistency_transfer
     h.toStrongPartialConsistencyLowerBound htransfer
 
+/-- Short audit name: the transferred Pudlak lower bound yields an explicit
+eventual strict gap against any fixed polynomial Sondow upper function on the
+reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.reflectionGraftGap_of_transfer
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (htransfer : PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  (h.eventualReflectionGraftLowerBound_of_transfer htransfer).toProofLengthGap
+    U hU
+
 theorem PudlakFiniteConsistencyLowerBoundPackage.strongReflectionGraftLowerBound_of_projection
     (h : PudlakFiniteConsistencyLowerBoundPackage)
     (hprojection : PartialConsistencyToReflectionGraftProjection) :
@@ -203,6 +217,70 @@ theorem PudlakFiniteConsistencyLowerBoundPackage.eventualReflectionGraftLowerBou
       sondowReflectionGraftCode :=
   reflection_graft_eventual_lower_bound_of_partial_consistency
     h.toStrongPartialConsistencyLowerBound hprojection
+
+/-- Short audit name: the projection route also exposes the final gap
+certificate on the reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.reflectionGraftGap_of_projection
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (hprojection : PartialConsistencyToReflectionGraftProjection)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  (h.eventualReflectionGraftLowerBound_of_projection hprojection).toProofLengthGap
+    U hU
+
+/-- Short audit name: a projection principle also exposes the final gap
+certificate on the reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.reflectionGraftGap_of_projection_principle
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (hprinciple : PAProofLengthProjectionPrinciple)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  h.reflectionGraftGap_of_projection
+    (partial_consistency_to_reflection_graft_projection_of_principle
+      hprinciple)
+    U hU
+
+/-- Audit alias: the transfer certificate preserves the Pudlak gap after moving
+from partial consistency to the reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.transfer_preservesReflectionGraftGap
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (htransfer : PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  h.reflectionGraftGap_of_transfer htransfer U hU
+
+/-- Audit alias: a concrete projection certificate preserves the Pudlak gap on
+the reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.projection_preservesReflectionGraftGap
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (hprojection : PartialConsistencyToReflectionGraftProjection)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  h.reflectionGraftGap_of_projection hprojection U hU
+
+/-- Audit alias: the projection principle also preserves the final Pudlak gap
+on the reflection-graft family. -/
+theorem PudlakFiniteConsistencyLowerBoundPackage.projectionPrinciple_preservesReflectionGraftGap
+    (h : PudlakFiniteConsistencyLowerBoundPackage)
+    (hprinciple : PAProofLengthProjectionPrinciple)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U
+      (fun n : ℕ =>
+        proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
+          (sondowReflectionGraftCode n)) :=
+  h.reflectionGraftGap_of_projection_principle hprinciple U hU
 
 theorem pudlak_eventualReflectionGraftLowerBound_of_projection_principle
     (h : PudlakFiniteConsistencyLowerBoundPackage)

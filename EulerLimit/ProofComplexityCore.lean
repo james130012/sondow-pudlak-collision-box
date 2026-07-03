@@ -346,6 +346,42 @@ theorem EventualLowerBound.of_frequently
     intro f hf N
     exact (Filter.frequently_atTop.mp (hfreq f hf)) N
 
+/-- A standalone eventual strict gap certificate between an upper function `U`
+and a lower/measured function `L`.  This is intentionally independent from the
+Pudlak lower-bound package: auditors can check that the final contradiction
+uses a separately exposed `U n < L n` witness, not an implicit reading of
+`EventualLowerBound`. -/
+structure EventualStrictGap (U L : ℕ → ℝ) : Prop where
+  gap_after : ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧ U n < L n
+
+/-- Read an `EventualLowerBound` as a gap certificate against one fixed
+polynomial upper function.  In collision proofs this is the exact point where
+the Pudlak-side irreducibility is converted into the explicit gap
+`U n < proof_length ...`. -/
+def EventualLowerBound.toProofLengthGap
+    {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
+    (hlower : EventualLowerBound T measure φ)
+    (U : ℕ → ℝ) (hU : is_polynomial_bound U) :
+    EventualStrictGap U (fun n => proof_length T measure (φ n)) where
+  gap_after := by
+    intro N
+    rcases hlower.lower_bound U hU N with ⟨n, hn_ge, hgap⟩
+    exact ⟨n, hn_ge, hgap⟩
+
+/-- Pure arithmetic collision core: a proof-length upper bound and an explicit
+strict gap cannot hold on the same tail. -/
+theorem collisionCore_from_lower_upper_gap
+    {T : ProofSystem} {measure : ProofLengthMeasure} {φ : ℕ → FormulaCode}
+    {U : ℕ → ℝ}
+    (hgap :
+      EventualStrictGap U (fun n => proof_length T measure (φ n)))
+    (N : ℕ)
+    (hupper :
+      ∀ n : ℕ, N ≤ n → proof_length T measure (φ n) ≤ U n) :
+    False := by
+  rcases hgap.gap_after N with ⟨n, hn_ge, hlt⟩
+  exact (not_lt_of_ge (hupper n hn_ge)) hlt
+
 structure StrongProofLengthLowerBound
     (T : ProofSystem) (measure : ProofLengthMeasure) (φ : ℕ → FormulaCode) :
     Prop where

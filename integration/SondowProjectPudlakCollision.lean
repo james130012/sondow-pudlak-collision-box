@@ -32,6 +32,15 @@ abbrev sondowProjectLocalPudlakCollisionBox (n : ℕ) : ℝ :=
     _root_.ProofLengthMeasure.symbolSize
     (_root_.sondowReflectionGraftCode n)
 
+/-- Audit name for the shared measurement box: both the Sondow upper route and
+the Pudlak gap route measure the same PA symbol-size proof length. -/
+theorem sondowProjectLocalPudlakCollisionBox_eq_proofLength (n : ℕ) :
+    sondowProjectLocalPudlakCollisionBox n =
+      _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (_root_.sondowReflectionGraftCode n) :=
+  rfl
+
 /-- Audited inputs for the final project-local collision.  The upper route is
 already the direct `SondowProjectLocalS21CollapseConclusion`; the lower route is
 still the external Pudlak finite-consistency theorem plus an explicit transfer
@@ -52,17 +61,75 @@ def graftLowerBound
   h.pudlak_lower_bound.eventualReflectionGraftLowerBound_of_transfer
     h.transfer_to_graft
 
-/-- Final collision: the project-local upper bound and the transferred Pudlak
-lower bound cannot both hold under rationality of `gamma`. -/
-theorem not_rational
+/-- Audit-facing gap certificate for the shared graft family.  Given the
+Sondow-side polynomial upper function, the transferred Pudlak lower bound
+returns an explicit eventual strict gap against the same PA symbol-size proof
+length. -/
+def graftGapCertificate
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n)) :=
+  h.pudlak_lower_bound.reflectionGraftGap_of_transfer
+    h.transfer_to_graft U hU
+
+/-- Audit-facing upper certificate source.  Under rationality, the project-local
+Sondow/S²₁ route produces the polynomial upper function that is fed into the
+Pudlak gap certificate. -/
+theorem upperBoundUnderRationality
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ U : ℕ → ℝ, _root_.is_polynomial_bound U ∧
+      ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n) ≤ U n := by
+  rcases h.project_upper hrat with ⟨U, hU_poly, N, hupper⟩
+  exact
+    ⟨U, hU_poly, N, fun n hn_ge => by
+      rcases hupper n hn_ge with ⟨_haccepted, hle⟩
+      exact hle⟩
+
+/-- Audit-facing final Pudlak gap certificate for the project-local collision
+box. -/
+theorem finalPudlakGapCertificate
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ => sondowProjectLocalPudlakCollisionBox n) :=
+  h.graftGapCertificate U hU
+
+/-- Final collision, factored through the explicit gap certificate.  This is
+definitionally the same route as `not_rational`, but it exposes the exact
+`U n < proof_length ...` witness used to contradict the Sondow upper bound. -/
+theorem not_rational_via_gap_certificate
     (h : SondowProjectLocalPudlakCollisionInputs) :
     ¬ _root_.is_rational _root_.euler_mascheroni := by
   intro hrat
   rcases h.project_upper hrat with ⟨f, hf_poly, N, hupper⟩
-  rcases h.graftLowerBound.lower_bound f hf_poly N with
-    ⟨n, hn_ge, hlower⟩
-  rcases hupper n hn_ge with ⟨_haccepted, hle⟩
-  linarith
+  exact
+    _root_.collisionCore_from_lower_upper_gap
+      (h.graftGapCertificate f hf_poly) N
+      (fun n hn_ge => by
+        rcases hupper n hn_ge with ⟨_haccepted, hle⟩
+        exact hle)
+
+/-- Final collision: the project-local upper bound and the transferred Pudlak
+lower bound cannot both hold under rationality of `gamma`. -/
+theorem not_rational
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.not_rational_via_gap_certificate
+
+/-- Four-certificate audit entry: Sondow upper, Pudlak gap, shared proof-length
+box calibration, and the collision core close the contradiction. -/
+theorem not_rational_from_audited_upper_gap_box_collisionCore
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.not_rational_via_gap_certificate
 
 /-- Build collision inputs from a projection instead of a lower-bound transfer.
 This is the common conjunction-elimination route: a short proof of the graft

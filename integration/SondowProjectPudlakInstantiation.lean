@@ -120,6 +120,40 @@ def lowerBoundPackage
     _root_.PudlakFiniteConsistencyLowerBoundPackage :=
   h.toCertificate.toPudlakFiniteConsistencyLowerBoundPackage hpartial
 
+/-- Short audit route: Theorem 5 lower-bound inputs, after the
+strengthened-to-partial transfer and the partial-to-graft transfer, yield the
+final reflection-graft gap certificate. -/
+theorem reflectionGraftGap_of_transfer
+    (h : SondowProjectLocalPudlakTheorem5AuditedLowerBoundInputs)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (htransfer :
+      _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n)) :=
+  (h.lowerBoundPackage hpartial).reflectionGraftGap_of_transfer
+    htransfer U hU
+
+/-- Short audit route through a concrete projection certificate. -/
+theorem reflectionGraftGap_of_projection
+    (h : SondowProjectLocalPudlakTheorem5AuditedLowerBoundInputs)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (hprojection :
+      _root_.PartialConsistencyToReflectionGraftProjection)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n)) :=
+  (h.lowerBoundPackage hpartial).reflectionGraftGap_of_projection
+    hprojection U hU
+
 theorem normalForm_code_eq_powerBoundRawCode
     (h : SondowProjectLocalPudlakTheorem5AuditedLowerBoundInputs)
     (hpartial :
@@ -186,6 +220,23 @@ theorem normalForm_code_eq_powerBoundRawCode
       h.scale_data.powerBoundRawCode := by
   exact h.toCertificate.normalForm_code_eq_powerBoundRawCode hpartial
 
+/-- Short audit route from the rescaled Theorem 5 input to the final
+reflection-graft gap certificate. -/
+theorem reflectionGraftGap_of_transfer
+    (h : SondowProjectLocalPudlakTheorem5RescaledLowerBoundInputs)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (htransfer :
+      _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n)) :=
+  (SondowProjectLocalPudlakTheorem5AuditedLowerBoundInputs.ofCertificate
+    h.toCertificate).reflectionGraftGap_of_transfer hpartial htransfer U hU
+
 end SondowProjectLocalPudlakTheorem5RescaledLowerBoundInputs
 
 /-- A single audited package for the remaining Pudlak-side inputs. -/
@@ -205,6 +256,19 @@ def lowerBoundPackage
   h.literature_lower_bound.toPudlakFiniteConsistencyLowerBoundPackage
     h.strengthened_to_partial
 
+/-- Final Pudlak gap certificate assembled from the Theorem 5 literature
+certificate and the two project-local transfers. -/
+theorem finalPudlakGapCertificate
+    (h : SondowProjectLocalPudlakSideInputs)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n)) :=
+  h.lowerBoundPackage.reflectionGraftGap_of_transfer
+    h.partial_to_graft U hU
+
 def toCollisionInputs
     (h : SondowProjectLocalPudlakSideInputs)
     (hupper : SondowProjectLocalS21CollapseConclusion) :
@@ -214,6 +278,15 @@ def toCollisionInputs
   transfer_to_graft := h.partial_to_graft
 
 theorem collide
+    (h : SondowProjectLocalPudlakSideInputs)
+    (hupper : SondowProjectLocalS21CollapseConclusion) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  (h.toCollisionInputs hupper).not_rational
+
+/-- Four-certificate audit route for the Theorem 5 side package: Theorem 5
+lower bound, transfer to the graft family, Sondow upper bound, and the shared
+collision box close through the explicit gap route. -/
+theorem collide_from_theorem5_gap_certificate
     (h : SondowProjectLocalPudlakSideInputs)
     (hupper : SondowProjectLocalS21CollapseConclusion) :
     ¬ _root_.is_rational _root_.euler_mascheroni :=
