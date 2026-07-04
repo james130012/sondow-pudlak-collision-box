@@ -340,6 +340,11 @@ def month2SondowAcceptedForwardReproofBoundary :
   reflection_graft_collapse_inputs_of_bridge_package :=
     _root_.SondowCollapseVerificationBridgePackage.toReflectionGraftCollapseInputsOfReproof
 
+theorem month2SondowAcceptedForwardReproofBoundary_forward_inputs_eq :
+    month2SondowAcceptedForwardReproofBoundary.forward_inputs =
+      _root_.SondowForwardInputs.of_reproof :=
+  rfl
+
 namespace Month2SondowAcceptedForwardReproofBoundary
 
 theorem reflection_graft_accepted_eventually_of_payload_spec
@@ -488,6 +493,93 @@ noncomputable def construction_layer_of_source_component_compilers_rationality_a
       compilers h_rat)
     hroot
 
+structure Month2SondowAcceptedPublicConstructionPackage
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  accepted_and_components :
+    Month2SondowAcceptedAndComponentFields bounds
+  construction_layer :
+    Month2SondowAcceptedCertificateConstructionLayer bounds
+
+namespace Month2SondowAcceptedPublicConstructionPackage
+
+theorem accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.accepted_threshold ≤ n) :
+    Month2SondowAccepted n :=
+  pkg.accepted_and_components.accepted_after n hn
+
+theorem product_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.product n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
+  pkg.accepted_and_components.product_exists_after_component_threshold hn
+
+theorem semantic_eventual_from_component_fields
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  pkg.accepted_and_components.semantic_eventual_nonempty
+
+theorem construction_semantic_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  pkg.construction_layer.semantic_eventual
+
+theorem checked_code_witness
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty SondowReflectionGraftRootCheckedCodeConventionWitness :=
+  pkg.construction_layer.checked_code_witness
+
+end Month2SondowAcceptedPublicConstructionPackage
+
+noncomputable def public_construction_package_of_accepted_component_fields_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedPublicConstructionPackage bounds where
+  accepted_and_components := pkg
+  construction_layer :=
+    construction_layer_of_component_fields_and_root_convention
+      pkg.component_fields hroot
+
+noncomputable def public_construction_package_of_reproof_payload_spec_source_compilers_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  public_construction_package_of_accepted_component_fields_and_root_convention
+    (accepted_and_component_fields_of_reproof_payload_spec_source_compilers_and_rationality
+      hspec hver compilers h_rat)
+    hroot
+
+noncomputable def public_construction_package_of_reproof_bridge_package_source_compilers_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  public_construction_package_of_accepted_component_fields_and_root_convention
+    (accepted_and_component_fields_of_reproof_bridge_package_source_compilers_and_rationality
+      hbridge compilers h_rat)
+    hroot
+
 theorem semantic_eventual_of_rationality_project_proof_objects
     {ctx : BoundedArithmeticLab.GammaRationalityContext}
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
@@ -590,6 +682,7 @@ Intentional Month 2 public surface probes.
 #check accepted_and_component_fields_of_collapse_source_compilers_and_rationality
 #check Month2SondowAcceptedForwardReproofBoundary
 #check month2SondowAcceptedForwardReproofBoundary
+#check month2SondowAcceptedForwardReproofBoundary_forward_inputs_eq
 #check Month2SondowAcceptedForwardReproofBoundary.reflection_graft_accepted_eventually_of_payload_spec
 #check Month2SondowAcceptedForwardReproofBoundary.reflection_graft_accepted_eventually_of_bridge_package
 #check accepted_and_component_fields_of_reproof_payload_spec_source_compilers_and_rationality
@@ -603,6 +696,15 @@ Intentional Month 2 public surface probes.
 #check construction_layer_of_main_eventual_compiler_rationality_and_root_convention
 #check construction_layer_of_main_full_compiler_rationality_and_root_convention
 #check construction_layer_of_source_component_compilers_rationality_and_root_convention
+#check Month2SondowAcceptedPublicConstructionPackage
+#check Month2SondowAcceptedPublicConstructionPackage.accepted_after
+#check Month2SondowAcceptedPublicConstructionPackage.product_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.semantic_eventual_from_component_fields
+#check Month2SondowAcceptedPublicConstructionPackage.construction_semantic_eventual
+#check Month2SondowAcceptedPublicConstructionPackage.checked_code_witness
+#check public_construction_package_of_accepted_component_fields_and_root_convention
+#check public_construction_package_of_reproof_payload_spec_source_compilers_rationality_and_root_convention
+#check public_construction_package_of_reproof_bridge_package_source_compilers_rationality_and_root_convention
 #check semantic_eventual_of_rationality_project_proof_objects
 #check semantic_eventual_upper_bound_of_main_eventual_compiler
 #check Month2SondowAcceptedCLineClosureLayer
