@@ -1088,6 +1088,142 @@ theorem accepted_eventually_of_rationality
     |>.reflection_graft_accepted_eventually_of_payload_spec
       boundary.payload_spec boundary.concrete_verification h_rat
 
+theorem source_certificates_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    boundary.source_interface.sourceCertificateSystems.productSystem.valid n
+        hsource.productLogCertificate ∧
+      boundary.source_interface.sourceCertificateSystems.logSystem.valid n
+        hsource.productLogCertificate ∧
+      boundary.source_interface.sourceCertificateSystems.decompositionSystem.valid n
+        hsource.decompositionCertificate ∧
+      boundary.source_interface.sourceCertificateSystems.threePowSystem.valid n
+        hsource.threePowCertificate ∧
+      boundary.source_interface.sourceCertificateSystems.payloadSystem.valid n
+        hsource.payloadCertificate :=
+  boundary.source_interface.source_certificates_valid hsource
+
+def componentCertificateOfSource
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    BoundedArithmeticLab.SondowComponentCertificate :=
+  boundary.source_interface.componentCertificateOfSource hsource
+
+theorem componentCertificateOfSource_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    BoundedArithmeticLab.SondowComponentCertificate.ProofObjectSystemValid
+      BoundedArithmeticLab.sondowProjectComponentFormulas bounds n
+      (boundary.componentCertificateOfSource hsource) :=
+  boundary.source_interface.componentCertificateOfSource_valid hsource
+
+def componentCertificateOfFullCertificate
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    {q : ℚ} {n : ℕ}
+    (hchecked : mainSondowFullCertificateChecks q n) :
+    BoundedArithmeticLab.SondowComponentCertificate :=
+  boundary.source_interface.componentCertificateOfFullCertificate hchecked
+
+theorem componentCertificateOfFullCertificate_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    {q : ℚ} {n : ℕ}
+    (hchecked : mainSondowFullCertificateChecks q n) :
+    BoundedArithmeticLab.SondowComponentCertificate.ProofObjectSystemValid
+      BoundedArithmeticLab.sondowProjectComponentFormulas bounds n
+      (boundary.componentCertificateOfFullCertificate hchecked) :=
+  boundary.source_interface.componentCertificateOfFullCertificate_valid hchecked
+
+noncomputable def component_fields_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowComponentCertificateFields bounds :=
+  boundary.source_interface.component_fields_of_rationality h_rat
+
+noncomputable def component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) : ℕ :=
+  (boundary.component_fields_of_rationality h_rat).threshold
+
+theorem product_exists_after_component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.component_threshold_of_rationality h_rat ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.product n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
+  (boundary.component_fields_of_rationality h_rat).product_exists_after hn
+
+theorem log_exists_after_component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.component_threshold_of_rationality h_rat ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.logRelation n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.logRelation n :=
+  (boundary.component_fields_of_rationality h_rat).log_exists_after hn
+
+theorem decomposition_exists_after_component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.component_threshold_of_rationality h_rat ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.decomposition n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.decomposition n :=
+  (boundary.component_fields_of_rationality h_rat).decomposition_exists_after hn
+
+theorem threePow_exists_after_component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.component_threshold_of_rationality h_rat ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.threePow n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.threePow n :=
+  (boundary.component_fields_of_rationality h_rat).threePow_exists_after hn
+
+theorem payload_exists_after_component_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.component_threshold_of_rationality h_rat ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.payload n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.payload n :=
+  (boundary.component_fields_of_rationality h_rat).payload_exists_after hn
+
 noncomputable def public_construction_package_of_rationality
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
@@ -1240,6 +1376,18 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAcceptedAuditorBoundary.forward_reproof_boundary
 #check Month2SondowAcceptedAuditorBoundary.forward_inputs_closed_by_reproof
 #check Month2SondowAcceptedAuditorBoundary.accepted_eventually_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.source_certificates_valid
+#check Month2SondowAcceptedAuditorBoundary.componentCertificateOfSource
+#check Month2SondowAcceptedAuditorBoundary.componentCertificateOfSource_valid
+#check Month2SondowAcceptedAuditorBoundary.componentCertificateOfFullCertificate
+#check Month2SondowAcceptedAuditorBoundary.componentCertificateOfFullCertificate_valid
+#check Month2SondowAcceptedAuditorBoundary.component_fields_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.component_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.product_exists_after_component_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.log_exists_after_component_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.decomposition_exists_after_component_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.threePow_exists_after_component_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.payload_exists_after_component_threshold_of_rationality
 #check Month2SondowAcceptedAuditorBoundary.public_construction_package_of_rationality
 #check Month2SondowAcceptedAuditorBoundary.verifier_closure_package_of_rationality
 #check Month2SondowAcceptedAuditorBoundary.accepted_threshold_of_rationality
