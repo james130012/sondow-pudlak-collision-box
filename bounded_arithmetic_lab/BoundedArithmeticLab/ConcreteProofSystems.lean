@@ -94,4 +94,20 @@ noncomputable def concreteS21ToPALinearObjectSimulation
     intro p
     exact s21ProofObjectToPA_size p
 
+theorem concreteS21ToPALinearObjectSimulation_semantic_length_le
+    (target : ℕ → BAFormula) (code : BAFormula → FormulaCode)
+    {n : ℕ}
+    (hnonempty :
+      ∃ p : BAProofObject BussS21Axiom, p.conclusion = target n) :
+    (concretePAFormalization target code).box.length n ≤
+      (concreteS21ToPALinearObjectSimulation target code).C *
+        (concreteS21Formalization target code).box.length n +
+        (concreteS21ToPALinearObjectSimulation target code).D := by
+  have hsemantic :=
+    semanticBAProofLength_pa_le_bussS21 target hnonempty
+  change
+    semanticBAProofLength PAAxiom target n ≤
+      (1 : ℝ) * semanticBAProofLength BussS21Axiom target n + 0
+  simpa using hsemantic
+
 end BoundedArithmeticLab
