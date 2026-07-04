@@ -164,6 +164,24 @@ noncomputable def component_fields_of_main_eventual_compiler_and_rationality
   component_fields_of_rationality_project_proof_objects
     compiler.toProjectProofObjectCertificates h_rat
 
+noncomputable def component_fields_of_main_full_compiler_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowComponentCertificateFields bounds :=
+  component_fields_of_main_eventual_compiler_and_rationality
+    compiler.toEventualCompiler h_rat
+
+noncomputable def component_fields_of_source_component_compilers_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowComponentCertificateFields bounds :=
+  component_fields_of_main_full_compiler_and_rationality
+    compilers.toFullCertificateComponentProofCompiler h_rat
+
 structure Month2SondowAcceptedAndComponentFields
     (bounds : BoundedArithmeticLab.SondowComponentBounds) where
   accepted_threshold : ℕ
@@ -262,6 +280,30 @@ noncomputable def accepted_and_component_fields_of_collapse_compiler_and_rationa
     component_fields_of_main_eventual_compiler_and_rationality
       compiler h_rat
 
+noncomputable def accepted_and_component_fields_of_collapse_full_compiler_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedAndComponentFields bounds :=
+  accepted_and_component_fields_of_collapse_compiler_and_rationality
+    hcollapse compiler.toEventualCompiler h_rat
+
+noncomputable def accepted_and_component_fields_of_collapse_source_compilers_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedAndComponentFields bounds :=
+  accepted_and_component_fields_of_collapse_full_compiler_and_rationality
+    hcollapse compilers.toFullCertificateComponentProofCompiler h_rat
+
 structure Month2SondowAcceptedCertificateConstructionLayer
     (bounds : BoundedArithmeticLab.SondowComponentBounds) : Prop where
   component_eventual :
@@ -338,6 +380,29 @@ noncomputable def construction_layer_of_main_eventual_compiler_rationality_and_r
   construction_layer_of_component_fields_and_root_convention
     (component_fields_of_main_eventual_compiler_and_rationality
       compiler h_rat)
+    hroot
+
+noncomputable def construction_layer_of_main_full_compiler_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedCertificateConstructionLayer bounds :=
+  construction_layer_of_component_fields_and_root_convention
+    (component_fields_of_main_full_compiler_and_rationality compiler h_rat)
+    hroot
+
+noncomputable def construction_layer_of_source_component_compilers_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedCertificateConstructionLayer bounds :=
+  construction_layer_of_component_fields_and_root_convention
+    (component_fields_of_source_component_compilers_and_rationality
+      compilers h_rat)
     hroot
 
 theorem semantic_eventual_of_rationality_project_proof_objects
@@ -428,6 +493,8 @@ Intentional Month 2 public surface probes.
 #check Month2SondowComponentCertificateFields.semantic_eventual_nonempty
 #check component_fields_of_rationality_project_proof_objects
 #check component_fields_of_main_eventual_compiler_and_rationality
+#check component_fields_of_main_full_compiler_and_rationality
+#check component_fields_of_source_component_compilers_and_rationality
 #check Month2SondowAcceptedAndComponentFields
 #check Month2SondowAcceptedAndComponentFields.product_exists_after_component_threshold
 #check Month2SondowAcceptedAndComponentFields.log_exists_after_component_threshold
@@ -436,6 +503,8 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAcceptedAndComponentFields.payload_exists_after_component_threshold
 #check Month2SondowAcceptedAndComponentFields.semantic_eventual_nonempty
 #check accepted_and_component_fields_of_collapse_compiler_and_rationality
+#check accepted_and_component_fields_of_collapse_full_compiler_and_rationality
+#check accepted_and_component_fields_of_collapse_source_compilers_and_rationality
 #check Month2SondowAcceptedCertificateConstructionLayer.system_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.semantic_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.recognition_split
@@ -443,6 +512,8 @@ Intentional Month 2 public surface probes.
 #check component_eventual_of_rationality_project_proof_objects
 #check construction_layer_of_component_fields_and_root_convention
 #check construction_layer_of_main_eventual_compiler_rationality_and_root_convention
+#check construction_layer_of_main_full_compiler_rationality_and_root_convention
+#check construction_layer_of_source_component_compilers_rationality_and_root_convention
 #check semantic_eventual_of_rationality_project_proof_objects
 #check semantic_eventual_upper_bound_of_main_eventual_compiler
 #check Month2SondowAcceptedCLineClosureLayer
