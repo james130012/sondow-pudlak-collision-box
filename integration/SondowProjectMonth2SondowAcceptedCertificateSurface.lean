@@ -1371,6 +1371,119 @@ theorem collapse_conclusion_of_rationality
 
 end Month2SondowAcceptedAuditorBoundary
 
+structure Month2SondowAcceptedAuditThresholdPackage
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds
+  rationality : _root_.is_rational _root_.euler_mascheroni
+
+namespace Month2SondowAcceptedAuditThresholdPackage
+
+noncomputable def audit_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) : ℕ :=
+  pkg.boundary.audit_threshold_of_rationality pkg.rationality
+
+theorem accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    Month2SondowAccepted n :=
+  pkg.boundary.accepted_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem root_accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+  pkg.boundary.root_accepted_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem product_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.product n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
+  pkg.boundary.product_exists_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem log_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.logRelation n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.logRelation n :=
+  pkg.boundary.log_exists_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem decomposition_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.decomposition n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.decomposition n :=
+  pkg.boundary.decomposition_exists_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem threePow_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.threePow n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.threePow n :=
+  pkg.boundary.threePow_exists_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+theorem payload_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds)
+    {n : ℕ} (hn : pkg.audit_threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.payload n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.payload n :=
+  pkg.boundary.payload_exists_after_audit_threshold_of_rationality
+    pkg.rationality hn
+
+noncomputable def public_construction
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  pkg.boundary.public_construction_package_of_rationality pkg.rationality
+
+noncomputable def verifier_closure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  pkg.boundary.verifier_closure_package_of_rationality pkg.rationality
+
+theorem collapse_conclusion
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    SondowProjectLocalS21CollapseConclusion :=
+  pkg.boundary.collapse_conclusion_of_rationality pkg.rationality
+
+end Month2SondowAcceptedAuditThresholdPackage
+
 /-!
 Intentional Month 2 public surface probes.
 -/
@@ -1503,6 +1616,18 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAcceptedAuditorBoundary.accepted_threshold_of_rationality
 #check Month2SondowAcceptedAuditorBoundary.root_accepted_after_of_rationality
 #check Month2SondowAcceptedAuditorBoundary.collapse_conclusion_of_rationality
+#check Month2SondowAcceptedAuditThresholdPackage
+#check Month2SondowAcceptedAuditThresholdPackage.audit_threshold
+#check Month2SondowAcceptedAuditThresholdPackage.accepted_after
+#check Month2SondowAcceptedAuditThresholdPackage.root_accepted_after
+#check Month2SondowAcceptedAuditThresholdPackage.product_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.log_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.decomposition_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.threePow_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.payload_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.public_construction
+#check Month2SondowAcceptedAuditThresholdPackage.verifier_closure
+#check Month2SondowAcceptedAuditThresholdPackage.collapse_conclusion
 
 end SondowProjectMonth2SondowAcceptedCertificateSurface
 end SondowMainCheckedCodeBridge
