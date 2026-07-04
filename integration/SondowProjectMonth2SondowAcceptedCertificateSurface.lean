@@ -724,6 +724,13 @@ theorem payload_truth
   sondowCLinePayloadTruth_nonempty_of_minimalClosureCertificate
     (layer.minimal_closure)
 
+theorem direct_trace_completion
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (layer : Month2SondowAcceptedCLineClosureLayer.{u} bounds) :
+    Nonempty SondowProjectLocalDirectTraceCollapseCompletion := by
+  rcases layer.minimal_closure with ⟨certificate⟩
+  exact ⟨certificate.toDirectTraceCompletion⟩
+
 theorem collapse_conclusion
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (layer : Month2SondowAcceptedCLineClosureLayer.{u} bounds) :
@@ -732,6 +739,164 @@ theorem collapse_conclusion
     (layer.minimal_closure)
 
 end Month2SondowAcceptedCLineClosureLayer
+
+structure Month2SondowAcceptedVerifierClosurePackage
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  public_construction :
+    Month2SondowAcceptedPublicConstructionPackage bounds
+  c_line_closure :
+    Month2SondowAcceptedCLineClosureLayer.{u} bounds
+
+namespace Month2SondowAcceptedVerifierClosurePackage
+
+theorem accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds)
+    {n : ℕ}
+    (hn :
+      pkg.public_construction.accepted_and_components.accepted_threshold ≤
+        n) :
+    Month2SondowAccepted n :=
+  pkg.public_construction.accepted_after hn
+
+theorem root_accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds)
+    {n : ℕ}
+    (hn :
+      pkg.public_construction.accepted_and_components.accepted_threshold ≤
+        n) :
+    _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+  pkg.public_construction.root_accepted_after hn
+
+theorem component_system_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds) :=
+  pkg.public_construction.construction_system_eventual
+
+theorem semantic_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  pkg.public_construction.construction_semantic_eventual
+
+theorem checked_code_witness
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty SondowReflectionGraftRootCheckedCodeConventionWitness :=
+  pkg.public_construction.checked_code_witness
+
+theorem minimal_closure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds) :=
+  pkg.c_line_closure.minimal_closure
+
+theorem concrete_checked_code_certificate
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty
+      SondowProjectLocalReflectionGraftVerifierConcreteCheckedCodeCertificate.{u} :=
+  pkg.c_line_closure.concrete_checked_code_certificate
+
+theorem verifier
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty SondowProjectLocalReflectionGraftVerifier :=
+  pkg.c_line_closure.verifier
+
+theorem payload_truth
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty _root_.PartialConsistencyPayloadTruth :=
+  pkg.c_line_closure.payload_truth
+
+theorem direct_trace_completion
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    Nonempty SondowProjectLocalDirectTraceCollapseCompletion :=
+  pkg.c_line_closure.direct_trace_completion
+
+theorem collapse_conclusion
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedVerifierClosurePackage.{u} bounds) :
+    SondowProjectLocalS21CollapseConclusion :=
+  pkg.c_line_closure.collapse_conclusion
+
+end Month2SondowAcceptedVerifierClosurePackage
+
+def month2_c_line_closure_layer_of_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedCLineClosureLayer.{u} bounds where
+  kernel := hkernel
+  checker := hchecker
+  root_convention := hroot
+
+def verifier_closure_package_of_public_construction_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (publicPkg :
+      Month2SondowAcceptedPublicConstructionPackage bounds)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds where
+  public_construction := publicPkg
+  c_line_closure :=
+    month2_c_line_closure_layer_of_kernel_checker_root_convention
+      hkernel hchecker hroot
+
+noncomputable def verifier_closure_package_of_reproof_payload_spec_source_compilers_rationality_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  verifier_closure_package_of_public_construction_kernel_checker_root_convention
+    (public_construction_package_of_reproof_payload_spec_source_compilers_rationality_and_root_convention
+      hspec hver compilers h_rat hroot)
+    hkernel hchecker hroot
+
+noncomputable def verifier_closure_package_of_reproof_bridge_package_source_compilers_rationality_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  verifier_closure_package_of_public_construction_kernel_checker_root_convention
+    (public_construction_package_of_reproof_bridge_package_source_compilers_rationality_and_root_convention
+      hbridge compilers h_rat hroot)
+    hkernel hchecker hroot
 
 /-!
 Intentional Month 2 public surface probes.
@@ -803,7 +968,24 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAcceptedCLineClosureLayer.concrete_checked_code_certificate
 #check Month2SondowAcceptedCLineClosureLayer.verifier
 #check Month2SondowAcceptedCLineClosureLayer.payload_truth
+#check Month2SondowAcceptedCLineClosureLayer.direct_trace_completion
 #check Month2SondowAcceptedCLineClosureLayer.collapse_conclusion
+#check Month2SondowAcceptedVerifierClosurePackage
+#check Month2SondowAcceptedVerifierClosurePackage.accepted_after
+#check Month2SondowAcceptedVerifierClosurePackage.root_accepted_after
+#check Month2SondowAcceptedVerifierClosurePackage.component_system_eventual
+#check Month2SondowAcceptedVerifierClosurePackage.semantic_eventual
+#check Month2SondowAcceptedVerifierClosurePackage.checked_code_witness
+#check Month2SondowAcceptedVerifierClosurePackage.minimal_closure
+#check Month2SondowAcceptedVerifierClosurePackage.concrete_checked_code_certificate
+#check Month2SondowAcceptedVerifierClosurePackage.verifier
+#check Month2SondowAcceptedVerifierClosurePackage.payload_truth
+#check Month2SondowAcceptedVerifierClosurePackage.direct_trace_completion
+#check Month2SondowAcceptedVerifierClosurePackage.collapse_conclusion
+#check month2_c_line_closure_layer_of_kernel_checker_root_convention
+#check verifier_closure_package_of_public_construction_kernel_checker_root_convention
+#check verifier_closure_package_of_reproof_payload_spec_source_compilers_rationality_kernel_checker_root_convention
+#check verifier_closure_package_of_reproof_bridge_package_source_compilers_rationality_kernel_checker_root_convention
 
 end SondowProjectMonth2SondowAcceptedCertificateSurface
 end SondowMainCheckedCodeBridge
