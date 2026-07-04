@@ -259,6 +259,32 @@ the paper statement no longer relies only on an informal claim that the
 project-specific CnBox object is the same object seen by the public collision
 kernel; that identification is represented by named Lean theorem surfaces.
 
+Month 2 adds the Sondow accepted-certificate surface:
+
+```lean
+SondowProjectMonth2SondowAcceptedCertificateSurface
+SondowProjectMonth2PublicReleaseSmoke
+SondowProjectMonth2CanonicalImportSurface
+```
+
+Here the accepted predicate
+
+```lean
+Month2SondowAccepted n
+```
+
+is fixed to `accepted_certificate (sondowReflectionGraftCode n)`, with
+`month2SondowAccepted_iff_root_accepted` recording the definitional
+equivalence.  Given a `PublicInfrastructureKit` and the rationality hypothesis,
+the canonical import surface exposes two audit-facing exits:
+`accepted_eventually` and `compiler_consumption_after_threshold`.  The first
+produces eventual accepted certificates.  The second, after the audit threshold,
+simultaneously produces full certificate checks, source components, a compiled
+certificate, and component proof-object validity.  This remains a conditional
+public surface, not an unconditional concrete Sondow witness.  Its role is to
+make the Month 2 statement from rationality to accepted certificates and then to
+compiler consumption checkable through a single Lean import.
+
 The mathematical roles of these names are as follows.
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` calibrates the strengthened family against the partial-consistency family. It answers the question: when the strengthened payload produced by the Sondow-collapse side is lowered to the partial-consistency proxy, is the required proof-length equality preserved?
@@ -317,14 +343,15 @@ First, Pudlak's Theorem 5 is currently treated as an external literature certifi
 
 Second, the PA/Hilbert proof-length convention is not yet internalized from first principles. The current `proof_length` is an abstract complexity function, and its relevant equalities enter through auditable witnesses. A full internalization would construct PA proof objects, encoders, checkers, and minimum proof-code size functions, and then prove their equivalence to the abstract proof length.
 
-Third, the remaining task on the upper-bound side is the parameter-free instantiation of the final short-verification witness. The analytic integral decomposition, the product-log identity, the tail estimates, and the Sondow forward package already have a Lean-closed reproof route. The project-local verifier/compiler framework is also present in the buildable interfaces `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`. Thus it would be inaccurate to list the Sondow analytic side, or the entire bounded-arithmetic verifier, as a remaining external gap. More precisely, what remains is to construct the final input
+Third, the remaining task on the upper-bound side is the parameter-free instantiation of the final Sondow upper-bound witness. The analytic integral decomposition, the product-log identity, the tail estimates, and the Sondow forward package already have a Lean-closed reproof route. The project-local verifier/compiler framework is also present in the buildable interfaces `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`. Month 2 now fixes `Month2SondowAccepted n`, the component certificates, the accepted-to-compiled compiler, and the canonical import surface. Thus it would be inaccurate to list the Sondow accepted-certificate surface, or the entire bounded-arithmetic verifier, as a remaining external gap. More precisely, what remains is to construct the final input
 
 ```lean
 Nonempty SondowProjectLocalReflectionGraftVerifier
 ```
 
 from lower-level checked-code S²₁ trace calibrations and a PA embedding
-witness, and to internalize the payload-truth semantics represented by
+witness, to derive the `PublicInfrastructureKit` used by the Month 2 surface
+from those lower-level witnesses, and to internalize the payload-truth semantics represented by
 `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
 On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
 generic interface or the public bridge closure layer.  The remaining task is

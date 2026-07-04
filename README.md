@@ -132,6 +132,7 @@ strengthened_partial_consistency_payload
 - project-local verifier/compiler framework（项目本地验证器/编译器框架）已经进入可构建接口，例如 `SondowProjectLocalS21Kernel` 和 `SondowProjectLocalReflectionGraftVerifier`。
 - 从 semantic proof-length conventions（语义证明长度约定）到 exact split minChecked witnesses（精确拆分最小已检查码长见证）的桥接已经由 Lean 检查。
 - `Month1PublicBridgeClosureTheoremLayer`（第 1 月公开桥接闭合定理层）把 concrete route（具体路线）、paper route（论文路线）、release checkpoint（发布检查点）和 public origin（公开起源）互相连接为 `<=>` 等价，并给出 CnBox target/box equation（目标/盒子方程）、code roundtrip（编码往返）和 PA finite-consistency payload equivalence（PA 有限一致性载荷等价）的公开入口。
+- Month 2 Sondow accepted-certificate surface（第 2 月 Sondow 接受证书表面）已经固定 `Month2SondowAccepted n`、component certificates（组件证书）和 accepted-to-compiled compiler（接受到编译证书的编译器）。公开审计入口是 `SondowProjectMonth2CanonicalImportSurface`，其中 `accepted_eventually` 和 `compiler_consumption_after_threshold` 可用 targeted probe（定向探针）复验。
 
 ## 尚未完全内部化内容
 
@@ -140,7 +141,7 @@ strengthened_partial_consistency_payload
 - Pudlak theorem 5（Pudlak 定理 5）/ Pudlak-Friedman-Buss finite-consistency proof-length lower bounds（有限一致性证明长度下界）。
 - abstract `proof_length`（抽象证明长度）到 checked-code/minProofCodeSize semantics（已检查代码/最小证明码大小语义）的无条件 proof-length convention（证明长度约定）。
 - `PartialConsistencyPayloadTruth` 和 `StrengthenedPartialConsistencyPayloadTruth` 对应的 payload truth（载荷真值）语义。
-- 最终上界入口中的 `Nonempty SondowProjectLocalReflectionGraftVerifier` 仍需从 lower-level checked-code S21 trace calibrations（低层已检查码 S21 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造为无参数实例。
+- 最终上界入口中的 `Nonempty SondowProjectLocalReflectionGraftVerifier` 和 Month 2 使用的 `PublicInfrastructureKit` 仍需从 lower-level checked-code S21 trace calibrations（低层已检查码 S21 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造为无参数实例。
 - Month 1 公开桥接闭合层不把 Pudlak theorem 5（Pudlak 定理 5）、最终 gap growth domination（间隙增长支配）或无参数 Sondow verifier（Sondow 验证器）变成无条件定理；它把这些输入接入同一个可审计接口。
 
 ## 公开状态
@@ -294,6 +295,7 @@ It also depends on standard Lean/Mathlib principles such as `propext`, `Classica
 - The project-local verifier/compiler framework is present in buildable interfaces such as `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`.
 - The bridge from semantic proof-length conventions to exact split minChecked witnesses is machine checked.
 - `Month1PublicBridgeClosureTheoremLayer` connects the concrete route, paper route, release checkpoint, and public origin by equivalences, and exposes public entries for the CnBox target/box equation, code roundtrip, and PA finite-consistency payload equivalence.
+- The Month 2 Sondow accepted-certificate surface fixes `Month2SondowAccepted n`, the component certificates, and the accepted-to-compiled compiler. The public audit entry is `SondowProjectMonth2CanonicalImportSurface`, whose `accepted_eventually` and `compiler_consumption_after_threshold` endpoints can be checked with targeted probes.
 
 ## What Is Not Yet Fully Internalized
 
@@ -302,7 +304,7 @@ The remaining boundary is not that the whole Sondow side is unfinished. More pre
 - Pudlak theorem 5 / Pudlak-Friedman-Buss finite-consistency proof-length lower bounds.
 - The unconditional proof-length convention identifying the abstract `proof_length` with checked-code/minProofCodeSize semantics.
 - The payload-truth semantics represented by `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
-- The final upper-side input `Nonempty SondowProjectLocalReflectionGraftVerifier`, which still needs to be constructed parameter-free from lower-level checked-code S21 trace calibrations and a PA embedding witness.
+- The final upper-side input `Nonempty SondowProjectLocalReflectionGraftVerifier` and the `PublicInfrastructureKit` used by the Month 2 surface, which still need to be constructed parameter-free from lower-level checked-code S21 trace calibrations and a PA embedding witness.
 - The Month 1 public bridge closure layer does not turn Pudlak theorem 5, final gap growth domination, or the parameter-free Sondow verifier into unconditional theorems. It places those inputs behind one auditable interface.
 
 ## Public Status
