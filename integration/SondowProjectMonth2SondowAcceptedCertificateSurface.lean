@@ -1464,6 +1464,73 @@ theorem payload_exists_after
   pkg.boundary.payload_exists_after_audit_threshold_of_rationality
     pkg.rationality hn
 
+theorem accepted_eventually
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → Month2SondowAccepted n :=
+  ⟨pkg.audit_threshold, fun _ hn => pkg.accepted_after hn⟩
+
+theorem root_accepted_eventually
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+      _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+  ⟨pkg.audit_threshold, fun _ hn => pkg.root_accepted_after hn⟩
+
+noncomputable def component_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    SondowReflectionGraftSidecarComponentProofObjectExistsEventually
+      bounds where
+  threshold := pkg.audit_threshold
+  product_exists := fun _ hn => pkg.product_exists_after hn
+  log_exists := fun _ hn => pkg.log_exists_after hn
+  decomposition_exists := fun _ hn => pkg.decomposition_exists_after hn
+  threePow_exists := fun _ hn => pkg.threePow_exists_after hn
+  payload_exists := fun _ hn => pkg.payload_exists_after hn
+
+theorem component_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarComponentProofObjectExistsEventually
+        bounds) :=
+  ⟨pkg.component_eventual⟩
+
+noncomputable def system_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    SondowReflectionGraftSidecarProofObjectSystemValidEventually
+      bounds :=
+  pkg.component_eventual.toSystemValidEventually
+
+theorem system_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds) :=
+  ⟨pkg.system_eventual⟩
+
+noncomputable def semantic_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  pkg.component_eventual.toSemanticNonemptyEventually
+
+theorem semantic_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  ⟨pkg.semantic_eventual⟩
+
+theorem construction_layer
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
+    Month2SondowAcceptedCertificateConstructionLayer bounds where
+  component_eventual := pkg.component_eventual_nonempty
+  root_convention := pkg.boundary.root_convention
+
 noncomputable def public_construction
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (pkg : Month2SondowAcceptedAuditThresholdPackage.{u} bounds) :
@@ -1625,6 +1692,15 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAcceptedAuditThresholdPackage.decomposition_exists_after
 #check Month2SondowAcceptedAuditThresholdPackage.threePow_exists_after
 #check Month2SondowAcceptedAuditThresholdPackage.payload_exists_after
+#check Month2SondowAcceptedAuditThresholdPackage.accepted_eventually
+#check Month2SondowAcceptedAuditThresholdPackage.root_accepted_eventually
+#check Month2SondowAcceptedAuditThresholdPackage.component_eventual
+#check Month2SondowAcceptedAuditThresholdPackage.component_eventual_nonempty
+#check Month2SondowAcceptedAuditThresholdPackage.system_eventual
+#check Month2SondowAcceptedAuditThresholdPackage.system_eventual_nonempty
+#check Month2SondowAcceptedAuditThresholdPackage.semantic_eventual
+#check Month2SondowAcceptedAuditThresholdPackage.semantic_eventual_nonempty
+#check Month2SondowAcceptedAuditThresholdPackage.construction_layer
 #check Month2SondowAcceptedAuditThresholdPackage.public_construction
 #check Month2SondowAcceptedAuditThresholdPackage.verifier_closure
 #check Month2SondowAcceptedAuditThresholdPackage.collapse_conclusion
