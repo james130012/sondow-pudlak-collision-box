@@ -898,6 +898,157 @@ noncomputable def verifier_closure_package_of_reproof_bridge_package_source_comp
       hbridge compilers h_rat hroot)
     hkernel hchecker hroot
 
+structure Month2SondowSourceCompilerInterface
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  compilers :
+    MainSondowFullCertificateSourceComponentCompilers bounds
+
+namespace Month2SondowSourceCompilerInterface
+
+def toFullCertificateComponentProofCompiler
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds) :
+    MainSondowFullCertificateComponentProofCompiler bounds :=
+  iface.compilers.toFullCertificateComponentProofCompiler
+
+def sourceCertificateSystems
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds) :
+    MainSondowSourceComponentCertificateSystems bounds :=
+  iface.compilers.toSourceCertificateSystems
+
+def projectProofCodeCompilers
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds) :
+    BoundedArithmeticLab.SondowProjectComponentProofCodeCompilers bounds :=
+  iface.compilers.toProjectProofCodeCompilers
+
+theorem source_certificates_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    iface.sourceCertificateSystems.productSystem.valid n
+        hsource.productLogCertificate ∧
+      iface.sourceCertificateSystems.logSystem.valid n
+        hsource.productLogCertificate ∧
+      iface.sourceCertificateSystems.decompositionSystem.valid n
+        hsource.decompositionCertificate ∧
+      iface.sourceCertificateSystems.threePowSystem.valid n
+        hsource.threePowCertificate ∧
+      iface.sourceCertificateSystems.payloadSystem.valid n
+        hsource.payloadCertificate :=
+  iface.compilers.source_certificates_valid hsource
+
+def projectProofCodeCertificateAtOfSource
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    BoundedArithmeticLab.SondowProjectProofCodeCertificateAt
+      iface.projectProofCodeCompilers n :=
+  iface.compilers.projectProofCodeCertificateAt hsource
+
+def componentCertificateOfSource
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    BoundedArithmeticLab.SondowComponentCertificate :=
+  iface.compilers.componentCertificateOfSource hsource
+
+theorem componentCertificateOfSource_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hsource : MainSondowFullCertificateSourceComponents q n) :
+    BoundedArithmeticLab.SondowComponentCertificate.ProofObjectSystemValid
+      BoundedArithmeticLab.sondowProjectComponentFormulas bounds n
+      (iface.componentCertificateOfSource hsource) :=
+  iface.compilers.componentCertificateOfSource_valid hsource
+
+def componentCertificateOfFullCertificate
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hchecked : mainSondowFullCertificateChecks q n) :
+    BoundedArithmeticLab.SondowComponentCertificate :=
+  iface.compilers.componentCertificateOfFullCertificate hchecked
+
+theorem componentCertificateOfFullCertificate_valid
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    {q : ℚ} {n : ℕ}
+    (hchecked : mainSondowFullCertificateChecks q n) :
+    BoundedArithmeticLab.SondowComponentCertificate.ProofObjectSystemValid
+      BoundedArithmeticLab.sondowProjectComponentFormulas bounds n
+      (iface.componentCertificateOfFullCertificate hchecked) :=
+  iface.compilers.componentCertificateOfFullCertificate_valid hchecked
+
+noncomputable def component_fields_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowComponentCertificateFields bounds :=
+  component_fields_of_source_component_compilers_and_rationality
+    iface.compilers h_rat
+
+noncomputable def public_construction_package_of_reproof_payload_spec_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  public_construction_package_of_reproof_payload_spec_source_compilers_rationality_and_root_convention
+    hspec hver iface.compilers h_rat hroot
+
+noncomputable def public_construction_package_of_reproof_bridge_package_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  public_construction_package_of_reproof_bridge_package_source_compilers_rationality_and_root_convention
+    hbridge iface.compilers h_rat hroot
+
+noncomputable def verifier_closure_package_of_reproof_payload_spec_rationality_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  verifier_closure_package_of_reproof_payload_spec_source_compilers_rationality_kernel_checker_root_convention
+    hspec hver iface.compilers h_rat hkernel hchecker hroot
+
+noncomputable def verifier_closure_package_of_reproof_bridge_package_rationality_kernel_checker_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (iface : Month2SondowSourceCompilerInterface bounds)
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  verifier_closure_package_of_reproof_bridge_package_source_compilers_rationality_kernel_checker_root_convention
+    hbridge iface.compilers h_rat hkernel hchecker hroot
+
+end Month2SondowSourceCompilerInterface
+
 /-!
 Intentional Month 2 public surface probes.
 -/
@@ -986,6 +1137,21 @@ Intentional Month 2 public surface probes.
 #check verifier_closure_package_of_public_construction_kernel_checker_root_convention
 #check verifier_closure_package_of_reproof_payload_spec_source_compilers_rationality_kernel_checker_root_convention
 #check verifier_closure_package_of_reproof_bridge_package_source_compilers_rationality_kernel_checker_root_convention
+#check Month2SondowSourceCompilerInterface
+#check Month2SondowSourceCompilerInterface.toFullCertificateComponentProofCompiler
+#check Month2SondowSourceCompilerInterface.sourceCertificateSystems
+#check Month2SondowSourceCompilerInterface.projectProofCodeCompilers
+#check Month2SondowSourceCompilerInterface.source_certificates_valid
+#check Month2SondowSourceCompilerInterface.projectProofCodeCertificateAtOfSource
+#check Month2SondowSourceCompilerInterface.componentCertificateOfSource
+#check Month2SondowSourceCompilerInterface.componentCertificateOfSource_valid
+#check Month2SondowSourceCompilerInterface.componentCertificateOfFullCertificate
+#check Month2SondowSourceCompilerInterface.componentCertificateOfFullCertificate_valid
+#check Month2SondowSourceCompilerInterface.component_fields_of_rationality
+#check Month2SondowSourceCompilerInterface.public_construction_package_of_reproof_payload_spec_rationality_and_root_convention
+#check Month2SondowSourceCompilerInterface.public_construction_package_of_reproof_bridge_package_rationality_and_root_convention
+#check Month2SondowSourceCompilerInterface.verifier_closure_package_of_reproof_payload_spec_rationality_kernel_checker_root_convention
+#check Month2SondowSourceCompilerInterface.verifier_closure_package_of_reproof_bridge_package_rationality_kernel_checker_root_convention
 
 end SondowProjectMonth2SondowAcceptedCertificateSurface
 end SondowMainCheckedCodeBridge
