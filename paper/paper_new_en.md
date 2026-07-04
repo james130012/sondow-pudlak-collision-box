@@ -217,6 +217,32 @@ PAHilbertReflectionGraftMinCheckedExactness
 
 It also provides a conversion from semantic proof-length conventions to the exact split-minChecked input. Thus the collision box is callable, not merely described informally.
 
+The public Lean layer is now separated from the project-specific
+instantiation layer.  The project-independent export path is exposed through
+
+```lean
+CertificateBackedCollisionKernel
+PublicCollisionAPI
+PublicCollisionExportSurface
+```
+
+These modules do not import the CnBox/Sondow/Pudlak project route.  The
+project route remains in the CnBox-Pudlak modules, where the current
+paper-facing source/assembly interface is:
+
+```lean
+CnBoxPudlakProjectConcreteFieldIndex
+CnBoxPudlakProjectSourceAssemblyReleaseSurface
+```
+
+In particular, `field_index_canonical_certificate_at` exposes the route from a
+concrete project field index and an accepted Sondow instance to
+`CanonicalProofCertificateAt bound n`, while
+`accepted_index_iff_assembly_index` records that the accepted-source compiler
+and the budgeted assembly interface are equivalent presentations of the same
+concrete project obligation.  This is a Lean-checked interface statement, not
+the final construction of the concrete certificate.
+
 The mathematical roles of these names are as follows.
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` calibrates the strengthened family against the partial-consistency family. It answers the question: when the strengthened payload produced by the Sondow-collapse side is lowered to the partial-consistency proxy, is the required proof-length equality preserved?
@@ -236,6 +262,19 @@ strengthened_partial_consistency_payload
 ```
 
 In addition, it uses standard Lean/Mathlib principles such as `propext`, `Classical.choice`, and `Quot.sound`. This list is part of the scientific boundary of the result: the theorem is an interface-level conditional theorem, not a closed unconditional proof.
+
+Recent bridge lemmas also make several formerly implicit representation
+changes explicit:
+
+```lean
+audit_theorem5_certificatePresentation_iff_rescaledPresentation
+FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalCertificate
+FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyExactness
+```
+
+These are equivalence and transport lemmas between certificate presentations.
+They do not add new mathematical assumptions; they make the audit path shorter
+and less dependent on informal identification of equivalent formulations.
 
 ## 6. Why the Conditionality Is Structured
 
@@ -268,7 +307,13 @@ Third, the remaining task on the upper-bound side is the parameter-free instanti
 Nonempty SondowProjectLocalReflectionGraftVerifier
 ```
 
-from lower-level checked-code S²₁ trace calibrations and a PA embedding witness, and to internalize the payload-truth semantics represented by `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
+from lower-level checked-code S²₁ trace calibrations and a PA embedding
+witness, and to internalize the payload-truth semantics represented by
+`PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
+On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
+generic interface, but to construct the final concrete field index/certificate
+that populates the source compiler, budgeted assembly, external gap criterion,
+and final project gap element.
 
 These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
 

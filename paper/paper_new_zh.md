@@ -211,6 +211,31 @@ PAHilbertReflectionGraftMinCheckedExactness
 
 并提供从 semantic convention（语义约定）到 exact split minChecked（精确拆分最小已检查码长）的转换。因此当前碰撞盒已经可以实际调用，而不是只停留在叙述层。
 
+当前 Lean 公开层已经进一步和项目实例化层分离。项目无关的公开导出路径由下面这些模块给出：
+
+```lean
+CertificateBackedCollisionKernel
+PublicCollisionAPI
+PublicCollisionExportSurface
+```
+
+这些模块不导入 CnBox/Sondow/Pudlak 项目路线。项目路线保留在
+CnBox-Pudlak 模块中，其中当前面向论文的 source/assembly interface
+（源/装配接口）是：
+
+```lean
+CnBoxPudlakProjectConcreteFieldIndex
+CnBoxPudlakProjectSourceAssemblyReleaseSurface
+```
+
+其中 `field_index_canonical_certificate_at` 暴露从 concrete project field
+index（具体项目字段索引）和一个被接受的 Sondow 实例到
+`CanonicalProofCertificateAt bound n`（规范证明证书）的路线；
+`accepted_index_iff_assembly_index` 记录 accepted-source compiler（接受源编译器）
+和 budgeted assembly（带预算装配）接口是同一个具体项目义务的等价表示。
+这是一条 Lean 检查过的 interface statement（接口陈述），不是最终 concrete
+certificate（具体证书）的构造。
+
 这些名字对应的数学含义如下。
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` 负责 strengthened family（强化族）与 partial consistency family（部分一致性族）之间的长度等式。它回答的问题是：Sondow 坍缩产生的 strengthened payload（强化载荷）在降到 partial consistency proxy（部分一致性代理）时，证明长度是否按需要保持。
@@ -230,6 +255,18 @@ strengthened_partial_consistency_payload
 ```
 
 此外还有 `propext`、`Classical.choice`、`Quot.sound` 等 Lean/Mathlib 常规依赖。这个列表是本文信用边界的一部分：它说明当前成果是接口级条件定理，而不是无条件闭合证明。
+
+近期桥接引理还把若干原先容易靠文字认同的表示转换显式化：
+
+```lean
+audit_theorem5_certificatePresentation_iff_rescaledPresentation
+FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalCertificate
+FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyExactness
+```
+
+这些是 certificate presentation（证书表示）之间的 equivalence/transport lemma
+（等价/传输引理），不是新的数学假设；它们的作用是缩短审计路径，减少对自然语言
+“两种陈述等价”的依赖。
 
 ## 6. 为什么这不是普通的“条件证明”
 
@@ -263,6 +300,7 @@ Nonempty SondowProjectLocalReflectionGraftVerifier
 ```
 
 由更底层的 checked-code S²₁ trace calibration（已检查码 S²₁ 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造出来，同时内部化 `PartialConsistencyPayloadTruth` 与 `StrengthenedPartialConsistencyPayloadTruth` 的 payload truth（载荷真值）语义。
+在 CnBox/Pudlak 侧，剩余的具体任务不是重新设计 generic interface（通用接口），而是构造最终 concrete field index/certificate（具体字段索引/证书），使 source compiler（源编译器）、budgeted assembly（带预算装配）、external gap criterion（外部间隙判别）和最终 project gap element（项目差距元素）都有实际填充。
 
 这些任务都很重要，但不影响本文当前主张：在明确输入被提供时，接口级对撞链已经机器检查。
 

@@ -2,7 +2,25 @@
 
 This guide explains how to inspect the public conditional collision endpoint.
 
-## 1. Build the Core Files
+## 1. Probe the Public Surface
+
+For routine audits, start with lightweight Lean probes.  They use the same
+elaborator and typechecker as `lake build`, but they avoid starting a long
+full build.
+
+```bash
+lake env lean -o bounded_arithmetic_lab/.lake/build/lib/lean/BoundedArithmeticLab.olean bounded_arithmetic_lab/BoundedArithmeticLab.lean
+lake env lean --stdin <<'EOF'
+import BoundedArithmeticLab.PublicCollisionExportSurface
+open BoundedArithmeticLab
+#check PublicCollisionExportSurface.collision
+#check PublicCollisionAPI.collision_from_checklist
+EOF
+```
+
+## 2. Build the Core Files
+
+The full build is a heavier final check:
 
 ```bash
 lake build EulerLimit.StrengthenedConsistency
@@ -10,7 +28,7 @@ lake build EulerLimit.ProjectionBridge
 lake build integration.SondowProjectPudlakInstantiation
 ```
 
-## 2. Check the Main Endpoint
+## 3. Check the Main Endpoint
 
 ```bash
 lake env lean --stdin <<'EOF'
@@ -26,7 +44,7 @@ Expected conclusion:
 ¬ is_rational euler_mascheroni
 ```
 
-## 3. Print Axiom Dependencies
+## 4. Print Axiom Dependencies
 
 ```bash
 lake env lean --stdin <<'EOF'
@@ -38,7 +56,7 @@ EOF
 
 The output should be compared against `AXIOM_LEDGER.md`.
 
-## 4. What to Look For
+## 5. What to Look For
 
 - Does the theorem type expose its input packages?
 - Does `#print axioms` include the expected external Pudlak and proof-length
