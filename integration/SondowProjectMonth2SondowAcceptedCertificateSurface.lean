@@ -27,6 +27,23 @@ namespace SondowProjectMonth2SondowAcceptedCertificateSurface
 
 universe u
 
+def Month2SondowAccepted (n : ℕ) : Prop :=
+  _root_.accepted_certificate (_root_.sondowReflectionGraftCode n)
+
+theorem month2SondowAccepted_iff_root_accepted (n : ℕ) :
+    Month2SondowAccepted n ↔
+      _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+  Iff.rfl
+
+theorem month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → Month2SondowAccepted n := by
+  simpa [Month2SondowAccepted] using
+    hcollapse.accepted_eventually_under_rationality h_rat
+
 structure Month2SondowAcceptedCertificateConstructionLayer
     (bounds : BoundedArithmeticLab.SondowComponentBounds) : Prop where
   component_eventual :
@@ -160,6 +177,9 @@ Intentional Month 2 public surface probes.
 -/
 
 #check Month2SondowAcceptedCertificateConstructionLayer
+#check Month2SondowAccepted
+#check month2SondowAccepted_iff_root_accepted
+#check month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
 #check Month2SondowAcceptedCertificateConstructionLayer.system_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.semantic_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.recognition_split
