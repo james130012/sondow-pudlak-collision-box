@@ -304,6 +304,89 @@ noncomputable def accepted_and_component_fields_of_collapse_source_compilers_and
   accepted_and_component_fields_of_collapse_full_compiler_and_rationality
     hcollapse compilers.toFullCertificateComponentProofCompiler h_rat
 
+structure Month2SondowAcceptedForwardReproofBoundary : Prop where
+  forward_inputs : _root_.SondowForwardInputs
+  explicit_eventual_of_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      _root_.sondow_identity_explicit_eventual
+  identity_eventual_of_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      _root_.sondow_identity_eventual
+  certificate_accepted_eventually_of_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n)
+  reflection_graft_collapse_inputs_of_payload_spec :
+    _root_.PartialConsistencyPayloadSpec →
+      _root_.ReflectionGraftConcreteVerificationPackage →
+        _root_.EventualCertificateCollapseInputs
+          _root_.sondowReflectionGraftCode
+  reflection_graft_collapse_inputs_of_bridge_package :
+    _root_.SondowCollapseVerificationBridgePackage →
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode
+
+def month2SondowAcceptedForwardReproofBoundary :
+    Month2SondowAcceptedForwardReproofBoundary where
+  forward_inputs := _root_.SondowForwardInputs.of_reproof
+  explicit_eventual_of_rationality :=
+    _root_.sondow_identity_explicit_eventual_of_rational_reproof
+  identity_eventual_of_rationality :=
+    _root_.sondow_identity_eventual_of_rational_reproof
+  certificate_accepted_eventually_of_rationality :=
+    _root_.accepted_sondow_certificate_eventual_of_rationality_reproof
+  reflection_graft_collapse_inputs_of_payload_spec :=
+    _root_.reflection_graft_eventual_collapse_inputs_of_reproof
+  reflection_graft_collapse_inputs_of_bridge_package :=
+    _root_.SondowCollapseVerificationBridgePackage.toReflectionGraftCollapseInputsOfReproof
+
+namespace Month2SondowAcceptedForwardReproofBoundary
+
+theorem reflection_graft_accepted_eventually_of_payload_spec
+    (boundary : Month2SondowAcceptedForwardReproofBoundary)
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → Month2SondowAccepted n :=
+  month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+    (boundary.reflection_graft_collapse_inputs_of_payload_spec hspec hver)
+    h_rat
+
+theorem reflection_graft_accepted_eventually_of_bridge_package
+    (boundary : Month2SondowAcceptedForwardReproofBoundary)
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → Month2SondowAccepted n :=
+  month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+    (boundary.reflection_graft_collapse_inputs_of_bridge_package hbridge)
+    h_rat
+
+end Month2SondowAcceptedForwardReproofBoundary
+
+noncomputable def accepted_and_component_fields_of_reproof_payload_spec_source_compilers_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hspec : _root_.PartialConsistencyPayloadSpec)
+    (hver : _root_.ReflectionGraftConcreteVerificationPackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedAndComponentFields bounds :=
+  accepted_and_component_fields_of_collapse_source_compilers_and_rationality
+    (_root_.reflection_graft_eventual_collapse_inputs_of_reproof hspec hver)
+    compilers h_rat
+
+noncomputable def accepted_and_component_fields_of_reproof_bridge_package_source_compilers_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hbridge : _root_.SondowCollapseVerificationBridgePackage)
+    (compilers :
+      MainSondowFullCertificateSourceComponentCompilers bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedAndComponentFields bounds :=
+  accepted_and_component_fields_of_collapse_source_compilers_and_rationality
+    (_root_.SondowCollapseVerificationBridgePackage.toReflectionGraftCollapseInputsOfReproof
+      hbridge)
+    compilers h_rat
+
 structure Month2SondowAcceptedCertificateConstructionLayer
     (bounds : BoundedArithmeticLab.SondowComponentBounds) : Prop where
   component_eventual :
@@ -505,6 +588,12 @@ Intentional Month 2 public surface probes.
 #check accepted_and_component_fields_of_collapse_compiler_and_rationality
 #check accepted_and_component_fields_of_collapse_full_compiler_and_rationality
 #check accepted_and_component_fields_of_collapse_source_compilers_and_rationality
+#check Month2SondowAcceptedForwardReproofBoundary
+#check month2SondowAcceptedForwardReproofBoundary
+#check Month2SondowAcceptedForwardReproofBoundary.reflection_graft_accepted_eventually_of_payload_spec
+#check Month2SondowAcceptedForwardReproofBoundary.reflection_graft_accepted_eventually_of_bridge_package
+#check accepted_and_component_fields_of_reproof_payload_spec_source_compilers_and_rationality
+#check accepted_and_component_fields_of_reproof_bridge_package_source_compilers_and_rationality
 #check Month2SondowAcceptedCertificateConstructionLayer.system_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.semantic_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.recognition_split
