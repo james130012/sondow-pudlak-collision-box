@@ -45,6 +45,21 @@ integration/SondowProjectPudlakInstantiation.lean
 
 本仓库固定使用 Lean `v4.31.0`。
 
+日常审计可先跑轻量探针，避免启动完整构建：
+
+```bash
+lake exe cache get
+lake env lean -o bounded_arithmetic_lab/.lake/build/lib/lean/BoundedArithmeticLab.olean bounded_arithmetic_lab/BoundedArithmeticLab.lean
+lake env lean --stdin <<'EOF'
+import BoundedArithmeticLab.PublicCollisionExportSurface
+open BoundedArithmeticLab
+#check PublicCollisionExportSurface.collision
+#check PublicCollisionAPI.collision_from_checklist
+EOF
+```
+
+完整构建可作为较重的最终检查：
+
 ```bash
 lake exe cache get
 lake build EulerLimit.StrengthenedConsistency
@@ -160,6 +175,21 @@ integration/SondowProjectPudlakInstantiation.lean
 ## Build
 
 The repository is pinned to Lean `v4.31.0`.
+
+For day-to-day audits, run lightweight probes before starting a full build:
+
+```bash
+lake exe cache get
+lake env lean -o bounded_arithmetic_lab/.lake/build/lib/lean/BoundedArithmeticLab.olean bounded_arithmetic_lab/BoundedArithmeticLab.lean
+lake env lean --stdin <<'EOF'
+import BoundedArithmeticLab.PublicCollisionExportSurface
+open BoundedArithmeticLab
+#check PublicCollisionExportSurface.collision
+#check PublicCollisionAPI.collision_from_checklist
+EOF
+```
+
+The full build remains the heavier final check:
 
 ```bash
 lake exe cache get
