@@ -44,6 +44,224 @@ theorem month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
   simpa [Month2SondowAccepted] using
     hcollapse.accepted_eventually_under_rationality h_rat
 
+structure Month2SondowComponentCertificateFields
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  witness :
+    SondowReflectionGraftSidecarComponentProofObjectExistsEventually
+      bounds
+
+namespace Month2SondowComponentCertificateFields
+
+def threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds) : ℕ :=
+  fields.witness.threshold
+
+theorem product_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    {n : ℕ} (hn : fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.product n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
+  fields.witness.product_exists n hn
+
+theorem log_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    {n : ℕ} (hn : fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.logRelation n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.logRelation n :=
+  fields.witness.log_exists n hn
+
+theorem decomposition_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    {n : ℕ} (hn : fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.decomposition n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.decomposition n :=
+  fields.witness.decomposition_exists n hn
+
+theorem threePow_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    {n : ℕ} (hn : fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.threePow n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.threePow n :=
+  fields.witness.threePow_exists n hn
+
+theorem payload_exists_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    {n : ℕ} (hn : fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.payload n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.payload n :=
+  fields.witness.payload_exists n hn
+
+theorem component_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarComponentProofObjectExistsEventually
+        bounds) :=
+  ⟨fields.witness⟩
+
+theorem system_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds) :=
+  (sondowReflectionGraftSidecarComponentProofObjectExistsEventually_nonempty_iff_systemValidEventually_nonempty).mp
+    fields.component_eventual_nonempty
+
+theorem semantic_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  sidecarS21SemanticNonemptyEventually_nonempty_of_componentProofObjectExistsEventually
+    fields.component_eventual_nonempty
+
+end Month2SondowComponentCertificateFields
+
+noncomputable def component_fields_of_rationality_project_proof_objects
+    {ctx : BoundedArithmeticLab.GammaRationalityContext}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcerts :
+      BoundedArithmeticLab.SondowRationalityToProjectProofObjectCertificates
+        ctx bounds)
+    (hgamma : BoundedArithmeticLab.GammaRationalityWitness ctx) :
+    Month2SondowComponentCertificateFields bounds where
+  witness :=
+    sidecarComponentProofObjectExistsEventually_of_rationalityProjectProofObjects
+      hcerts hgamma
+
+noncomputable def component_fields_of_main_eventual_compiler_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowComponentCertificateFields bounds :=
+  component_fields_of_rationality_project_proof_objects
+    compiler.toProjectProofObjectCertificates h_rat
+
+structure Month2SondowAcceptedAndComponentFields
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  accepted_threshold : ℕ
+  accepted_after :
+    ∀ n : ℕ, accepted_threshold ≤ n → Month2SondowAccepted n
+  component_fields : Month2SondowComponentCertificateFields bounds
+
+namespace Month2SondowAcceptedAndComponentFields
+
+theorem product_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    {n : ℕ} (hn : pkg.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.product n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
+  pkg.component_fields.product_exists_after hn
+
+theorem log_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    {n : ℕ} (hn : pkg.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.logRelation n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.logRelation n :=
+  pkg.component_fields.log_exists_after hn
+
+theorem decomposition_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    {n : ℕ} (hn : pkg.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.decomposition n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.decomposition n :=
+  pkg.component_fields.decomposition_exists_after hn
+
+theorem threePow_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    {n : ℕ} (hn : pkg.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.threePow n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.threePow n :=
+  pkg.component_fields.threePow_exists_after hn
+
+theorem payload_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds)
+    {n : ℕ} (hn : pkg.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.payload n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.payload n :=
+  pkg.component_fields.payload_exists_after hn
+
+theorem semantic_eventual_nonempty
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedAndComponentFields bounds) :
+    Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  pkg.component_fields.semantic_eventual_nonempty
+
+end Month2SondowAcceptedAndComponentFields
+
+noncomputable def accepted_and_component_fields_of_collapse_compiler_and_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hcollapse :
+      _root_.EventualCertificateCollapseInputs
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedAndComponentFields bounds where
+  accepted_threshold :=
+    Classical.choose
+      (month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+        hcollapse h_rat)
+  accepted_after :=
+    Classical.choose_spec
+      (month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+        hcollapse h_rat)
+  component_fields :=
+    component_fields_of_main_eventual_compiler_and_rationality
+      compiler h_rat
+
 structure Month2SondowAcceptedCertificateConstructionLayer
     (bounds : BoundedArithmeticLab.SondowComponentBounds) : Prop where
   component_eventual :
@@ -101,6 +319,26 @@ theorem component_eventual_of_rationality_project_proof_objects
         bounds) :=
   sidecarComponentProofObjectExistsEventually_nonempty_of_rationalityProjectProofObjects
     hcerts hgamma
+
+theorem construction_layer_of_component_fields_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (fields : Month2SondowComponentCertificateFields bounds)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedCertificateConstructionLayer bounds where
+  component_eventual := fields.component_eventual_nonempty
+  root_convention := hroot
+
+noncomputable def construction_layer_of_main_eventual_compiler_rationality_and_root_convention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    (hroot : Nonempty SondowReflectionGraftRootProofLengthConvention) :
+    Month2SondowAcceptedCertificateConstructionLayer bounds :=
+  construction_layer_of_component_fields_and_root_convention
+    (component_fields_of_main_eventual_compiler_and_rationality
+      compiler h_rat)
+    hroot
 
 theorem semantic_eventual_of_rationality_project_proof_objects
     {ctx : BoundedArithmeticLab.GammaRationalityContext}
@@ -180,11 +418,31 @@ Intentional Month 2 public surface probes.
 #check Month2SondowAccepted
 #check month2SondowAccepted_iff_root_accepted
 #check month2SondowAccepted_eventually_of_reflection_graft_collapse_inputs
+#check Month2SondowComponentCertificateFields
+#check Month2SondowComponentCertificateFields.product_exists_after
+#check Month2SondowComponentCertificateFields.log_exists_after
+#check Month2SondowComponentCertificateFields.decomposition_exists_after
+#check Month2SondowComponentCertificateFields.threePow_exists_after
+#check Month2SondowComponentCertificateFields.payload_exists_after
+#check Month2SondowComponentCertificateFields.system_eventual_nonempty
+#check Month2SondowComponentCertificateFields.semantic_eventual_nonempty
+#check component_fields_of_rationality_project_proof_objects
+#check component_fields_of_main_eventual_compiler_and_rationality
+#check Month2SondowAcceptedAndComponentFields
+#check Month2SondowAcceptedAndComponentFields.product_exists_after_component_threshold
+#check Month2SondowAcceptedAndComponentFields.log_exists_after_component_threshold
+#check Month2SondowAcceptedAndComponentFields.decomposition_exists_after_component_threshold
+#check Month2SondowAcceptedAndComponentFields.threePow_exists_after_component_threshold
+#check Month2SondowAcceptedAndComponentFields.payload_exists_after_component_threshold
+#check Month2SondowAcceptedAndComponentFields.semantic_eventual_nonempty
+#check accepted_and_component_fields_of_collapse_compiler_and_rationality
 #check Month2SondowAcceptedCertificateConstructionLayer.system_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.semantic_eventual
 #check Month2SondowAcceptedCertificateConstructionLayer.recognition_split
 #check Month2SondowAcceptedCertificateConstructionLayer.checked_code_witness
 #check component_eventual_of_rationality_project_proof_objects
+#check construction_layer_of_component_fields_and_root_convention
+#check construction_layer_of_main_eventual_compiler_rationality_and_root_convention
 #check semantic_eventual_of_rationality_project_proof_objects
 #check semantic_eventual_upper_bound_of_main_eventual_compiler
 #check Month2SondowAcceptedCLineClosureLayer
