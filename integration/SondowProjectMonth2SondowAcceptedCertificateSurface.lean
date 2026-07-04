@@ -1049,6 +1049,90 @@ noncomputable def verifier_closure_package_of_reproof_bridge_package_rationality
 
 end Month2SondowSourceCompilerInterface
 
+structure Month2SondowAcceptedAuditorBoundary
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) where
+  payload_spec : _root_.PartialConsistencyPayloadSpec
+  concrete_verification :
+    _root_.ReflectionGraftConcreteVerificationPackage
+  source_interface : Month2SondowSourceCompilerInterface bounds
+  root_convention :
+    Nonempty SondowReflectionGraftRootProofLengthConvention
+  kernel :
+    Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u}
+  checker :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+        bounds)
+
+namespace Month2SondowAcceptedAuditorBoundary
+
+def forward_reproof_boundary
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (_boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds) :
+    Month2SondowAcceptedForwardReproofBoundary :=
+  month2SondowAcceptedForwardReproofBoundary
+
+theorem forward_inputs_closed_by_reproof
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds) :
+    boundary.forward_reproof_boundary.forward_inputs =
+      _root_.SondowForwardInputs.of_reproof :=
+  rfl
+
+theorem accepted_eventually_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → Month2SondowAccepted n :=
+  boundary.forward_reproof_boundary
+    |>.reflection_graft_accepted_eventually_of_payload_spec
+      boundary.payload_spec boundary.concrete_verification h_rat
+
+noncomputable def public_construction_package_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedPublicConstructionPackage bounds :=
+  boundary.source_interface.public_construction_package_of_reproof_payload_spec_rationality_and_root_convention
+    boundary.payload_spec boundary.concrete_verification h_rat
+    boundary.root_convention
+
+noncomputable def verifier_closure_package_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    Month2SondowAcceptedVerifierClosurePackage.{u} bounds :=
+  boundary.source_interface.verifier_closure_package_of_reproof_payload_spec_rationality_kernel_checker_root_convention
+    boundary.payload_spec boundary.concrete_verification h_rat
+    boundary.kernel boundary.checker boundary.root_convention
+
+noncomputable def accepted_threshold_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) : ℕ :=
+  let pkg := boundary.verifier_closure_package_of_rationality h_rat
+  pkg.public_construction.accepted_and_components.accepted_threshold
+
+theorem root_accepted_after_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni)
+    {n : ℕ}
+    (hn : boundary.accepted_threshold_of_rationality h_rat ≤ n) :
+    _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+  (boundary.verifier_closure_package_of_rationality h_rat).root_accepted_after
+    hn
+
+theorem collapse_conclusion_of_rationality
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (boundary : Month2SondowAcceptedAuditorBoundary.{u} bounds)
+    (h_rat : _root_.is_rational _root_.euler_mascheroni) :
+    SondowProjectLocalS21CollapseConclusion :=
+  (boundary.verifier_closure_package_of_rationality h_rat)
+    |>.collapse_conclusion
+
+end Month2SondowAcceptedAuditorBoundary
+
 /-!
 Intentional Month 2 public surface probes.
 -/
@@ -1152,6 +1236,15 @@ Intentional Month 2 public surface probes.
 #check Month2SondowSourceCompilerInterface.public_construction_package_of_reproof_bridge_package_rationality_and_root_convention
 #check Month2SondowSourceCompilerInterface.verifier_closure_package_of_reproof_payload_spec_rationality_kernel_checker_root_convention
 #check Month2SondowSourceCompilerInterface.verifier_closure_package_of_reproof_bridge_package_rationality_kernel_checker_root_convention
+#check Month2SondowAcceptedAuditorBoundary
+#check Month2SondowAcceptedAuditorBoundary.forward_reproof_boundary
+#check Month2SondowAcceptedAuditorBoundary.forward_inputs_closed_by_reproof
+#check Month2SondowAcceptedAuditorBoundary.accepted_eventually_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.public_construction_package_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.verifier_closure_package_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.accepted_threshold_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.root_accepted_after_of_rationality
+#check Month2SondowAcceptedAuditorBoundary.collapse_conclusion_of_rationality
 
 end SondowProjectMonth2SondowAcceptedCertificateSurface
 end SondowMainCheckedCodeBridge
