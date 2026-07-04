@@ -510,6 +510,14 @@ theorem accepted_after
     Month2SondowAccepted n :=
   pkg.accepted_and_components.accepted_after n hn
 
+theorem root_accepted_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.accepted_threshold ≤ n) :
+    _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) := by
+  simpa [Month2SondowAccepted] using pkg.accepted_after hn
+
 theorem product_exists_after_component_threshold
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
@@ -523,17 +531,92 @@ theorem product_exists_after_component_threshold
         (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.product n :=
   pkg.accepted_and_components.product_exists_after_component_threshold hn
 
+theorem log_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.logRelation n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.logRelation n :=
+  pkg.accepted_and_components.log_exists_after_component_threshold hn
+
+theorem decomposition_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.decomposition n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.decomposition n :=
+  pkg.accepted_and_components.decomposition_exists_after_component_threshold hn
+
+theorem threePow_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.threePow n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.threePow n :=
+  pkg.accepted_and_components.threePow_exists_after_component_threshold hn
+
+theorem payload_exists_after_component_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds)
+    {n : ℕ}
+    (hn : pkg.accepted_and_components.component_fields.threshold ≤ n) :
+    ∃ proof :
+      BoundedArithmeticLab.BAProofObject
+        BoundedArithmeticLab.BussS21Axiom,
+      proof.conclusion =
+          BoundedArithmeticLab.sondowProjectComponentFormulas.payload n ∧
+        (((proof.size + 2 : ℕ) : ℝ)) ≤ bounds.payload n :=
+  pkg.accepted_and_components.payload_exists_after_component_threshold hn
+
+theorem system_eventual_from_component_fields
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds) :=
+  pkg.accepted_and_components.component_fields.system_eventual_nonempty
+
 theorem semantic_eventual_from_component_fields
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
     Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
   pkg.accepted_and_components.semantic_eventual_nonempty
 
+theorem construction_system_eventual
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty
+      (SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds) :=
+  pkg.construction_layer.system_eventual
+
 theorem construction_semantic_eventual
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
     Nonempty SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
   pkg.construction_layer.semantic_eventual
+
+theorem recognition_split
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (pkg : Month2SondowAcceptedPublicConstructionPackage bounds) :
+    Nonempty
+      SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate :=
+  pkg.construction_layer.recognition_split
 
 theorem checked_code_witness
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
@@ -698,9 +781,17 @@ Intentional Month 2 public surface probes.
 #check construction_layer_of_source_component_compilers_rationality_and_root_convention
 #check Month2SondowAcceptedPublicConstructionPackage
 #check Month2SondowAcceptedPublicConstructionPackage.accepted_after
+#check Month2SondowAcceptedPublicConstructionPackage.root_accepted_after
 #check Month2SondowAcceptedPublicConstructionPackage.product_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.log_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.decomposition_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.threePow_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.payload_exists_after_component_threshold
+#check Month2SondowAcceptedPublicConstructionPackage.system_eventual_from_component_fields
 #check Month2SondowAcceptedPublicConstructionPackage.semantic_eventual_from_component_fields
+#check Month2SondowAcceptedPublicConstructionPackage.construction_system_eventual
 #check Month2SondowAcceptedPublicConstructionPackage.construction_semantic_eventual
+#check Month2SondowAcceptedPublicConstructionPackage.recognition_split
 #check Month2SondowAcceptedPublicConstructionPackage.checked_code_witness
 #check public_construction_package_of_accepted_component_fields_and_root_convention
 #check public_construction_package_of_reproof_payload_spec_source_compilers_rationality_and_root_convention
