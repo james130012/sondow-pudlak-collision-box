@@ -285,6 +285,40 @@ public surface, not an unconditional concrete Sondow witness.  Its role is to
 make the Month 2 statement from rationality to accepted certificates and then to
 compiler consumption checkable through a single Lean import.
 
+Month 3 and Month 4 close the next public layer:
+
+```lean
+SondowProjectMonth3Month4FinalPublicSurface
+SondowProjectMonth3Month4CompletionAuditSurface
+```
+
+The Month 3 side turns an accepted Sondow object into the bounded-PA proof
+predicate interface. In particular, the final public surface exposes a route
+from the paper route plus an accepted witness to
+`CanonicalProofCertificateAt bound n`, `CanonicalProofCertificateAccepted bound n`,
+and `boundedPAProofPredicate bound n`, together with the equivalence
+
+```lean
+boundedPAProofPredicate bound n ↔ Nonempty (CanonicalProofCertificateAt bound n)
+```
+
+and a checker-trace conclusion equal to `finiteConsistencyFormula n`. This is
+the point at which the `C_n` box is no longer only a codable object: it is
+connected to a finite-consistency target and a bounded PA proof-predicate
+interface.
+
+The Month 4 side packages the exact external boundary for Pudlak's Theorem 5.
+It does not internalize the proof of the theorem. Instead, it makes the
+literature input, external input boundary, minimal field package, lower-bound
+source, normal form, and canonical import mutually auditable. The public
+surface exposes, for example, the equivalence between the literature audit
+statement and the full external-boundary statement, the equality between the
+lower-bound source code and the rescaled Pudlak strengthened finite-consistency
+code, and the raw/rescaled/power-bound code chain. The final completion
+certificate therefore records that the accepted upper-side object and the
+Pudlak theorem-5 lower-side object are being compared through the same public
+project interface, not through an informal identification.
+
 The mathematical roles of these names are as follows.
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` calibrates the strengthened family against the partial-consistency family. It answers the question: when the strengthened payload produced by the Sondow-collapse side is lowered to the partial-consistency proxy, is the required proof-length equality preserved?
@@ -312,6 +346,9 @@ changes explicit:
 audit_theorem5_certificatePresentation_iff_rescaledPresentation
 FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalCertificate
 FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyExactness
+paper_route_and_accepted_iff_public_completion
+public_completion_to_month3_bounded_pa_interface
+public_completion_to_month4_full_boundary_interface
 ```
 
 These are equivalence and transport lemmas between certificate presentations.
@@ -354,10 +391,11 @@ witness, to derive the `PublicInfrastructureKit` used by the Month 2 surface
 from those lower-level witnesses, and to internalize the payload-truth semantics represented by
 `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
 On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
-generic interface or the public bridge closure layer.  The remaining task is
-to populate the existing field-index, assembly, external-gap, and public
-collision interfaces with the final concrete witnesses strong enough for the
-unconditional target.
+generic interface, the public bridge closure layer, the Month 3 bounded-PA
+assembly interface, or the Month 4 theorem-5 external-boundary interface. The
+remaining task is to supply the final concrete witnesses that make the accepted
+object, growth gap, payload truth, and proof-length convention parameter-free
+and strong enough for the unconditional target.
 
 These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
 
