@@ -1,11 +1,11 @@
 # Project Status
 
-Date: 2026-07-02
+Date: 2026-07-04
 
 ## Current Release Target
 
-`v0.1.2-public-alpha`: interface-level conditional collision box with public
-priority, citation, and audit-boundary metadata.
+`v0.1.3-public-bridge-alpha`: interface-level conditional collision box with
+Month 1 public bridge closure metadata.
 
 ## Completed at This Stage
 
@@ -27,6 +27,12 @@ SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSpli
   minChecked witnesses is implemented and checked.
 - The public repository separates the Lean code, papers, audit guide, and
   axiom ledger.
+- The Month 1 public bridge closure theorem layer exposes a single public
+  surface for the CnBox/Pudlak concrete route, paper route, release checkpoint,
+  and public-origin equivalences.
+- The public layer includes CnBox target/box equation endpoints, code
+  roundtrip, PA finite-consistency payload equivalence, same-object closure,
+  public gap instantiation, and public collision instantiation.
 
 ## Not Claimed
 
@@ -44,3 +50,5 @@ SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSpli
 3. Replace abstract `proof_length` assumptions by a concrete PA/Hilbert
    checked-code proof-length convention.
 4. Expand the Sondow analytic and verification bridges.
+5. Instantiate the final project gap element and parameter-free Sondow verifier
+   inside the existing Month 1 public bridge closure interface.

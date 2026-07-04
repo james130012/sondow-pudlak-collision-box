@@ -236,6 +236,22 @@ index（具体项目字段索引）和一个被接受的 Sondow 实例到
 这是一条 Lean 检查过的 interface statement（接口陈述），不是最终 concrete
 certificate（具体证书）的构造。
 
+当前面向公开论文陈述的项目定理层是：
+
+```lean
+SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+Month1PublicBridgeClosureTheoremLayer
+```
+
+它把 concrete route（具体路线）、paper route（论文路线）、release checkpoint
+（发布检查点）和 public origin（公开起源）整理为 equivalence（等价）。
+该层还暴露 CnBox target/box equation（C_n 盒子目标/盒子方程）、
+回到目标公式的 code roundtrip（编码往返）、CnBox payload（C_n 盒子载荷）
+与 PA finite-consistency statement（PA 有限一致性陈述）的等价、same-object
+closure（同对象闭合）以及 public gap/collision instantiation（公开间隙/对撞实例化）。
+因此论文陈述不再只依赖自然语言说“项目 CnBox 对象与公开对撞内核看到的是同一个对象”；
+这个识别已经被命名 Lean theorem surface（Lean 定理表面）承载。
+
 这些名字对应的数学含义如下。
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` 负责 strengthened family（强化族）与 partial consistency family（部分一致性族）之间的长度等式。它回答的问题是：Sondow 坍缩产生的 strengthened payload（强化载荷）在降到 partial consistency proxy（部分一致性代理）时，证明长度是否按需要保持。
@@ -300,7 +316,7 @@ Nonempty SondowProjectLocalReflectionGraftVerifier
 ```
 
 由更底层的 checked-code S²₁ trace calibration（已检查码 S²₁ 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造出来，同时内部化 `PartialConsistencyPayloadTruth` 与 `StrengthenedPartialConsistencyPayloadTruth` 的 payload truth（载荷真值）语义。
-在 CnBox/Pudlak 侧，剩余的具体任务不是重新设计 generic interface（通用接口），而是构造最终 concrete field index/certificate（具体字段索引/证书），使 source compiler（源编译器）、budgeted assembly（带预算装配）、external gap criterion（外部间隙判别）和最终 project gap element（项目差距元素）都有实际填充。
+在 CnBox/Pudlak 侧，剩余的具体任务不是重新设计 generic interface（通用接口）或 public bridge closure layer（公开桥接闭合层），而是向已有 field-index（字段索引）、assembly（装配）、external-gap（外部间隙）和 public-collision（公开对撞）接口填入足够强的最终 concrete witness（具体见证），使其能支撑无条件目标。
 
 这些任务都很重要，但不影响本文当前主张：在明确输入被提供时，接口级对撞链已经机器检查。
 

@@ -44,6 +44,26 @@ Expected conclusion:
 ¬ is_rational euler_mascheroni
 ```
 
+## 3a. Check the Month 1 Public Bridge Closure Surface
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+open SondowMainCheckedCodeBridge.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+
+#check Month1PublicBridgeClosureTheoremLayer
+#check Month1PublicBridgeClosureTheoremLayer.concrete_iff_public_origin
+#check Month1PublicBridgeClosureTheoremLayer.target_eq_box_formula
+#check Month1PublicBridgeClosureTheoremLayer.carries_iff_pa_finite_consistency
+#check Month1PublicBridgeClosureTheoremLayer.public_gap_instantiation
+#check Month1PublicBridgeClosureTheoremLayer.public_collision_instantiation
+EOF
+```
+
+This surface is the public same-object and CnBox/Pudlak bridge closure layer.
+It is not a replacement for Pudlak theorem 5 or for the final parameter-free
+Sondow verifier.
+
 ## 4. Print Axiom Dependencies
 
 ```bash

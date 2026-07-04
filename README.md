@@ -10,6 +10,8 @@
 
 本项目的目标是把剩余 mathematical obligations（数学义务）和 proof-complexity obligations（证明复杂度义务）显式化，而不是把它们藏在成功编译背后。
 
+2026-07-04 的公开同步新增了 Month 1 public bridge closure theorem layer（第 1 月公开桥接闭合定理层）：它把 CnBox/Pudlak project route（C_n 盒子/Pudlak 项目路线）的 concrete route（具体路线）、paper route（论文路线）、release checkpoint（发布检查点）和 public origin（公开起源）整理为 Lean 可检查的 `<=>` 等价层，并暴露 CnBox equation endpoints（C_n 盒子方程端点）、PA finite-consistency payload（PA 有限一致性载荷）、public gap instantiation（公开间隙实例化）和 public collision instantiation（公开对撞实例化）。
+
 ## 优先权、引用与贡献边界
 
 本仓库记录的是 Sondow-Pudlak conditional collision box（Sondow-Pudlak 条件性对撞盒）的 public-alpha timestamp（公开 alpha 时间戳）。如果你使用、改写或继续推进这里的接口、证书结构、Lean 形式化路线或论文表述，请引用本仓库和对应 release（版本发布）；引用信息见 [`CITATION.cff`](CITATION.cff)。
@@ -19,6 +21,7 @@
 - 一个把 Sondow collapse（Sondow 坍缩）与 Pudlak-Friedman-Buss finite-consistency lower bound（有限一致性下界）放入共同 proof-length coordinate（证明长度坐标）的 certificate architecture（证书架构）；
 - 一个 Lean-checked interface-level theorem（Lean 检查的接口级定理），在显式输入下推出 `¬ is_rational euler_mascheroni`；
 - 一个明确的 axiom ledger（公理账本）和 audit boundary（审计边界），说明哪些 witness（见证）已经机器检查组合，哪些仍是 external/abstract inputs（外部/抽象输入）。
+- 一个 public bridge closure layer（公开桥接闭合层），把 CnBox equation endpoints（C_n 盒子方程端点）、same-object closure（同对象闭合）和公开 gap/collision endpoints（间隙/对撞端点）放在单一可探针入口中。
 
 贡献者可以提交 pull request（拉取请求）继续内部化 witness（见证）或改进文档，但不应把当前 public-alpha 版本表述为已经无条件证明 γ 无理。任何基于本项目的后续工作都应清楚区分：本仓库已经给出的 interface/collision architecture（接口/对撞架构），以及后续作者新增闭合的 external witness（外部见证）或 internal proof（内部证明）。
 
@@ -39,6 +42,12 @@ SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSpli
 
 ```text
 integration/SondowProjectPudlakInstantiation.lean
+```
+
+- Month 1 公开桥接闭合入口：
+
+```text
+integration/SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface.lean
 ```
 
 ## 构建
@@ -86,6 +95,21 @@ import integration.SondowProjectPudlakInstantiation
 EOF
 ```
 
+新的公开桥接闭合层可用下面的入口审计：
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+open SondowMainCheckedCodeBridge.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+
+#check Month1PublicBridgeClosureTheoremLayer
+#check Month1PublicBridgeClosureTheoremLayer.concrete_iff_public_origin
+#check Month1PublicBridgeClosureTheoremLayer.target_eq_box_formula
+#check Month1PublicBridgeClosureTheoremLayer.carries_iff_pa_finite_consistency
+#check Month1PublicBridgeClosureTheoremLayer.public_gap_instantiation
+EOF
+```
+
 当前核心 external or abstract inputs（外部或抽象输入）列在 [`AXIOM_LEDGER.md`](AXIOM_LEDGER.md) 中。最近一次本地审计显示主要依赖为：
 
 ```text
@@ -107,6 +131,7 @@ strengthened_partial_consistency_payload
 - Sondow analytic side（Sondow 解析侧）已有 Lean-closed reproof（Lean 闭合重证）路线，包括 product-log identity（乘积-对数恒等式）、decomposition（分解）、tail estimates（尾界）和 Sondow forward package（Sondow 前向输入包）。
 - project-local verifier/compiler framework（项目本地验证器/编译器框架）已经进入可构建接口，例如 `SondowProjectLocalS21Kernel` 和 `SondowProjectLocalReflectionGraftVerifier`。
 - 从 semantic proof-length conventions（语义证明长度约定）到 exact split minChecked witnesses（精确拆分最小已检查码长见证）的桥接已经由 Lean 检查。
+- `Month1PublicBridgeClosureTheoremLayer`（第 1 月公开桥接闭合定理层）把 concrete route（具体路线）、paper route（论文路线）、release checkpoint（发布检查点）和 public origin（公开起源）互相连接为 `<=>` 等价，并给出 CnBox target/box equation（目标/盒子方程）、code roundtrip（编码往返）和 PA finite-consistency payload equivalence（PA 有限一致性载荷等价）的公开入口。
 
 ## 尚未完全内部化内容
 
@@ -116,6 +141,7 @@ strengthened_partial_consistency_payload
 - abstract `proof_length`（抽象证明长度）到 checked-code/minProofCodeSize semantics（已检查代码/最小证明码大小语义）的无条件 proof-length convention（证明长度约定）。
 - `PartialConsistencyPayloadTruth` 和 `StrengthenedPartialConsistencyPayloadTruth` 对应的 payload truth（载荷真值）语义。
 - 最终上界入口中的 `Nonempty SondowProjectLocalReflectionGraftVerifier` 仍需从 lower-level checked-code S21 trace calibrations（低层已检查码 S21 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造为无参数实例。
+- Month 1 公开桥接闭合层不把 Pudlak theorem 5（Pudlak 定理 5）、最终 gap growth domination（间隙增长支配）或无参数 Sondow verifier（Sondow 验证器）变成无条件定理；它把这些输入接入同一个可审计接口。
 
 ## 公开状态
 
@@ -141,6 +167,13 @@ This repository is a Lean 4 research artifact for a conditional proof-complexity
 
 The goal of this project is to make the remaining mathematical and proof-complexity obligations explicit, not to hide them behind successful compilation.
 
+The 2026-07-04 public sync adds the Month 1 public bridge closure theorem layer.
+It organizes the CnBox/Pudlak project route so that the concrete route, paper
+route, release checkpoint, and public origin are connected by Lean-checked
+equivalences, and it exposes the CnBox equation endpoints, the PA finite
+consistency payload, the public gap instantiation, and the public collision
+instantiation.
+
 ## Priority, Citation, and Contribution Boundary
 
 This repository records a public-alpha timestamp for the Sondow-Pudlak conditional collision box. If you use, adapt, or extend the interfaces, certificate architecture, Lean formalization route, or paper exposition in this repository, please cite this repository and the corresponding release; see [`CITATION.cff`](CITATION.cff).
@@ -150,6 +183,7 @@ The core public contributions at this stage are:
 - a certificate architecture that places Sondow collapse and Pudlak-Friedman-Buss finite-consistency lower bounds on a common proof-length coordinate;
 - a Lean-checked interface-level theorem deriving `¬ is_rational euler_mascheroni` under explicit inputs;
 - an axiom ledger and audit boundary explaining which witnesses are machine-checked in the composition and which remain external or abstract inputs.
+- a public bridge closure layer that places the CnBox equation endpoints, same-object closure, and public gap/collision endpoints behind a single probeable entry point.
 
 Contributors may submit pull requests to internalize witnesses or improve the documentation, but this public-alpha version should not be described as an unconditional proof of the irrationality of γ. Any follow-up work based on this project should distinguish the interface/collision architecture provided here from any external witness or internal proof newly closed by later authors.
 
@@ -170,6 +204,12 @@ The endpoint is defined in:
 
 ```text
 integration/SondowProjectPudlakInstantiation.lean
+```
+
+- Month 1 public bridge closure entry:
+
+```text
+integration/SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface.lean
 ```
 
 ## Build
@@ -217,6 +257,21 @@ import integration.SondowProjectPudlakInstantiation
 EOF
 ```
 
+The new public bridge closure layer can be audited through:
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+open SondowMainCheckedCodeBridge.SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+
+#check Month1PublicBridgeClosureTheoremLayer
+#check Month1PublicBridgeClosureTheoremLayer.concrete_iff_public_origin
+#check Month1PublicBridgeClosureTheoremLayer.target_eq_box_formula
+#check Month1PublicBridgeClosureTheoremLayer.carries_iff_pa_finite_consistency
+#check Month1PublicBridgeClosureTheoremLayer.public_gap_instantiation
+EOF
+```
+
 The current core external or abstract inputs are listed in [`AXIOM_LEDGER.md`](AXIOM_LEDGER.md). The latest local audit reports the following main dependencies:
 
 ```text
@@ -238,6 +293,7 @@ It also depends on standard Lean/Mathlib principles such as `propext`, `Classica
 - The Sondow analytic side has a Lean-closed reproof route, including the product-log identity, decomposition, tail estimates, and the Sondow forward package.
 - The project-local verifier/compiler framework is present in buildable interfaces such as `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`.
 - The bridge from semantic proof-length conventions to exact split minChecked witnesses is machine checked.
+- `Month1PublicBridgeClosureTheoremLayer` connects the concrete route, paper route, release checkpoint, and public origin by equivalences, and exposes public entries for the CnBox target/box equation, code roundtrip, and PA finite-consistency payload equivalence.
 
 ## What Is Not Yet Fully Internalized
 
@@ -247,6 +303,7 @@ The remaining boundary is not that the whole Sondow side is unfinished. More pre
 - The unconditional proof-length convention identifying the abstract `proof_length` with checked-code/minProofCodeSize semantics.
 - The payload-truth semantics represented by `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
 - The final upper-side input `Nonempty SondowProjectLocalReflectionGraftVerifier`, which still needs to be constructed parameter-free from lower-level checked-code S21 trace calibrations and a PA embedding witness.
+- The Month 1 public bridge closure layer does not turn Pudlak theorem 5, final gap growth domination, or the parameter-free Sondow verifier into unconditional theorems. It places those inputs behind one auditable interface.
 
 ## Public Status
 

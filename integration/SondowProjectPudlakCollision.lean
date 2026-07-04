@@ -93,6 +93,18 @@ theorem upperBoundUnderRationality
       rcases hupper n hn_ge with ⟨_haccepted, hle⟩
       exact hle⟩
 
+/-- Short audit-facing alias for the Sondow upper side.  This theorem makes
+explicit that the upper certificate is conditional on rationality. -/
+theorem audited_upper_core
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ U : ℕ → ℝ, _root_.is_polynomial_bound U ∧
+      ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n) ≤ U n :=
+  h.upperBoundUnderRationality hrat
+
 /-- Audit-facing final Pudlak gap certificate for the project-local collision
 box. -/
 theorem finalPudlakGapCertificate
@@ -101,6 +113,15 @@ theorem finalPudlakGapCertificate
     _root_.EventualStrictGap U
       (fun n : ℕ => sondowProjectLocalPudlakCollisionBox n) :=
   h.graftGapCertificate U hU
+
+/-- Short audit-facing alias for the Pudlak gap side of the shared collision
+box. -/
+theorem audited_gap_core
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (U : ℕ → ℝ) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : ℕ => sondowProjectLocalPudlakCollisionBox n) :=
+  h.finalPudlakGapCertificate U hU
 
 /-- Final collision, factored through the explicit gap certificate.  This is
 definitionally the same route as `not_rational`, but it exposes the exact
@@ -130,6 +151,27 @@ theorem not_rational_from_audited_upper_gap_box_collisionCore
     (h : SondowProjectLocalPudlakCollisionInputs) :
     ¬ _root_.is_rational _root_.euler_mascheroni :=
   h.not_rational_via_gap_certificate
+
+/-- Short audit-facing alias for the final collision core. -/
+theorem audited_collision_core
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.not_rational_from_audited_upper_gap_box_collisionCore
+
+/-- Contradiction form of the audited collision core.  This is useful for
+auditors who want to see the rationality assumption discharged explicitly. -/
+theorem audited_collision_contradiction
+    (h : SondowProjectLocalPudlakCollisionInputs)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  h.audited_collision_core hrat
+
+/-- Curried contradiction form: the audited collision core refutes the
+rationality assumption directly. -/
+theorem audited_collision_refutes_rationality
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    _root_.is_rational _root_.euler_mascheroni → False :=
+  fun hrat => h.audited_collision_contradiction hrat
 
 /-- Build collision inputs from a projection instead of a lower-bound transfer.
 This is the common conjunction-elimination route: a short proof of the graft

@@ -3103,18 +3103,6 @@ theorem FormulaCodeHilbertInterpretation.familyExactness_iff_minCheckedExactness
     fun h =>
       PAHilbertProjectionFamilyExactness.ofMinCheckedExactness h.1 h.2⟩
 
-/-- Short audit name: exact family equality is equivalent to the split
-min-checked exactness certificates. -/
-theorem FormulaCodeHilbertInterpretation.exactFamily_iff_splitMinChecked
-    {Ax : L.BoundedFormula α n → Prop}
-    {A B : ℕ → L.BoundedFormula α n}
-    {halign : HilbertProjectionCodeAlignment}
-    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
-    PAHilbertProjectionFamilyExactness interp ↔
-      PAHilbertPartialConsistencyMinCheckedExactness interp ∧
-        PAHilbertReflectionGraftMinCheckedExactness interp :=
-  interp.familyExactness_iff_minCheckedExactness
-
 theorem PAHilbertProjectionFamilyExactness.of_projectCheckedCodeProofLengthSemantics
     {Ax : L.BoundedFormula α n → Prop}
     {A B : ℕ → L.BoundedFormula α n}
@@ -3176,19 +3164,6 @@ theorem FormulaCodeHilbertInterpretation.projectCheckedCodeSemantics_iff_familyE
       PAHilbertProjectionFamilyExactness interp :=
   (interp.familyExactness_iff_projectCheckedCodeSemantics).symm
 
-/-- Short audit name: local checked-code proof-length convention is equivalent
-to exact family equality on the Pudlak projection fragment. -/
-theorem FormulaCodeHilbertInterpretation.checkedConvention_iff_exactFamily
-    {Ax : L.BoundedFormula α n → Prop}
-    {A B : ℕ → L.BoundedFormula α n}
-    {halign : HilbertProjectionCodeAlignment}
-    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
-    ProjectProofLengthSemantics
-      ProofSystem.PA ProofLengthMeasure.symbolSize
-      interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode ↔
-      PAHilbertProjectionFamilyExactness interp :=
-  interp.projectCheckedCodeSemantics_iff_familyExactness
-
 theorem PAHilbertPartialConsistencyMinCheckedExactness.of_projectCheckedCodeProofLengthSemantics
     {Ax : L.BoundedFormula α n → Prop}
     {A B : ℕ → L.BoundedFormula α n}
@@ -3245,6 +3220,58 @@ theorem FormulaCodeHilbertInterpretation.projectCheckedCodeSemantics_iff_splitMi
       PAHilbertPartialConsistencyMinCheckedExactness interp ∧
         PAHilbertReflectionGraftMinCheckedExactness interp :=
   (interp.splitMinCheckedExactness_iff_projectCheckedCodeSemantics).symm
+
+theorem FormulaCodeHilbertInterpretation.familyExactness_iff_splitLocalCheckedRecognition
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    PAHilbertProjectionFamilyExactness interp ↔
+      PASplitLocalCheckedRecognition interp := by
+  constructor
+  · intro hexact
+    exact {
+      partial_recognition :=
+        hexact.toPartialConsistencyMinCheckedExactness
+          |>.toSourceMinCheckedCalibration
+          |>.toLocalCheckedRecognition
+      reflection_recognition :=
+        hexact.toReflectionGraftMinCheckedExactness.toLocalCheckedRecognition }
+  · intro hrec
+    exact PAHilbertProjectionFamilyExactness.ofMinCheckedExactness
+      (hrec.partial_recognition.toSourceMinCheckedCalibration
+        |>.toPartialConsistencyMinCheckedExactness)
+      hrec.reflection_recognition.toReflectionGraftMinCheckedExactness
+
+theorem FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalConvention
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    PAHilbertProjectionFamilyExactness interp ↔
+      PAHilbertSplitCanonicalMinCheckedConvention interp := by
+  constructor
+  · intro hexact
+    exact {
+      partial_convention :=
+        hexact.toPartialConsistencyMinCheckedExactness
+          |>.toSourceMinCheckedCalibration
+          |>.toCanonicalMinCheckedConvention
+      reflection_convention :=
+        hexact.toReflectionGraftMinCheckedExactness
+          |>.toReflectionGraftCanonicalMinCheckedConvention }
+  · intro hconv
+    exact hconv.toFamilyExactness
+
+theorem FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalCertificate
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    PAHilbertProjectionFamilyExactness interp ↔
+      Nonempty (PASplitCanonicalConventionCertificate interp) :=
+  (interp.familyExactness_iff_splitCanonicalConvention).trans
+    interp.splitCanonicalConvention_iff_certificate
 
 -- The explicit recognition condition for replacing the abstract project-level
 -- `proof_length` on the projection fragment by the checked-code length model.
@@ -3973,6 +4000,49 @@ theorem FormulaCodeHilbertInterpretation.localProofCodeRecognition_iff_conventio
   · intro hcert
     rcases hcert with ⟨hcert⟩
     exact hcert.toLocalProofCodeRecognition
+
+theorem FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyExactness
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (PAHilbertLocalProofCodeConventionCertificate interp) ↔
+      PAHilbertProjectionFamilyExactness interp :=
+  (interp.localProofCodeRecognition_iff_conventionCertificate).symm.trans
+    ((interp.localProofCodeRecognition_iff_projectCheckedRecognition).trans
+      (interp.projectCheckedRecognition_iff_familyExactness))
+
+theorem FormulaCodeHilbertInterpretation.familyExactness_iff_localProofCodeConventionCertificate
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    PAHilbertProjectionFamilyExactness interp ↔
+      Nonempty (PAHilbertLocalProofCodeConventionCertificate interp) :=
+  (interp.localProofCodeConventionCertificate_iff_familyExactness).symm
+
+theorem PAHilbertLocalProofCodeConventionCertificate.toFamilyExactness
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (hcert : PAHilbertLocalProofCodeConventionCertificate interp) :
+    PAHilbertProjectionFamilyExactness interp :=
+  ((FormulaCodeHilbertInterpretation.localProofCodeRecognition_iff_projectCheckedRecognition
+    interp).1 hcert.toLocalProofCodeRecognition).toFamilyExactness
+
+noncomputable def PAHilbertProjectionFamilyExactness.toLocalProofCodeConventionCertificate
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : ℕ → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (hexact : PAHilbertProjectionFamilyExactness interp) :
+    PAHilbertLocalProofCodeConventionCertificate interp :=
+  PAHilbertLocalProofCodeConventionCertificate.ofLocalProofCodeRecognition
+    ((FormulaCodeHilbertInterpretation.localProofCodeRecognition_iff_projectCheckedRecognition
+      interp).2
+      (PAHilbertProjectCheckedProofLengthRecognition.ofFamilyExactness
+        hexact))
 
 noncomputable def
     PAHilbertLocalProofCodeConventionCertificate.ofLocalCheckedProjectProofLengthSemantics

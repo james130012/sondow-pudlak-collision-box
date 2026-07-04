@@ -387,6 +387,15 @@ theorem LiteraturePudlakTheorem5StandardInstance.normalForm_code_eq
       rescaledBussPudlakPAFiniteConsistencyRawCode h.scale := by
   rfl
 
+theorem LiteraturePudlakTheorem5StandardInstance.normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5StandardInstance)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toNormalForm hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode h.scale n := by
+  rw [h.normalForm_code_eq hpartial]
+  exact rescaledBussPudlakPAFiniteConsistencyRawCode_eq h.scale n
+
 theorem LiteraturePudlakTheorem5StandardInstance.normalForm_transfer_target
     (h : LiteraturePudlakTheorem5StandardInstance)
     (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer) :
@@ -515,6 +524,17 @@ theorem LiteraturePudlakTheorem5ScaleData.normalForm_code_eq_powerBoundRawCode
   funext n
   exact h.rescaledRawCode_eq_powerBoundRawCode n
 
+theorem LiteraturePudlakTheorem5ScaleData.normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5ScaleData)
+    (hlower :
+      StrongRescaledExternalStrengthenedLowerBound h.rawCode h.scale)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toNormalForm hlower hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode h.scale n := by
+  rw [h.normalForm_code_eq_powerBoundRawCode hlower hpartial]
+  exact h.powerBoundRawCode_eq_rescaledPudlak n
+
 abbrev LiteraturePudlakTheorem5PowerBoundLowerBound
     (h : LiteraturePudlakTheorem5ScaleData) : Prop :=
   StrongProofLengthLowerBound ProofSystem.PA ProofLengthMeasure.symbolSize
@@ -566,11 +586,57 @@ def LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBoundCertificat
     h.scale_data.rescaledLowerBound_to_powerBoundLowerBound
       h.rescaled_lower_bound
 
+theorem LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBoundCertificate_scale_data
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate) :
+    h.toPowerBoundCertificate.scale_data = h.scale_data := by
+  rfl
+
 def LiteraturePudlakTheorem5LowerBoundCertificate.toRescaledCertificate
     (h : LiteraturePudlakTheorem5LowerBoundCertificate) :
     LiteraturePudlakTheorem5RescaledLowerBoundCertificate where
   scale_data := h.scale_data
   rescaled_lower_bound := h.rescaled_strong_lower_bound
+
+theorem LiteraturePudlakTheorem5LowerBoundCertificate.toRescaledCertificate_scale_data
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate) :
+    h.toRescaledCertificate.scale_data = h.scale_data := by
+  rfl
+
+theorem LiteraturePudlakTheorem5LowerBoundCertificate.toRescaled_toPowerBound_scale_data
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate) :
+    h.toRescaledCertificate.toPowerBoundCertificate.scale_data =
+      h.scale_data := by
+  rfl
+
+theorem LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBound_toRescaled_scale_data
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate) :
+    h.toPowerBoundCertificate.toRescaledCertificate.scale_data =
+      h.scale_data := by
+  rfl
+
+theorem LiteraturePudlakTheorem5LowerBoundCertificate.toRescaled_toPowerBound_powerBoundRawCode
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate) (n : ℕ) :
+    h.toRescaledCertificate.toPowerBoundCertificate.scale_data.powerBoundRawCode n =
+      h.scale_data.powerBoundRawCode n := by
+  rfl
+
+set_option linter.style.longLine false in
+theorem LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBound_toRescaled_rescaledRawCode
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate) (n : ℕ) :
+    h.toPowerBoundCertificate.toRescaledCertificate.scale_data.rescaledRawCode n =
+      h.scale_data.rescaledRawCode n := by
+  rfl
+
+theorem literaturePudlakTheorem5Certificate_nonempty_iff_rescaledCertificate :
+    Nonempty LiteraturePudlakTheorem5LowerBoundCertificate ↔
+      Nonempty LiteraturePudlakTheorem5RescaledLowerBoundCertificate := by
+  constructor
+  · intro h
+    rcases h with ⟨h⟩
+    exact ⟨h.toRescaledCertificate⟩
+  · intro h
+    rcases h with ⟨h⟩
+    exact ⟨h.toPowerBoundCertificate⟩
 
 /-- External literature witness for Pudlak theorem 5.
 
@@ -680,3 +746,76 @@ theorem LiteraturePudlakTheorem5LowerBoundCertificate.normalForm_code_eq_powerBo
     (h.toNormalForm hpartial).code = h.scale_data.powerBoundRawCode := by
   exact h.scale_data.normalForm_code_eq_powerBoundRawCode
     h.rescaled_strong_lower_bound hpartial
+
+theorem LiteraturePudlakTheorem5LowerBoundCertificate.normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toNormalForm hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode h.scale_data.scale n := by
+  rw [h.normalForm_code_eq_powerBoundRawCode hpartial]
+  exact h.scale_data.powerBoundRawCode_eq_rescaledPudlak n
+
+/-- Short audit package: converting a theorem-5 power-bound certificate to the
+rescaled certificate and back preserves the scale data and the audited raw code.
+This is only a conjunction of existing field-level round-trip lemmas. -/
+theorem audit_theorem5_powerBound_certificateRoundTrip
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate) :
+    h.toRescaledCertificate.toPowerBoundCertificate.scale_data = h.scale_data ∧
+      (∀ n : ℕ,
+        h.toRescaledCertificate.toPowerBoundCertificate.scale_data.powerBoundRawCode n =
+          h.scale_data.powerBoundRawCode n) := by
+  exact ⟨h.toRescaled_toPowerBound_scale_data,
+    fun n => h.toRescaled_toPowerBound_powerBoundRawCode n⟩
+
+/-- Short audit package: converting a theorem-5 rescaled certificate to the
+power-bound certificate and back preserves the scale data and the audited raw
+code. -/
+theorem audit_theorem5_rescaled_certificateRoundTrip
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate) :
+    h.toPowerBoundCertificate.toRescaledCertificate.scale_data = h.scale_data ∧
+      (∀ n : ℕ,
+        h.toPowerBoundCertificate.toRescaledCertificate.scale_data.rescaledRawCode n =
+          h.scale_data.rescaledRawCode n) := by
+  exact ⟨h.toPowerBound_toRescaled_scale_data,
+    fun n => h.toPowerBound_toRescaled_rescaledRawCode n⟩
+
+/-- Short audit equivalence: the theorem-5 power-bound certificate and rescaled
+certificate presentations are mutually available. -/
+theorem audit_theorem5_certificatePresentation_iff_rescaledPresentation :
+    Nonempty LiteraturePudlakTheorem5LowerBoundCertificate ↔
+      Nonempty LiteraturePudlakTheorem5RescaledLowerBoundCertificate :=
+  literaturePudlakTheorem5Certificate_nonempty_iff_rescaledCertificate
+
+set_option linter.style.longLine false in
+theorem LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBound_normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toPowerBoundCertificate.toNormalForm hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode h.scale_data.scale n :=
+  h.toPowerBoundCertificate.normalForm_code_eq_rescaledPudlak hpartial n
+
+set_option linter.style.longLine false in
+theorem LiteraturePudlakTheorem5LowerBoundCertificate.toRescaled_toPowerBound_normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5LowerBoundCertificate)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toRescaledCertificate.toPowerBoundCertificate.toNormalForm
+        hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode
+        h.scale_data.scale n :=
+  h.toRescaledCertificate.toPowerBoundCertificate
+    |>.normalForm_code_eq_rescaledPudlak hpartial n
+
+set_option linter.style.longLine false in
+theorem LiteraturePudlakTheorem5RescaledLowerBoundCertificate.toPowerBound_toRescaled_normalForm_code_eq_rescaledPudlak
+    (h : LiteraturePudlakTheorem5RescaledLowerBoundCertificate)
+    (hpartial : StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (n : ℕ) :
+    (h.toPowerBoundCertificate.toRescaledCertificate.toPowerBoundCertificate
+        |>.toNormalForm hpartial).code n =
+      rescaledPudlakStrengthenedFiniteConsistencyCode
+        h.scale_data.scale n :=
+  h.toPowerBoundCertificate.toRescaledCertificate.toPowerBoundCertificate
+    |>.normalForm_code_eq_rescaledPudlak hpartial n

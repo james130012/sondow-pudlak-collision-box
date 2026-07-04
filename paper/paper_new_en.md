@@ -243,6 +243,22 @@ and the budgeted assembly interface are equivalent presentations of the same
 concrete project obligation.  This is a Lean-checked interface statement, not
 the final construction of the concrete certificate.
 
+The current public-facing project theorem layer is:
+
+```lean
+SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
+Month1PublicBridgeClosureTheoremLayer
+```
+
+It packages the concrete route, the paper route, the release checkpoint, and
+the public-origin statement into equivalences.  The layer also exposes the
+CnBox target/box equation, the code roundtrip back to the target formula, the
+equivalence between the CnBox payload and the PA finite-consistency statement,
+the same-object closure, and the public gap/collision instantiations.  Thus
+the paper statement no longer relies only on an informal claim that the
+project-specific CnBox object is the same object seen by the public collision
+kernel; that identification is represented by named Lean theorem surfaces.
+
 The mathematical roles of these names are as follows.
 
 `StrengthenedToPartialProjectProofLengthExactFamilyLengths` calibrates the strengthened family against the partial-consistency family. It answers the question: when the strengthened payload produced by the Sondow-collapse side is lowered to the partial-consistency proxy, is the required proof-length equality preserved?
@@ -311,9 +327,10 @@ from lower-level checked-code S²₁ trace calibrations and a PA embedding
 witness, and to internalize the payload-truth semantics represented by
 `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
 On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
-generic interface, but to construct the final concrete field index/certificate
-that populates the source compiler, budgeted assembly, external gap criterion,
-and final project gap element.
+generic interface or the public bridge closure layer.  The remaining task is
+to populate the existing field-index, assembly, external-gap, and public
+collision interfaces with the final concrete witnesses strong enough for the
+unconditional target.
 
 These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
 

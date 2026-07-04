@@ -783,6 +783,12 @@ theorem strengthenedToPartialFamilyWitness_iff_exactFamilyLengths
     StrengthenedToPartialProjectProofLengthExactFamilyLengths.toFamilyWitness
       fallback⟩
 
+theorem strengthenedToPartialExactFamilyLengths_iff_familyWitness
+    (fallback : FormulaCode → ℕ) :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths ↔
+      StrengthenedToPartialProjectProofLengthFamilyWitness fallback :=
+  (strengthenedToPartialFamilyWitness_iff_exactFamilyLengths fallback).symm
+
 def StrengthenedToPartialProjectProofLengthExactFamilyLengths.toCalibration
     (fallback : FormulaCode → ℕ)
     (hexact : StrengthenedToPartialProjectProofLengthExactFamilyLengths) :
@@ -811,6 +817,12 @@ theorem strengthenedToPartialCalibration_iff_exactFamilyLengths
       fallback,
     StrengthenedToPartialProjectProofLengthExactFamilyLengths.toCalibration
       fallback⟩
+
+theorem strengthenedToPartialExactFamilyLengths_iff_calibration
+    (fallback : FormulaCode → ℕ) :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths ↔
+      (strengthenedToPartialProofLengthCodeSemantics fallback).Calibration :=
+  (strengthenedToPartialCalibration_iff_exactFamilyLengths fallback).symm
 
 def StrengthenedToPartialProjectProofLengthFamilyWitness.toProjectProofLengthSemantics
     {fallback : FormulaCode → ℕ}
@@ -866,6 +878,16 @@ theorem strengthenedToPartialProjectProofLengthSemantics_iff_exactFamilyLengths
   (strengthenedToPartialProjectProofLengthSemantics_iff_familyWitness
     fallback).trans
     (strengthenedToPartialFamilyWitness_iff_exactFamilyLengths fallback)
+
+theorem strengthenedToPartialExactFamilyLengths_iff_projectProofLengthSemantics
+    (fallback : FormulaCode → ℕ) :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths ↔
+      ProjectProofLengthSemantics
+        ProofSystem.PA ProofLengthMeasure.symbolSize
+        (strengthenedToPartialProofLengthCodeSemantics fallback).length
+        StrengthenedToPartialRelevantCode :=
+  (strengthenedToPartialProjectProofLengthSemantics_iff_exactFamilyLengths
+    fallback).symm
 
 def StrengthenedToPartialProjectProofLengthExactFamilyLengths.toProjectProofLengthSemantics
     (fallback : FormulaCode → ℕ)
@@ -926,6 +948,20 @@ theorem strengthenedToPartialConcreteRecognition_iff_family_lengths
   (strengthenedToPartialConcreteRecognition_iff_calibration fallback).trans
     (strengthenedToPartialProofLengthCodeSemantics_calibration_iff_family_lengths
       fallback)
+
+theorem strengthenedToPartialConcreteRecognition_iff_exactFamilyLengths
+    (fallback : FormulaCode → ℕ) :
+    StrengthenedToPartialConcreteProofLengthRecognition ↔
+      StrengthenedToPartialProjectProofLengthExactFamilyLengths :=
+  (strengthenedToPartialConcreteRecognition_iff_calibration fallback).trans
+    (strengthenedToPartialCalibration_iff_exactFamilyLengths fallback)
+
+theorem strengthenedToPartialExactFamilyLengths_iff_concreteRecognition
+    (fallback : FormulaCode → ℕ) :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths ↔
+      StrengthenedToPartialConcreteProofLengthRecognition :=
+  (strengthenedToPartialConcreteRecognition_iff_exactFamilyLengths
+    fallback).symm
 
 /-- Proof-length convention for the fixed strengthened-to-partial checker.
 
@@ -1062,6 +1098,36 @@ theorem strengthenedToPartialConcreteRecognition_iff_canonicalCertificate :
   · intro hcert
     rcases hcert with ⟨hcert⟩
     exact hcert.toConcreteRecognition
+
+theorem strengthenedToPartialCanonicalCertificate_iff_concreteRecognition :
+    Nonempty StrengthenedToPartialCanonicalRecognitionCertificate ↔
+      StrengthenedToPartialConcreteProofLengthRecognition :=
+  strengthenedToPartialConcreteRecognition_iff_canonicalCertificate.symm
+
+theorem strengthenedToPartialCanonicalCertificate_iff_exactFamilyLengths :
+    Nonempty StrengthenedToPartialCanonicalRecognitionCertificate ↔
+      StrengthenedToPartialProjectProofLengthExactFamilyLengths :=
+  strengthenedToPartialCanonicalCertificate_iff_concreteRecognition.trans
+    (strengthenedToPartialConcreteRecognition_iff_exactFamilyLengths
+      (fun _ => 0))
+
+theorem strengthenedToPartialExactFamilyLengths_iff_canonicalCertificate :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths ↔
+      Nonempty StrengthenedToPartialCanonicalRecognitionCertificate :=
+  strengthenedToPartialCanonicalCertificate_iff_exactFamilyLengths.symm
+
+def StrengthenedToPartialProjectProofLengthExactFamilyLengths.toCanonicalRecognitionCertificate
+    (fallback : FormulaCode → ℕ)
+    (hexact : StrengthenedToPartialProjectProofLengthExactFamilyLengths) :
+    StrengthenedToPartialCanonicalRecognitionCertificate :=
+  (hexact.toFamilyWitness fallback).toCanonicalRecognitionCertificate
+
+theorem
+    StrengthenedToPartialCanonicalRecognitionCertificate.toExactFamilyLengths
+    (hcert : StrengthenedToPartialCanonicalRecognitionCertificate) :
+    StrengthenedToPartialProjectProofLengthExactFamilyLengths :=
+  (strengthenedToPartialConcreteRecognition_iff_exactFamilyLengths
+    hcert.convention.fallback).1 hcert.toConcreteRecognition
 
 /-- External project convention for the strengthened-to-partial checker.
 
