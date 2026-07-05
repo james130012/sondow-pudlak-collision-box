@@ -3344,6 +3344,126 @@ theorem month9_month10_proof_length_free_checked_gap_kernel_checklist :
       month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion_witness_eq
         cert U hU N
 
+/-! ## Proof-length-free generated checked gap -/
+
+/-- Minimal proof-length-free source for the checked lower gap.  It contains only
+the theorem-5 measured family, the finite search space, and the computable
+finite-search exclusion certificate.  In particular, it does not mention root
+`proof_length` or the heavier checker exactness core. -/
+structure PAHilbertProofLengthFreeLowerGapSource : Type 1 where
+  scale_data : InternalPudlakTheorem5ScaleData
+  proof_code_semantics :
+    _root_.ProofCodeSemantics.{0}
+      (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)
+  small_code_search :
+    InternalPudlakTheorem5SmallCodeSearch
+      scale_data proof_code_semantics
+  computable_search_exclusion :
+    InternalPudlakTheorem5ComputableFiniteSearchExclusion
+      scale_data proof_code_semantics small_code_search
+
+namespace PAHilbertProofLengthFreeLowerGapSource
+
+def measured (source : PAHilbertProofLengthFreeLowerGapSource) :
+    Nat → Real :=
+  month9_month10_checkedProofCodeMeasured
+    source.scale_data source.proof_code_semantics
+
+/-- Checked measured gap generated directly from the proof-length-free finite
+search exclusion certificate. -/
+def checkedGap (source : PAHilbertProofLengthFreeLowerGapSource) :
+    ComputableSearchGapCertificate
+      source.measured :=
+  month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion
+    source.computable_search_exclusion
+
+theorem checkedGap_witness_eq
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((source.checkedGap
+      |>.gap_for_polynomial_upper U hU).witness N) =
+      source.computable_search_exclusion.witness U hU N :=
+  rfl
+
+theorem checkedGap_witness_ge
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    N ≤
+      ((source.checkedGap
+        |>.gap_for_polynomial_upper U hU).witness N) :=
+  (source.checkedGap
+    |>.gap_for_polynomial_upper U hU).witness_ge N
+
+theorem checkedGap_strict_at_cert_witness
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    U (source.computable_search_exclusion.witness U hU N) <
+      source.measured
+        (source.computable_search_exclusion.witness U hU N) := by
+  simpa [month9_month10_checkedProofCodeMeasured,
+    PAHilbertProofLengthFreeLowerGapSource.measured]
+    using
+      source.computable_search_exclusion.minProofCodeSize_gt_at_witness
+        U hU N
+
+theorem closure
+    (source : PAHilbertProofLengthFreeLowerGapSource) :
+    Nonempty (ComputableSearchGapCertificate source.measured) ∧
+      (∀ U : Nat → Real,
+        ∀ hU : _root_.is_polynomial_bound U,
+          ∀ N : Nat,
+            ((source.checkedGap
+              |>.gap_for_polynomial_upper U hU).witness N) =
+              source.computable_search_exclusion.witness U hU N) ∧
+        (∀ U : Nat → Real,
+          ∀ hU : _root_.is_polynomial_bound U,
+            ∀ N : Nat,
+              U (source.computable_search_exclusion.witness U hU N) <
+                source.measured
+                  (source.computable_search_exclusion.witness U hU N)) :=
+  ⟨⟨source.checkedGap⟩,
+    source.checkedGap_witness_eq,
+    source.checkedGap_strict_at_cert_witness⟩
+
+end PAHilbertProofLengthFreeLowerGapSource
+
+/-- The checker computable-search profile is exactly the proof-length-free lower
+gap source needed by the checked collision kernel. -/
+def lowerGapSourceOfCheckerComputableSearchProfile
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data) :
+    PAHilbertProofLengthFreeLowerGapSource where
+  scale_data := scale_data
+  proof_code_semantics := profile.proof_code_semantics
+  small_code_search := profile.small_code_search
+  computable_search_exclusion := profile.computable_search_exclusion
+
+theorem lowerGapSourceOfCheckerComputableSearchProfile_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((lowerGapSourceOfCheckerComputableSearchProfile profile).checkedGap
+      |>.gap_for_polynomial_upper U hU).witness N) =
+      profile.computable_search_exclusion.witness U hU N :=
+  rfl
+
+theorem lowerGapSourceOfCheckerComputableSearchProfile_strict_at_profile_witness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    U (profile.computable_search_exclusion.witness U hU N) <
+      month9_month10_checkedProofCodeMeasured
+        scale_data profile.proof_code_semantics
+        (profile.computable_search_exclusion.witness U hU N) :=
+  (lowerGapSourceOfCheckerComputableSearchProfile profile)
+    |>.checkedGap_strict_at_cert_witness U hU N
+
 /-! ## Project-length replacement for the checked measured route -/
 
 /-- The theorem-5 power-bound family measured by the concrete
@@ -3773,6 +3893,331 @@ theorem closure
     h.not_rational⟩
 
 end Month9Month10CheckedSearchCollisionEndpoint
+
+/-- Collision endpoint whose lower side is generated by the proof-length-free
+lower-gap source itself.  The only remaining input is the Sondow upper provider
+for the same checked measured object. -/
+def checkedSearchCollisionEndpointOfLowerGapSource
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics)) :
+    Month9Month10CheckedSearchCollisionEndpoint source.scale_data where
+  sem := source.proof_code_semantics
+  search := source.small_code_search
+  cert := source.computable_search_exclusion
+  upper_provider := upper_provider
+
+theorem checkedSearchCollisionEndpointOfLowerGapSource_computedN_eq_certWitness
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (checkedSearchCollisionEndpointOfLowerGapSource
+        source upper_provider).computedCollisionNOfRationality hrat =
+      source.computable_search_exclusion.witness
+        ((checkedSearchCollisionEndpointOfLowerGapSource
+            source upper_provider)
+          |>.toDirectEndpoint
+          |>.toAbstractMeasuredEndpoint
+          |>.upperTailOfRationality hrat).U
+        ((checkedSearchCollisionEndpointOfLowerGapSource
+            source upper_provider)
+          |>.toDirectEndpoint
+          |>.toAbstractMeasuredEndpoint
+          |>.upperTailOfRationality hrat).polynomial
+        ((checkedSearchCollisionEndpointOfLowerGapSource
+            source upper_provider)
+          |>.toDirectEndpoint
+          |>.toAbstractMeasuredEndpoint
+          |>.upperTailOfRationality hrat).upperN :=
+  rfl
+
+theorem checkedSearchCollisionEndpointOfLowerGapSource_closure
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics)) :
+    Nonempty
+      (ComputableSearchGapCertificate
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics)) ∧
+      (∀ U : Nat → Real,
+        ∀ hU : _root_.is_polynomial_bound U,
+          ∀ N : Nat,
+            ((source.checkedGap
+              |>.gap_for_polynomial_upper U hU).witness N) =
+              source.computable_search_exclusion.witness U hU N) ∧
+        (∀ U : Nat → Real,
+          ∀ hU : _root_.is_polynomial_bound U,
+            ∀ N : Nat,
+              U (source.computable_search_exclusion.witness U hU N) <
+                month9_month10_checkedProofCodeMeasured
+                  source.scale_data source.proof_code_semantics
+                  (source.computable_search_exclusion.witness U hU N)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchCollisionEndpointOfLowerGapSource
+              source upper_provider).computedCollisionNOfRationality hrat =
+              source.computable_search_exclusion.witness
+                ((checkedSearchCollisionEndpointOfLowerGapSource
+                    source upper_provider)
+                  |>.toDirectEndpoint
+                  |>.toAbstractMeasuredEndpoint
+                  |>.upperTailOfRationality hrat).U
+                ((checkedSearchCollisionEndpointOfLowerGapSource
+                    source upper_provider)
+                  |>.toDirectEndpoint
+                  |>.toAbstractMeasuredEndpoint
+                  |>.upperTailOfRationality hrat).polynomial
+                ((checkedSearchCollisionEndpointOfLowerGapSource
+                    source upper_provider)
+                  |>.toDirectEndpoint
+                  |>.toAbstractMeasuredEndpoint
+                  |>.upperTailOfRationality hrat).upperN) ∧
+            ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨⟨source.checkedGap⟩,
+    source.checkedGap_witness_eq,
+    source.checkedGap_strict_at_cert_witness,
+    checkedSearchCollisionEndpointOfLowerGapSource_computedN_eq_certWitness
+      source upper_provider,
+    (checkedSearchCollisionEndpointOfLowerGapSource
+      source upper_provider).not_rational⟩
+
+/-- The polynomial upper tail selected under rationality for the proof-length-free
+lower-gap source. -/
+noncomputable def lowerGapSourceUpperTailOfRationality
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate source.measured :=
+  (checkedSearchCollisionEndpointOfLowerGapSource source upper_provider)
+    |>.toDirectEndpoint
+    |>.toAbstractMeasuredEndpoint
+    |>.upperTailOfRationality hrat
+
+/-- The actual computed natural-number witness for the proof-length-free lower
+gap source.  It is the finite-search exclusion witness evaluated at the upper
+route's polynomial and threshold. -/
+noncomputable def lowerGapSourceComputedNOfRationality
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  source.computable_search_exclusion.witness
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).U
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).polynomial
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).upperN
+
+theorem lowerGapSourceComputedN_eq_endpointComputedN
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    lowerGapSourceComputedNOfRationality source upper_provider hrat =
+      (checkedSearchCollisionEndpointOfLowerGapSource
+        source upper_provider).computedCollisionNOfRationality hrat :=
+  rfl
+
+theorem lowerGapSourceComputedN_ge_upperN
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).upperN ≤
+      lowerGapSourceComputedNOfRationality source upper_provider hrat :=
+  source.computable_search_exclusion.witness_ge
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).U
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).polynomial
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).upperN
+
+theorem lowerGapSource_lower_at_computedN
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).U
+        (lowerGapSourceComputedNOfRationality source upper_provider hrat) <
+      source.measured
+        (lowerGapSourceComputedNOfRationality source upper_provider hrat) :=
+  source.checkedGap_strict_at_cert_witness
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).U
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).polynomial
+    (lowerGapSourceUpperTailOfRationality
+      source upper_provider hrat).upperN
+
+theorem lowerGapSource_upper_at_computedN
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    source.measured
+        (lowerGapSourceComputedNOfRationality source upper_provider hrat) ≤
+      (lowerGapSourceUpperTailOfRationality
+        source upper_provider hrat).U
+        (lowerGapSourceComputedNOfRationality source upper_provider hrat) :=
+  (lowerGapSourceUpperTailOfRationality source upper_provider hrat).upper_after
+    (lowerGapSourceComputedNOfRationality source upper_provider hrat)
+    (lowerGapSourceComputedN_ge_upperN source upper_provider hrat)
+
+theorem lowerGapSource_contradiction_at_computedN
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (not_lt_of_ge
+    (lowerGapSource_upper_at_computedN source upper_provider hrat))
+    (lowerGapSource_lower_at_computedN source upper_provider hrat)
+
+/-- Checked-search collision endpoint generated directly from a checker
+computable-search profile. -/
+def checkedSearchCollisionEndpointOfCheckerComputableSearchProfile
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics)) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  checkedSearchCollisionEndpointOfLowerGapSource
+    (lowerGapSourceOfCheckerComputableSearchProfile profile)
+    upper_provider
+
+noncomputable def checkerProfileUpperTailOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (month9_month10_checkedProofCodeMeasured
+        scale_data profile.proof_code_semantics) :=
+  lowerGapSourceUpperTailOfRationality
+    (lowerGapSourceOfCheckerComputableSearchProfile profile)
+    upper_provider hrat
+
+noncomputable def checkerProfileComputedNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  profile.computable_search_exclusion.witness
+    (checkerProfileUpperTailOfRationality
+      profile upper_provider hrat).U
+    (checkerProfileUpperTailOfRationality
+      profile upper_provider hrat).polynomial
+    (checkerProfileUpperTailOfRationality
+      profile upper_provider hrat).upperN
+
+theorem checkerProfileComputedN_eq_endpointComputedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    checkerProfileComputedNOfRationality profile upper_provider hrat =
+      (checkedSearchCollisionEndpointOfCheckerComputableSearchProfile
+        profile upper_provider).computedCollisionNOfRationality hrat :=
+  rfl
+
+theorem checkerProfile_lower_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (checkerProfileUpperTailOfRationality
+      profile upper_provider hrat).U
+        (checkerProfileComputedNOfRationality profile upper_provider hrat) <
+      month9_month10_checkedProofCodeMeasured
+        scale_data profile.proof_code_semantics
+        (checkerProfileComputedNOfRationality profile upper_provider hrat) :=
+  lowerGapSource_lower_at_computedN
+    (lowerGapSourceOfCheckerComputableSearchProfile profile)
+    upper_provider hrat
+
+theorem checkerProfile_upper_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    month9_month10_checkedProofCodeMeasured
+        scale_data profile.proof_code_semantics
+        (checkerProfileComputedNOfRationality profile upper_provider hrat) ≤
+      (checkerProfileUpperTailOfRationality
+        profile upper_provider hrat).U
+        (checkerProfileComputedNOfRationality profile upper_provider hrat) :=
+  lowerGapSource_upper_at_computedN
+    (lowerGapSourceOfCheckerComputableSearchProfile profile)
+    upper_provider hrat
+
+theorem checkerProfile_contradiction_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (not_lt_of_ge
+    (checkerProfile_upper_at_computedN profile upper_provider hrat))
+    (checkerProfile_lower_at_computedN profile upper_provider hrat)
 
 /-- The only place where a checker minimum becomes root proof length on the
 theorem-5 raw family.  Keeping this as a separate bridge prevents the checked
