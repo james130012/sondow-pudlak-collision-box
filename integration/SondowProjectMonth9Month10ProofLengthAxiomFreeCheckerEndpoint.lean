@@ -414,5 +414,139 @@ theorem closure
 
 end ProofLengthAxiomFreeInternalTheorem5Provider
 
+/-! ## Project-upper instantiation of the proof-length-free provider -/
+
+/-- Turn the Sondow project-box upper route into the checked
+`minProofCodeSize` upper provider needed by the proof-length-free theorem-5
+endpoint.  The only same-object bridge used here is the additive projection
+from theorem-5 source proofs to the Sondow project box. -/
+def projectUpperProviderForCanonicalSearchCore
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (core.toProofLengthFreeMonth12Candidate).checkedMeasuredUpperProviderType :=
+  checkedUpperProviderOfProjectUpperAndAdditiveProjection
+    projection project_upper
+
+/-- Project-level theorem-5 provider that stays on the checked
+`minProofCodeSize` measurement.  This avoids the root `proof_length` transport
+layer while still recording that the upper tail came from the Sondow project
+route plus the additive projection. -/
+def theorem5ProviderOfCanonicalSearchCoreProjectUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    ProofLengthAxiomFreeInternalTheorem5Provider where
+  scale_data := core.scale_data
+  candidate := core.toProofLengthFreeMonth12Candidate
+  upper_provider :=
+    projectUpperProviderForCanonicalSearchCore
+      core projection project_upper
+
+theorem theorem5ProviderOfCanonicalSearchCoreProjectUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+      core projection project_upper).computedCollisionNOfRationality hrat =
+      core.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            core projection project_upper)
+          hrat).U
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            core projection project_upper)
+          hrat).polynomial
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            core projection project_upper)
+          hrat).upperN :=
+  (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+    core projection project_upper).computedCollisionN_eq_rejectionExtractorWitness
+      hrat
+
+theorem theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+      core projection project_upper).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+            core projection project_upper).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection project_upper)
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection project_upper)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection project_upper)
+                hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate
+              (projectUpperProviderForCanonicalSearchCore
+                core projection project_upper)
+              hrat).U
+                ((theorem5ProviderOfCanonicalSearchCoreProjectUpper
+                  core projection project_upper).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCoreProjectUpper
+                  core projection project_upper).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCoreProjectUpper
+                  core projection project_upper).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection project_upper)
+                hrat).U
+                ((theorem5ProviderOfCanonicalSearchCoreProjectUpper
+                  core projection project_upper).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    ⟨(theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).audit,
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).endpoint.audit,
+      theorem5ProviderOfCanonicalSearchCoreProjectUpper_computed_n_eq
+        core projection project_upper,
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).lower_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).upper_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).computed_n_contradiction,
+      (theorem5ProviderOfCanonicalSearchCoreProjectUpper
+        core projection project_upper).not_rational⟩
+
 end SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
 end SondowMainCheckedCodeBridge
