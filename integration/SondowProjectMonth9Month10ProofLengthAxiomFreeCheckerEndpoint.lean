@@ -548,5 +548,132 @@ theorem theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
       (theorem5ProviderOfCanonicalSearchCoreProjectUpper
         core projection project_upper).not_rational⟩
 
+/-! ## C-line instantiation of the project upper route -/
+
+/-- Replace the abstract Sondow project upper input by the current concrete
+C-line minimal closure certificate.  This keeps the proof-length-free theorem-5
+measurement, while making the Sondow upper-route source auditable as
+kernel/checker/length data. -/
+def theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreProjectUpper
+    core projection
+    (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+      cline)
+
+theorem theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    (theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+      core projection cline).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+        core projection cline).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+            core projection cline).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  core projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+        hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
+      core projection
+      (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+        cline)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2⟩
+
+/-- C-line entry point with the three explicit nonempty components.  This is
+the current narrowest public upper-route instantiation before eliminating the
+remaining payload/proof-length conventions inside those component certificates. -/
+def theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+    core projection
+    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+      hkernel hchecker hlength)
+
+theorem theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+      core projection hkernel hchecker hlength).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+        core projection hkernel hchecker hlength).endpoint.Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
+      core projection
+      (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+        hkernel hchecker hlength)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
 end SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
 end SondowMainCheckedCodeBridge
