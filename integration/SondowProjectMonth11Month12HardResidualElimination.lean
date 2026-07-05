@@ -280,6 +280,32 @@ theorem hard_residual_blockers_impossible
     False :=
   checked_eq_scale_blocker_impossible extractor blockers.scale_transport
 
+/-- The final-three certificate shape with an exact `proof_length = scale`
+field is itself inconsistent when it also carries a computable proof-length
+gap.  Transporting that gap across the equality would produce a computable
+search gap for the polynomially bounded scale, which is impossible.
+
+This is an audit guardrail: the remaining route must use the corrected
+actual-measured lower-bound object, not an exact-scale lower-gap package. -/
+theorem finalThreeCertificateEndpoint_exactScale_impossible
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (endpoint :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint
+        scale_data) :
+    False := by
+  have heq :
+      ∀ n : Nat,
+        (fun n : Nat =>
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n)) n =
+          scaleMeasured scale_data n := by
+    intro n
+    simpa [scaleMeasured] using endpoint.proof_length_eq_scale n
+  exact
+    no_scale_search_gap_for_internal_scale scale_data
+      (transportComputableSearchGap heq endpoint.proof_length_gap)
+
 /-! ## Corrected actual-measured route after rejecting exact scale -/
 
 /-- Corrected residual package for the remaining proof-length work.  It keeps
