@@ -3864,6 +3864,29 @@ theorem closure
     bridge.toCheckerAcceptedRootBridge.ordinaryAcceptedTruth,
     bridge.toCheckerAcceptedRootBridge.strengthenedAcceptedTruth⟩
 
+theorem payloadTruths
+    {h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    {semantics : PAHilbertDerivabilitySemantics}
+    (bridge :
+      Month9Month10PayloadRootBridgeViaDerivability h semantics) :
+    _root_.PartialConsistencyPayloadTruth ∧
+      _root_.StrengthenedPartialConsistencyPayloadTruth :=
+  ⟨bridge.toCheckerAcceptedRootBridge.ordinaryAcceptedTruth.toPayloadTruth,
+    bridge.toCheckerAcceptedRootBridge.strengthenedAcceptedTruth.toPayloadTruth⟩
+
+theorem rootBridgeReintroducesPayloadTruth
+    {h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    {semantics : PAHilbertDerivabilitySemantics}
+    (bridge :
+      Month9Month10PayloadRootBridgeViaDerivability h semantics) :
+    (_root_.PartialConsistencyAcceptedTruth ∧
+        _root_.StrengthenedPartialConsistencyAcceptedTruth) ∧
+      (_root_.PartialConsistencyPayloadTruth ∧
+        _root_.StrengthenedPartialConsistencyPayloadTruth) :=
+  ⟨⟨bridge.toCheckerAcceptedRootBridge.ordinaryAcceptedTruth,
+      bridge.toCheckerAcceptedRootBridge.strengthenedAcceptedTruth⟩,
+    bridge.payloadTruths⟩
+
 end Month9Month10PayloadRootBridgeViaDerivability
 
 /-! ## Local-Hilbert length-code target frontier -/
