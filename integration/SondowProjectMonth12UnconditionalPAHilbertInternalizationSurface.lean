@@ -337,10 +337,6 @@ theorem computedCollisionN_lowerWitnessTrace_of_rationality
     exact computedCollisionN_eq_rejectionExtractorWitness
       candidate upper_provider hrat
   have hclosure := lowerSearchWitnessOfUpper_closure candidate upper
-  have hfalse :
-      False :=
-    proof_length_free_candidate_computed_n_contradiction
-      candidate upper_provider hrat
   dsimp [upper, w] at hcomputed hclosure ⊢
   have hupper :
       month9_month10_checkedProofCodeMeasured
@@ -364,6 +360,8 @@ theorem computedCollisionN_lowerWitnessTrace_of_rationality
             (checkedSearchUpperTail candidate upper_provider hrat)).n := by
     simpa [month9_month10_checkedProofCodeMeasured]
       using hclosure.2.2.2.2.2.2
+  have hfalse : False :=
+    (not_lt_of_ge hupper) hlowerMeasured
   exact
     ⟨hcomputed.trans hclosure.1.symm,
       hclosure.1,
