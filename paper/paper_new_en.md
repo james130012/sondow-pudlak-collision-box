@@ -155,6 +155,12 @@ Here:
 
 The point of this schema is that unfinished inputs are not hidden inside words such as “obvious” or “by definition.” They appear either as theorem parameters or in the axiom audit. The present scientific claim is that this implication is Lean checked, not that ¬ is_rational(γ) has been proved unconditionally.
 
+In the current public theorem index, the Month 5 gap certificate connects the
+final `U/L` statement to `ProjectComputableGapCertificate`. The Month 6
+proof-length calibration layer is exposed as
+`Month6ProofCodeCheckerCalibrationFrontierCertificate`. This is a tightening of
+the boundary, not an unconditional elimination of the abstract `proof_length`.
+
 ### 3.2 No Hidden Weakening of the Statement
 
 Although the theorem is conditional, the target conclusion is not weakened. The final Lean endpoint still concludes:
@@ -178,6 +184,14 @@ The third step is common measurement. The upper and lower sides collide only if 
 proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
 ```
 coordinate. This requires two kinds of calibration. One reduces the strengthened-to-partial side to exact family equalities. The other aligns the local Hilbert checked-code model with the abstract PA proof length on the relevant formula families.
+
+The latest public Lean layer separates this step into a proof-code checker
+frontier and a checker calibration frontier, connected by equivalences. The
+public theorem `month6_project_checked_semantics_iff_checker_calibration_frontier`
+identifies project checked-code semantics with this calibration frontier, while
+`public_statement_iff_public_completion_computable_gap_checker_calibration_frontier`
+places the frontier together with the Month 5 computable gap certificate inside
+one project-level completion statement.
 
 The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. This gap condition is not automatic from the Pudlak lower bound; it enters the collision box as an independent growth-domination certificate. Hence the rationality hypothesis is impossible under the stated inputs, and
 
@@ -349,6 +363,8 @@ FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyE
 paper_route_and_accepted_iff_public_completion
 public_completion_to_month3_bounded_pa_interface
 public_completion_to_month4_full_boundary_interface
+month6_project_checked_semantics_iff_checker_calibration_frontier
+public_statement_iff_public_completion_computable_gap_checker_calibration_frontier
 ```
 
 These are equivalence and transport lemmas between certificate presentations.
@@ -378,7 +394,7 @@ Three major tasks remain.
 
 First, Pudlak's Theorem 5 is currently treated as an external literature certificate. Fully internalizing it would require a formal development of the proof-complexity lower-bound literature for finite consistency statements.
 
-Second, the PA/Hilbert proof-length convention is not yet internalized from first principles. The current `proof_length` is an abstract complexity function, and its relevant equalities enter through auditable witnesses. A full internalization would construct PA proof objects, encoders, checkers, and minimum proof-code size functions, and then prove their equivalence to the abstract proof length.
+Second, the PA/Hilbert proof-length convention is not yet internalized from first principles. The current `proof_length` is an abstract complexity function, and its relevant equalities enter through auditable witnesses. The latest formalization tightens the remaining boundary to a proof-code checker calibration frontier: the project no longer merely assumes an unnamed calibration witness, but exposes the equivalence between proof-code checker recognition and local proof-length code calibration. A full internalization still has to construct PA proof objects, encoders, checkers, and minimum proof-code size functions, and then prove their equivalence to the abstract proof length.
 
 Third, the remaining task on the upper-bound side is the parameter-free instantiation of the final Sondow upper-bound witness. The analytic integral decomposition, the product-log identity, the tail estimates, and the Sondow forward package already have a Lean-closed reproof route. The project-local verifier/compiler framework is also present in the buildable interfaces `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`. Month 2 now fixes `Month2SondowAccepted n`, the component certificates, the accepted-to-compiled compiler, and the canonical import surface. Thus it would be inaccurate to list the Sondow accepted-certificate surface, or the entire bounded-arithmetic verifier, as a remaining external gap. More precisely, what remains is to construct the final input
 
@@ -392,10 +408,13 @@ from those lower-level witnesses, and to internalize the payload-truth semantics
 `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
 On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
 generic interface, the public bridge closure layer, the Month 3 bounded-PA
-assembly interface, or the Month 4 theorem-5 external-boundary interface. The
-remaining task is to supply the final concrete witnesses that make the accepted
-object, growth gap, payload truth, and proof-length convention parameter-free
-and strong enough for the unconditional target.
+assembly interface, or the Month 4 theorem-5 external-boundary interface. Month
+5 now organizes `Month5UpperBoundFunction`, `Month5LowerBoundFunction`, the
+threshold certificate, and the growth-domination certificate around
+`ProjectComputableGapCertificate`. The remaining task is to supply final
+concrete witnesses that make the accepted object, growth gap, payload truth, and
+proof-length convention parameter-free and strong enough for the unconditional
+target.
 
 These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
 
