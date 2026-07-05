@@ -6,6 +6,7 @@ namespace SondowMainCheckedCodeBridge
 namespace SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
 
 open SondowProjectMonth9Month10InternalPudlakWitnessSurface
+open SondowProjectMonth11PAHilbertCheckerSurface
 open SondowProjectMonth9Month10Month11ExactProofGapHandoff
 open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 open Filter
@@ -667,6 +668,131 @@ theorem theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
   have hclosure :=
     theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
       core projection
+      (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+        hkernel hchecker hlength)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
+/-! ## Final-three-certificate instantiation -/
+
+/-- Drop the proof-length transport field of a final three-certificate endpoint
+when the target is the proof-length-free checked-search route.  The calibrated
+core is still available for compatibility endpoints, but this projection keeps
+only the checker/search data needed for computed-witness collision. -/
+def finalThreeCanonicalSearchCore
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data) :
+    PAHilbertCanonicalSearchCore :=
+  PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore
+    endpoint.toCanonicalCalibratedExactnessCore
+
+/-- Project-level entry point from the Month 11-12 final three-certificate
+endpoint and the C-line upper closure to the proof-length-free checked-search
+theorem-5 provider. -/
+def theorem5ProviderOfFinalThreeCLineMinimalClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+    (finalThreeCanonicalSearchCore endpoint) projection cline
+
+theorem theorem5ProviderOfFinalThreeCLineMinimalClosure_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    Nonempty
+        (ConcretePAHilbertPowerBoundFinalThreeCertificateDeliverables
+          scale_data) ∧
+      (theorem5ProviderOfFinalThreeCLineMinimalClosure
+        endpoint projection cline).Audit ∧
+        (theorem5ProviderOfFinalThreeCLineMinimalClosure
+          endpoint projection cline).endpoint.Audit ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
+      (finalThreeCanonicalSearchCore endpoint) projection cline
+  exact
+    ⟨ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint.deliverables_nonempty
+        endpoint,
+      hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
+/-- Final-three entry point with the C-line source split into its current three
+concrete components. -/
+def theorem5ProviderOfFinalThreeCLineKernelCheckerLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfFinalThreeCLineMinimalClosure
+    endpoint projection
+    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+      hkernel hchecker hlength)
+
+theorem theorem5ProviderOfFinalThreeCLineKernelCheckerLength_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Nonempty
+        (ConcretePAHilbertPowerBoundFinalThreeCertificateDeliverables
+          scale_data) ∧
+      (theorem5ProviderOfFinalThreeCLineKernelCheckerLength
+        endpoint projection hkernel hchecker hlength).Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfFinalThreeCLineMinimalClosure_closure
+      endpoint projection
       (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
         hkernel hchecker hlength)
   exact
