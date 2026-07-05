@@ -671,6 +671,54 @@ def projectLengthSearchGapOfConcreteLengthCodeTargetFrontier
         rw [hproject.symm] at hsourceStrict
         exact hsourceStrict }
 
+theorem projectLengthSearchGapOfConcreteLengthCodeTargetFrontier_witness_eq_inputGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((projectLengthSearchGapOfConcreteLengthCodeTargetFrontier
+        fallback frontier).gap_for_polynomial_upper U hU).witness N =
+      ((frontier.lower_search.gap.gap_for_polynomial_upper U hU).witness
+        N) :=
+  rfl
+
+theorem projectLengthSearchGapOfConcreteLengthCodeTargetFrontier_witness_eq_checkedMeasuredGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((projectLengthSearchGapOfConcreteLengthCodeTargetFrontier
+        fallback frontier).gap_for_polynomial_upper U hU).witness N =
+      ((frontier.lower_search.checkedMeasuredGap.gap_for_polynomial_upper
+        U hU).witness N) := by
+  calc
+    ((projectLengthSearchGapOfConcreteLengthCodeTargetFrontier
+        fallback frontier).gap_for_polynomial_upper U hU).witness N =
+        ((frontier.lower_search.gap.gap_for_polynomial_upper U hU).witness
+          N) :=
+          projectLengthSearchGapOfConcreteLengthCodeTargetFrontier_witness_eq_inputGap
+            fallback frontier U hU N
+    _ = ((frontier.lower_search.checkedMeasuredGap.gap_for_polynomial_upper
+        U hU).witness N) :=
+          (frontier.lower_search.checkedMeasuredGap_witness_eq_inputGap
+            U hU N).symm
+
 /-- Explicit search-style project-length collision witness for a concrete
 length-code frontier.  Its index is the lower-search witness at the selected
 upper threshold. -/
@@ -1092,6 +1140,81 @@ theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_n_e
             |>.checkedUpperProvider)
           hrat).upperN := by
   rfl
+
+theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_n_eq_checkedMeasuredGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+      fallback frontier hrat).n =
+      (((frontier.canonicalFrontier
+          |>.conjIntroLengthCodeFrontier
+          |>.concreteLengthCodeFrontier
+          |>.lower_search
+          |>.checkedMeasuredGap).gap_for_polynomial_upper
+        (checkedSearchUpperTail
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.lower_search
+            |>.toProofLengthFreeMonth12Candidate)
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).U
+        (checkedSearchUpperTail
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.lower_search
+            |>.toProofLengthFreeMonth12Candidate)
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).polynomial).witness
+        (checkedSearchUpperTail
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.lower_search
+            |>.toProofLengthFreeMonth12Candidate)
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).upperN) := by
+  let concreteFrontier :=
+    frontier.canonicalFrontier
+      |>.conjIntroLengthCodeFrontier
+      |>.concreteLengthCodeFrontier
+  let tail :=
+    checkedSearchUpperTail
+      concreteFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      concreteFrontier.checkedUpperProvider
+      hrat
+  calc
+    (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+        fallback frontier hrat).n =
+        (frontier.gap.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN := by
+          simpa [concreteFrontier, tail] using
+            projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_n_eq
+              fallback frontier hrat
+    _ =
+        ((concreteFrontier.lower_search.checkedMeasuredGap
+          |>.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN) := by
+          exact
+            (concreteFrontier.lower_search.checkedMeasuredGap_witness_eq_inputGap
+              tail.U tail.polynomial tail.upperN).symm
 
 theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_contradiction
     {scale_data : InternalPudlakTheorem5ScaleData}
