@@ -1,0 +1,380 @@
+import integration.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
+
+/-!
+# Month 11-12 project-length target-upper endpoint
+
+This file connects the proof-length-free checked-target upper route to the
+checker-defined `ProofCodeSemantics.projectLength` measurement.  It deliberately
+does not use the legacy `sondowProjectLocalPudlakCollisionBox`, whose definition
+unfolds to root `proof_length`.
+-/
+
+noncomputable section
+
+namespace SondowMainCheckedCodeBridge
+namespace SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+
+open SondowProjectMonth9Month10InternalPudlakWitnessSurface
+open SondowProjectMonth9Month10ProofLengthGapFrontier
+open SondowProjectMonth9Month10Month11ExactProofGapHandoff
+open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
+open SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
+
+/-! ## Project-length measured object -/
+
+/-- The theorem-5 power-bound family measured by the concrete checker
+`projectLength` semantics.  This is the replacement measured object for the
+root `proof_length` box on the theorem-5 raw-code family. -/
+noncomputable def checkerProjectLengthMeasured
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data)
+    (fallback : _root_.FormulaCode → Nat) : Nat → Real :=
+  fun n =>
+    checker.toProofCodeSemantics.projectLength fallback
+      (scale_data.powerBoundRawCode n)
+
+theorem checkerProjectLengthMeasured_eq_checked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (fallback : _root_.FormulaCode → Nat) (n : Nat) :
+    checkerProjectLengthMeasured scale_data checker fallback n =
+      month9_month10_checkedProofCodeMeasured
+        scale_data checker.toProofCodeSemantics n := by
+  rw [checkerProjectLengthMeasured,
+    _root_.ProofCodeSemantics.projectLength_eq_minProofCodeSize]
+  rfl
+
+/-- Transport the finite-search lower gap from checked `minProofCodeSize` to
+the checker `projectLength` measured object. -/
+def checkerProjectLengthGapOfExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration : InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration) :
+    ComputableSearchGapCertificate
+      (checkerProjectLengthMeasured scale_data checker fallback) :=
+  transportComputableSearchGap
+    (fun n =>
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data) (checker := checker) fallback n).symm)
+    (month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion
+      extractor.toComputableFiniteSearchExclusion)
+
+theorem checkerProjectLengthGapOfExtractor_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration : InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((checkerProjectLengthGapOfExtractor fallback extractor)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      extractor.witness U hU N :=
+  rfl
+
+/-- Transport any checked upper provider to the checker `projectLength`
+measured object. -/
+def checkerProjectLengthUpperProviderOfChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (fallback : _root_.FormulaCode → Nat)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (checkerProjectLengthMeasured scale_data checker fallback) :=
+  Month9Month10AbstractMeasuredUpperProvider.transportEq
+    (fun n =>
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data) (checker := checker) fallback n).symm)
+    checked_upper
+
+/-- Direct collision endpoint over checker `projectLength`, once the Sondow
+upper side has already been expressed as a checked upper provider. -/
+def checkerProjectLengthDirectEndpointOfCheckedUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration : InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured scale_data checker fallback) where
+  gap := checkerProjectLengthGapOfExtractor fallback extractor
+  upper_provider :=
+    checkerProjectLengthUpperProviderOfChecked fallback checked_upper
+
+theorem checkerProjectLengthDirectEndpoint_computed_n_eq_extractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration : InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionNOfRationality
+        hrat =
+      extractor.witness
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality hrat).U
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).polynomial
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).upperN := by
+  calc
+    (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionNOfRationality
+          hrat =
+        (((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).gap).gap_for_polynomial_upper
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality hrat).U
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality
+              hrat).polynomial).witness
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality
+              hrat).upperN :=
+      (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionN_eq_searchGapWitness
+          hrat
+    _ = extractor.witness
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality hrat).U
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).polynomial
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).upperN := by
+      rfl
+
+/-! ## Checked-target upper endpoint -/
+
+/-- Project-length endpoint from an abstract checked target projection and an
+upper provider for that target.  This is the clean Sondow-upper replacement
+shape: no legacy project proof-length box is mentioned. -/
+def projectLengthEndpointOfCheckedTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        core.scale_data core.checkerSemantics fallback) :=
+  checkerProjectLengthDirectEndpointOfCheckedUpper
+    fallback core.rejectionExtractor
+    (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+      projection upper_provider)
+
+theorem projectLengthEndpointOfCheckedTargetUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfCheckedTargetUpper
+        core fallback projection upper_provider).computedCollisionNOfRationality
+        hrat =
+      core.rejectionExtractor.witness
+        ((projectLengthEndpointOfCheckedTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).U
+        ((projectLengthEndpointOfCheckedTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).polynomial
+        ((projectLengthEndpointOfCheckedTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).upperN := by
+  exact
+    checkerProjectLengthDirectEndpoint_computed_n_eq_extractorWitness
+      fallback core.rejectionExtractor
+      (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+        projection upper_provider)
+      hrat
+
+theorem projectLengthEndpointOfCheckedTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured) :
+    (projectLengthEndpointOfCheckedTargetUpper
+      core fallback projection upper_provider).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            core.scale_data core.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfCheckedTargetUpper
+              core fallback projection upper_provider)
+            ).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (((projectLengthEndpointOfCheckedTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfCheckedTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfCheckedTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨(projectLengthEndpointOfCheckedTargetUpper
+      core fallback projection upper_provider).audit,
+    ⟨(projectLengthEndpointOfCheckedTargetUpper
+      core fallback projection upper_provider).gap⟩,
+    projectLengthEndpointOfCheckedTargetUpper_computed_n_eq
+      core fallback projection upper_provider,
+    (projectLengthEndpointOfCheckedTargetUpper
+      core fallback projection upper_provider).computed_n_contradiction,
+    (projectLengthEndpointOfCheckedTargetUpper
+      core fallback projection upper_provider).not_rational⟩
+
+/-! ## Local-Hilbert checked-target endpoint -/
+
+/-- Local-Hilbert instantiation of the checked-target project-length endpoint.
+This removes root `proof_length` from the Sondow upper bridge.  Axiom probes
+still expose the two payload predicates until the local-Hilbert payload route is
+internally discharged. -/
+def projectLengthEndpointOfLocalHilbertTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        core.scale_data core.checkerSemantics fallback) :=
+  checkerProjectLengthDirectEndpointOfCheckedUpper
+    fallback core.rejectionExtractor
+    (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+      projection upper_provider)
+
+theorem projectLengthEndpointOfLocalHilbertTargetUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfLocalHilbertTargetUpper
+        core fallback projection upper_provider).computedCollisionNOfRationality
+        hrat =
+      core.rejectionExtractor.witness
+        ((projectLengthEndpointOfLocalHilbertTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).U
+        ((projectLengthEndpointOfLocalHilbertTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).polynomial
+        ((projectLengthEndpointOfLocalHilbertTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).upperN :=
+  checkerProjectLengthDirectEndpoint_computed_n_eq_extractorWitness
+    fallback core.rejectionExtractor
+    (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+      projection upper_provider)
+    hrat
+
+theorem projectLengthEndpointOfLocalHilbertTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp) :
+    (projectLengthEndpointOfLocalHilbertTargetUpper
+      core fallback projection upper_provider).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            core.scale_data core.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfLocalHilbertTargetUpper
+              core fallback projection upper_provider)
+            ).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (((projectLengthEndpointOfLocalHilbertTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfLocalHilbertTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfLocalHilbertTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨(projectLengthEndpointOfLocalHilbertTargetUpper
+      core fallback projection upper_provider).audit,
+    ⟨(projectLengthEndpointOfLocalHilbertTargetUpper
+      core fallback projection upper_provider).gap⟩,
+    projectLengthEndpointOfLocalHilbertTargetUpper_computed_n_eq
+      core fallback projection upper_provider,
+    (projectLengthEndpointOfLocalHilbertTargetUpper
+      core fallback projection upper_provider).computed_n_contradiction,
+    (projectLengthEndpointOfLocalHilbertTargetUpper
+      core fallback projection upper_provider).not_rational⟩
+
+end SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+end SondowMainCheckedCodeBridge
