@@ -1840,6 +1840,16 @@ theorem checkedMeasuredGap_witness_eq_inputGap
       ((input.gap.gap_for_polynomial_upper U hU).witness N) :=
   rfl
 
+theorem checkedMeasuredGap_witness_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((input.checkedMeasuredGap.gap_for_polynomial_upper U hU).witness N) =
+      input.rejectionExtractor.witness U hU N :=
+  rfl
+
 /-- The search-only input builds the canonical proof-length-free search core:
 concrete PA/Hilbert syntax, recognizer exactness, canonical checker interface,
 finite enumeration, and computable rejection. -/
