@@ -3772,6 +3772,102 @@ theorem transportUpperToCheckedMeasured_closure
 
 end Month9Month10CheckedMeasuredToActualProofLengthBridge
 
+/-- Transport the Sondow project-box upper route to the theorem-5 checked
+source measurement using an additive projection
+`source <= projectBox + overhead`.  The resulting upper function is
+`U + overhead`, still polynomial by `shiftedUpper_polynomial`. -/
+def checkedUpperProviderOfProjectUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  upper_under_rationality := by
+    intro hrat
+    rcases
+        (projectBoxUpperProviderOfS21Collapse project_upper)
+          |>.upper_under_rationality hrat with
+      ⟨U, hU, upperN, hupper⟩
+    refine
+      ⟨projection.shiftedUpper U,
+        projection.shiftedUpper_polynomial U hU,
+        upperN,
+        ?_⟩
+    intro n hn
+    have hsource := projection.source_le_project_add n
+    have hproject := hupper n hn
+    have hchecked :
+        (sem.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) ≤
+          U n + projection.overhead :=
+      by nlinarith
+    simpa [
+      month9_month10_checkedProofCodeMeasured,
+      InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
+      using hchecked
+
+theorem checkedUpperProviderOfProjectUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (checkedUpperProviderOfProjectUpperAndAdditiveProjection
+      projection project_upper).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              month9_month10_checkedProofCodeMeasured scale_data sem n ≤ U n) :=
+  (checkedUpperProviderOfProjectUpperAndAdditiveProjection
+    projection project_upper).closure
+
+/-- Full upper-provider adapter for the corrected actual route: first use the
+additive project-box projection to move the Sondow project upper tail to the
+checked theorem-5 source measurement, then use the checker/actual proof-length
+bridge to state the same upper tail over `actualProofLengthMeasured`. -/
+def actualUpperProviderOfProjectUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data sem)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (actualProofLengthMeasured scale_data) :=
+  bridge.transportUpperToActualProofLength
+    (checkedUpperProviderOfProjectUpperAndAdditiveProjection
+      projection project_upper)
+
+theorem actualUpperProviderOfProjectUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data sem)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (actualUpperProviderOfProjectUpperAndAdditiveProjection
+      projection bridge project_upper).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              actualProofLengthMeasured scale_data n ≤ U n) :=
+  (actualUpperProviderOfProjectUpperAndAdditiveProjection
+    projection bridge project_upper).closure
+
 structure Month9Month10CheckedMeasuredKernelChecklist : Prop where
   checkedMeasuredClosure :
     ∀ scale_data : InternalPudlakTheorem5ScaleData,

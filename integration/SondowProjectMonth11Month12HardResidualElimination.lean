@@ -727,5 +727,97 @@ theorem correctedActualEndpointOfCanonicalCore_closure
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+/-! ## Canonical-core plus Sondow-project upper route -/
+
+/-- The calibrated canonical core supplies the checked/actual bridge for its
+own checker semantics.  This is the exact transport from checker minimum
+proof-code size to root project `proof_length` on `powerBoundRawCode n`. -/
+def checkedMeasuredToActualBridgeOfCanonicalCore
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      core.scale_data core.checkerSemantics.toProofCodeSemantics where
+  checked_eq_actual := by
+    intro n
+    simpa [actualProofLengthMeasured,
+      month9_month10_checkedProofCodeMeasured,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+      using (core.proofLengthExactness.at_powerBoundRawCode n).symm
+
+/-- Fully assembled actual endpoint from the calibrated checker core, the
+additive projection from theorem-5 source proofs to the Sondow project box, and
+the Sondow rationality upper route.  The upper tail used by the endpoint is
+`U + overhead`, not the original project-box `U`, so the same-object accounting
+is explicit. -/
+def correctedActualEndpointOfCanonicalCoreProjectUpper
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint core.scale_data :=
+  correctedActualEndpointOfCanonicalCore core
+    (actualUpperProviderOfProjectUpperAndAdditiveProjection
+      projection
+      (checkedMeasuredToActualBridgeOfCanonicalCore core)
+      project_upper)
+
+theorem correctedActualEndpointOfCanonicalCoreProjectUpper_closure
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (correctedActualEndpointOfCanonicalCoreProjectUpper
+      core projection project_upper).Audit ∧
+      Nonempty
+        (Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+          core.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured core.scale_data)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        (correctedActualEndpointOfCanonicalCoreProjectUpper
+          core projection project_upper).computedCollisionNOfRationality hrat =
+          core.rejectionExtractor.witness
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore core)
+                project_upper)
+              hrat).U
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore core)
+                project_upper)
+              hrat).polynomial
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore core)
+                project_upper)
+              hrat).upperN) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [correctedActualEndpointOfCanonicalCoreProjectUpper] using
+    correctedActualEndpointOfCanonicalCore_closure core
+      (actualUpperProviderOfProjectUpperAndAdditiveProjection
+        projection
+        (checkedMeasuredToActualBridgeOfCanonicalCore core)
+        project_upper)
+
 end SondowProjectMonth11Month12HardResidualElimination
 end SondowMainCheckedCodeBridge
