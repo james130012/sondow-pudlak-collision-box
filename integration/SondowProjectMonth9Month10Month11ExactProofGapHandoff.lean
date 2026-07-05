@@ -4807,6 +4807,105 @@ theorem computedNOfUpper_closure
       rejectionExtractor_computedNOfUpper_closure
         h.rejectionExtractor upper
 
+noncomputable def upperTailOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (month9_month10_checkedProofCodeMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics) :=
+  rejectionExtractorUpperTailOfRationality
+    h.rejectionExtractor upper_provider hrat
+
+noncomputable def computedNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  h.computedNOfUpper
+    (h.upperTailOfRationality upper_provider hrat)
+
+theorem computedNOfRationality_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    h.computedNOfRationality upper_provider hrat =
+      rejectionExtractorComputedNOfRationality
+        h.rejectionExtractor upper_provider hrat :=
+  rfl
+
+theorem lowerSearchWitnessOfRationality_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.upperTailOfRationality upper_provider hrat
+    let w := h.lowerSearchWitnessOfUpper upper
+    w.n = h.computedNOfRationality upper_provider hrat ∧
+      w.K = h.rejectionExtractor.cutoff
+        upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : h.checkerSemantics.Code,
+        c ∈ h.finiteEnumeration.candidates w.n w.K →
+          ¬ h.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : h.checkerSemantics.Code,
+        h.checkerSemantics.checks c
+          (scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (h.checkerSemantics.size c : Real)) ∧
+      (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n := by
+  simpa [computedNOfRationality]
+    using
+      h.lowerSearchWitnessOfUpper_closure
+        (h.upperTailOfRationality upper_provider hrat)
+
+theorem computedNOfRationality_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.upperTailOfRationality upper_provider hrat
+    let n := h.computedNOfRationality upper_provider hrat
+    upper.upperN ≤ n ∧
+      (∀ c : h.checkerSemantics.Code,
+        h.checkerSemantics.checks c (scale_data.powerBoundRawCode n) →
+          upper.U n < (h.checkerSemantics.size c : Real)) ∧
+      (∀ c : h.checkerSemantics.Code,
+        (h.checkerSemantics.size c : Real) ≤ upper.U n →
+          ¬ h.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode n)) ∧
+      upper.U n <
+        month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics n ∧
+      month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics n ≤
+        upper.U n ∧
+      False := by
+  simpa [computedNOfRationality]
+    using
+      h.computedNOfUpper_closure
+        (h.upperTailOfRationality upper_provider hrat)
+
 end Month9Month10ProofLengthFreeExtractorHandoff
 
 /-- The only place where a checker minimum becomes root proof length on the
