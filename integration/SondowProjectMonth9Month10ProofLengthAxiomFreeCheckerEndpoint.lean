@@ -1905,6 +1905,39 @@ theorem checkedUpperProvider_closure
     theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
       input.toCanonicalSearchCore upper_provider
 
+theorem checkedUpperProvider_computedCollisionN_eq_checkedMeasuredGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (input.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).computedCollisionNOfRationality hrat =
+      ((input.checkedMeasuredGap.gap_for_polynomial_upper
+        (checkedSearchUpperTail
+          input.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+        (checkedSearchUpperTail
+          input.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial).witness
+        (checkedSearchUpperTail
+          input.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) := by
+  let tail :=
+    checkedSearchUpperTail
+      input.toProofLengthFreeMonth12Candidate upper_provider hrat
+  calc
+    (input.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).computedCollisionNOfRationality hrat
+        = input.rejectionExtractor.witness tail.U tail.polynomial tail.upperN :=
+          (input.toProofLengthAxiomFreeCheckedUpperProvider
+            upper_provider).computedCollisionN_eq_rejectionExtractorWitness hrat
+    _ = ((input.gap.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN) := rfl
+    _ = ((input.checkedMeasuredGap.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN) := by
+          exact (input.checkedMeasuredGap_witness_eq_inputGap
+            tail.U tail.polynomial tail.upperN).symm
+
 def toProjectUpperProvider
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
