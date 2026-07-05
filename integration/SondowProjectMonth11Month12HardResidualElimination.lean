@@ -935,6 +935,203 @@ theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLengt
       hclosure.2.2.2.1,
       hclosure.2.2.2.2⟩
 
+/-! ## Checker-family exactness as the minimal proof-length residual -/
+
+/-- Convert checker proof-length family exactness into the isolated Month 12
+transport residual.  This is the narrow proof-length blocker for the corrected
+actual route: it states equality with the checked `minProofCodeSizeAt`, not
+with the polynomially bounded project scale. -/
+def transportResidualOfProofLengthFreeCandidateFamilyExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data}
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        candidate.checkerSemantics) :
+    Month12ProofLengthTransportResidual candidate where
+  actualProofLengthMeasured_eq_minProofCodeSizeAt := by
+    intro n
+    simpa [actualProofLengthMeasured]
+      using family.proof_length_eq_minProofCodeSizeAt n
+
+/-- Corrected actual endpoint from a proof-length-free candidate and the
+minimal checker-family exactness theorem, with the Sondow upper side supplied
+by the split C-line certificates. -/
+def correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        candidate.checkerSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength
+    candidate
+    (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+    projection hkernel hchecker hlength
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        candidate.checkerSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength
+      candidate family projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      candidate.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).U
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).polynomial
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate
+            (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).upperN := by
+  simpa [
+    correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength]
+    using
+      correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength_computed_n_eq
+        candidate
+        (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+        projection hkernel hchecker hlength hrat
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        candidate.checkerSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength
+      candidate family projection hkernel hchecker hlength).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength
+            candidate family projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+            candidate.rejectionExtractor.witness
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+                  projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                      hkernel hchecker hlength)))
+                hrat).U
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+                  projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                      hkernel hchecker hlength)))
+                hrat).polynomial
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family))
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate
+                  (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+                  projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                      hkernel hchecker hlength)))
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength_closure
+      candidate
+      (transportResidualOfProofLengthFreeCandidateFamilyExactness family)
+      projection hkernel hchecker hlength
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      correctedActualEndpointOfProofLengthFreeCandidateFamilyExactnessCLineKernelCheckerLength_computed_n_eq
+        candidate family projection hkernel hchecker hlength,
+      hclosure.2.2.1,
+      hclosure.2.2.2⟩
+
 /-! ## Month 12 full-candidate adapter for the corrected actual route -/
 
 /-- A full Month 12 checker internalization candidate supplies exactly the
