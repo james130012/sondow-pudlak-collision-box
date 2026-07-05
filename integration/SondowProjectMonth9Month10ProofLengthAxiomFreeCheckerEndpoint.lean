@@ -415,6 +415,93 @@ theorem closure
 
 end ProofLengthAxiomFreeInternalTheorem5Provider
 
+/-! ## Checked-upper instantiation of the proof-length-free provider -/
+
+/-- The narrowest theorem-5 provider: the PA/Hilbert search core plus a
+checked-measure upper provider for exactly the same measurement.  This is the
+root `proof_length`-free target that the Sondow upper route must eventually
+instantiate directly. -/
+def theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      core.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    ProofLengthAxiomFreeInternalTheorem5Provider where
+  scale_data := core.scale_data
+  candidate := core.toProofLengthFreeMonth12Candidate
+  upper_provider := upper_provider
+
+theorem theorem5ProviderOfCanonicalSearchCoreCheckedUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      core.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+      core upper_provider).computedCollisionNOfRationality hrat =
+      core.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN :=
+  (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+    core upper_provider).computedCollisionN_eq_rejectionExtractorWitness hrat
+
+theorem theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      core.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+      core upper_provider).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+            core upper_provider).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+                ((theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+                  core upper_provider).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+                  core upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+                  core upper_provider).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+                ((theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+                  core upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    ⟨(theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).audit,
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).endpoint.audit,
+      theorem5ProviderOfCanonicalSearchCoreCheckedUpper_computed_n_eq
+        core upper_provider,
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).lower_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).upper_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).computed_n_contradiction,
+      (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+        core upper_provider).not_rational⟩
+
 /-! ## Project-upper instantiation of the proof-length-free provider -/
 
 /-- Turn the Sondow project-box upper route into the checked
@@ -549,6 +636,180 @@ theorem theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
       (theorem5ProviderOfCanonicalSearchCoreProjectUpper
         core projection project_upper).not_rational⟩
 
+/-! ## Payload-free upper-provider instantiation -/
+
+/-- Transport a payload-free project-box upper provider to the checked
+theorem-5 measurement using the same additive projection as the legacy project
+upper route.  Unlike `checkedUpperProviderOfProjectUpperAndAdditiveProjection`,
+this adapter does not look inside `SondowProjectLocalS21CollapseConclusion`. -/
+def checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  upper_under_rationality := by
+    intro hrat
+    rcases upper_provider.upper_under_rationality hrat with
+      ⟨U, hU, upperN, hupper⟩
+    refine
+      ⟨projection.shiftedUpper U,
+        projection.shiftedUpper_polynomial U hU,
+        upperN,
+        ?_⟩
+    intro n hn
+    have hsource := projection.source_le_project_add n
+    have hproject := hupper n hn
+    have hchecked :
+        (sem.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) ≤
+          U n + projection.overhead :=
+      by nlinarith
+    simpa [
+      month9_month10_checkedProofCodeMeasured,
+      InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
+      using hchecked
+
+theorem checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+      projection upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              month9_month10_checkedProofCodeMeasured scale_data sem n ≤
+                U n) :=
+  (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+    projection upper_provider).closure
+
+/-- Project-level theorem-5 provider with a payload-free upper input.  This is
+the clean public interface for the final route once the Sondow upper side is
+provided without the legacy accepted-certificate payload vocabulary. -/
+def theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    ProofLengthAxiomFreeInternalTheorem5Provider where
+  scale_data := core.scale_data
+  candidate := core.toProofLengthFreeMonth12Candidate
+  upper_provider :=
+    checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+      projection upper_provider
+
+theorem theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+      core projection upper_provider).computedCollisionNOfRationality hrat =
+      core.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+            projection upper_provider)
+          hrat).U
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+            projection upper_provider)
+          hrat).polynomial
+        (checkedSearchUpperTail
+          core.toProofLengthFreeMonth12Candidate
+          (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+            projection upper_provider)
+          hrat).upperN :=
+  (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+    core projection upper_provider).computedCollisionN_eq_rejectionExtractorWitness
+      hrat
+
+theorem theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+      core projection upper_provider).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+            core projection upper_provider).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+                  projection upper_provider)
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+                  projection upper_provider)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+                  projection upper_provider)
+                hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate
+              (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+                projection upper_provider)
+              hrat).U
+                ((theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+                  core projection upper_provider).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+                  core projection upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                core.scale_data core.checkerSemantics.toProofCodeSemantics
+                ((theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+                  core projection upper_provider).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+                  projection upper_provider)
+                hrat).U
+                ((theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+                  core projection upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    ⟨(theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).audit,
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).endpoint.audit,
+      theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper_computed_n_eq
+        core projection upper_provider,
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).lower_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).upper_at_computedCollisionN,
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).computed_n_contradiction,
+      (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+        core projection upper_provider).not_rational⟩
+
 /-! ## C-line instantiation of the project upper route -/
 
 /-- Replace the abstract Sondow project upper input by the current concrete
@@ -675,6 +936,477 @@ theorem theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
       hclosure.2.1,
       hclosure.2.2.2.1,
       hclosure.2.2.2.2⟩
+
+/-! ## Search-only singleton PA/Hilbert instantiation -/
+
+/-- Proof-length-free singleton search input for the concrete PA/Hilbert
+power-bound checker.  This is the route to use when the lower-bound machine
+already supplies a computable search gap for the checker-side calibrated
+length, without passing through the root `proof_length` symbol. -/
+structure ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+    (scale_data : InternalPudlakTheorem5ScaleData) : Type where
+  lengthCodeAt : Nat → Nat
+  scale_strict :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b
+  gap :
+    ComputableSearchGapCertificate
+      (fun n : Nat => (lengthCodeAt n : Real))
+
+namespace ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+
+theorem scale_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    Function.Injective scale_data.scale := by
+  intro a b hscale_eq
+  rcases Nat.lt_trichotomy a b with hlt | heq | hgt
+  · have hstrict :
+        scale_data.scale a < scale_data.scale b :=
+      input.scale_strict hlt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+  · exact heq
+  · have hstrict :
+        scale_data.scale b < scale_data.scale a :=
+      input.scale_strict hgt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+
+theorem powerBoundRawCode_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    Function.Injective scale_data.powerBoundRawCode :=
+  concretePAHilbert_powerBoundRawCode_injective_of_scale_injective
+    scale_data input.scale_injective
+
+def toSingletonGapRejectionInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+      scale_data input.lengthCodeAt where
+  powerBoundRawCode_injective :=
+    input.powerBoundRawCode_injective
+  gap :=
+    input.gap
+
+def checkerSemantics
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    InternalPudlakTheorem5CheckerSemantics.{0} scale_data :=
+  concretePAHilbertPowerBoundCalibratedCheckerSemantics
+    scale_data input.lengthCodeAt
+
+def finiteEnumeration
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    InternalPudlakTheorem5CheckerFiniteEnumeration
+      input.checkerSemantics :=
+  input.toSingletonGapRejectionInput.finiteEnumeration
+
+def rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    InternalPudlakTheorem5CheckerComputableRejectionExtractor
+      input.checkerSemantics input.finiteEnumeration :=
+  input.toSingletonGapRejectionInput.toCheckerExtractor
+
+/-- The search-only input builds the canonical proof-length-free search core:
+concrete PA/Hilbert syntax, recognizer exactness, canonical checker interface,
+finite enumeration, and computable rejection. -/
+def toCanonicalSearchCore
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    PAHilbertCanonicalSearchCore where
+  checker :=
+    concretePAHilbertPowerBoundChecker scale_data
+  semantics :=
+    concretePAHilbertTheorem5DerivabilitySemantics
+  recognizerExactness :=
+    concretePAHilbertTheorem5AxiomRecognizerExactness
+  canonicalInterface :=
+    concretePAHilbertPowerBoundCanonicalCheckerInterface scale_data
+  scale_data :=
+    scale_data
+  checkerSemantics :=
+    input.checkerSemantics
+  finiteEnumeration :=
+    input.finiteEnumeration
+  rejectionExtractor :=
+    input.rejectionExtractor
+  acceptedCodeExactness := by
+    intro formulaCode code haccepted
+    exact
+      (concretePAHilbertPowerBoundCanonicalCheckerInterface scale_data)
+        |>.accepted_decoded_code_to_formulaCode_derivable
+          formulaCode code haccepted
+
+def toProofLengthFreeMonth12Candidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    Month12ProofLengthFreeCheckerSearchCandidate scale_data :=
+  input.toCanonicalSearchCore.toProofLengthFreeMonth12Candidate
+
+def toProofLengthAxiomFreeCheckedUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+    input.toCanonicalSearchCore upper_provider
+
+theorem checkedUpperProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    (input.toProofLengthAxiomFreeCheckedUpperProvider upper_provider).Audit ∧
+      (input.toProofLengthAxiomFreeCheckedUpperProvider
+        upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toProofLengthAxiomFreeCheckedUpperProvider
+            upper_provider).computedCollisionNOfRationality hrat =
+            input.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              input.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+                ((input.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+                ((input.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
+      input.toCanonicalSearchCore upper_provider
+
+def toProjectUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType :=
+  projectUpperProviderForCanonicalSearchCore
+    input.toCanonicalSearchCore projection project_upper
+
+def toProofLengthAxiomFreeProjectUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreProjectUpper
+    input.toCanonicalSearchCore projection project_upper
+
+theorem projectUpperProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (input.toProofLengthAxiomFreeProjectUpperProvider
+      projection project_upper).Audit ∧
+      (input.toProofLengthAxiomFreeProjectUpperProvider
+        projection project_upper).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toProofLengthAxiomFreeProjectUpperProvider
+            projection project_upper).computedCollisionNOfRationality hrat =
+            input.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toProjectUpperProvider projection project_upper)
+                hrat).U
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toProjectUpperProvider projection project_upper)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toProjectUpperProvider projection project_upper)
+                hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              input.toProofLengthFreeMonth12Candidate
+              (input.toProjectUpperProvider projection project_upper)
+              hrat).U
+                ((input.toProofLengthAxiomFreeProjectUpperProvider
+                  projection project_upper).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreeProjectUpperProvider
+                  projection project_upper).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreeProjectUpperProvider
+                  projection project_upper).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toProjectUpperProvider projection project_upper)
+                hrat).U
+                ((input.toProofLengthAxiomFreeProjectUpperProvider
+                  projection project_upper).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
+      input.toCanonicalSearchCore projection project_upper
+
+def toPayloadFreeCheckedUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType :=
+  checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+    projection upper_provider
+
+def toProofLengthAxiomFreePayloadFreeUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
+    input.toCanonicalSearchCore projection upper_provider
+
+theorem payloadFreeUpperProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (upper_provider : Month9Month10PayloadFreeUpperProvider) :
+    (input.toProofLengthAxiomFreePayloadFreeUpperProvider
+      projection upper_provider).Audit ∧
+      (input.toProofLengthAxiomFreePayloadFreeUpperProvider
+        projection upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toProofLengthAxiomFreePayloadFreeUpperProvider
+            projection upper_provider).computedCollisionNOfRationality hrat =
+            input.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toPayloadFreeCheckedUpperProvider
+                  projection upper_provider)
+                hrat).U
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toPayloadFreeCheckedUpperProvider
+                  projection upper_provider)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toPayloadFreeCheckedUpperProvider
+                  projection upper_provider)
+                hrat).upperN) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              input.toProofLengthFreeMonth12Candidate
+              (input.toPayloadFreeCheckedUpperProvider
+                projection upper_provider)
+              hrat).U
+                ((input.toProofLengthAxiomFreePayloadFreeUpperProvider
+                  projection upper_provider).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreePayloadFreeUpperProvider
+                  projection upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                scale_data input.checkerSemantics.toProofCodeSemantics
+                ((input.toProofLengthAxiomFreePayloadFreeUpperProvider
+                  projection upper_provider).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toPayloadFreeCheckedUpperProvider
+                  projection upper_provider)
+                hrat).U
+                ((input.toProofLengthAxiomFreePayloadFreeUpperProvider
+                  projection upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper_closure
+      input.toCanonicalSearchCore projection upper_provider
+
+def toProofLengthAxiomFreeCLineMinimalProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+    input.toCanonicalSearchCore projection cline
+
+theorem cLineMinimalProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    (input.toProofLengthAxiomFreeCLineMinimalProvider
+      projection cline).Audit ∧
+      (input.toProofLengthAxiomFreeCLineMinimalProvider
+        projection cline).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toProofLengthAxiomFreeCLineMinimalProvider
+            projection cline).computedCollisionNOfRationality hrat =
+            input.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  input.toCanonicalSearchCore projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).U
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  input.toCanonicalSearchCore projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).polynomial
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (projectUpperProviderForCanonicalSearchCore
+                  input.toCanonicalSearchCore projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
+      input.toCanonicalSearchCore projection cline
+
+theorem cLineKernelCheckerLengthProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+      input.toCanonicalSearchCore projection hkernel hchecker hlength).Audit ∧
+      ((theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+        input.toCanonicalSearchCore projection hkernel hchecker hlength)
+          |>.endpoint).Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
+      input.toCanonicalSearchCore projection hkernel hchecker hlength
+
+theorem canonicalSearchCore_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    Nonempty PAHilbertCanonicalSearchCore :=
+  ⟨input.toCanonicalSearchCore⟩
+
+theorem checkedGap_nonempty_of_upperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    Nonempty
+      (ComputableSearchGapCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data input.checkerSemantics.toProofCodeSemantics)) := by
+  have hclosure :=
+    PAHilbertCanonicalSearchCore.proofLengthFreeMonth12Candidate_closure
+      input.toCanonicalSearchCore
+      upper_provider
+  exact hclosure.2.2.2.1
+
+end ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
 
 /-! ## Final-three-certificate instantiation -/
 
