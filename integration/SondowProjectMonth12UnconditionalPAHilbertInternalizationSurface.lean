@@ -143,6 +143,141 @@ theorem proof_length_free_candidate_closure
     computedCollisionN_eq_rejectionExtractorWitness
       candidate upper_provider⟩
 
+theorem proof_length_free_candidate_computed_n_contradiction
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper_provider : candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (candidate.toCheckedSearchCollisionEndpoint upper_provider)
+    |>.computed_n_contradiction hrat
+
+theorem proof_length_free_candidate_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper_provider : candidate.checkedMeasuredUpperProviderType) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  (candidate.toCheckedSearchCollisionEndpoint upper_provider).not_rational
+
+theorem proof_length_free_candidate_endpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper_provider : candidate.checkedMeasuredUpperProviderType) :
+    (candidate.toCheckedSearchCollisionEndpoint upper_provider).Audit ∧
+      Nonempty (Month9Month10CheckedSearchCollisionEndpoint scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data candidate.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        ((candidate.toCheckedSearchCollisionEndpoint upper_provider).computedCollisionNOfRationality hrat) =
+          candidate.rejectionExtractor.witness
+            (checkedSearchUpperTail candidate upper_provider hrat).U
+            (checkedSearchUpperTail candidate upper_provider hrat).polynomial
+            (checkedSearchUpperTail candidate upper_provider hrat).upperN) ∧
+      (∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    proof_length_free_candidate_closure candidate upper_provider
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2,
+      proof_length_free_candidate_computed_n_contradiction
+        candidate upper_provider,
+      proof_length_free_candidate_not_rational candidate upper_provider⟩
+
+def lowerSearchWitnessOfUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics)) :
+    InternalPudlakTheorem5ComputedLowerSearchWitness
+      scale_data candidate.checkerSemantics.toProofCodeSemantics
+      candidate.smallCodeSearch
+      upper.U upper.polynomial upper.upperN :=
+  candidate.computableSearchExclusion
+    |>.computedLowerSearchWitness upper.U upper.polynomial upper.upperN
+
+theorem lowerSearchWitnessOfUpper_n_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics)) :
+    (lowerSearchWitnessOfUpper candidate upper).n =
+      candidate.rejectionExtractor.witness
+        upper.U upper.polynomial upper.upperN :=
+  rfl
+
+theorem lowerSearchWitnessOfUpper_K_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics)) :
+    (lowerSearchWitnessOfUpper candidate upper).K =
+      candidate.rejectionExtractor.cutoff
+        upper.U upper.polynomial upper.upperN :=
+  rfl
+
+theorem lowerSearchWitnessOfUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics)) :
+    let w := lowerSearchWitnessOfUpper candidate upper
+    w.n =
+        candidate.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      w.K =
+        candidate.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : candidate.checkerSemantics.Code,
+        c ∈ candidate.smallCodeSearch.candidates w.n w.K →
+          ¬ candidate.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : candidate.checkerSemantics.Code,
+        candidate.checkerSemantics.checks c
+          (scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (candidate.checkerSemantics.size c : Real)) ∧
+      (candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n := by
+  dsimp only
+  refine ⟨
+    lowerSearchWitnessOfUpper_n_eq_rejectionExtractor candidate upper,
+    lowerSearchWitnessOfUpper_K_eq_rejectionExtractor candidate upper,
+    ?_,
+    ?_,
+    ?_,
+    ?_,
+    ?_⟩
+  · exact (lowerSearchWitnessOfUpper candidate upper).n_ge
+  · exact (lowerSearchWitnessOfUpper candidate upper).cutoff_gt
+  · intro c hmem
+    exact
+      (lowerSearchWitnessOfUpper candidate upper).rejects_candidates c hmem
+  · intro c hchecks
+    exact (lowerSearchWitnessOfUpper candidate upper).no_small_at_n c hchecks
+  · exact (lowerSearchWitnessOfUpper candidate upper).minProofCodeSize_gt
+
 /-- Proof-length-free canonical search core.  Unlike
 `PAHilbertCanonicalCalibratedExactnessCore`, this structure intentionally does
 not carry proof-length exactness; it is the clean source of the checker-side
@@ -212,16 +347,20 @@ theorem proofLengthFreeMonth12Candidate_closure
             (checkedSearchUpperTail
               core.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial
             (checkedSearchUpperTail
-              core.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) := by
+              core.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) ∧
+      (∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
   have hclosure :=
-    proof_length_free_candidate_closure
+    proof_length_free_candidate_endpoint_closure
       core.toProofLengthFreeMonth12Candidate upper_provider
   exact
     ⟨hclosure.1,
       ⟨core.toProofLengthFreeMonth12Candidate⟩,
       hclosure.2.1,
       hclosure.2.2.1,
-      hclosure.2.2.2⟩
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
 
 end PAHilbertCanonicalSearchCore
 
@@ -281,7 +420,9 @@ theorem PAHilbertCanonicalCalibratedExactnessCore.proofLengthFreeMonth12Candidat
                 core) upper_provider hrat).polynomial
             (checkedSearchUpperTail
               (PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
-                core) upper_provider hrat).upperN) := by
+                core) upper_provider hrat).upperN) ∧
+      (∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
   have hclosure :=
     (PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore core)
       |>.proofLengthFreeMonth12Candidate_closure upper_provider
