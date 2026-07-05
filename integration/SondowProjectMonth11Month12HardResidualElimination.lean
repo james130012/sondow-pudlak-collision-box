@@ -1,4 +1,5 @@
 import integration.SondowProjectMonth9Month10Month11ExactProofGapHandoff
+import integration.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
 noncomputable section
 
@@ -8,6 +9,7 @@ namespace SondowProjectMonth11Month12HardResidualElimination
 open SondowProjectMonth9Month10InternalPudlakWitnessSurface
 open SondowProjectMonth9Month10ProofLengthGapFrontier
 open SondowProjectMonth9Month10Month11ExactProofGapHandoff
+open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
 /-- Deliverable 1: strict growth of the scale follows from strict growth of the
 primitive time-constructible bound plus a nonzero exponent. -/
@@ -505,6 +507,123 @@ theorem corrected_actual_measured_endpoint_closure
         extractor residual actual_upper).computed_n_contradiction,
       (corrected_actual_measured_endpoint
         extractor residual actual_upper).not_rational⟩
+
+/-! ## Month 12 full-candidate adapter for the corrected actual route -/
+
+/-- A full Month 12 checker internalization candidate supplies exactly the
+remaining corrected actual-measured residual: checked minimum proof-code size is
+transported to the project actual proof-length measurement. -/
+def correctedResidualOfMonth12Candidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+        scale_data) :
+    CorrectedActualMeasuredResidual candidate.checkerSemantics where
+  actual_transport :=
+    actual_transport_of_checker_proof_length_family_exactness
+      candidate.minProofCodeSizeExactness
+
+/-- The corrected actual endpoint built directly from a full Month 12 checker
+candidate and an actual-measured Sondow upper provider. -/
+def correctedActualEndpointOfMonth12Candidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  corrected_actual_measured_endpoint
+    candidate.rejectionExtractor
+    (correctedResidualOfMonth12Candidate candidate)
+    actual_upper
+
+theorem correctedActualEndpointOfMonth12Candidate_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    correctedActualEndpointOfMonth12Candidate candidate actual_upper =
+      corrected_actual_measured_endpoint
+        candidate.rejectionExtractor
+        (correctedResidualOfMonth12Candidate candidate)
+        actual_upper :=
+  rfl
+
+theorem correctedActualEndpointOfMonth12Candidate_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfMonth12Candidate
+        candidate actual_upper).computedCollisionNOfRationality hrat =
+      candidate.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfMonth12Candidate candidate)
+          actual_upper hrat).U
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfMonth12Candidate candidate)
+          actual_upper hrat).polynomial
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfMonth12Candidate candidate)
+          actual_upper hrat).upperN :=
+  corrected_actual_computed_n_eq_extractor_witness
+    candidate.rejectionExtractor
+    (correctedResidualOfMonth12Candidate candidate)
+    actual_upper hrat
+
+theorem correctedActualEndpointOfMonth12Candidate_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    CorrectedActualMeasuredEndpointAudit
+      candidate.rejectionExtractor
+      (correctedResidualOfMonth12Candidate candidate)
+      actual_upper ∧
+      (correctedActualEndpointOfMonth12Candidate
+        candidate actual_upper).Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (correctedActualEndpointOfMonth12Candidate
+                candidate actual_upper).computedCollisionNOfRationality hrat =
+              candidate.rejectionExtractor.witness
+                (corrected_actual_upper_tail
+                  candidate.rejectionExtractor
+                  (correctedResidualOfMonth12Candidate candidate)
+                  actual_upper hrat).U
+                (corrected_actual_upper_tail
+                  candidate.rejectionExtractor
+                  (correctedResidualOfMonth12Candidate candidate)
+                  actual_upper hrat).polynomial
+                (corrected_actual_upper_tail
+                  candidate.rejectionExtractor
+                  (correctedResidualOfMonth12Candidate candidate)
+                  actual_upper hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [correctedActualEndpointOfMonth12Candidate] using
+    corrected_actual_measured_endpoint_closure
+      candidate.rejectionExtractor
+      (correctedResidualOfMonth12Candidate candidate)
+      actual_upper
 
 end SondowProjectMonth11Month12HardResidualElimination
 end SondowMainCheckedCodeBridge
