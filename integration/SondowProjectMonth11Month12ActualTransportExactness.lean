@@ -141,5 +141,142 @@ theorem checker_project_length_transport_checklist :
           checkerProjectLengthGapConstructor_witness_eq
             fallback extractor U hU N⟩⟩
 
+/-! ## Project-length direct collision endpoint -/
+
+/-- Transport a checked upper provider to the checker project-length measured
+function.  This keeps the upper side on the same object as the gap side. -/
+def checkerProjectLengthUpperProviderOfChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (fallback : _root_.FormulaCode → Nat)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (checkerProjectLengthMeasured scale_data checker fallback) :=
+  Month9Month10AbstractMeasuredUpperProvider.transportEq
+    (fun n =>
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data) (checker := checker) fallback n).symm)
+    checked_upper
+
+/-- Direct collision endpoint over the checker project-length semantics.  This
+is the same proof-length-free measured route as the checked endpoint, expressed
+through the concrete proof-code semantic replacement for root `proof_length`. -/
+def checkerProjectLengthDirectEndpointOfCheckedUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured scale_data checker fallback) where
+  gap := checkerProjectLengthGapConstructor fallback extractor
+  upper_provider :=
+    checkerProjectLengthUpperProviderOfChecked fallback checked_upper
+
+theorem checkerProjectLengthDirectEndpoint_computed_n_eq_extractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionNOfRationality hrat =
+      extractor.witness
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality hrat).U
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).polynomial
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).upperN := by
+  calc
+    (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionNOfRationality
+          hrat =
+        (((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).gap).gap_for_polynomial_upper
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality hrat).U
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality
+              hrat).polynomial).witness
+          ((checkerProjectLengthDirectEndpointOfCheckedUpper
+            fallback extractor checked_upper).upperTailOfRationality
+              hrat).upperN :=
+      (checkerProjectLengthDirectEndpointOfCheckedUpper
+        fallback extractor checked_upper).computedCollisionN_eq_searchGapWitness
+          hrat
+    _ = extractor.witness
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality hrat).U
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).polynomial
+        ((checkerProjectLengthDirectEndpointOfCheckedUpper
+          fallback extractor checked_upper).upperTailOfRationality
+            hrat).upperN := by
+      exact
+        checkerProjectLengthGapConstructor_witness_eq
+          fallback extractor _ _ _
+
+theorem checkerProjectLengthDirectEndpoint_computed_n_contradiction
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (checkerProjectLengthDirectEndpointOfCheckedUpper
+    fallback extractor checked_upper).computed_n_contradiction hrat
+
+theorem checkerProjectLengthDirectEndpoint_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (fallback : _root_.FormulaCode → Nat)
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (checked_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  (checkerProjectLengthDirectEndpointOfCheckedUpper
+    fallback extractor checked_upper).not_rational
+
 end SondowProjectMonth11Month12ActualTransportExactness
 end SondowMainCheckedCodeBridge
