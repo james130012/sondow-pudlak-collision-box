@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.7-month7-prooflength-frontier-alpha
+
+- Adds the Month 7 proof-length-free generic collision skeleton.
+- Adds `Month7MinimalTheoremSurface`, `Month7CompletionChecklist`, and
+  `Month7PreMergeAuditCertificate`.
+- Splits the remaining project obligations into
+  `Month8ProofLengthResidualFrontier` and
+  `Month8PayloadLiteratureResidualFrontier`.
+- Clarifies that the generic skeleton no longer depends on `proof_length`,
+  while the project instantiation layer still exposes the proof-length,
+  payload, and literature residuals.
+
 ## v0.1.2-public-alpha
 
 - Records the public-alpha priority and citation boundary.

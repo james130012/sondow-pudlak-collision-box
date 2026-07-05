@@ -64,6 +64,26 @@ This surface is the public same-object and CnBox/Pudlak bridge closure layer.
 It is not a replacement for Pudlak theorem 5 or for the final parameter-free
 Sondow verifier.
 
+## 3b. Check the Month 7 Final Theorem Compression Surface
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectMonth7FinalCollisionSurface
+open SondowMainCheckedCodeBridge.SondowProjectMonth7FinalCollisionSurface
+
+#check SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#check Month7MinimalTheoremSurface.not_rational
+#check Month7PreMergeAuditCertificate.nonempty_iff_literature_frontier_vector_nonempty
+#check month7_minimal_theorem_surface_nonempty_iff_month8_residual_frontiers_nonempty
+#print axioms SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#print axioms Month7PreMergeAuditCertificate.not_rational
+EOF
+```
+
+The generic skeleton should not depend on `proof_length`.  The project
+instantiation layer should still expose the proof-length, payload, and
+literature residuals.
+
 ## 4. Print Axiom Dependencies
 
 ```bash

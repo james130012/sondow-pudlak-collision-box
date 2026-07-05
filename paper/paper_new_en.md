@@ -161,6 +161,17 @@ proof-length calibration layer is exposed as
 `Month6ProofCodeCheckerCalibrationFrontierCertificate`. This is a tightening of
 the boundary, not an unconditional elimination of the abstract `proof_length`.
 
+The Month 7 layer compresses the final theorem surface.  It factors the final
+contradiction through `GenericRationalCollisionInputs`, a proof-length-free
+generic collision skeleton whose theorem depends only on a rationality-driven
+eventual polynomial upper bound and an eventual strict gap for the same measured
+function.  The project-specific PA proof-length box is introduced only in the
+instantiation layer.  Lean records this boundary through
+`Month7MinimalTheoremSurface`, `Month7CompletionChecklist`, and
+`Month7PreMergeAuditCertificate`, and splits the remaining work into
+`Month8ProofLengthResidualFrontier` and
+`Month8PayloadLiteratureResidualFrontier`.
+
 ### 3.2 No Hidden Weakening of the Statement
 
 Although the theorem is conditional, the target conclusion is not weakened. The final Lean endpoint still concludes:
@@ -192,6 +203,14 @@ identifies project checked-code semantics with this calibration frontier, while
 `public_statement_iff_public_completion_computable_gap_checker_calibration_frontier`
 places the frontier together with the Month 5 computable gap certificate inside
 one project-level completion statement.
+
+The Month 7 final surface then separates this project-level statement from the
+pure order-theoretic contradiction.  The theorem
+`GenericRationalCollisionInputs.not_rational` contains no PA proof-length box:
+it says that an eventual upper bound `L(n) <= U(n)` and an eventual strict gap
+`U(n) < L(n)` for the same measured function cannot both follow from
+rationality.  The project instantiation, and not the generic skeleton, is where
+the remaining `proof_length` and payload assumptions enter.
 
 The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. This gap condition is not automatic from the Pudlak lower bound; it enters the collision box as an independent growth-domination certificate. Hence the rationality hypothesis is impossible under the stated inputs, and
 
@@ -396,6 +415,13 @@ First, Pudlak's Theorem 5 is currently treated as an external literature certifi
 
 Second, the PA/Hilbert proof-length convention is not yet internalized from first principles. The current `proof_length` is an abstract complexity function, and its relevant equalities enter through auditable witnesses. The latest formalization tightens the remaining boundary to a proof-code checker calibration frontier: the project no longer merely assumes an unnamed calibration witness, but exposes the equivalence between proof-code checker recognition and local proof-length code calibration. A full internalization still has to construct PA proof objects, encoders, checkers, and minimum proof-code size functions, and then prove their equivalence to the abstract proof length.
 
+Month 7 further clarifies this task without solving it unconditionally.  The
+final theorem can now be stated through `Month7MinimalTheoremSurface`, while the
+proof-length-specific residue is isolated as
+`Month8ProofLengthResidualFrontier`.  Thus the next proof-length task is not to
+redesign the collision core, but to replace that residual frontier by concrete
+proof-object encodings, checker exactness, and minProofCodeSize calibration.
+
 Third, the remaining task on the upper-bound side is the parameter-free instantiation of the final Sondow upper-bound witness. The analytic integral decomposition, the product-log identity, the tail estimates, and the Sondow forward package already have a Lean-closed reproof route. The project-local verifier/compiler framework is also present in the buildable interfaces `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`. Month 2 now fixes `Month2SondowAccepted n`, the component certificates, the accepted-to-compiled compiler, and the canonical import surface. Thus it would be inaccurate to list the Sondow accepted-certificate surface, or the entire bounded-arithmetic verifier, as a remaining external gap. More precisely, what remains is to construct the final input
 
 ```lean
@@ -415,6 +441,13 @@ threshold certificate, and the growth-domination certificate around
 concrete witnesses that make the accepted object, growth gap, payload truth, and
 proof-length convention parameter-free and strong enough for the unconditional
 target.
+
+The complementary residual package is
+`Month8PayloadLiteratureResidualFrontier`, which contains the Pudlak
+literature lower-bound input, the minimal closure package, and the strengthened
+payload-truth input.  This package marks what must be discharged on the
+payload/literature side if the Month 7 conditional endpoint is to be made
+stronger.
 
 These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
 

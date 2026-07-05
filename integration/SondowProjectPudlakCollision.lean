@@ -25,6 +25,60 @@ noncomputable section
 
 namespace SondowMainCheckedCodeBridge
 
+/-- Proof-length-free arithmetic collision core: an eventual strict gap
+`U n < L n` and an eventual upper bound `L n ≤ U n` cannot hold for the same
+measured function `L`.  The project-specific proof-length box is introduced
+only when this generic core is instantiated below. -/
+theorem genericCollisionCore_from_lower_upper_gap
+    {U L : ℕ → ℝ}
+    (hgap : _root_.EventualStrictGap U L)
+    (N : ℕ)
+    (hupper : ∀ n : ℕ, N ≤ n → L n ≤ U n) :
+    False := by
+  rcases hgap.gap_after N with ⟨n, hn_ge, hlt⟩
+  exact (not_lt_of_ge (hupper n hn_ge)) hlt
+
+/-- Proof-length-free rationality collision interface.  The measured function
+`L` is abstract: the core theorem only needs rationality to give an eventual
+polynomial upper bound for `L`, and the lower side to give a strict eventual
+gap against every polynomial upper function on the same `L`. -/
+structure GenericRationalCollisionInputs where
+  measured : ℕ → ℝ
+  upper_under_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : ℕ → ℝ, _root_.is_polynomial_bound U ∧
+        ∃ N : ℕ, ∀ n : ℕ, N ≤ n → measured n ≤ U n
+  gap_for_polynomial_upper :
+    ∀ U : ℕ → ℝ, _root_.is_polynomial_bound U →
+      _root_.EventualStrictGap U measured
+
+namespace GenericRationalCollisionInputs
+
+/-- Proof-length-free collision theorem.  No PA proof-length box appears in the
+statement; project-specific proof-length assumptions enter only when a concrete
+`measured` function is instantiated. -/
+theorem not_rational
+    (h : GenericRationalCollisionInputs) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  rcases h.upper_under_rationality hrat with ⟨U, hU, N, hupper⟩
+  exact
+    genericCollisionCore_from_lower_upper_gap
+      (h.gap_for_polynomial_upper U hU) N hupper
+
+theorem audited_collision_core
+    (h : GenericRationalCollisionInputs) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.not_rational
+
+theorem contradiction
+    (h : GenericRationalCollisionInputs)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  h.not_rational hrat
+
+end GenericRationalCollisionInputs
+
 /-- The shared proof-length box for the project-local upper route and the
 Pudlak lower route. -/
 abbrev sondowProjectLocalPudlakCollisionBox (n : ℕ) : ℝ :=
@@ -123,20 +177,22 @@ theorem audited_gap_core
       (fun n : ℕ => sondowProjectLocalPudlakCollisionBox n) :=
   h.finalPudlakGapCertificate U hU
 
+/-- Instantiate the proof-length-free rationality collision skeleton with the
+project-local PA symbol-size proof-length box. -/
+def toGenericRationalCollisionInputs
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    GenericRationalCollisionInputs where
+  measured := sondowProjectLocalPudlakCollisionBox
+  upper_under_rationality := h.upperBoundUnderRationality
+  gap_for_polynomial_upper := h.finalPudlakGapCertificate
+
 /-- Final collision, factored through the explicit gap certificate.  This is
 definitionally the same route as `not_rational`, but it exposes the exact
 `U n < proof_length ...` witness used to contradict the Sondow upper bound. -/
 theorem not_rational_via_gap_certificate
     (h : SondowProjectLocalPudlakCollisionInputs) :
-    ¬ _root_.is_rational _root_.euler_mascheroni := by
-  intro hrat
-  rcases h.project_upper hrat with ⟨f, hf_poly, N, hupper⟩
-  exact
-    _root_.collisionCore_from_lower_upper_gap
-      (h.graftGapCertificate f hf_poly) N
-      (fun n hn_ge => by
-        rcases hupper n hn_ge with ⟨_haccepted, hle⟩
-        exact hle)
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.toGenericRationalCollisionInputs.not_rational
 
 /-- Final collision: the project-local upper bound and the transferred Pudlak
 lower bound cannot both hold under rationality of `gamma`. -/
@@ -157,6 +213,22 @@ theorem audited_collision_core
     (h : SondowProjectLocalPudlakCollisionInputs) :
     ¬ _root_.is_rational _root_.euler_mascheroni :=
   h.not_rational_from_audited_upper_gap_box_collisionCore
+
+/-- Boundary audit: the project-local final theorem is definitionally the
+proof-length-free generic collision skeleton after project proof-length
+instantiation. -/
+theorem not_rational_eq_generic_collision_skeleton
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    h.not_rational =
+      h.toGenericRationalCollisionInputs.not_rational :=
+  rfl
+
+/-- Boundary audit for the named audited endpoint. -/
+theorem audited_collision_core_eq_generic_collision_skeleton
+    (h : SondowProjectLocalPudlakCollisionInputs) :
+    h.audited_collision_core =
+      h.toGenericRationalCollisionInputs.not_rational :=
+  rfl
 
 /-- Contradiction form of the audited collision core.  This is useful for
 auditors who want to see the rationality assumption discharged explicitly. -/

@@ -359,6 +359,23 @@ structure Month7CheckedCodeReplacementOpenVector
   strengthened_accepted :
     _root_.StrengthenedPartialConsistencyAcceptedTruth
 
+structure Month7ProofLengthAuditOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
 structure Month7MinimalClosurePayloadVector
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
     {Ax : L.BoundedFormula α n → Prop}
@@ -376,6 +393,154 @@ structure Month7MinimalClosurePayloadVector
     Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
   strengthened_accepted :
     _root_.StrengthenedPartialConsistencyAcceptedTruth
+
+structure Month7AuditedMinimalClosurePayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Prop where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+
+structure Month7PudlakProjectionPayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Prop where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  proof_length_projection_principle :
+    _root_.PAProofLengthProjectionPrinciple
+
+structure Month7ConcretePudlakProjectionPayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Type where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  fallback :
+    _root_.FormulaCode → Nat
+  strengthened_to_partial_recognition :
+    _root_.StrengthenedToPartialConcreteProofLengthRecognition
+
+structure Month7CanonicalPudlakProjectionPayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Prop where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  canonical_recognition :
+    Nonempty _root_.StrengthenedToPartialCanonicalRecognitionCertificate
+
+structure Month7ExactFamilyPudlakProjectionPayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Prop where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  exact_family_lengths :
+    _root_.StrengthenedToPartialProjectProofLengthExactFamilyLengths
+
+structure Month7ExactFamilyLocalCodePudlakPayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Type where
+  proof_length_audit :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofLengthInternalizationAuditCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_payload_truth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  exact_family_lengths :
+    _root_.StrengthenedToPartialProjectProofLengthExactFamilyLengths
+  fallback :
+    _root_.FormulaCode → Nat
+  local_code_calibration :
+    (let model :=
+      interp.localPAHilbertProofLengthCodeSemanticsForProjection fallback
+     model.code_model.Calibration)
+
+structure Month7LiteraturePudlakCollisionFrontierVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Type where
+  literature_lower_bound :
+    _root_.LiteraturePudlakTheorem5LowerBoundCertificate
+  local_code_payload :
+    Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds
+
+structure Month7LiteraturePudlakCollisionFrontierPackage where
+  lower_normal_form :
+    _root_.PartialConsistencyLowerBoundNormalForm
+  partial_to_graft :
+    _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer
+  collapse_conclusion :
+    SondowProjectLocalS21CollapseConclusion
 
 namespace Month7AxiomEliminationFrontierChecklist
 
@@ -906,6 +1071,45 @@ theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_checked_code_re
     (month7_canonical_calibration_vector_iff_checked_code_replacement_vector
       interp)
 
+theorem month7_checked_code_replacement_vector_iff_proof_length_audit_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7CheckedCodeReplacementOpenVector interp ↔
+      Month7ProofLengthAuditOpenVector interp := by
+  constructor
+  · intro h
+    exact
+      { proof_length_audit :=
+          (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.month6ProofLengthInternalizationAudit_nonempty_iff_checkedReplacement
+            interp).2 h.checked_code_replacement
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    exact
+      { checked_code_replacement :=
+          (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.month6ProofLengthInternalizationAudit_nonempty_iff_checkedReplacement
+            interp).1 h.proof_length_audit
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_proof_length_audit_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7ProofLengthAuditOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_checked_code_replacement_vector
+    interp).trans
+    (month7_checked_code_replacement_vector_iff_proof_length_audit_vector
+      interp)
+
 theorem month7_minimal_closure_payload_vector_to_checked_code_replacement_vector
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
     {Ax : L.BoundedFormula α n → Prop}
@@ -937,6 +1141,542 @@ theorem month7_minimal_closure_payload_vector_to_checklist
     interp).2
     (month7_minimal_closure_payload_vector_to_checked_code_replacement_vector
       interp bounds h)
+
+theorem month7_audited_minimal_closure_payload_vector_to_minimal_closure_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7AuditedMinimalClosurePayloadVector interp bounds) :
+    Month7MinimalClosurePayloadVector interp bounds :=
+  { checked_code_replacement :=
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.month6ProofLengthInternalizationAudit_nonempty_iff_checkedReplacement
+        interp).1 h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_accepted :=
+      (strengthened_payload_truth_iff_accepted_truth).1
+        h.strengthened_payload_truth }
+
+theorem month7_audited_minimal_closure_payload_vector_to_proof_length_audit_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7AuditedMinimalClosurePayloadVector interp bounds) :
+    Month7ProofLengthAuditOpenVector interp :=
+  { proof_length_audit := h.proof_length_audit
+    partial_accepted_code :=
+      (partial_payload_spec_frontier_iff_accepted_code_truth).2
+        (sondowCLinePayloadSpecCertificate_nonempty_of_minimalClosureCertificate
+          h.minimal_closure)
+    strengthened_accepted :=
+      (strengthened_payload_truth_iff_accepted_truth).1
+        h.strengthened_payload_truth }
+
+theorem month7_audited_minimal_closure_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7AuditedMinimalClosurePayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_proof_length_audit_vector
+    interp).2
+    (month7_audited_minimal_closure_payload_vector_to_proof_length_audit_vector
+      interp bounds h)
+
+theorem month7_audited_minimal_closure_payload_vector_to_partial_payload_truth
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7AuditedMinimalClosurePayloadVector interp bounds) :
+    _root_.PartialConsistencyPayloadTruth := by
+  rcases h.minimal_closure with ⟨certificate⟩
+  exact certificate.payloadTruth
+
+theorem month7_audited_minimal_closure_payload_vector_to_collapse_conclusion
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7AuditedMinimalClosurePayloadVector interp bounds) :
+    SondowProjectLocalS21CollapseConclusion := by
+  rcases h.minimal_closure with ⟨certificate⟩
+  exact certificate.toCollapseConclusion
+
+theorem month7_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7PudlakProjectionPayloadVector interp bounds) :
+    Month7AuditedMinimalClosurePayloadVector interp bounds :=
+  { proof_length_audit := h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_payload_truth := h.strengthened_payload_truth }
+
+theorem month7_pudlak_projection_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7PudlakProjectionPayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_audited_minimal_closure_payload_vector_to_checklist
+    interp bounds
+    (month7_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+      interp bounds h)
+
+theorem month7_pudlak_projection_payload_vector_to_partial_to_strengthened_projection
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7PudlakProjectionPayloadVector interp bounds) :
+    _root_.PartialToStrengthenedAcceptedProjection :=
+  _root_.PartialToStrengthenedAcceptedProjection.ofStrengthenedPayloadTruth
+    h.strengthened_payload_truth
+
+theorem month7_pudlak_projection_payload_vector_to_accepted_projection_package
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7PudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialAcceptedProjectionPackage :=
+  _root_.StrengthenedToPartialAcceptedProjectionPackage.ofStrengthenedPayloadTruth
+    h.proof_length_projection_principle h.strengthened_payload_truth
+
+theorem month7_pudlak_projection_payload_vector_to_strengthened_to_partial_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7PudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer :=
+  (month7_pudlak_projection_payload_vector_to_accepted_projection_package
+    h).toTransfer
+
+theorem month7_concrete_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ConcretePudlakProjectionPayloadVector interp bounds) :
+    Month7AuditedMinimalClosurePayloadVector interp bounds :=
+  { proof_length_audit := h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_payload_truth := h.strengthened_payload_truth }
+
+theorem month7_concrete_pudlak_projection_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ConcretePudlakProjectionPayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_audited_minimal_closure_payload_vector_to_checklist
+    interp bounds
+    (month7_concrete_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+      interp bounds h)
+
+def month7_concrete_pudlak_projection_payload_vector_to_concrete_projection_calibration
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ConcretePudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConcreteProofCodeProjectionCalibration :=
+  h.strengthened_to_partial_recognition.toConcreteProjectionCalibration
+    h.fallback
+
+theorem month7_concrete_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ConcretePudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialAcceptedProjectionCalibration :=
+  (month7_concrete_pudlak_projection_payload_vector_to_concrete_projection_calibration
+    h).toAcceptedCalibration
+    (_root_.PartialToStrengthenedAcceptedProjection.ofStrengthenedPayloadTruth
+      h.strengthened_payload_truth)
+
+theorem month7_concrete_pudlak_projection_payload_vector_to_strengthened_to_partial_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ConcretePudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer :=
+  (month7_concrete_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    h).toTransfer
+
+theorem month7_canonical_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7CanonicalPudlakProjectionPayloadVector interp bounds) :
+    Month7AuditedMinimalClosurePayloadVector interp bounds :=
+  { proof_length_audit := h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_payload_truth := h.strengthened_payload_truth }
+
+theorem month7_canonical_pudlak_projection_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7CanonicalPudlakProjectionPayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_audited_minimal_closure_payload_vector_to_checklist
+    interp bounds
+    (month7_canonical_pudlak_projection_payload_vector_to_audited_minimal_closure_payload_vector
+      interp bounds h)
+
+theorem month7_canonical_pudlak_projection_payload_vector_to_concrete_recognition
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7CanonicalPudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConcreteProofLengthRecognition :=
+  (_root_.strengthenedToPartialCanonicalCertificate_iff_concreteRecognition).1
+    h.canonical_recognition
+
+theorem month7_canonical_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7CanonicalPudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialAcceptedProjectionCalibration := by
+  rcases h.canonical_recognition with ⟨hcert⟩
+  exact
+    (hcert.toConcreteRecognition.toConcreteProjectionCalibration
+      hcert.convention.fallback).toAcceptedCalibration
+      (_root_.PartialToStrengthenedAcceptedProjection.ofStrengthenedPayloadTruth
+        h.strengthened_payload_truth)
+
+theorem month7_canonical_pudlak_projection_payload_vector_to_strengthened_to_partial_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7CanonicalPudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer :=
+  (month7_canonical_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    h).toTransfer
+
+theorem month7_exact_family_pudlak_projection_payload_vector_to_canonical_pudlak_projection_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ExactFamilyPudlakProjectionPayloadVector interp bounds) :
+    Month7CanonicalPudlakProjectionPayloadVector interp bounds :=
+  { proof_length_audit := h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_payload_truth := h.strengthened_payload_truth
+    canonical_recognition :=
+      (_root_.strengthenedToPartialExactFamilyLengths_iff_canonicalCertificate).1
+        h.exact_family_lengths }
+
+theorem month7_exact_family_pudlak_projection_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ExactFamilyPudlakProjectionPayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_canonical_pudlak_projection_payload_vector_to_checklist
+    interp bounds
+    (month7_exact_family_pudlak_projection_payload_vector_to_canonical_pudlak_projection_payload_vector
+      interp bounds h)
+
+theorem month7_exact_family_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyPudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialAcceptedProjectionCalibration :=
+  month7_canonical_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    (month7_exact_family_pudlak_projection_payload_vector_to_canonical_pudlak_projection_payload_vector
+      _ _ h)
+
+theorem month7_exact_family_pudlak_projection_payload_vector_to_strengthened_to_partial_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyPudlakProjectionPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer :=
+  (month7_exact_family_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    h).toTransfer
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_exact_family_pudlak_projection_payload_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    Month7ExactFamilyPudlakProjectionPayloadVector interp bounds :=
+  { proof_length_audit := h.proof_length_audit
+    minimal_closure := h.minimal_closure
+    strengthened_payload_truth := h.strengthened_payload_truth
+    exact_family_lengths := h.exact_family_lengths }
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_exact_family_pudlak_projection_payload_vector_to_checklist
+    interp bounds
+    (month7_exact_family_local_code_pudlak_payload_vector_to_exact_family_pudlak_projection_payload_vector
+      interp bounds h)
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_accepted_projection_calibration
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialAcceptedProjectionCalibration :=
+  month7_exact_family_pudlak_projection_payload_vector_to_accepted_projection_calibration
+    (month7_exact_family_local_code_pudlak_payload_vector_to_exact_family_pudlak_projection_payload_vector
+      _ _ h)
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_strengthened_to_partial_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer :=
+  (month7_exact_family_local_code_pudlak_payload_vector_to_accepted_projection_calibration
+    h).toTransfer
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_projection_family_exactness
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.MiniHilbert.PAHilbertProjectionFamilyExactness interp :=
+  _root_.MiniHilbert.PAHilbertProjectionFamilyExactness.ofLocalPAHilbertCodeCalibration
+    h.fallback h.local_code_calibration
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_partial_to_graft_transfer
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer :=
+  (month7_exact_family_local_code_pudlak_payload_vector_to_projection_family_exactness
+    h).toStrongLowerBoundTransfer
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_partial_payload_truth
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.PartialConsistencyPayloadTruth := by
+  rcases h.minimal_closure with ⟨certificate⟩
+  exact certificate.payloadTruth
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_collapse_conclusion
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    SondowProjectLocalS21CollapseConclusion := by
+  rcases h.minimal_closure with ⟨certificate⟩
+  exact certificate.toCollapseConclusion
+
+theorem month7_exact_family_local_code_pudlak_payload_vector_to_collision_transfer_package
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7ExactFamilyLocalCodePudlakPayloadVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer ∧
+      _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer ∧
+        SondowProjectLocalS21CollapseConclusion :=
+  ⟨month7_exact_family_local_code_pudlak_payload_vector_to_strengthened_to_partial_transfer
+      h,
+    month7_exact_family_local_code_pudlak_payload_vector_to_partial_to_graft_transfer
+      h,
+    month7_exact_family_local_code_pudlak_payload_vector_to_collapse_conclusion
+      h⟩
+
+theorem month7_literature_pudlak_collision_frontier_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7LiteraturePudlakCollisionFrontierVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  month7_exact_family_local_code_pudlak_payload_vector_to_checklist
+    interp bounds h.local_code_payload
+
+def month7_literature_pudlak_collision_frontier_vector_to_lower_normal_form
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7LiteraturePudlakCollisionFrontierVector interp bounds) :
+    _root_.PartialConsistencyLowerBoundNormalForm :=
+  h.literature_lower_bound.toNormalForm
+    (month7_exact_family_local_code_pudlak_payload_vector_to_strengthened_to_partial_transfer
+      h.local_code_payload)
+
+def month7_literature_pudlak_collision_frontier_vector_to_package
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7LiteraturePudlakCollisionFrontierVector interp bounds) :
+    Month7LiteraturePudlakCollisionFrontierPackage where
+  lower_normal_form :=
+    month7_literature_pudlak_collision_frontier_vector_to_lower_normal_form h
+  partial_to_graft :=
+    month7_exact_family_local_code_pudlak_payload_vector_to_partial_to_graft_transfer
+      h.local_code_payload
+  collapse_conclusion :=
+    month7_exact_family_local_code_pudlak_payload_vector_to_collapse_conclusion
+      h.local_code_payload
+
+theorem month7_literature_pudlak_collision_frontier_vector_to_collision_transfer_package
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h : Month7LiteraturePudlakCollisionFrontierVector interp bounds) :
+    _root_.StrengthenedToPartialConsistencyLowerBoundTransfer ∧
+      _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer ∧
+        SondowProjectLocalS21CollapseConclusion :=
+  month7_exact_family_local_code_pudlak_payload_vector_to_collision_transfer_package
+    h.local_code_payload
 
 end SondowProjectMonth7AxiomEliminationFrontierSurface
 end SondowMainCheckedCodeBridge

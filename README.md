@@ -16,6 +16,8 @@
 
 同日后续同步新增了 Month 5/Month 6 theorem index surface（第 5/6 月定理索引表面）：它把最终 `U/L` gap certificate（间隙证书）推进到 `ProjectComputableGapCertificate`（项目可计算间隙证书）和公开 completion checklist（闭合检查表），并把 proof-length internalization（证明长度内部化）的公开边界从普通 checked-code replacement（已检查码替换）收紧到 `Month6ProofCodeCheckerCalibrationFrontierCertificate`（证明码检查器校准前沿证书）。这不是消灭 `proof_length`（证明长度）外部性；它精确标出了剩余边界在 proof-code checker recognition（证明码检查器识别）与 local proof-length code calibration（局部证明长度码校准）之间。
 
+后续 Month 7 同步新增了 proof-length-free generic collision skeleton（无证明长度通用对撞骨架）和 final theorem compression surface（最终定理压缩表面）。`GenericRationalCollisionInputs`（通用有理性对撞输入）把“有理性给出同一 measured function（被测函数）的 eventual polynomial upper bound（最终多项式上界）”和“Pudlak 侧给出同一 measured function 的 eventual strict gap（最终严格间隙）”抽象为不含 `proof_length` 的通用矛盾核心。项目层通过 `Month7MinimalTheoremSurface`（第 7 月最小定理表面）、`Month7CompletionChecklist`（第 7 月完成检查表）和 `Month7PreMergeAuditCertificate`（第 7 月合并前审计证书）证明最终公开入口没有被偷偷改弱，并把剩余 `proof_length`/payload/literature（证明长度/载荷/文献）义务压缩为 `Month8ProofLengthResidualFrontier`（第 8 月证明长度残留前沿）和 `Month8PayloadLiteratureResidualFrontier`（第 8 月载荷/文献残留前沿）。
+
 ## 优先权、引用与贡献边界
 
 本仓库记录的是 Sondow-Pudlak conditional collision box（Sondow-Pudlak 条件性对撞盒）的 public-alpha timestamp（公开 alpha 时间戳）。如果你使用、改写或继续推进这里的接口、证书结构、Lean 形式化路线或论文表述，请引用本仓库和对应 release（版本发布）；引用信息见 [`CITATION.cff`](CITATION.cff)。
@@ -28,6 +30,7 @@
 - 一个 public bridge closure layer（公开桥接闭合层），把 CnBox equation endpoints（C_n 盒子方程端点）、same-object closure（同对象闭合）和公开 gap/collision endpoints（间隙/对撞端点）放在单一可探针入口中。
 - 一个 Month 3/Month 4 public completion layer（第 3/4 月公开闭合层），把 accepted Sondow object（已接受的 Sondow 对象）、bounded PA proof predicate（有界 PA 证明谓词）和 Pudlak theorem-5 exact external boundary（Pudlak 定理 5 精确外部边界）接到同一个 `PublicCompletionCertificate`（公开闭合证书）中。
 - 一个 Month 5/Month 6 public theorem index（第 5/6 月公开定理索引），把 computable gap certificate（可计算间隙证书）、growth domination threshold（增长支配阈值）和 proof-code checker calibration frontier（证明码检查器校准前沿）整理成可 `#check` 和 `#print axioms` 的公开 theorem surface（定理表面）。
+- 一个 Month 7 final theorem compression layer（第 7 月最终定理压缩层），把最终对撞拆成 proof-length-free generic skeleton（无证明长度通用骨架）和 project proof-length instantiation（项目证明长度实例化）两层，并给出 `Month7PreMergeAuditCertificate`（第 7 月合并前审计证书）记录审计包、最小定理表面和 Month8 residual frontier（第 8 月残留前沿）的关系。
 
 贡献者可以提交 pull request（拉取请求）继续内部化 witness（见证）或改进文档，但不应把当前 public-alpha 版本表述为已经无条件证明 γ 无理。任何基于本项目的后续工作都应清楚区分：本仓库已经给出的 interface/collision architecture（接口/对撞架构），以及后续作者新增闭合的 external witness（外部见证）或 internal proof（内部证明）。
 
@@ -66,6 +69,13 @@ integration/SondowProjectMonth3Month4CompletionAuditSurface.lean
 
 ```text
 integration/SondowProjectMonth5Month6TheoremIndexSurface.lean
+```
+
+- Month 7 最终定理压缩与合并前审计入口：
+
+```text
+integration/SondowProjectMonth7FinalCollisionSurface.lean
+integration/SondowProjectPudlakCollision.lean
 ```
 
 ## 构建
@@ -159,6 +169,22 @@ open SondowMainCheckedCodeBridge.SondowProjectMonth5Month6TheoremIndexSurface
 EOF
 ```
 
+Month 7 最终定理压缩层可用下面的入口审计：
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectMonth7FinalCollisionSurface
+open SondowMainCheckedCodeBridge.SondowProjectMonth7FinalCollisionSurface
+
+#check SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#check Month7MinimalTheoremSurface.not_rational
+#check Month7PreMergeAuditCertificate.nonempty_iff_literature_frontier_vector_nonempty
+#check month7_minimal_theorem_surface_nonempty_iff_month8_residual_frontiers_nonempty
+#print axioms SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#print axioms Month7PreMergeAuditCertificate.not_rational
+EOF
+```
+
 当前核心 external or abstract inputs（外部或抽象输入）列在 [`AXIOM_LEDGER.md`](AXIOM_LEDGER.md) 中。最近一次本地审计显示主要依赖为：
 
 ```text
@@ -186,6 +212,7 @@ strengthened_partial_consistency_payload
 - Month 4 Pudlak theorem-5 exact boundary surface（第 4 月 Pudlak 定理 5 精确边界表面）已经把 raw code（原始编码）、rescaled code（重标度编码）、power-bound code（幂界编码）、lower-bound source（下界源）和 canonical import（规范导入）组织成可审计的 `<=>` 等价链。`SondowProjectMonth3Month4CompletionAuditSurface` 把 Month 3 和 Month 4 结论合并为单一 `PublicCompletionCertificate`（公开闭合证书）。
 - Month 5 gap certificate surface（第 5 月间隙证书表面）已经固定 `Month5UpperBoundFunction`（上界函数）、`Month5LowerBoundFunction`（下界函数）、threshold certificate（阈值证书）和 `ProjectComputableGapCertificate`（项目可计算间隙证书）的公开等价出口。
 - Month 6 proof-length calibration surface（第 6 月证明长度校准表面）已经把 project checked-code semantics（项目已检查码语义）等价推进到 `Month6ProofCodeCheckerCalibrationFrontierCertificate`（证明码检查器校准前沿证书），公开 theorem（定理）为 `month6_project_checked_semantics_iff_checker_calibration_frontier`。
+- Month 7 final theorem compression surface（第 7 月最终定理压缩表面）已经把最终对撞核心拆为 `GenericRationalCollisionInputs`（通用有理性对撞输入）和 project instantiation（项目实例化）两层。`#print axioms` 显示通用骨架本身不含 `proof_length`（证明长度），而项目实例化层仍如实暴露 `proof_length`、payload（载荷）和 literature（文献）残留。
 
 ## 尚未完全内部化内容
 
@@ -194,6 +221,7 @@ strengthened_partial_consistency_payload
 - Pudlak theorem 5（Pudlak 定理 5）/ Pudlak-Friedman-Buss finite-consistency proof-length lower bounds（有限一致性证明长度下界）。
 - abstract `proof_length`（抽象证明长度）到 checked-code/minProofCodeSize semantics（已检查代码/最小证明码大小语义）的无条件 proof-length convention（证明长度约定）。当前已经把该边界收紧到 proof-code checker calibration frontier（证明码检查器校准前沿），但还没有从第一性原理构造 PA/Hilbert proof object（PA/Hilbert 证明对象）、checker exactness（检查器精确性）和 minProofCodeSize（最小证明码长）等价。
 - `PartialConsistencyPayloadTruth` 和 `StrengthenedPartialConsistencyPayloadTruth` 对应的 payload truth（载荷真值）语义。
+- Month 7 已经把最终定理入口压缩到 `Month7MinimalTheoremSurface`（第 7 月最小定理表面），并把后续工作分成 `Month8ProofLengthResidualFrontier`（第 8 月证明长度残留前沿）和 `Month8PayloadLiteratureResidualFrontier`（第 8 月载荷/文献残留前沿）。这说明剩余工作不是重做对撞核心，而是消除或内部化这两个残留前沿中的证书。
 - 最终上界入口中的 `Nonempty SondowProjectLocalReflectionGraftVerifier` 和 Month 2 使用的 `PublicInfrastructureKit` 仍需从 lower-level checked-code S21 trace calibrations（低层已检查码 S21 跟踪校准）和 PA embedding witness（PA 嵌入见证）完全构造为无参数实例。
 - Month 3/Month 4 公开闭合层不把 Pudlak theorem 5（Pudlak 定理 5）或无参数 Sondow verifier（Sondow 验证器）变成无条件定理；Month 5/Month 6 公开层把最终 gap growth domination（间隙增长支配）和 proof-length calibration frontier（证明长度校准前沿）接入同一个可审计接口，但仍保留上述外部或抽象输入。
 
@@ -242,6 +270,17 @@ internalization boundary from ordinary checked-code replacement to
 the abstract `proof_length`; it marks the remaining boundary at the interface
 between proof-code checker recognition and local proof-length code calibration.
 
+The subsequent Month 7 sync adds a proof-length-free generic collision skeleton
+and a final theorem compression surface. `GenericRationalCollisionInputs`
+abstracts the contradiction between a rationality-driven eventual polynomial
+upper bound and an eventual strict gap for the same measured function, without
+mentioning `proof_length`. The project layer then uses
+`Month7MinimalTheoremSurface`, `Month7CompletionChecklist`, and
+`Month7PreMergeAuditCertificate` to show that the public endpoint has not been
+weakened, while the remaining proof-length, payload, and literature obligations
+are isolated as `Month8ProofLengthResidualFrontier` and
+`Month8PayloadLiteratureResidualFrontier`.
+
 ## Priority, Citation, and Contribution Boundary
 
 This repository records a public-alpha timestamp for the Sondow-Pudlak conditional collision box. If you use, adapt, or extend the interfaces, certificate architecture, Lean formalization route, or paper exposition in this repository, please cite this repository and the corresponding release; see [`CITATION.cff`](CITATION.cff).
@@ -254,6 +293,7 @@ The core public contributions at this stage are:
 - a public bridge closure layer that places the CnBox equation endpoints, same-object closure, and public gap/collision endpoints behind a single probeable entry point.
 - a Month 3/Month 4 public completion layer connecting the accepted Sondow object, the bounded PA proof predicate, and the Pudlak theorem-5 exact external boundary in one `PublicCompletionCertificate`.
 - a Month 5/Month 6 public theorem index that exposes the computable gap certificate, growth-domination threshold, and proof-code checker calibration frontier through `#check` and `#print axioms` friendly theorem names.
+- a Month 7 final theorem compression layer that separates the proof-length-free generic collision skeleton from the project proof-length instantiation, with `Month7PreMergeAuditCertificate` recording the relation between the audit package, the minimal theorem surface, and the Month8 residual frontier.
 
 Contributors may submit pull requests to internalize witnesses or improve the documentation, but this public-alpha version should not be described as an unconditional proof of the irrationality of γ. Any follow-up work based on this project should distinguish the interface/collision architecture provided here from any external witness or internal proof newly closed by later authors.
 
@@ -292,6 +332,13 @@ integration/SondowProjectMonth3Month4CompletionAuditSurface.lean
 
 ```text
 integration/SondowProjectMonth5Month6TheoremIndexSurface.lean
+```
+
+- Month 7 final theorem compression and pre-merge audit entry:
+
+```text
+integration/SondowProjectMonth7FinalCollisionSurface.lean
+integration/SondowProjectPudlakCollision.lean
 ```
 
 ## Build
@@ -385,6 +432,22 @@ open SondowMainCheckedCodeBridge.SondowProjectMonth5Month6TheoremIndexSurface
 EOF
 ```
 
+The Month 7 final theorem compression layer can be audited through:
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectMonth7FinalCollisionSurface
+open SondowMainCheckedCodeBridge.SondowProjectMonth7FinalCollisionSurface
+
+#check SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#check Month7MinimalTheoremSurface.not_rational
+#check Month7PreMergeAuditCertificate.nonempty_iff_literature_frontier_vector_nonempty
+#check month7_minimal_theorem_surface_nonempty_iff_month8_residual_frontiers_nonempty
+#print axioms SondowMainCheckedCodeBridge.GenericRationalCollisionInputs.not_rational
+#print axioms Month7PreMergeAuditCertificate.not_rational
+EOF
+```
+
 The current core external or abstract inputs are listed in [`AXIOM_LEDGER.md`](AXIOM_LEDGER.md). The latest local audit reports the following main dependencies:
 
 ```text
@@ -412,6 +475,7 @@ It also depends on standard Lean/Mathlib principles such as `propext`, `Classica
 - The Month 4 Pudlak theorem-5 exact boundary surface organizes raw code, rescaled code, power-bound code, the lower-bound source, and the canonical import into an auditable equivalence chain. `SondowProjectMonth3Month4CompletionAuditSurface` combines the Month 3 and Month 4 conclusions into one `PublicCompletionCertificate`.
 - The Month 5 gap certificate surface fixes `Month5UpperBoundFunction`, `Month5LowerBoundFunction`, the threshold certificate, and the public equivalence endpoint for `ProjectComputableGapCertificate`.
 - The Month 6 proof-length calibration surface advances project checked-code semantics to `Month6ProofCodeCheckerCalibrationFrontierCertificate`; the public theorem name is `month6_project_checked_semantics_iff_checker_calibration_frontier`.
+- The Month 7 final theorem compression surface separates the final collision core into `GenericRationalCollisionInputs` and the project instantiation layer. The generic skeleton itself has no `proof_length` axiom dependency, while the project layer still honestly exposes the proof-length, payload, and literature residuals.
 
 ## What Is Not Yet Fully Internalized
 
@@ -420,6 +484,7 @@ The remaining boundary is not that the whole Sondow side is unfinished. More pre
 - Pudlak theorem 5 / Pudlak-Friedman-Buss finite-consistency proof-length lower bounds.
 - The unconditional proof-length convention identifying the abstract `proof_length` with checked-code/minProofCodeSize semantics. This boundary has now been tightened to the proof-code checker calibration frontier, but PA/Hilbert proof objects, checker exactness, and minProofCodeSize equivalence have not yet been constructed from first principles.
 - The payload-truth semantics represented by `PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
+- Month 7 compresses the final theorem entry to `Month7MinimalTheoremSurface` and splits future work into `Month8ProofLengthResidualFrontier` and `Month8PayloadLiteratureResidualFrontier`. The remaining task is therefore not to redesign the collision core, but to eliminate or internalize the certificates in these two residual frontiers.
 - The final upper-side input `Nonempty SondowProjectLocalReflectionGraftVerifier` and the `PublicInfrastructureKit` used by the Month 2 surface, which still need to be constructed parameter-free from lower-level checked-code S21 trace calibrations and a PA embedding witness.
 - The Month 3/Month 4 public completion layer does not turn Pudlak theorem 5 or the parameter-free Sondow verifier into unconditional theorems. The Month 5/Month 6 public layer connects final gap growth domination and the proof-length calibration frontier behind one auditable interface, while keeping the external or abstract inputs visible.
 
