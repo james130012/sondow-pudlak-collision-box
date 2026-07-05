@@ -266,6 +266,220 @@ theorem projectLengthEndpointOfCheckedTargetUpper_closure
     (projectLengthEndpointOfCheckedTargetUpper
       core fallback projection upper_provider).not_rational⟩
 
+/-! ## Concrete proof-family checked-target endpoint -/
+
+/-- Concrete-proof-family instantiation of the project-length endpoint.  This
+is the payload-free checked-target route: the upper side is a concrete
+MiniHilbert proof-family size bound rather than the legacy local-Hilbert payload
+box. -/
+def projectLengthEndpointOfConcreteProofFamilyTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        core.scale_data core.checkerSemantics fallback) :=
+  projectLengthEndpointOfCheckedTargetUpper
+    core fallback projection.toCheckedTargetProjection
+    upper_provider.toCheckedTargetUpperProvider
+
+theorem projectLengthEndpointOfConcreteProofFamilyTargetUpper_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfConcreteProofFamilyTargetUpper
+        core fallback projection upper_provider).computedCollisionNOfRationality
+        hrat =
+      core.rejectionExtractor.witness
+        ((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).U
+        ((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).polynomial
+        ((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+          core fallback projection upper_provider).upperTailOfRationality
+            hrat).upperN := by
+  simpa [projectLengthEndpointOfConcreteProofFamilyTargetUpper] using
+    projectLengthEndpointOfCheckedTargetUpper_computed_n_eq
+      core fallback projection.toCheckedTargetProjection
+      upper_provider.toCheckedTargetUpperProvider hrat
+
+theorem projectLengthEndpointOfConcreteProofFamilyTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    (projectLengthEndpointOfConcreteProofFamilyTargetUpper
+      core fallback projection upper_provider).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            core.scale_data core.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+              core fallback projection upper_provider)
+            ).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfConcreteProofFamilyTargetUpper
+                core fallback projection upper_provider)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfConcreteProofFamilyTargetUpper] using
+    projectLengthEndpointOfCheckedTargetUpper_closure
+      core fallback projection.toCheckedTargetProjection
+      upper_provider.toCheckedTargetUpperProvider
+
+/-- Concrete-proof-family project-length endpoint when the target proof-family
+length is already known polynomially bounded. -/
+def projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        core.scale_data core.checkerSemantics fallback) :=
+  projectLengthEndpointOfConcreteProofFamilyTargetUpper
+    core fallback projection
+    (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+      hpoly)
+
+theorem projectLengthEndpointOfConcreteProofFamilyLengthPolynomial_computed_n_eq
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+        core fallback projection hpoly).computedCollisionNOfRationality
+        hrat =
+      core.rejectionExtractor.witness
+        ((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+          core fallback projection hpoly).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+          core fallback projection hpoly).upperTailOfRationality
+            hrat).polynomial
+        ((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+          core fallback projection hpoly).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfConcreteProofFamilyLengthPolynomial] using
+    projectLengthEndpointOfConcreteProofFamilyTargetUpper_computed_n_eq
+      core fallback projection
+      (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+        hpoly)
+      hrat
+
+theorem projectLengthEndpointOfConcreteProofFamilyLengthPolynomial_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    (projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+      core fallback projection hpoly).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            core.scale_data core.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+              core fallback projection hpoly)
+            ).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+                core fallback projection hpoly)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+                core fallback projection hpoly)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+                core fallback projection hpoly)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfConcreteProofFamilyLengthPolynomial] using
+    projectLengthEndpointOfConcreteProofFamilyTargetUpper_closure
+      core fallback projection
+      (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+        hpoly)
+
 /-! ## Local-Hilbert checked-target endpoint -/
 
 /-- Local-Hilbert instantiation of the checked-target project-length endpoint.
