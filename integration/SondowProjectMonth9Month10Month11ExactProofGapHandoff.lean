@@ -4392,6 +4392,128 @@ theorem rejectionExtractorComputedNOfUpper_ge_upperN
     upper.upperN ≤ rejectionExtractorComputedNOfUpper extractor upper :=
   extractor.witness_ge upper.U upper.polynomial upper.upperN
 
+def rejectionExtractorLowerSearchWitnessOfUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    InternalPudlakTheorem5ComputedLowerSearchWitness
+      scale_data checker.toProofCodeSemantics enumeration.toSmallCodeSearch
+      upper.U upper.polynomial upper.upperN :=
+  extractor.computedLowerSearchWitness
+    upper.U upper.polynomial upper.upperN
+
+theorem rejectionExtractorLowerSearchWitnessOfUpper_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    (rejectionExtractorLowerSearchWitnessOfUpper extractor upper).n =
+      rejectionExtractorComputedNOfUpper extractor upper :=
+  rfl
+
+theorem rejectionExtractorLowerSearchWitnessOfUpper_K_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    (rejectionExtractorLowerSearchWitnessOfUpper extractor upper).K =
+      extractor.cutoff upper.U upper.polynomial upper.upperN :=
+  rfl
+
+theorem rejectionExtractorLowerSearchWitnessOfUpper_minProofCodeSize_gt
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    (checker.toProofCodeSemantics.minProofCodeSize
+        (scale_data.powerBoundRawCode
+          (rejectionExtractorComputedNOfUpper extractor upper))
+        ⟨rejectionExtractorComputedNOfUpper extractor upper, rfl⟩ :
+      Real) >
+      upper.U (rejectionExtractorComputedNOfUpper extractor upper) := by
+  have h :=
+    (rejectionExtractorLowerSearchWitnessOfUpper
+      extractor upper).minProofCodeSize_gt
+  rw [rejectionExtractorLowerSearchWitnessOfUpper_n_eq extractor upper] at h
+  simpa [gt_iff_lt] using h
+
+theorem rejectionExtractorLowerSearchWitnessOfUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    let w := rejectionExtractorLowerSearchWitnessOfUpper extractor upper
+    w.n = rejectionExtractorComputedNOfUpper extractor upper ∧
+      w.K = extractor.cutoff upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : checker.Code, c ∈ enumeration.candidates w.n w.K →
+        ¬ checker.checks c (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : checker.Code,
+        checker.checks c (scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (checker.size c : Real)) ∧
+      (checker.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n := by
+  dsimp only
+  refine ⟨
+    rejectionExtractorLowerSearchWitnessOfUpper_n_eq extractor upper,
+    rejectionExtractorLowerSearchWitnessOfUpper_K_eq extractor upper,
+    ?_,
+    ?_,
+    ?_,
+    ?_,
+    ?_⟩
+  · exact (rejectionExtractorLowerSearchWitnessOfUpper extractor upper).n_ge
+  · exact (rejectionExtractorLowerSearchWitnessOfUpper extractor upper).cutoff_gt
+  · intro c hmem
+    exact
+      (rejectionExtractorLowerSearchWitnessOfUpper
+        extractor upper).rejects_candidates c hmem
+  · intro c hchecks
+    exact
+      (rejectionExtractorLowerSearchWitnessOfUpper
+        extractor upper).no_small_at_n c hchecks
+  · exact
+      (rejectionExtractorLowerSearchWitnessOfUpper
+        extractor upper).minProofCodeSize_gt
+
 theorem rejectionExtractor_noSmallCode_at_computedNOfUpper
     {scale_data : InternalPudlakTheorem5ScaleData}
     {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
