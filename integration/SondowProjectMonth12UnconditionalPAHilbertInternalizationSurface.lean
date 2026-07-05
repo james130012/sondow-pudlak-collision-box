@@ -94,6 +94,18 @@ theorem accepted_decoded_code_to_formulaCode_derivable
     PAHilbertFormulaCodeDerivable candidate.semantics formulaCode :=
   candidate.acceptedCodeExactness formulaCode code haccepted
 
+theorem accepted_decoded_code_to_formulaCode_derivable_from_interface
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        candidate.checker formulaCode code) :
+    PAHilbertFormulaCodeDerivable candidate.semantics formulaCode :=
+  candidate.canonicalInterface.accepted_decoded_code_to_formulaCode_derivable
+    formulaCode code haccepted
+
 end Month12ProofLengthFreeCheckerSearchCandidate
 
 def checkedSearchUpperTail
@@ -401,6 +413,16 @@ theorem proofLengthFree_not_rational
     ¬ _root_.is_rational _root_.euler_mascheroni :=
   proof_length_free_candidate_not_rational
     core.toProofLengthFreeMonth12Candidate upper_provider
+
+theorem accepted_decoded_code_to_formulaCode_derivable_from_interface
+    (core : PAHilbertCanonicalSearchCore)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        core.checker formulaCode code) :
+    PAHilbertFormulaCodeDerivable core.semantics formulaCode :=
+  core.canonicalInterface.accepted_decoded_code_to_formulaCode_derivable
+    formulaCode code haccepted
 
 end PAHilbertCanonicalSearchCore
 
