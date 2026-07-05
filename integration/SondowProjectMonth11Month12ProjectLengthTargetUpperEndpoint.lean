@@ -1101,6 +1101,55 @@ theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_contrad
   (projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap
     fallback frontier hrat).contradiction
 
+theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat =>
+    projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_contradiction
+      fallback frontier hrat
+
+theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      (projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap
+        fallback frontier hrat).n =
+        max
+          (checkedSearchUpperTail
+            frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+            frontier.concreteLengthCodeFrontier.checkedUpperProvider
+            hrat).upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).U
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).polynomial).threshold) ∧
+      (∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_n_eq
+      fallback frontier,
+    projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_contradiction
+      fallback frontier,
+    projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_not_rational
+      fallback frontier⟩
+
 /-! ## Local-Hilbert length-code project-length endpoint -/
 
 /-- Project-length endpoint from the local-Hilbert length-code frontier.  This
