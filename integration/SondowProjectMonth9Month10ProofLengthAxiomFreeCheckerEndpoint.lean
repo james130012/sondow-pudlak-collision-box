@@ -2954,6 +2954,187 @@ theorem closure
 
 end Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
 
+/-! ## Local-Hilbert length-code target frontier -/
+
+/-- Local-Hilbert instantiation of the concrete length-code frontier.  Here the
+checker-side lower length is not an external equation: it is the local
+PA/Hilbert source minimum supplied by the existing projection model, and Month 8
+identifies that source minimum with the right-conjunction-elimination checked
+minimum of the concrete target proof family.
+
+This bridge is intentionally not advertised as payload-free: the local source
+family is the project `partialConsistencyCode`, so the axiom probe still exposes
+the payload vocabulary until the payload checker-acceptance bridge is replaced
+by a fully internal accepted-code exactness proof. -/
+structure Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Type (max u v w) where
+  scale_strict :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b
+  gap :
+    ComputableSearchGapCertificate
+      (fun m : Nat =>
+        (interp.localHilbertProofCodeSemantics.minProofCodeSize
+          (_root_.partialConsistencyCode m) (Or.inl ⟨m, rfl⟩) : Real))
+  proof_object_checker :
+    _root_.SondowMainCheckedCodeBridge.SondowProjectMonth8ProofLengthInstantiationSurface.Month8ConcreteProofObjectCheckerInterface
+      interp
+  target_length_polynomial :
+    _root_.is_polynomial_bound
+      (_root_.MiniHilbert.nat_bound_as_real
+        interp.target_proof_family.length)
+
+namespace Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+
+def lowerSearch
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+      scale_data where
+  lengthCodeAt :=
+    fun m : Nat =>
+      interp.localHilbertProofCodeSemantics.minProofCodeSize
+        (_root_.partialConsistencyCode m) (Or.inl ⟨m, rfl⟩)
+  scale_strict :=
+    frontier.scale_strict
+  gap :=
+    frontier.gap
+
+theorem lengthCodeAt_eq_family_source
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp)
+    (m : Nat) :
+    frontier.lowerSearch.lengthCodeAt m =
+      interp.target_proof_family.rightConjElim.minCheckedCodeSize m :=
+  _root_.SondowMainCheckedCodeBridge.SondowProjectMonth8ProofLengthInstantiationSurface.Month8ConcreteProofObjectCheckerInterface.source_minProofCodeSize_eq_minChecked
+    frontier.proof_object_checker m
+
+def concreteLengthCodeFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+      scale_data interp.target_proof_family where
+  lower_search :=
+    frontier.lowerSearch
+  lengthCodeAt_eq_family_source :=
+    frontier.lengthCodeAt_eq_family_source
+  target_length_polynomial :=
+    frontier.target_length_polynomial
+
+def provider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  frontier.concreteLengthCodeFrontier.provider
+
+def endpoint
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  frontier.provider.endpoint
+
+noncomputable def computedCollisionNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  frontier.provider.computedCollisionNOfRationality hrat
+
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.concreteLengthCodeFrontier.computedCollisionNOfRationality
+        hrat :=
+  rfl
+
+theorem closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    frontier.provider.Audit ∧
+      frontier.endpoint.Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure := frontier.concreteLengthCodeFrontier.closure
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2.2⟩
+
+end Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+
 /-! ## Final-three-certificate instantiation -/
 
 /-- Drop the proof-length transport field of a final three-certificate endpoint
