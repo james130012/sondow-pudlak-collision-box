@@ -1121,6 +1121,100 @@ theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_not
     projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_contradiction
       fallback frontier hrat
 
+theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+      fallback frontier hrat).n =
+      (frontier.gap.gap_for_polynomial_upper
+        (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).U
+        (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).polynomial).witness
+        (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).upperN ∧
+      (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).upperN ≤
+        (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+          fallback frontier hrat).n ∧
+      (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).U
+          (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+            fallback frontier hrat).n <
+        checkerProjectLengthMeasured
+          scale_data
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.lower_search
+            |>.checkerSemantics)
+          fallback
+          (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+            fallback frontier hrat).n ∧
+      checkerProjectLengthMeasured
+          scale_data
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.lower_search
+            |>.checkerSemantics)
+          fallback
+          (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+            fallback frontier hrat).n ≤
+        (projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+          fallback
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier)
+          hrat).U
+          (projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+            fallback frontier hrat).n ∧
+      False ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  let concreteFrontier :=
+    frontier.canonicalFrontier
+      |>.conjIntroLengthCodeFrontier
+      |>.concreteLengthCodeFrontier
+  let w :=
+    projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier
+      fallback frontier hrat
+  exact
+    ⟨projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_n_eq
+        fallback frontier hrat,
+      w.n_ge_upper,
+      w.lower_at_n,
+      w.upper_at_n,
+      w.contradiction,
+      projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_not_rational
+        fallback frontier⟩
+
 /-! ## Time-bound canonical tail-gap project-length endpoint -/
 
 /-- Project-length endpoint from the time-bound canonical tail-gap frontier.
