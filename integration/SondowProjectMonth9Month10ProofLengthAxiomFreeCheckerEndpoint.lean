@@ -1715,6 +1715,37 @@ structure ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
     ComputableSearchGapCertificate
       (fun n : Nat => (lengthCodeAt n : Real))
 
+/-- Tail-gap version of the singleton lower-search input.  It stores an
+explicit threshold for every polynomial upper function, so the final witness can
+be audited as `max upperN threshold` before being passed to the existing
+search-gap route. -/
+structure ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+    (scale_data : InternalPudlakTheorem5ScaleData) : Type where
+  lengthCodeAt : Nat → Nat
+  scale_strict :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b
+  tail_gap :
+    ComputableGapCertificate
+      (fun n : Nat => (lengthCodeAt n : Real))
+
+namespace ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+
+def toSearchInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+        scale_data) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+      scale_data where
+  lengthCodeAt :=
+    input.lengthCodeAt
+  scale_strict :=
+    input.scale_strict
+  gap :=
+    input.tail_gap.toComputableSearchGapCertificate
+
+end ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+
 namespace ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
 
 theorem scale_injective
@@ -2503,6 +2534,52 @@ theorem checkedGap_nonempty_of_upperProvider
   exact hclosure.2.2.2.1
 
 end ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+
+namespace ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+
+theorem computedCollisionN_eq_tailGapMax
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+        scale_data)
+    (upper_provider :
+      input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).computedCollisionNOfRationality hrat =
+      max
+        (checkedSearchUpperTail
+          input.toSearchInput.toProofLengthFreeMonth12Candidate
+          upper_provider hrat).upperN
+        (input.tail_gap.gap_for_polynomial_upper
+          (checkedSearchUpperTail
+            input.toSearchInput.toProofLengthFreeMonth12Candidate
+            upper_provider hrat).U
+          (checkedSearchUpperTail
+            input.toSearchInput.toProofLengthFreeMonth12Candidate
+            upper_provider hrat).polynomial).threshold := by
+  let tail :=
+    checkedSearchUpperTail
+      input.toSearchInput.toProofLengthFreeMonth12Candidate
+      upper_provider hrat
+  calc
+    (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).computedCollisionNOfRationality hrat
+        = ((input.toSearchInput.checkedMeasuredGap.gap_for_polynomial_upper
+            tail.U tail.polynomial).witness tail.upperN) := by
+          exact
+            input.toSearchInput.checkedUpperProvider_computedCollisionN_eq_checkedMeasuredGapWitness
+              upper_provider hrat
+    _ = ((input.toSearchInput.gap.gap_for_polynomial_upper
+            tail.U tail.polynomial).witness tail.upperN) := by
+          exact
+            input.toSearchInput.checkedMeasuredGap_witness_eq_inputGap
+              tail.U tail.polynomial tail.upperN
+    _ = max tail.upperN
+          (input.tail_gap.gap_for_polynomial_upper
+            tail.U tail.polynomial).threshold := rfl
+
+end ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
 
 /-! ## Minimal checked-upper residual frontier -/
 
@@ -3450,6 +3527,181 @@ theorem closure
       hclosure.2.2.2⟩
 
 end Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+
+/-! ## Time-bound canonical conj-intro target tail-gap frontier -/
+
+/-- Stronger time-bound canonical frontier with a tail-form gap certificate.
+Compared with the search frontier, this keeps the explicit gap threshold, so
+the final contradiction witness is auditable as `max upperN threshold`. -/
+structure Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n} :
+    Type (max u v w) where
+  left_family :
+    _root_.MiniHilbert.ConcreteProofFamily Ax A
+  right_family :
+    _root_.MiniHilbert.ConcreteProofFamily Ax B
+  time_bound_strict :
+    ∀ {a b : Nat}, a < b →
+      scale_data.time_constructible_bound a <
+        scale_data.time_constructible_bound b
+  exponent_ne_zero :
+    scale_data.exponent ≠ 0
+  tail_gap :
+    ComputableGapCertificate
+      (fun m : Nat =>
+        ((left_family.conjIntro right_family)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m : Real))
+  left_length_polynomial :
+    _root_.is_polynomial_bound
+      (_root_.MiniHilbert.nat_bound_as_real left_family.length)
+  right_length_polynomial :
+    _root_.is_polynomial_bound
+      (_root_.MiniHilbert.nat_bound_as_real right_family.length)
+
+namespace Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+
+def searchFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+      scale_data (Ax := Ax) (A := A) (B := B) where
+  left_family :=
+    frontier.left_family
+  right_family :=
+    frontier.right_family
+  time_bound_strict :=
+    frontier.time_bound_strict
+  exponent_ne_zero :=
+    frontier.exponent_ne_zero
+  gap :=
+    frontier.tail_gap.toComputableSearchGapCertificate
+  left_length_polynomial :=
+    frontier.left_length_polynomial
+  right_length_polynomial :=
+    frontier.right_length_polynomial
+
+def concreteLengthCodeFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+      scale_data
+      (frontier.searchFrontier.canonicalFrontier
+        |>.conjIntroLengthCodeFrontier
+        |>.targetFamily) :=
+  frontier.searchFrontier.canonicalFrontier
+    |>.conjIntroLengthCodeFrontier
+    |>.concreteLengthCodeFrontier
+
+def provider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  frontier.searchFrontier.provider
+
+def endpoint
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  frontier.provider.endpoint
+
+noncomputable def computedCollisionNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  frontier.provider.computedCollisionNOfRationality hrat
+
+theorem computedCollisionN_eq_tailGapMax
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      max
+        (checkedSearchUpperTail
+          frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          (checkedSearchUpperTail
+            frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+            frontier.concreteLengthCodeFrontier.checkedUpperProvider
+            hrat).U
+          (checkedSearchUpperTail
+            frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+            frontier.concreteLengthCodeFrontier.checkedUpperProvider
+            hrat).polynomial).threshold := by
+  let length_frontier := frontier.concreteLengthCodeFrontier
+  let tail :=
+    checkedSearchUpperTail
+      length_frontier.lower_search.toProofLengthFreeMonth12Candidate
+      length_frontier.checkedUpperProvider
+      hrat
+  calc
+    frontier.computedCollisionNOfRationality hrat
+        = length_frontier.computedCollisionNOfRationality hrat := rfl
+    _ = ((length_frontier.lower_search.checkedMeasuredGap
+            |>.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN) := by
+          exact length_frontier.computedCollisionN_eq_checkedMeasuredGapWitness hrat
+    _ = ((length_frontier.lower_search.gap
+            |>.gap_for_polynomial_upper tail.U tail.polynomial).witness
+          tail.upperN) := by
+          exact
+            length_frontier.lower_search.checkedMeasuredGap_witness_eq_inputGap
+              tail.U tail.polynomial tail.upperN
+    _ = max tail.upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            tail.U tail.polynomial).threshold := rfl
+
+theorem closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    frontier.provider.Audit ∧
+      frontier.endpoint.Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni :=
+  frontier.searchFrontier.closure
+
+end Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
 
 /-! ## Local-Hilbert length-code target frontier -/
 
