@@ -574,6 +574,339 @@ theorem projectLengthEndpointOfConcreteLengthCodeTargetFrontier_closure
       frontier.lower_search.toCanonicalSearchCore
       fallback frontier.projection frontier.target_length_polynomial
 
+/-! ## Conj-intro frontier project-length endpoints -/
+
+/-- Project-length endpoint from the conj-intro target frontier.  The target
+polynomial bound is generated from the two component proof-family length
+bounds. -/
+def projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        scale_data frontier.lower_search.checkerSemantics fallback) :=
+  projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+    fallback frontier.concreteLengthCodeFrontier
+
+theorem projectLengthEndpointOfConjIntroLengthCodeTargetFrontier_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+        fallback frontier).computedCollisionNOfRationality hrat =
+      frontier.lower_search.rejectionExtractor.witness
+        ((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        ((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfConjIntroLengthCodeTargetFrontier,
+    Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier.concreteLengthCodeFrontier] using
+    projectLengthEndpointOfConcreteLengthCodeTargetFrontier_computed_n_eq
+      fallback frontier.concreteLengthCodeFrontier hrat
+
+theorem projectLengthEndpointOfConjIntroLengthCodeTargetFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+      fallback frontier).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            scale_data frontier.lower_search.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+              fallback frontier)
+            ).computedCollisionNOfRationality hrat =
+            frontier.lower_search.rejectionExtractor.witness
+              (((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfConjIntroLengthCodeTargetFrontier,
+    Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier.concreteLengthCodeFrontier] using
+    projectLengthEndpointOfConcreteLengthCodeTargetFrontier_closure
+      fallback frontier.concreteLengthCodeFrontier
+
+/-! ## Canonical conj-intro project-length endpoints -/
+
+/-- Project-length endpoint from the canonical conj-intro target-search
+frontier.  The theorem-5 source equality is definitional at this layer. -/
+def projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10CanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        scale_data frontier.lowerSearch.checkerSemantics fallback) :=
+  projectLengthEndpointOfConjIntroLengthCodeTargetFrontier
+    fallback frontier.conjIntroLengthCodeFrontier
+
+theorem projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10CanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+        fallback frontier).computedCollisionNOfRationality hrat =
+      frontier.lowerSearch.rejectionExtractor.witness
+        ((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        ((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier,
+    Month9Month10CanonicalConjIntroTargetSearchFrontier.conjIntroLengthCodeFrontier] using
+    projectLengthEndpointOfConjIntroLengthCodeTargetFrontier_computed_n_eq
+      fallback frontier.conjIntroLengthCodeFrontier hrat
+
+theorem projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10CanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+      fallback frontier).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            scale_data frontier.lowerSearch.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+              fallback frontier)
+            ).computedCollisionNOfRationality hrat =
+            frontier.lowerSearch.rejectionExtractor.witness
+              (((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier,
+    Month9Month10CanonicalConjIntroTargetSearchFrontier.conjIntroLengthCodeFrontier] using
+    projectLengthEndpointOfConjIntroLengthCodeTargetFrontier_closure
+      fallback frontier.conjIntroLengthCodeFrontier
+
+/-! ## Time-bound canonical project-length endpoint -/
+
+/-- Project-length endpoint from the time-bound canonical frontier.  The scale
+strictness field has been replaced by strictness of the primitive
+time-constructible bound plus nonzero exponent. -/
+def projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        scale_data frontier.canonicalFrontier.lowerSearch.checkerSemantics
+        fallback) :=
+  projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier
+    fallback frontier.canonicalFrontier
+
+theorem projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+        fallback frontier).computedCollisionNOfRationality hrat =
+      frontier.canonicalFrontier.lowerSearch.rejectionExtractor.witness
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+          fallback frontier).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier,
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier.canonicalFrontier] using
+    projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier_computed_n_eq
+      fallback frontier.canonicalFrontier hrat
+
+theorem projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+      fallback frontier).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            scale_data frontier.canonicalFrontier.lowerSearch.checkerSemantics
+            fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+              fallback frontier)
+            ).computedCollisionNOfRationality hrat =
+            frontier.canonicalFrontier.lowerSearch.rejectionExtractor.witness
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetSearchFrontier,
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier.canonicalFrontier] using
+    projectLengthEndpointOfCanonicalConjIntroTargetSearchFrontier_closure
+      fallback frontier.canonicalFrontier
+
+/-! ## Time-bound canonical tail-gap project-length endpoint -/
+
+/-- Project-length endpoint from the time-bound canonical tail-gap frontier.
+This is the most explicit computable-witness shape in this file: the lower gap
+is supplied as a thresholded tail certificate before being converted to the
+finite-search endpoint. -/
+def projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        scale_data frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback) :=
+  projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+    fallback frontier.concreteLengthCodeFrontier
+
+theorem projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+        fallback frontier).computedCollisionNOfRationality hrat =
+      frontier.concreteLengthCodeFrontier.lower_search.rejectionExtractor.witness
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+          fallback frontier).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier] using
+    projectLengthEndpointOfConcreteLengthCodeTargetFrontier_computed_n_eq
+      fallback frontier.concreteLengthCodeFrontier hrat
+
+theorem projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+      fallback frontier).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            scale_data frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+            fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+              fallback frontier)
+            ).computedCollisionNOfRationality hrat =
+            frontier.concreteLengthCodeFrontier.lower_search.rejectionExtractor.witness
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    projectLengthEndpointOfConcreteLengthCodeTargetFrontier_closure
+      fallback frontier.concreteLengthCodeFrontier
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      projectLengthEndpointOfTimeBoundCanonicalConjIntroTargetTailGapFrontier_computed_n_eq
+        fallback frontier,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
 /-! ## Local-Hilbert checked-target endpoint -/
 
 /-- Local-Hilbert instantiation of the checked-target project-length endpoint.
