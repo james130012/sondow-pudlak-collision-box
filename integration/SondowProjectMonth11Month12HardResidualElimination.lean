@@ -1667,6 +1667,131 @@ theorem correctedActualEndpointOfStrictScaleSingletonBySizeInputCLineKernelCheck
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+/-! ## Final exact checker-core input plus split C-line upper route -/
+
+/-- Direct endpoint from the compressed final exact checker-core input.  This
+is the public-facing version of the by-size route: the input carries an actual
+proof-length search gap, strict powered time-constructible growth, and the
+calibration from root proof length to `lengthCodeAt`; the generated canonical
+core then feeds the corrected actual C-line route. -/
+def correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint
+      input.toCanonicalCalibratedExactnessCore.scale_data :=
+  correctedActualEndpointOfCanonicalCoreCLineKernelCheckerLength
+    input.toCanonicalCalibratedExactnessCore
+    projection hkernel hchecker hlength
+
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+      input projection hkernel hchecker hlength).Audit ∧
+      Nonempty
+        (Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+          input.toCanonicalCalibratedExactnessCore.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured
+            input.toCanonicalCalibratedExactnessCore.scale_data)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+          input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+          input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+            (corrected_actual_upper_tail
+              input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore)
+                (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                  (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                    hkernel hchecker hlength)))
+              hrat).U
+            (corrected_actual_upper_tail
+              input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore)
+                (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                  (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                    hkernel hchecker hlength)))
+              hrat).polynomial
+            (corrected_actual_upper_tail
+              input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore))
+              (actualUpperProviderOfProjectUpperAndAdditiveProjection
+                projection
+                (checkedMeasuredToActualBridgeOfCanonicalCore
+                  input.toCanonicalCalibratedExactnessCore)
+                (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                  (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                    hkernel hchecker hlength)))
+              hrat).upperN) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfCanonicalCoreCLineKernelCheckerLength_closure
+      input.toCanonicalCalibratedExactnessCore
+      projection hkernel hchecker hlength
+  exact
+    ⟨by
+      simpa [
+        correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength]
+        using hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      by
+        intro hrat
+        simpa [
+          correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength]
+          using hclosure.2.2.2.1 hrat,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
 /-! ## Payload-free checker-acceptance audit bridge -/
 
 /-- The axiom-clean payload-elimination subtarget exposed at the hard-residual
