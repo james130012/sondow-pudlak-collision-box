@@ -2904,6 +2904,22 @@ def upperProvider
   concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
     frontier.target_length_polynomial
 
+def checkedUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    frontier.lower_search.toProofLengthFreeMonth12Candidate
+      |>.checkedMeasuredUpperProviderType :=
+  frontier.lower_search.toConcreteProofFamilyCheckedUpperProvider
+    frontier.projection frontier.upperProvider
+
 theorem computedCollisionN_eq_rejectionExtractorWitness
     {scale_data : InternalPudlakTheorem5ScaleData}
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
@@ -2934,6 +2950,32 @@ theorem computedCollisionN_eq_rejectionExtractorWitness
             frontier.projection frontier.upperProvider)
           hrat).upperN :=
   frontier.provider.computedCollisionN_eq_rejectionExtractorWitness hrat
+
+theorem computedCollisionN_eq_checkedMeasuredGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      ((frontier.lower_search.checkedMeasuredGap.gap_for_polynomial_upper
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).U
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).polynomial).witness
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).upperN) :=
+  frontier.lower_search.checkedUpperProvider_computedCollisionN_eq_checkedMeasuredGapWitness
+    frontier.checkedUpperProvider hrat
 
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}
