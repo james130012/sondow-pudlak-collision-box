@@ -480,6 +480,100 @@ theorem projectLengthEndpointOfConcreteProofFamilyLengthPolynomial_closure
       (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
         hpoly)
 
+/-! ## Concrete length-code frontier project-length endpoint -/
+
+/-- Project-length endpoint from the smallest concrete length-code theorem-5
+frontier.  The remaining proof obligations are exactly the two fields of that
+frontier: source-code exactness against the right-conjunction family and a
+polynomial length bound for the target concrete proof family. -/
+def projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (checkerProjectLengthMeasured
+        scale_data frontier.lower_search.checkerSemantics fallback) :=
+  projectLengthEndpointOfConcreteProofFamilyLengthPolynomial
+    frontier.lower_search.toCanonicalSearchCore
+    fallback frontier.projection frontier.target_length_polynomial
+
+theorem projectLengthEndpointOfConcreteLengthCodeTargetFrontier_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+        fallback frontier).computedCollisionNOfRationality hrat =
+      frontier.lower_search.rejectionExtractor.witness
+        ((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        ((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).upperN := by
+  simpa [projectLengthEndpointOfConcreteLengthCodeTargetFrontier,
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore] using
+    projectLengthEndpointOfConcreteProofFamilyLengthPolynomial_computed_n_eq
+      frontier.lower_search.toCanonicalSearchCore
+      fallback frontier.projection frontier.target_length_polynomial hrat
+
+theorem projectLengthEndpointOfConcreteLengthCodeTargetFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    (projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+      fallback frontier).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (checkerProjectLengthMeasured
+            scale_data frontier.lower_search.checkerSemantics fallback)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          ((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+              fallback frontier)
+            ).computedCollisionNOfRationality hrat =
+            frontier.lower_search.rejectionExtractor.witness
+              (((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).U
+              (((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).polynomial
+              (((projectLengthEndpointOfConcreteLengthCodeTargetFrontier
+                fallback frontier)
+                  ).upperTailOfRationality hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [projectLengthEndpointOfConcreteLengthCodeTargetFrontier,
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore] using
+    projectLengthEndpointOfConcreteProofFamilyLengthPolynomial_closure
+      frontier.lower_search.toCanonicalSearchCore
+      fallback frontier.projection frontier.target_length_polynomial
+
 /-! ## Local-Hilbert checked-target endpoint -/
 
 /-- Local-Hilbert instantiation of the checked-target project-length endpoint.
