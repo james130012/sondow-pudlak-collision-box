@@ -841,6 +841,63 @@ def correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength
     (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
       hkernel hchecker hlength)
 
+theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength
+      candidate residual projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      candidate.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).U
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).polynomial
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).upperN := by
+  simpa [correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength,
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure] using
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure_closure
+      candidate residual projection
+      (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+        hkernel hchecker hlength)
+      |>.2.2.1 hrat
+
 theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
