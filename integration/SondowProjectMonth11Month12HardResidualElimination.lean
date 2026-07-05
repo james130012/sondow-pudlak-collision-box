@@ -1794,11 +1794,11 @@ theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLen
 
 /-! ## Payload-free checker-acceptance audit bridge -/
 
-/-- The axiom-clean payload-elimination subtarget exposed at the hard-residual
+/-- The assumption-free payload-elimination subtarget exposed at the hard-residual
 layer.  This only records concrete PA/Hilbert accepted proof-code evidence for
 the ordinary and strengthened finite-consistency families; it does not mention
 the root `accepted_certificate` predicate. -/
-theorem hardResidualPayloadFreeCheckerAcceptance_axiomCleanClosure
+theorem hardResidualPayloadFreeCheckerAcceptance_assumptionFreeClosure
     (h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance) :
     h.Audit ∧
       Nonempty
@@ -1815,9 +1815,13 @@ theorem hardResidualPayloadFreeCheckerAcceptance_axiomCleanClosure
               SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertAcceptedProofCodeForFormulaCode
                 h.checker (_root_.strengthenedPartialConsistencyCode n)
                 (h.strengthened.proofCode n)) :=
-  month9_month10_payload_free_checker_acceptance_axiom_clean_closure h
+  ⟨h.audit,
+    ⟨h.ordinary⟩,
+    ⟨h.strengthened⟩,
+    h.ordinary.acceptedCode,
+    h.strengthened.acceptedCode⟩
 
-/-- The exact root-vocabulary bridge where the two payload axioms re-enter.
+/-- The exact root-vocabulary bridge where the two root payload predicates re-enter.
 Once this theorem is replaced by a checker/accepted-certificate exactness
 proof, the Sondow payload side can be connected without raw payload truth. -/
 theorem hardResidualPayloadFreeCheckerAcceptance_rootBridgeClosure
@@ -1831,6 +1835,142 @@ theorem hardResidualPayloadFreeCheckerAcceptance_rootBridgeClosure
               _root_.accepted_certificate
                 (_root_.strengthenedPartialConsistencyCode n)) :=
   month9_month10_payload_free_checker_acceptance_frontier_closure h
+
+/-- Payload truths obtained from the checker-acceptance frontier after crossing
+the root accepted-certificate bridge.  This theorem is intentionally separated
+from `hardResidualPayloadFreeCheckerAcceptance_assumptionFreeClosure`: the
+assumption-free part stops at PA/Hilbert accepted proof codes, while this bridge is
+the precise place where the root payload predicates re-enter. -/
+theorem hardResidualPayloadTruthsOfPayloadFreeCheckerAcceptanceFrontier
+    (h : Month9Month10PayloadFreeCheckerAcceptanceFrontier) :
+    _root_.PartialConsistencyPayloadTruth ∧
+      _root_.StrengthenedPartialConsistencyPayloadTruth :=
+  ⟨h.ordinaryAcceptedTruth.toPayloadTruth,
+    h.strengthenedAcceptedTruth.toPayloadTruth⟩
+
+/-! ## Payload-free accepted route into the corrected payload endpoint -/
+
+/-- Accepted-payload corrected route with the ordinary/strengthened accepted
+truths supplied by the payload-free checker frontier.  This keeps the next
+payload-elimination target narrow: prove the checker accepted-code evidence
+and its root accepted-certificate bridge, then the old accepted-payload route
+is reconstructed without raw payload inputs at this level. -/
+structure HardResidualPayloadFreeAcceptedRouteInputs :
+    Type 1 where
+  scale_data : InternalPudlakTheorem5ScaleData
+  checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data
+  enumeration : InternalPudlakTheorem5CheckerFiniteEnumeration checker
+  extractor :
+    InternalPudlakTheorem5CheckerComputableRejectionExtractor
+      checker enumeration
+  length_calibration :
+    InternalPudlakTheorem5CheckerFamilyLengthCalibration checker
+  verifier : SondowProjectLocalReflectionGraftVerifier
+  payload_frontier : Month9Month10PayloadFreeCheckerAcceptanceFrontier
+  projection_principle : _root_.PAProofLengthProjectionPrinciple
+  strengthened_to_partial_projection :
+    _root_.StrengthenedToPartialConsistencyConstantProjection
+  partial_to_graft_projection :
+    _root_.PAConjunctionEliminationConstantCost
+  computable_gap :
+    ComputableGapCertificate sondowProjectLocalPudlakCollisionBox
+
+namespace HardResidualPayloadFreeAcceptedRouteInputs
+
+def toAcceptedPayloadCorrectedRouteInputs
+    (h : HardResidualPayloadFreeAcceptedRouteInputs) :
+    Month9Month10AcceptedPayloadCorrectedRouteInputs where
+  scale_data := h.scale_data
+  checker := h.checker
+  enumeration := h.enumeration
+  extractor := h.extractor
+  length_calibration := h.length_calibration
+  verifier := h.verifier
+  partial_accepted_truth := h.payload_frontier.ordinaryAcceptedTruth
+  strengthened_accepted_truth :=
+    h.payload_frontier.strengthenedAcceptedTruth
+  projection_principle := h.projection_principle
+  strengthened_to_partial_projection :=
+    h.strengthened_to_partial_projection
+  partial_to_graft_projection := h.partial_to_graft_projection
+  computable_gap := h.computable_gap
+
+abbrev ComputedWitnessFormula
+    (h : HardResidualPayloadFreeAcceptedRouteInputs) : Prop :=
+  h.toAcceptedPayloadCorrectedRouteInputs.ComputedWitnessFormula
+
+structure Audit
+    (h : HardResidualPayloadFreeAcceptedRouteInputs) :
+    Prop where
+  payloadFreeFrontier :
+    h.payload_frontier.Audit
+  payloadFreeAssumptionFree :
+    h.payload_frontier.checker_acceptance.Audit
+  acceptedPayloadAudit :
+    h.toAcceptedPayloadCorrectedRouteInputs.Audit
+  ordinaryAcceptedTruth :
+    _root_.PartialConsistencyAcceptedTruth
+  strengthenedAcceptedTruth :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+  ordinaryPayloadTruth :
+    _root_.PartialConsistencyPayloadTruth
+  strengthenedPayloadTruth :
+    _root_.StrengthenedPartialConsistencyPayloadTruth
+  computedWitnessFormula :
+    h.ComputedWitnessFormula
+  contradictionAtComputedWitness :
+    ∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False
+  endpointNotRational :
+    ¬ _root_.is_rational _root_.euler_mascheroni
+
+theorem audit
+    (h : HardResidualPayloadFreeAcceptedRouteInputs) :
+    h.Audit where
+  payloadFreeFrontier := h.payload_frontier.audit
+  payloadFreeAssumptionFree := h.payload_frontier.checker_acceptance.audit
+  acceptedPayloadAudit := h.toAcceptedPayloadCorrectedRouteInputs.audit
+  ordinaryAcceptedTruth := h.payload_frontier.ordinaryAcceptedTruth
+  strengthenedAcceptedTruth := h.payload_frontier.strengthenedAcceptedTruth
+  ordinaryPayloadTruth :=
+    (hardResidualPayloadTruthsOfPayloadFreeCheckerAcceptanceFrontier
+      h.payload_frontier).1
+  strengthenedPayloadTruth :=
+    (hardResidualPayloadTruthsOfPayloadFreeCheckerAcceptanceFrontier
+      h.payload_frontier).2
+  computedWitnessFormula :=
+    h.toAcceptedPayloadCorrectedRouteInputs.computed_witness_formula
+  contradictionAtComputedWitness :=
+    h.toAcceptedPayloadCorrectedRouteInputs.contradiction_at_computed_witness
+  endpointNotRational :=
+    h.toAcceptedPayloadCorrectedRouteInputs.endpoint_not_rational
+
+theorem closure
+    (h : HardResidualPayloadFreeAcceptedRouteInputs) :
+    h.Audit ∧
+      h.payload_frontier.Audit ∧
+        h.toAcceptedPayloadCorrectedRouteInputs.Audit ∧
+          _root_.PartialConsistencyAcceptedTruth ∧
+            _root_.StrengthenedPartialConsistencyAcceptedTruth ∧
+              _root_.PartialConsistencyPayloadTruth ∧
+                _root_.StrengthenedPartialConsistencyPayloadTruth ∧
+                  h.ComputedWitnessFormula ∧
+                    (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                      False) ∧
+                      ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨h.audit,
+    h.payload_frontier.audit,
+    h.toAcceptedPayloadCorrectedRouteInputs.audit,
+    h.payload_frontier.ordinaryAcceptedTruth,
+    h.payload_frontier.strengthenedAcceptedTruth,
+    (hardResidualPayloadTruthsOfPayloadFreeCheckerAcceptanceFrontier
+      h.payload_frontier).1,
+    (hardResidualPayloadTruthsOfPayloadFreeCheckerAcceptanceFrontier
+      h.payload_frontier).2,
+    h.toAcceptedPayloadCorrectedRouteInputs.computed_witness_formula,
+    h.toAcceptedPayloadCorrectedRouteInputs.contradiction_at_computed_witness,
+    h.toAcceptedPayloadCorrectedRouteInputs.endpoint_not_rational⟩
+
+end HardResidualPayloadFreeAcceptedRouteInputs
 
 end SondowProjectMonth11Month12HardResidualElimination
 end SondowMainCheckedCodeBridge
