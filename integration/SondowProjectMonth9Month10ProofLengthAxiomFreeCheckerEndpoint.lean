@@ -1408,6 +1408,122 @@ theorem checkedGap_nonempty_of_upperProvider
 
 end ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
 
+/-! ## Minimal checked-upper residual frontier -/
+
+/-- The current smallest theorem-5 residual frontier.  It has no root
+`proof_length` transport, no project-box proof-length object, and no payload
+vocabulary: the lower side is the concrete PA/Hilbert search input, and the
+upper side is already stated for the same checked `minProofCodeSize`
+measurement. -/
+structure Month9Month10CheckedUpperInternalTheorem5Frontier
+    (scale_data : InternalPudlakTheorem5ScaleData) : Type where
+  lower_search :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput scale_data
+  upper_provider :
+    lower_search.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType
+
+namespace Month9Month10CheckedUpperInternalTheorem5Frontier
+
+def provider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (frontier :
+      Month9Month10CheckedUpperInternalTheorem5Frontier scale_data) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  frontier.lower_search.toProofLengthAxiomFreeCheckedUpperProvider
+    frontier.upper_provider
+
+def endpoint
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (frontier :
+      Month9Month10CheckedUpperInternalTheorem5Frontier scale_data) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  frontier.provider.endpoint
+
+noncomputable def computedCollisionNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (frontier :
+      Month9Month10CheckedUpperInternalTheorem5Frontier scale_data)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  frontier.provider.computedCollisionNOfRationality hrat
+
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (frontier :
+      Month9Month10CheckedUpperInternalTheorem5Frontier scale_data)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.lower_search.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.upper_provider hrat).U
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.upper_provider hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.upper_provider hrat).upperN :=
+  frontier.provider.computedCollisionN_eq_rejectionExtractorWitness hrat
+
+theorem closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (frontier :
+      Month9Month10CheckedUpperInternalTheorem5Frontier scale_data) :
+    frontier.provider.Audit ∧
+      frontier.endpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (month9_month10_checkedProofCodeMeasured
+              scale_data
+              frontier.lower_search.checkerSemantics.toProofCodeSemantics)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            frontier.computedCollisionNOfRationality hrat =
+              frontier.lower_search.rejectionExtractor.witness
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.upper_provider hrat).U
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.upper_provider hrat).polynomial
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.upper_provider hrat).upperN) ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              (checkedSearchUpperTail
+                frontier.lower_search.toProofLengthFreeMonth12Candidate
+                frontier.upper_provider hrat).U
+                  (frontier.computedCollisionNOfRationality hrat) <
+                month9_month10_checkedProofCodeMeasured
+                  scale_data
+                  frontier.lower_search.checkerSemantics.toProofCodeSemantics
+                  (frontier.computedCollisionNOfRationality hrat)) ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              month9_month10_checkedProofCodeMeasured
+                  scale_data
+                  frontier.lower_search.checkerSemantics.toProofCodeSemantics
+                  (frontier.computedCollisionNOfRationality hrat) ≤
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.upper_provider hrat).U
+                  (frontier.computedCollisionNOfRationality hrat)) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+            ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    frontier.lower_search.checkedUpperProvider_closure
+      frontier.upper_provider
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      frontier.lower_search.checkedGap_nonempty_of_upperProvider
+        frontier.upper_provider,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2⟩
+
+end Month9Month10CheckedUpperInternalTheorem5Frontier
+
 /-! ## Final-three-certificate instantiation -/
 
 /-- Drop the proof-length transport field of a final three-certificate endpoint
