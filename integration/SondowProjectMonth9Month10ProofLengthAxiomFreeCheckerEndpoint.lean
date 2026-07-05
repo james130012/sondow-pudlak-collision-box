@@ -3250,6 +3250,132 @@ theorem closure
 
 end Month9Month10CanonicalConjIntroTargetSearchFrontier
 
+/-! ## Time-bound canonical conj-intro target search frontier -/
+
+/-- Canonical target-search frontier with scale strictness generated from the
+primitive time-constructible bound and nonzero exponent.  This removes the
+standalone `scale_strict` field from the canonical target frontier. -/
+structure Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n} :
+    Type (max u v w) where
+  left_family :
+    _root_.MiniHilbert.ConcreteProofFamily Ax A
+  right_family :
+    _root_.MiniHilbert.ConcreteProofFamily Ax B
+  time_bound_strict :
+    ∀ {a b : Nat}, a < b →
+      scale_data.time_constructible_bound a <
+        scale_data.time_constructible_bound b
+  exponent_ne_zero :
+    scale_data.exponent ≠ 0
+  gap :
+    ComputableSearchGapCertificate
+      (fun m : Nat =>
+        ((left_family.conjIntro right_family)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m : Real))
+  left_length_polynomial :
+    _root_.is_polynomial_bound
+      (_root_.MiniHilbert.nat_bound_as_real left_family.length)
+  right_length_polynomial :
+    _root_.is_polynomial_bound
+      (_root_.MiniHilbert.nat_bound_as_real right_family.length)
+
+namespace Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+
+theorem scale_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b :=
+  _root_.SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthGapFrontier.Month9Month10ActualProofLengthGapFrontier.scale_strict_of_timeConstructibleBound_strict
+    frontier.time_bound_strict frontier.exponent_ne_zero
+
+def canonicalFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CanonicalConjIntroTargetSearchFrontier
+      scale_data (Ax := Ax) (A := A) (B := B) where
+  left_family :=
+    frontier.left_family
+  right_family :=
+    frontier.right_family
+  scale_strict :=
+    frontier.scale_strict
+  gap :=
+    frontier.gap
+  left_length_polynomial :=
+    frontier.left_length_polynomial
+  right_length_polynomial :=
+    frontier.right_length_polynomial
+
+def provider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  frontier.canonicalFrontier.provider
+
+def endpoint
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  frontier.provider.endpoint
+
+noncomputable def computedCollisionNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  frontier.provider.computedCollisionNOfRationality hrat
+
+theorem closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    frontier.provider.Audit ∧
+      frontier.endpoint.Audit ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure := frontier.canonicalFrontier.closure
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2⟩
+
+end Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+
 /-! ## Local-Hilbert length-code target frontier -/
 
 /-- Local-Hilbert instantiation of the concrete length-code frontier.  Here the
