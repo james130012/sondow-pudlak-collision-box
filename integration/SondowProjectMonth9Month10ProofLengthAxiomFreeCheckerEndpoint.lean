@@ -3703,6 +3703,76 @@ theorem closure
 
 end Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
 
+/-! ## Payload root bridge via derivability -/
+
+/-- Narrower payload-root bridge target.  Instead of asking accepted checker
+codes to imply root `accepted_certificate` directly, this adapter factors the
+task through the PA/Hilbert derivability semantics already produced by the
+canonical checker interfaces.
+
+This is not payload-axiom-free: its target is the root `accepted_certificate`
+vocabulary, whose partial/strengthened consistency branches unfold to the two
+payload predicates.  The point is to make the remaining root bridge a
+derivability-soundness obligation rather than a raw checker-code obligation. -/
+structure Month9Month10PayloadRootBridgeViaDerivability
+    (h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance)
+    (semantics : PAHilbertDerivabilitySemantics) : Prop where
+  acceptedCodeExactness :
+    ∀ formulaCode : _root_.FormulaCode, ∀ code : Nat,
+      PAHilbertAcceptedProofCodeForFormulaCode
+        h.checker formulaCode code →
+      PAHilbertFormulaCodeDerivable semantics formulaCode
+  ordinaryDerivableSound :
+    ∀ n : Nat,
+      PAHilbertFormulaCodeDerivable
+          semantics (_root_.partialConsistencyCode n) →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n)
+  strengthenedDerivableSound :
+    ∀ n : Nat,
+      PAHilbertFormulaCodeDerivable
+          semantics (_root_.strengthenedPartialConsistencyCode n) →
+        _root_.accepted_certificate
+          (_root_.strengthenedPartialConsistencyCode n)
+
+namespace Month9Month10PayloadRootBridgeViaDerivability
+
+def toCheckerAcceptedRootBridge
+    {h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    {semantics : PAHilbertDerivabilitySemantics}
+    (bridge :
+      Month9Month10PayloadRootBridgeViaDerivability h semantics) :
+    Month9Month10CheckerAcceptedRootBridge h where
+  ordinarySound := by
+    intro n haccepted
+    exact
+      bridge.ordinaryDerivableSound n
+        (bridge.acceptedCodeExactness
+          (_root_.partialConsistencyCode n)
+          (h.ordinary.proofCode n)
+          haccepted)
+  strengthenedSound := by
+    intro n haccepted
+    exact
+      bridge.strengthenedDerivableSound n
+        (bridge.acceptedCodeExactness
+          (_root_.strengthenedPartialConsistencyCode n)
+          (h.strengthened.proofCode n)
+          haccepted)
+
+theorem closure
+    {h : Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    {semantics : PAHilbertDerivabilitySemantics}
+    (bridge :
+      Month9Month10PayloadRootBridgeViaDerivability h semantics) :
+    Month9Month10CheckerAcceptedRootBridge h ∧
+      _root_.PartialConsistencyAcceptedTruth ∧
+        _root_.StrengthenedPartialConsistencyAcceptedTruth :=
+  ⟨bridge.toCheckerAcceptedRootBridge,
+    bridge.toCheckerAcceptedRootBridge.ordinaryAcceptedTruth,
+    bridge.toCheckerAcceptedRootBridge.strengthenedAcceptedTruth⟩
+
+end Month9Month10PayloadRootBridgeViaDerivability
+
 /-! ## Local-Hilbert length-code target frontier -/
 
 /-- Local-Hilbert instantiation of the concrete length-code frontier.  Here the
