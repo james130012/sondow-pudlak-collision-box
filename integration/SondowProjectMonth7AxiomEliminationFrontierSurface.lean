@@ -342,6 +342,41 @@ structure Month7CanonicalProofLengthCodeCalibrationOpenVector
   strengthened_accepted :
     _root_.StrengthenedPartialConsistencyAcceptedTruth
 
+structure Month7CheckedCodeReplacementOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  checked_code_replacement :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6CheckedCodeReplacementCertificate
+        interp)
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
+structure Month7MinimalClosurePayloadVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds) :
+    Prop where
+  checked_code_replacement :
+    Nonempty
+      (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6CheckedCodeReplacementCertificate
+        interp)
+  minimal_closure :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds)
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
 namespace Month7AxiomEliminationFrontierChecklist
 
 theorem partialPayloadTruth
@@ -831,6 +866,77 @@ theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_canonical_calib
     interp).trans
     (month7_proof_code_checker_vector_iff_canonical_calibration_vector
       interp)
+
+theorem month7_canonical_calibration_vector_iff_checked_code_replacement_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7CanonicalProofLengthCodeCalibrationOpenVector interp ↔
+      Month7CheckedCodeReplacementOpenVector interp := by
+  constructor
+  · intro h
+    exact
+      { checked_code_replacement :=
+          (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.proofLengthCodeCalibration_iff_checkedCodeReplacementCertificate
+            interp (fun _ => 0)).1 h.canonical_calibration
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    exact
+      { canonical_calibration :=
+          (_root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.proofLengthCodeCalibration_iff_checkedCodeReplacementCertificate
+            interp (fun _ => 0)).2 h.checked_code_replacement
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_checked_code_replacement_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7CheckedCodeReplacementOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_canonical_calibration_vector
+    interp).trans
+    (month7_canonical_calibration_vector_iff_checked_code_replacement_vector
+      interp)
+
+theorem month7_minimal_closure_payload_vector_to_checked_code_replacement_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7MinimalClosurePayloadVector interp bounds) :
+    Month7CheckedCodeReplacementOpenVector interp :=
+  { checked_code_replacement := h.checked_code_replacement
+    partial_accepted_code :=
+      (partial_payload_spec_frontier_iff_accepted_code_truth).2
+        (sondowCLinePayloadSpecCertificate_nonempty_of_minimalClosureCertificate
+          h.minimal_closure)
+    strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_minimal_closure_payload_vector_to_checklist
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign)
+    (bounds : BoundedArithmeticLab.SondowComponentBounds)
+    (h : Month7MinimalClosurePayloadVector interp bounds) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_checked_code_replacement_vector
+    interp).2
+    (month7_minimal_closure_payload_vector_to_checked_code_replacement_vector
+      interp bounds h)
 
 end SondowProjectMonth7AxiomEliminationFrontierSurface
 end SondowMainCheckedCodeBridge
