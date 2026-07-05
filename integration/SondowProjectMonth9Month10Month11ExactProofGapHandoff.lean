@@ -4432,6 +4432,31 @@ theorem rejectionExtractor_noSmallCode_at_computedNOfUpper
     InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics_size_eq]
     using hsmall
 
+theorem rejectionExtractor_rejects_smallCode_at_computedNOfUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (c : checker.Code)
+    (hsize :
+      (checker.size c : Real) ≤
+        upper.U (rejectionExtractorComputedNOfUpper extractor upper)) :
+    ¬ checker.checks c
+        (scale_data.powerBoundRawCode
+          (rejectionExtractorComputedNOfUpper extractor upper)) := by
+  intro hchecks
+  exact
+    (not_lt_of_ge hsize)
+      (rejectionExtractor_noSmallCode_at_computedNOfUpper
+        extractor upper c hchecks)
+
 theorem rejectionExtractor_lower_at_computedNOfUpper
     {scale_data : InternalPudlakTheorem5ScaleData}
     {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
@@ -4494,6 +4519,54 @@ theorem rejectionExtractor_contradiction_at_computedNOfUpper
   (not_lt_of_ge
     (rejectionExtractor_upper_at_computedNOfUpper extractor upper))
     (rejectionExtractor_lower_at_computedNOfUpper extractor upper)
+
+/-- The explicit extractor endpoint in one audit target: the computed witness is
+past the upper threshold, every accepting proof code is larger than the upper
+window, all codes inside the window are rejected, and the upper/lower
+inequalities collide at that same witness. -/
+theorem rejectionExtractor_computedNOfUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    let n := rejectionExtractorComputedNOfUpper extractor upper
+    upper.upperN ≤ n ∧
+      (∀ c : checker.Code,
+        checker.checks c (scale_data.powerBoundRawCode n) →
+          upper.U n < (checker.size c : Real)) ∧
+      (∀ c : checker.Code,
+        (checker.size c : Real) ≤ upper.U n →
+          ¬ checker.checks c (scale_data.powerBoundRawCode n)) ∧
+      upper.U n <
+        month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics n ∧
+      month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics n ≤
+        upper.U n ∧
+      False := by
+  dsimp only
+  refine ⟨
+    rejectionExtractorComputedNOfUpper_ge_upperN extractor upper,
+    ?_,
+    ?_,
+    rejectionExtractor_lower_at_computedNOfUpper extractor upper,
+    rejectionExtractor_upper_at_computedNOfUpper extractor upper,
+    rejectionExtractor_contradiction_at_computedNOfUpper extractor upper⟩
+  · intro c hchecks
+    exact
+      rejectionExtractor_noSmallCode_at_computedNOfUpper
+        extractor upper c hchecks
+  · intro c hsize
+    exact
+      rejectionExtractor_rejects_smallCode_at_computedNOfUpper
+        extractor upper c hsize
 
 /-- The only place where a checker minimum becomes root proof length on the
 theorem-5 raw family.  Keeping this as a separate bridge prevents the checked
