@@ -2184,6 +2184,177 @@ theorem projectCheckedCodeSemantics_iff_checkerCalibrationFrontier
     (month6ProofCodeCheckerFrontier_nonempty_iff_calibrationFrontier
       interp)
 
+structure Month7ProofLengthFreeCheckerKernelCertificate
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) : Prop where
+  local_closure : Month6ProofLengthFreeLocalCodeClosure interp
+  projection_model : LocalHilbertProofCodeProjectionModel interp
+  source_semantic_length :
+    ∀ fallback : FormulaCode → Nat, ∀ m : Nat,
+      interp.localHilbertSemanticProofLength fallback
+          (partialConsistencyCode m) =
+        interp.target_proof_family.rightConjElim.minCheckedCodeSize m
+  target_semantic_length :
+    ∀ fallback : FormulaCode → Nat, ∀ m : Nat,
+      interp.localHilbertSemanticProofLength fallback
+          (sondowReflectionGraftCode m) =
+        interp.target_proof_family.minCheckedCodeSize m
+
+namespace Month7ProofLengthFreeCheckerKernelCertificate
+
+def ofInterpretation
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7ProofLengthFreeCheckerKernelCertificate interp where
+  local_closure := Month6ProofLengthFreeLocalCodeClosure.ofInterpretation interp
+  projection_model := interp.localHilbertProofCodeProjectionModel
+  source_semantic_length :=
+    interp.localHilbertSemanticProofLength_partialConsistency
+  target_semantic_length :=
+    interp.localHilbertSemanticProofLength_reflectionGraft
+
+end Month7ProofLengthFreeCheckerKernelCertificate
+
+theorem month7ProofLengthFreeCheckerKernel_nonempty
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7ProofLengthFreeCheckerKernelCertificate interp) :=
+  ⟨Month7ProofLengthFreeCheckerKernelCertificate.ofInterpretation interp⟩
+
+structure Month7GlobalProofLengthRealizationFrontierCertificate
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) : Prop where
+  proof_length_eq_local_min :
+    ∀ code : FormulaCode, ∀ hcode : FormulaCodeHilbertRelevantCode code,
+      proof_length ProofSystem.PA ProofLengthMeasure.symbolSize code =
+        interp.localHilbertProofCodeSemantics.minProofCodeSize code hcode
+
+namespace Month7GlobalProofLengthRealizationFrontierCertificate
+
+def toLocalProofCodeRecognition
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (cert : Month7GlobalProofLengthRealizationFrontierCertificate interp) :
+    PAHilbertLocalProofCodeRecognition interp where
+  proof_length_eq_minProofCodeSize := cert.proof_length_eq_local_min
+
+def ofLocalProofCodeRecognition
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (hrec : PAHilbertLocalProofCodeRecognition interp) :
+    Month7GlobalProofLengthRealizationFrontierCertificate interp where
+  proof_length_eq_local_min := hrec.proof_length_eq_minProofCodeSize
+
+def ofProjectCheckedCodeSemantics
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (hsemantics :
+      ProjectProofLengthSemantics
+        ProofSystem.PA ProofLengthMeasure.symbolSize
+        interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode) :
+    Month7GlobalProofLengthRealizationFrontierCertificate interp where
+  proof_length_eq_local_min :=
+    (FormulaCodeHilbertLocalCalibration.of_projectCheckedCodeProofLengthSemantics
+      interp hsemantics).to_localHilbertProofCodeSemantics
+
+theorem toProjectCheckedCodeSemantics
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (cert : Month7GlobalProofLengthRealizationFrontierCertificate interp) :
+    ProjectProofLengthSemantics
+      ProofSystem.PA ProofLengthMeasure.symbolSize
+      interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode :=
+  interp.projectCheckedCodeSemantics_of_localHilbertProofCodeSemantics
+    cert.proof_length_eq_local_min
+
+end Month7GlobalProofLengthRealizationFrontierCertificate
+
+structure Month7ProofLengthEliminationFrontierCertificate
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) : Prop where
+  checker_kernel : Month7ProofLengthFreeCheckerKernelCertificate interp
+  global_realization :
+    Month7GlobalProofLengthRealizationFrontierCertificate interp
+
+namespace Month7ProofLengthEliminationFrontierCertificate
+
+def ofProjectCheckedCodeSemantics
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (hsemantics :
+      ProjectProofLengthSemantics
+        ProofSystem.PA ProofLengthMeasure.symbolSize
+        interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode) :
+    Month7ProofLengthEliminationFrontierCertificate interp where
+  checker_kernel :=
+    Month7ProofLengthFreeCheckerKernelCertificate.ofInterpretation interp
+  global_realization :=
+    Month7GlobalProofLengthRealizationFrontierCertificate.ofProjectCheckedCodeSemantics
+      hsemantics
+
+theorem toProjectCheckedCodeSemantics
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    {interp : FormulaCodeHilbertInterpretation Ax A B halign}
+    (cert : Month7ProofLengthEliminationFrontierCertificate interp) :
+    ProjectProofLengthSemantics
+      ProofSystem.PA ProofLengthMeasure.symbolSize
+      interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode :=
+  cert.global_realization.toProjectCheckedCodeSemantics
+
+end Month7ProofLengthEliminationFrontierCertificate
+
+theorem projectCheckedCodeSemantics_iff_month7ProofLengthEliminationFrontier
+    {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : HilbertProjectionCodeAlignment}
+    (interp : FormulaCodeHilbertInterpretation Ax A B halign) :
+    ProjectProofLengthSemantics
+        ProofSystem.PA ProofLengthMeasure.symbolSize
+        interp.localCheckedCodeProofLength FormulaCodeHilbertRelevantCode ↔
+      Nonempty (Month7ProofLengthEliminationFrontierCertificate interp) := by
+  constructor
+  · intro hsemantics
+    exact
+      ⟨Month7ProofLengthEliminationFrontierCertificate.ofProjectCheckedCodeSemantics
+        hsemantics⟩
+  · intro hfrontier
+    rcases hfrontier with ⟨cert⟩
+    exact cert.toProjectCheckedCodeSemantics
+
 theorem projectCheckedCodeSemantics_iff_proofLengthConventionBoundary
     {L : FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
     {Ax : L.BoundedFormula α n → Prop}
