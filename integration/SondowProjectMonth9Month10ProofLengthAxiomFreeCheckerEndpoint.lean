@@ -993,6 +993,275 @@ theorem theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper_closure
       hclosure.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2⟩
 
+/-! ## Concrete-proof-family checked target upper instantiation -/
+
+/-- Payload-free projection for a raw MiniHilbert concrete proof family.  Unlike
+`FormulaCodeHilbertInterpretation`, this object does not carry a
+`HilbertProjectionCodeAlignment`, so the only remaining input is the concrete
+conjunction-family proof object and the theorem-5 source identification. -/
+structure InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)) :
+    Prop where
+  theorem5_source_eq_family_source :
+    ∀ m : Nat,
+      sem.minProofCodeSize (scale_data.powerBoundRawCode m) ⟨m, rfl⟩ =
+        target_family.rightConjElim.minCheckedCodeSize m
+
+namespace InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+
+def targetMeasured
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)) :
+    Nat → Nat :=
+  fun m => target_family.minCheckedCodeSize m
+
+def toCheckedTargetProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        scale_data sem target_family) :
+    InternalPudlakTheorem5CheckedTargetProjection
+      scale_data sem (targetMeasured target_family) where
+  source_le_target_add_two := by
+    intro m
+    rw [projection.theorem5_source_eq_family_source m]
+    simpa [targetMeasured] using
+      target_family.minCheckedCodeSize_rightConjElim_le m
+
+end InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+
+/-- Upper provider for a raw MiniHilbert conjunction-family checked minimum. -/
+structure InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)) :
+    Type (max u v w) where
+  upper_under_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (target_family.minCheckedCodeSize m : Real) ≤ U m
+
+namespace InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+
+def toCheckedTargetUpperProvider
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    InternalPudlakTheorem5CheckedTargetUpperProvider
+      (InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured
+        target_family) where
+  upper_under_rationality := by
+    intro hrat
+    simpa
+      [InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured]
+      using upper_provider.upper_under_rationality hrat
+
+structure Audit
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    Prop where
+  upperUnderRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (target_family.minCheckedCodeSize m : Real) ≤ U m
+
+theorem audit
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    upper_provider.Audit where
+  upperUnderRationality := upper_provider.upper_under_rationality
+
+theorem closure
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    upper_provider.Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            (target_family.minCheckedCodeSize m : Real) ≤ U m) :=
+  ⟨upper_provider.audit, upper_provider.upper_under_rationality⟩
+
+end InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+
+def checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        scale_data sem target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) :=
+  checkedUpperProviderOfCheckedTargetProjectionAndUpper
+    projection.toCheckedTargetProjection
+    upper_provider.toCheckedTargetUpperProvider
+
+theorem checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        scale_data sem target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    (checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+      projection upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            month9_month10_checkedProofCodeMeasured scale_data sem m ≤
+              U m) :=
+  (checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+    projection upper_provider).closure
+
+/-- Theorem-5 provider using the payload-free concrete-proof-family target. -/
+def theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper core
+    projection.toCheckedTargetProjection
+    upper_provider.toCheckedTargetUpperProvider
+
+theorem theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    (theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+      core projection upper_provider).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+        core projection upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+            core projection upper_provider).computedCollisionNOfRationality
+              hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper_closure
+      core
+      projection.toCheckedTargetProjection
+      upper_provider.toCheckedTargetUpperProvider
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
 /-! ## Local-Hilbert checked target upper instantiation -/
 
 /-- Local-Hilbert source projection for the checked theorem-5 measurement.  This
@@ -1989,6 +2258,184 @@ theorem closure
       hclosure.2.2.2.2.2.2⟩
 
 end Month9Month10CheckedUpperInternalTheorem5Frontier
+
+/-! ## Concrete-proof-family target frontier -/
+
+/-- The payload-free concrete target frontier.  It replaces the opaque
+checked-upper residual by two auditable proof-family fields: theorem-5 source
+exactness against the right-conjunction-elimination family, and a Sondow upper
+bound for the target conjunction-family checked minimum. -/
+structure Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)) :
+    Type (max u v w) where
+  lower_search :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput scale_data
+  projection :
+    InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+      scale_data lower_search.checkerSemantics.toProofCodeSemantics
+      target_family
+  upper_provider :
+    InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+      target_family
+
+namespace Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+
+def provider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+    frontier.lower_search.toCanonicalSearchCore
+    frontier.projection
+    frontier.upper_provider
+
+def endpoint
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    Month9Month10CheckedSearchCollisionEndpoint scale_data :=
+  frontier.provider.endpoint
+
+noncomputable def computedCollisionNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  frontier.provider.computedCollisionNOfRationality hrat
+
+def checkedUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    frontier.lower_search.toProofLengthFreeMonth12Candidate
+      |>.checkedMeasuredUpperProviderType :=
+  checkedUpperProviderOfConcreteProofFamilyProjectionAndTargetUpper
+    frontier.projection frontier.upper_provider
+
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.lower_search.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).U
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.checkedUpperProvider hrat).upperN :=
+  frontier.provider.computedCollisionN_eq_rejectionExtractorWitness hrat
+
+theorem closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    frontier.provider.Audit ∧
+      frontier.endpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (month9_month10_checkedProofCodeMeasured
+              scale_data
+              frontier.lower_search.checkerSemantics.toProofCodeSemantics)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            frontier.computedCollisionNOfRationality hrat =
+              frontier.lower_search.rejectionExtractor.witness
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.checkedUpperProvider hrat).U
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.checkedUpperProvider hrat).polynomial
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.checkedUpperProvider hrat).upperN) ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              (checkedSearchUpperTail
+                frontier.lower_search.toProofLengthFreeMonth12Candidate
+                frontier.checkedUpperProvider hrat).U
+                  (frontier.computedCollisionNOfRationality hrat) <
+                month9_month10_checkedProofCodeMeasured
+                  scale_data
+                  frontier.lower_search.checkerSemantics.toProofCodeSemantics
+                  (frontier.computedCollisionNOfRationality hrat)) ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              month9_month10_checkedProofCodeMeasured
+                  scale_data
+                  frontier.lower_search.checkerSemantics.toProofCodeSemantics
+                  (frontier.computedCollisionNOfRationality hrat) ≤
+                (checkedSearchUpperTail
+                  frontier.lower_search.toProofLengthFreeMonth12Candidate
+                  frontier.checkedUpperProvider hrat).U
+                  (frontier.computedCollisionNOfRationality hrat)) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+            ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure := frontier.provider.closure
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      frontier.lower_search.checkedGap_nonempty_of_upperProvider
+        frontier.checkedUpperProvider,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2.2.2.2⟩
+
+end Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
 
 /-! ## Final-three-certificate instantiation -/
 
