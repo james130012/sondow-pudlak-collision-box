@@ -3239,6 +3239,32 @@ noncomputable def computedCollisionNOfRationality
     (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
   frontier.provider.computedCollisionNOfRationality hrat
 
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10ConjIntroLengthCodeTargetInternalTheorem5Frontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.lower_search.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).U
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.lower_search.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).upperN :=
+  frontier.concreteLengthCodeFrontier.computedCollisionN_eq_rejectionExtractorWitness
+    hrat
+
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
@@ -3380,6 +3406,38 @@ noncomputable def computedCollisionNOfRationality
     (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
   frontier.provider.computedCollisionNOfRationality hrat
 
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10CanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.lowerSearch.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).U
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).upperN :=
+  frontier.conjIntroLengthCodeFrontier.computedCollisionN_eq_rejectionExtractorWitness
+    hrat
+
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
@@ -3505,6 +3563,41 @@ noncomputable def computedCollisionNOfRationality
         scale_data (Ax := Ax) (A := A) (B := B))
     (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
   frontier.provider.computedCollisionNOfRationality hrat
+
+theorem computedCollisionN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.computedCollisionNOfRationality hrat =
+      frontier.canonicalFrontier.lowerSearch.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.canonicalFrontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).U
+        (checkedSearchUpperTail
+          frontier.canonicalFrontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.canonicalFrontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          (frontier.canonicalFrontier
+            |>.conjIntroLengthCodeFrontier
+            |>.concreteLengthCodeFrontier
+            |>.checkedUpperProvider)
+          hrat).upperN :=
+  frontier.canonicalFrontier.computedCollisionN_eq_rejectionExtractorWitness
+    hrat
 
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}
