@@ -290,6 +290,93 @@ theorem lowerSearchWitnessOfUpper_closure
     exact (lowerSearchWitnessOfUpper candidate upper).no_small_at_n c hchecks
   · exact (lowerSearchWitnessOfUpper candidate upper).minProofCodeSize_gt
 
+theorem computedCollisionN_lowerWitnessTrace_of_rationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (upper_provider : candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := checkedSearchUpperTail candidate upper_provider hrat
+    let w := lowerSearchWitnessOfUpper candidate upper
+    (candidate.toCheckedSearchCollisionEndpoint
+        upper_provider).computedCollisionNOfRationality hrat = w.n ∧
+      w.n =
+        candidate.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      w.K =
+        candidate.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : candidate.checkerSemantics.Code,
+        c ∈ candidate.smallCodeSearch.candidates w.n w.K →
+          ¬ candidate.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : candidate.checkerSemantics.Code,
+        candidate.checkerSemantics.checks c
+          (scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (candidate.checkerSemantics.size c : Real)) ∧
+      (candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n ∧
+      month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics w.n ≤
+        upper.U w.n ∧
+      upper.U w.n <
+        month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics w.n ∧
+      False := by
+  let upper := checkedSearchUpperTail candidate upper_provider hrat
+  let w := lowerSearchWitnessOfUpper candidate upper
+  have hcomputed :
+      (candidate.toCheckedSearchCollisionEndpoint
+          upper_provider).computedCollisionNOfRationality hrat =
+        candidate.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN := by
+    dsimp [upper]
+    exact computedCollisionN_eq_rejectionExtractorWitness
+      candidate upper_provider hrat
+  have hclosure := lowerSearchWitnessOfUpper_closure candidate upper
+  have hfalse :
+      False :=
+    proof_length_free_candidate_computed_n_contradiction
+      candidate upper_provider hrat
+  dsimp [upper, w] at hcomputed hclosure ⊢
+  have hupper :
+      month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics
+          (lowerSearchWitnessOfUpper candidate
+            (checkedSearchUpperTail candidate upper_provider hrat)).n ≤
+        (checkedSearchUpperTail candidate upper_provider hrat).U
+          (lowerSearchWitnessOfUpper candidate
+            (checkedSearchUpperTail candidate upper_provider hrat)).n :=
+    (checkedSearchUpperTail candidate upper_provider hrat).upper_after
+      (lowerSearchWitnessOfUpper candidate
+        (checkedSearchUpperTail candidate upper_provider hrat)).n
+      hclosure.2.2.1
+  have hlowerMeasured :
+      (checkedSearchUpperTail candidate upper_provider hrat).U
+          (lowerSearchWitnessOfUpper candidate
+            (checkedSearchUpperTail candidate upper_provider hrat)).n <
+        month9_month10_checkedProofCodeMeasured
+          scale_data candidate.checkerSemantics.toProofCodeSemantics
+          (lowerSearchWitnessOfUpper candidate
+            (checkedSearchUpperTail candidate upper_provider hrat)).n := by
+    simpa [month9_month10_checkedProofCodeMeasured]
+      using hclosure.2.2.2.2.2.2
+  exact
+    ⟨hcomputed.trans hclosure.1.symm,
+      hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2,
+      hupper,
+      hlowerMeasured,
+      hfalse⟩
+
 /-- Proof-length-free canonical search core.  Unlike
 `PAHilbertCanonicalCalibratedExactnessCore`, this structure intentionally does
 not carry proof-length exactness; it is the clean source of the checker-side
@@ -413,6 +500,47 @@ theorem proofLengthFree_not_rational
     ¬ _root_.is_rational _root_.euler_mascheroni :=
   proof_length_free_candidate_not_rational
     core.toProofLengthFreeMonth12Candidate upper_provider
+
+theorem proofLengthFreeComputedWitnessTrace_of_rationality
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      (core.toProofLengthFreeMonth12Candidate).checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let candidate := core.toProofLengthFreeMonth12Candidate
+    let upper := checkedSearchUpperTail candidate upper_provider hrat
+    let w := lowerSearchWitnessOfUpper candidate upper
+    (candidate.toCheckedSearchCollisionEndpoint
+        upper_provider).computedCollisionNOfRationality hrat = w.n ∧
+      w.n =
+        core.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      w.K =
+        core.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : core.checkerSemantics.Code,
+        c ∈ candidate.smallCodeSearch.candidates w.n w.K →
+          ¬ core.checkerSemantics.checks c
+            (core.scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : core.checkerSemantics.Code,
+        core.checkerSemantics.checks c
+          (core.scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (core.checkerSemantics.size c : Real)) ∧
+      (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n ∧
+      month9_month10_checkedProofCodeMeasured
+          core.scale_data core.checkerSemantics.toProofCodeSemantics w.n ≤
+        upper.U w.n ∧
+      upper.U w.n <
+        month9_month10_checkedProofCodeMeasured
+          core.scale_data core.checkerSemantics.toProofCodeSemantics w.n ∧
+      False := by
+  simpa [PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate]
+    using
+      computedCollisionN_lowerWitnessTrace_of_rationality
+        core.toProofLengthFreeMonth12Candidate upper_provider hrat
 
 theorem accepted_decoded_code_to_formulaCode_derivable_from_interface
     (core : PAHilbertCanonicalSearchCore)
