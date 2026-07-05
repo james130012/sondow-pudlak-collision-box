@@ -1792,6 +1792,433 @@ theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLen
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+/-! ## Final exact checker-core with an abstract actual upper provider -/
+
+/-- Corrected actual endpoint from the final exact checker-core input and an
+abstract upper provider already stated for the actual proof-length measured
+object.  This isolates the proof-length/lower-bound side from any Sondow C-line
+payload assumptions. -/
+def correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint
+      input.toCanonicalCalibratedExactnessCore.scale_data :=
+  correctedActualEndpointOfCanonicalCore
+    input.toCanonicalCalibratedExactnessCore actual_upper
+
+/-- The upper tail used by the abstract actual-upper final exact route. -/
+noncomputable def finalExactCheckerCoreActualUpperTail
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (actualProofLengthMeasured
+        input.toCanonicalCalibratedExactnessCore.scale_data) :=
+  corrected_actual_upper_tail
+    input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+    (correctedResidualOfMonth12Candidate
+      (month12CandidateOfCanonicalCore
+        input.toCanonicalCalibratedExactnessCore))
+    actual_upper hrat
+
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_proofLengthGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+      input actual_upper).computedCollisionNOfRationality hrat =
+      (input.proof_length_gap.gap_for_polynomial_upper
+        (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+        (finalExactCheckerCoreActualUpperTail
+          input actual_upper hrat).polynomial).witness
+        (finalExactCheckerCoreActualUpperTail
+          input actual_upper hrat).upperN := by
+  calc
+    (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+        input actual_upper).computedCollisionNOfRationality hrat =
+        input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+          (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).polynomial
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).upperN := by
+          simpa [correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper,
+            finalExactCheckerCoreActualUpperTail] using
+            correctedActualEndpointOfCanonicalCore_computed_n_eq
+              input.toCanonicalCalibratedExactnessCore actual_upper hrat
+    _ =
+        ((input.toStrictScaleSingletonExactProofLengthGapInput
+          |>.transportedGap).gap_for_polynomial_upper
+          (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).polynomial).witness
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).upperN := by
+          rfl
+    _ =
+        (input.proof_length_gap.gap_for_polynomial_upper
+          (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).polynomial).witness
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).upperN :=
+          input.toStrictScaleSingletonExactProofLengthGapInput
+            |>.transported_gap_witness_eq
+              (finalExactCheckerCoreActualUpperTail
+                input actual_upper hrat).U
+              (finalExactCheckerCoreActualUpperTail
+                input actual_upper hrat).polynomial
+              (finalExactCheckerCoreActualUpperTail
+                input actual_upper hrat).upperN
+
+/-- Payload-free audit package for the final exact checker-core route with an
+abstract actual upper provider.  Any remaining Sondow-side payload assumptions
+enter only when such an `actual_upper` is instantiated from the C-line route. -/
+structure FinalExactCheckerCoreActualUpperAudit
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data)) :
+    Prop where
+  endpointAudit :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+      input actual_upper).Audit
+  finalExactCertificate :
+    Nonempty
+      (SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreCertificate
+        scale_data)
+  actualProofLengthGap :
+    Nonempty
+      (ComputableSearchGapCertificate
+        (actualProofLengthMeasured scale_data))
+  computedNFromProofLengthGap :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+        input actual_upper).computedCollisionNOfRationality hrat =
+        (input.proof_length_gap.gap_for_polynomial_upper
+          (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).polynomial).witness
+          (finalExactCheckerCoreActualUpperTail
+            input actual_upper hrat).upperN
+  contradictionAtComputedN :
+    ∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False
+  endpointNotRational :
+    ¬ _root_.is_rational _root_.euler_mascheroni
+
+theorem finalExactCheckerCoreActualUpperAudit_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data)) :
+    FinalExactCheckerCoreActualUpperAudit input actual_upper ∧
+      (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+        input actual_upper).Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+              input actual_upper).computedCollisionNOfRationality hrat =
+              (input.proof_length_gap.gap_for_polynomial_upper
+                (finalExactCheckerCoreActualUpperTail
+                  input actual_upper hrat).U
+                (finalExactCheckerCoreActualUpperTail
+                  input actual_upper hrat).polynomial).witness
+                (finalExactCheckerCoreActualUpperTail
+                  input actual_upper hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfCanonicalCore_closure
+      input.toCanonicalCalibratedExactnessCore actual_upper
+  have hgap :
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) := by
+    simpa [actualProofLengthMeasured] using ⟨input.proof_length_gap⟩
+  exact
+    ⟨{
+      endpointAudit := by
+        simpa [correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper]
+          using hclosure.1
+      finalExactCertificate := input.certificate_nonempty
+      actualProofLengthGap := hgap
+      computedNFromProofLengthGap :=
+        correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_proofLengthGapWitness
+          input actual_upper
+      contradictionAtComputedN := hclosure.2.2.2.2.1
+      endpointNotRational := hclosure.2.2.2.2.2 },
+      by
+        simpa [correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper]
+          using hclosure.1,
+      hgap,
+      correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_proofLengthGapWitness
+        input actual_upper,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
+/-! ## Final exact checker-core computed-witness audit -/
+
+/-- The actual upper tail used by the final exact checker-core route after
+transporting the Sondow C-line upper proof to the same actual proof-length
+measurement as the lower finite-search gap. -/
+noncomputable def finalExactCheckerCoreCorrectedUpperTail
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (actualProofLengthMeasured
+        input.toCanonicalCalibratedExactnessCore.scale_data) :=
+  corrected_actual_upper_tail
+    input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+    (correctedResidualOfMonth12Candidate
+      (month12CandidateOfCanonicalCore
+        input.toCanonicalCalibratedExactnessCore))
+    (actualUpperProviderOfProjectUpperAndAdditiveProjection
+      projection
+      (checkedMeasuredToActualBridgeOfCanonicalCore
+        input.toCanonicalCalibratedExactnessCore)
+      (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+        (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+          hkernel hchecker hlength)))
+    hrat
+
+/-- The final exact checker-core endpoint computes its collision index by
+applying the supplied actual proof-length gap certificate to the transported
+C-line upper tail.  This is the audit equation that ties the endpoint's
+computed `n` directly to the gap-certificate witness, not merely to an abstract
+existence theorem. -/
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_computed_n_eq_proofLengthGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+      input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      (input.proof_length_gap.gap_for_polynomial_upper
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).U
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).polynomial).witness
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).upperN := by
+  calc
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+        input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+        input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).polynomial
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).upperN := by
+          simpa [finalExactCheckerCoreCorrectedUpperTail] using
+            correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+              input projection hkernel hchecker hlength |>.2.2.2.1 hrat
+    _ =
+        ((input.toStrictScaleSingletonExactProofLengthGapInput
+          |>.transportedGap).gap_for_polynomial_upper
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).polynomial).witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).upperN := by
+          rfl
+    _ =
+        (input.proof_length_gap.gap_for_polynomial_upper
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).polynomial).witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).upperN :=
+          input.toStrictScaleSingletonExactProofLengthGapInput
+            |>.transported_gap_witness_eq
+              (finalExactCheckerCoreCorrectedUpperTail
+                input projection hkernel hchecker hlength hrat).U
+              (finalExactCheckerCoreCorrectedUpperTail
+                input projection hkernel hchecker hlength hrat).polynomial
+              (finalExactCheckerCoreCorrectedUpperTail
+                input projection hkernel hchecker hlength hrat).upperN
+
+/-- Terminal audit package for the corrected final exact checker-core route.
+It records that the exact-scale certificate shape is blocked, while the
+corrected actual-proof-length route still produces an explicit collision
+witness from the supplied actual gap certificate. -/
+structure FinalExactCheckerCoreCorrectedRouteAudit
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Prop where
+  exactScaleFinalThreeBlocked :
+    ∀ _ :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint
+        scale_data,
+      False
+  endpointAudit :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+      input projection hkernel hchecker hlength).Audit
+  finalExactCertificate :
+    Nonempty
+      (SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreCertificate
+        scale_data)
+  actualProofLengthGap :
+    Nonempty
+      (ComputableSearchGapCertificate
+        (actualProofLengthMeasured scale_data))
+  computedNFromProofLengthGap :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+        input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+        (input.proof_length_gap.gap_for_polynomial_upper
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).polynomial).witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input projection hkernel hchecker hlength hrat).upperN
+  contradictionAtComputedN :
+    ∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False
+  endpointNotRational :
+    ¬ _root_.is_rational _root_.euler_mascheroni
+
+theorem finalExactCheckerCoreCorrectedRouteAudit_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    FinalExactCheckerCoreCorrectedRouteAudit
+      input projection hkernel hchecker hlength ∧
+      (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+        input projection hkernel hchecker hlength).Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+              input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+              (input.proof_length_gap.gap_for_polynomial_upper
+                (finalExactCheckerCoreCorrectedUpperTail
+                  input projection hkernel hchecker hlength hrat).U
+                (finalExactCheckerCoreCorrectedUpperTail
+                  input projection hkernel hchecker hlength hrat).polynomial).witness
+                (finalExactCheckerCoreCorrectedUpperTail
+                  input projection hkernel hchecker hlength hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+      input projection hkernel hchecker hlength
+  have hgap :
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) := by
+    simpa [actualProofLengthMeasured] using ⟨input.proof_length_gap⟩
+  exact
+    ⟨{
+      exactScaleFinalThreeBlocked := by
+        intro endpoint
+        exact finalThreeCertificateEndpoint_exactScale_impossible endpoint
+      endpointAudit := hclosure.1
+      finalExactCertificate := input.certificate_nonempty
+      actualProofLengthGap := hgap
+      computedNFromProofLengthGap :=
+        correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_computed_n_eq_proofLengthGapWitness
+          input projection hkernel hchecker hlength
+      contradictionAtComputedN := hclosure.2.2.2.2.1
+      endpointNotRational := hclosure.2.2.2.2.2 },
+      hclosure.1,
+      hgap,
+      correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_computed_n_eq_proofLengthGapWitness
+        input projection hkernel hchecker hlength,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
 /-! ## Payload-free checker-acceptance audit bridge -/
 
 /-- The assumption-free payload-elimination subtarget exposed at the hard-residual
