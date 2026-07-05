@@ -4041,9 +4041,21 @@ theorem computedCollisionN_eq_rejectionExtractorWitness
         scale_data interp)
     (hrat : _root_.is_rational _root_.euler_mascheroni) :
     frontier.computedCollisionNOfRationality hrat =
-      frontier.concreteLengthCodeFrontier.computedCollisionNOfRationality
-        hrat :=
-  rfl
+      frontier.lowerSearch.rejectionExtractor.witness
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).U
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).polynomial
+        (checkedSearchUpperTail
+          frontier.lowerSearch.toProofLengthFreeMonth12Candidate
+          frontier.concreteLengthCodeFrontier.checkedUpperProvider
+          hrat).upperN :=
+  frontier.concreteLengthCodeFrontier.computedCollisionN_eq_rejectionExtractorWitness
+    hrat
 
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -4101,6 +4113,48 @@ def theorem5ProviderOfFinalThreeCLineMinimalClosure
   theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
     (finalThreeCanonicalSearchCore endpoint) projection cline
 
+theorem theorem5ProviderOfFinalThreeCLineMinimalClosure_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (theorem5ProviderOfFinalThreeCLineMinimalClosure
+      endpoint projection cline).computedCollisionNOfRationality hrat =
+      (finalThreeCanonicalSearchCore endpoint).rejectionExtractor.witness
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              cline))
+          hrat).U
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              cline))
+          hrat).polynomial
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              cline))
+          hrat).upperN := by
+  exact
+    (theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
+      (finalThreeCanonicalSearchCore endpoint) projection cline).2.2.1 hrat
+
 theorem theorem5ProviderOfFinalThreeCLineMinimalClosure_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
@@ -4157,6 +4211,61 @@ def theorem5ProviderOfFinalThreeCLineKernelCheckerLength
     endpoint projection
     (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
       hkernel hchecker hlength)
+
+theorem theorem5ProviderOfFinalThreeCLineKernelCheckerLength_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        (finalThreeCanonicalSearchCore endpoint).scale_data
+        (finalThreeCanonicalSearchCore endpoint).checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (theorem5ProviderOfFinalThreeCLineKernelCheckerLength
+      endpoint projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      (finalThreeCanonicalSearchCore endpoint).rejectionExtractor.witness
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).U
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).polynomial
+        (checkedSearchUpperTail
+          (finalThreeCanonicalSearchCore endpoint).toProofLengthFreeMonth12Candidate
+          (projectUpperProviderForCanonicalSearchCore
+            (finalThreeCanonicalSearchCore endpoint)
+            projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+                hkernel hchecker hlength)))
+          hrat).upperN :=
+  theorem5ProviderOfFinalThreeCLineMinimalClosure_computed_n_eq
+    endpoint projection
+    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+      hkernel hchecker hlength)
+    hrat
 
 theorem theorem5ProviderOfFinalThreeCLineKernelCheckerLength_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
