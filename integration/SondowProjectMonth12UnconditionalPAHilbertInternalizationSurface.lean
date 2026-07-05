@@ -362,6 +362,46 @@ theorem proofLengthFreeMonth12Candidate_closure
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+theorem lowerSearchWitnessOfUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkedProofCodeMeasured
+          core.scale_data core.checkerSemantics.toProofCodeSemantics)) :
+    let w := lowerSearchWitnessOfUpper
+      core.toProofLengthFreeMonth12Candidate upper
+    w.n =
+        core.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      w.K =
+        core.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : core.checkerSemantics.Code,
+        c ∈
+          core.toProofLengthFreeMonth12Candidate.smallCodeSearch.candidates
+            w.n w.K →
+          ¬ core.checkerSemantics.checks c
+            (core.scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : core.checkerSemantics.Code,
+        core.checkerSemantics.checks c
+          (core.scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (core.checkerSemantics.size c : Real)) ∧
+      (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n :=
+  SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.lowerSearchWitnessOfUpper_closure
+    core.toProofLengthFreeMonth12Candidate upper
+
+theorem proofLengthFree_not_rational
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      (core.toProofLengthFreeMonth12Candidate).checkedMeasuredUpperProviderType) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  proof_length_free_candidate_not_rational
+    core.toProofLengthFreeMonth12Candidate upper_provider
+
 end PAHilbertCanonicalSearchCore
 
 /-- A canonical calibrated PA/Hilbert core already contains every
