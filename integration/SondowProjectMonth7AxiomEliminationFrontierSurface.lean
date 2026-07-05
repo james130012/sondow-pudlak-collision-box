@@ -273,6 +273,75 @@ structure Month7ProjectCheckedEquationOpenVector
   strengthened_accepted :
     _root_.StrengthenedPartialConsistencyAcceptedTruth
 
+structure Month7ProofCodeCheckerOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  proof_code_checker :
+    Nonempty (_root_.MiniHilbert.PAHilbertProofCodeCheckerRecognition interp)
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
+structure Month7CheckerProjectLengthEquationOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  checker_project_length_equation :
+    ∃ fallback_length : _root_.FormulaCode → Nat,
+      ∀ code : _root_.FormulaCode,
+        _root_.MiniHilbert.FormulaCodeHilbertRelevantCode code →
+          _root_.proof_length
+              _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize code =
+            interp.localProofCodeSemantics.projectLength fallback_length code
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
+structure Month7CanonicalCheckerProjectLengthEquationOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  proof_length_eq_canonical_checker_project_length :
+    ∀ code : _root_.FormulaCode,
+      _root_.MiniHilbert.FormulaCodeHilbertRelevantCode code →
+        _root_.proof_length
+            _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize code =
+          interp.localProofCodeSemantics.projectLength (fun _ => 0) code
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
+structure Month7CanonicalProofLengthCodeCalibrationOpenVector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  canonical_calibration :
+    (interp.localHilbertProofLengthCodeSemantics (fun _ => 0)).Calibration
+  partial_accepted_code :
+    Nonempty PartialConsistencyAcceptedCodeTruthCertificate
+  strengthened_accepted :
+    _root_.StrengthenedPartialConsistencyAcceptedTruth
+
 namespace Month7AxiomEliminationFrontierChecklist
 
 theorem partialPayloadTruth
@@ -586,6 +655,181 @@ theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_project_checked
   (month7_axiom_elimination_frontier_checklist_nonempty_iff_encoder_recognition_vector
     interp).trans
     (month7_encoder_recognition_vector_iff_project_checked_equation_vector
+      interp)
+
+theorem month7_encoder_recognition_vector_iff_proof_code_checker_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7EncoderRecognitionOpenVector interp ↔
+      Month7ProofCodeCheckerOpenVector interp := by
+  constructor
+  · intro h
+    exact
+      { proof_code_checker :=
+          (interp.projectCheckedRecognition_iff_proofCodeChecker).1
+            h.encoder_recognition
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    exact
+      { encoder_recognition :=
+          (interp.projectCheckedRecognition_iff_proofCodeChecker).2
+            h.proof_code_checker
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_project_checked_equation_vector_iff_proof_code_checker_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7ProjectCheckedEquationOpenVector interp ↔
+      Month7ProofCodeCheckerOpenVector interp :=
+  (month7_encoder_recognition_vector_iff_project_checked_equation_vector
+    interp).symm.trans
+    (month7_encoder_recognition_vector_iff_proof_code_checker_vector
+      interp)
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_proof_code_checker_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7ProofCodeCheckerOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_encoder_recognition_vector
+    interp).trans
+    (month7_encoder_recognition_vector_iff_proof_code_checker_vector
+      interp)
+
+theorem month7_proof_code_checker_vector_iff_checker_project_length_equation_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7ProofCodeCheckerOpenVector interp ↔
+      Month7CheckerProjectLengthEquationOpenVector interp := by
+  constructor
+  · intro h
+    rcases h.proof_code_checker with ⟨checker⟩
+    exact
+      { checker_project_length_equation :=
+          ⟨checker.fallback_length,
+            checker.proof_length_eq_checker_projectLength⟩
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    rcases h.checker_project_length_equation with
+      ⟨fallback_length, proof_length_eq_checker_project_length⟩
+    exact
+      { proof_code_checker :=
+          ⟨{ fallback_length := fallback_length
+             proof_length_eq_checker_projectLength :=
+               proof_length_eq_checker_project_length }⟩
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_checker_project_length_equation_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7CheckerProjectLengthEquationOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_proof_code_checker_vector
+    interp).trans
+    (month7_proof_code_checker_vector_iff_checker_project_length_equation_vector
+      interp)
+
+theorem month7_encoder_recognition_vector_iff_canonical_checker_project_length_equation_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7EncoderRecognitionOpenVector interp ↔
+      Month7CanonicalCheckerProjectLengthEquationOpenVector interp := by
+  constructor
+  · intro h
+    exact
+      { proof_length_eq_canonical_checker_project_length :=
+          (interp.projectCheckedRecognition_iff_localProofCodeProjectLength
+            (fun _ => 0)).1 h.encoder_recognition
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    exact
+      { encoder_recognition :=
+          (interp.projectCheckedRecognition_iff_localProofCodeProjectLength
+            (fun _ => 0)).2
+            h.proof_length_eq_canonical_checker_project_length
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_canonical_checker_project_length_equation_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7CanonicalCheckerProjectLengthEquationOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_encoder_recognition_vector
+    interp).trans
+    (month7_encoder_recognition_vector_iff_canonical_checker_project_length_equation_vector
+      interp)
+
+theorem month7_proof_code_checker_vector_iff_canonical_calibration_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Month7ProofCodeCheckerOpenVector interp ↔
+      Month7CanonicalProofLengthCodeCalibrationOpenVector interp := by
+  constructor
+  · intro h
+    exact
+      { canonical_calibration :=
+          (interp.proofCodeCheckerRecognition_iff_proofLengthCodeCalibration
+            (fun _ => 0)).1 h.proof_code_checker
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+  · intro h
+    exact
+      { proof_code_checker :=
+          (interp.proofCodeCheckerRecognition_iff_proofLengthCodeCalibration
+            (fun _ => 0)).2 h.canonical_calibration
+        partial_accepted_code := h.partial_accepted_code
+        strengthened_accepted := h.strengthened_accepted }
+
+theorem month7_axiom_elimination_frontier_checklist_nonempty_iff_canonical_calibration_vector
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7AxiomEliminationFrontierChecklist interp) ↔
+      Month7CanonicalProofLengthCodeCalibrationOpenVector interp :=
+  (month7_axiom_elimination_frontier_checklist_nonempty_iff_proof_code_checker_vector
+    interp).trans
+    (month7_proof_code_checker_vector_iff_canonical_calibration_vector
       interp)
 
 end SondowProjectMonth7AxiomEliminationFrontierSurface
