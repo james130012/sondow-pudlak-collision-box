@@ -625,5 +625,107 @@ theorem correctedActualEndpointOfMonth12Candidate_closure
       (correctedResidualOfMonth12Candidate candidate)
       actual_upper
 
+/-! ## Canonical-core adapter for the corrected actual route -/
+
+/-- Local spelling of the Month 12 candidate generated from the Month 11
+canonical checker core.  The fully qualified names avoid ambiguity between the
+checker-core namespace and the Month 12 adapter namespace. -/
+private def month12CandidateOfCanonicalCore
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore) :
+    Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+      core.scale_data :=
+  SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalCalibratedExactnessCore.toMonth12UnconditionalCandidate
+    core
+
+/-- A calibrated PA/Hilbert canonical core now feeds the corrected actual route
+without an intermediate hand-written candidate package. -/
+def correctedActualEndpointOfCanonicalCore
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured core.scale_data)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint core.scale_data :=
+  correctedActualEndpointOfMonth12Candidate
+    (month12CandidateOfCanonicalCore core)
+    actual_upper
+
+theorem correctedActualEndpointOfCanonicalCore_computed_n_eq
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured core.scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfCanonicalCore
+        core actual_upper).computedCollisionNOfRationality hrat =
+      core.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          core.rejectionExtractor
+          (correctedResidualOfMonth12Candidate
+            (month12CandidateOfCanonicalCore core))
+          actual_upper hrat).U
+        (corrected_actual_upper_tail
+          core.rejectionExtractor
+          (correctedResidualOfMonth12Candidate
+            (month12CandidateOfCanonicalCore core))
+          actual_upper hrat).polynomial
+        (corrected_actual_upper_tail
+          core.rejectionExtractor
+          (correctedResidualOfMonth12Candidate
+            (month12CandidateOfCanonicalCore core))
+          actual_upper hrat).upperN :=
+  correctedActualEndpointOfMonth12Candidate_computed_n_eq
+    (month12CandidateOfCanonicalCore core)
+    actual_upper hrat
+
+theorem correctedActualEndpointOfCanonicalCore_closure
+    (core :
+      SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertCanonicalCalibratedExactnessCore)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured core.scale_data)) :
+    (correctedActualEndpointOfCanonicalCore core actual_upper).Audit ∧
+      Nonempty
+        (Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+          core.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured core.scale_data)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        (correctedActualEndpointOfCanonicalCore
+            core actual_upper).computedCollisionNOfRationality hrat =
+          core.rejectionExtractor.witness
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              actual_upper hrat).U
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              actual_upper hrat).polynomial
+            (corrected_actual_upper_tail
+              core.rejectionExtractor
+              (correctedResidualOfMonth12Candidate
+                (month12CandidateOfCanonicalCore core))
+              actual_upper hrat).upperN) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfMonth12Candidate_closure
+      (month12CandidateOfCanonicalCore core)
+      actual_upper
+  exact
+    ⟨hclosure.2.1,
+      ⟨month12CandidateOfCanonicalCore core⟩,
+      hclosure.2.2.1,
+      correctedActualEndpointOfCanonicalCore_computed_n_eq core actual_upper,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
 end SondowProjectMonth11Month12HardResidualElimination
 end SondowMainCheckedCodeBridge

@@ -2939,6 +2939,32 @@ theorem transportLE_closure
 
 end Month9Month10AbstractMeasuredUpperProvider
 
+/-- The Sondow/S²₁ collapse conclusion is exactly an abstract measured upper
+provider for the project-local Pudlak collision box.  The accepted-certificate
+side condition carried by the collapse is retained upstream; this provider only
+exports the eventual polynomial upper inequality needed by the collision core. -/
+def projectBoxUpperProviderOfS21Collapse
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10AbstractMeasuredUpperProvider
+      sondowProjectLocalPudlakCollisionBox where
+  upper_under_rationality := by
+    intro hrat
+    rcases project_upper hrat with ⟨U, hU, upperN, hupper⟩
+    exact
+      ⟨U, hU, upperN, fun n hn => by
+        rcases hupper n hn with ⟨_haccepted, hle⟩
+        exact hle⟩
+
+theorem projectBoxUpperProviderOfS21Collapse_closure
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (projectBoxUpperProviderOfS21Collapse project_upper).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              sondowProjectLocalPudlakCollisionBox n ≤ U n) :=
+  (projectBoxUpperProviderOfS21Collapse project_upper).closure
+
 /-- Direct computable collision endpoint over an arbitrary measured box.  The
 root project proof-length box is absent from this statement; it only reappears
 through a later instantiation/transport bridge. -/

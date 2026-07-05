@@ -143,6 +143,154 @@ theorem proof_length_free_candidate_closure
     computedCollisionN_eq_rejectionExtractorWitness
       candidate upper_provider⟩
 
+/-- Proof-length-free canonical search core.  Unlike
+`PAHilbertCanonicalCalibratedExactnessCore`, this structure intentionally does
+not carry proof-length exactness; it is the clean source of the checker-side
+finite-search candidate and computed witness. -/
+structure PAHilbertCanonicalSearchCore : Type 2 where
+  checker : PAHilbertChecker
+  semantics : PAHilbertDerivabilitySemantics
+  recognizerExactness :
+    PAHilbertAxiomRecognizerExactness checker.recognizer semantics
+  canonicalInterface :
+    PAHilbertCanonicalCheckerInterface checker semantics
+  scale_data : InternalPudlakTheorem5ScaleData
+  checkerSemantics :
+    InternalPudlakTheorem5CheckerSemantics.{0} scale_data
+  finiteEnumeration :
+    InternalPudlakTheorem5CheckerFiniteEnumeration checkerSemantics
+  rejectionExtractor :
+    InternalPudlakTheorem5CheckerComputableRejectionExtractor
+      checkerSemantics finiteEnumeration
+  acceptedCodeExactness :
+    ∀ formulaCode : _root_.FormulaCode, ∀ code : Nat,
+      PAHilbertAcceptedProofCodeForFormulaCode checker formulaCode code →
+        PAHilbertFormulaCodeDerivable semantics formulaCode
+
+namespace PAHilbertCanonicalSearchCore
+
+def toProofLengthFreeMonth12Candidate
+    (core : PAHilbertCanonicalSearchCore) :
+    Month12ProofLengthFreeCheckerSearchCandidate core.scale_data where
+  formulaSyntax := PAHilbertFormula
+  syntaxCode := PAHilbertFormula.code
+  proofObject := PAHilbertProofObject
+  proofObjectCode := PAHilbertProofObject.code
+  proofObjectConclusion := PAHilbertProofObject.conclusion
+  recognizer := core.checker.recognizer
+  inferenceRule := PAHilbertInferenceRule
+  inferenceRuleName := id
+  checker := core.checker
+  checker_recognizer_eq := rfl
+  semantics := core.semantics
+  recognizerExactness := core.recognizerExactness
+  canonicalInterface := core.canonicalInterface
+  checkerSemantics := core.checkerSemantics
+  finiteEnumeration := core.finiteEnumeration
+  rejectionExtractor := core.rejectionExtractor
+  acceptedCodeExactness := core.acceptedCodeExactness
+
+theorem proofLengthFreeMonth12Candidate_closure
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      (core.toProofLengthFreeMonth12Candidate).checkedMeasuredUpperProviderType) :
+    (core.toProofLengthFreeMonth12Candidate
+      |>.toCheckedSearchCollisionEndpoint upper_provider).Audit ∧
+      Nonempty (Month12ProofLengthFreeCheckerSearchCandidate core.scale_data) ∧
+      Nonempty (Month9Month10CheckedSearchCollisionEndpoint core.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            core.scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        ((core.toProofLengthFreeMonth12Candidate
+          |>.toCheckedSearchCollisionEndpoint upper_provider)
+            |>.computedCollisionNOfRationality hrat) =
+          core.rejectionExtractor.witness
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate upper_provider hrat).U
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate upper_provider hrat).polynomial
+            (checkedSearchUpperTail
+              core.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN) := by
+  have hclosure :=
+    proof_length_free_candidate_closure
+      core.toProofLengthFreeMonth12Candidate upper_provider
+  exact
+    ⟨hclosure.1,
+      ⟨core.toProofLengthFreeMonth12Candidate⟩,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2⟩
+
+end PAHilbertCanonicalSearchCore
+
+/-- A canonical calibrated PA/Hilbert core already contains every
+proof-length-free component required by the Month 12 checker-search candidate:
+the executable checker, recognizer exactness, canonical checker interface,
+finite enumeration, rejection extractor, and accepted-code soundness. -/
+def PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    PAHilbertCanonicalSearchCore where
+  checker := core.checker
+  semantics := core.semantics
+  recognizerExactness := core.recognizerExactness
+  canonicalInterface := core.canonicalInterface
+  scale_data := core.scale_data
+  checkerSemantics := core.checkerSemantics
+  finiteEnumeration := core.finiteEnumeration
+  rejectionExtractor := core.rejectionExtractor
+  acceptedCodeExactness :=
+    core.accepted_decoded_code_to_formulaCode_derivable
+
+/-- Compatibility adapter from the calibrated core.  Its statement still
+mentions a calibrated core, hence axiom probes correctly see the proof-length
+field carried by that core.  For a proof-length-free probe, use
+`PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate`. -/
+def PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    Month12ProofLengthFreeCheckerSearchCandidate core.scale_data :=
+  (PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore
+    core).toProofLengthFreeMonth12Candidate
+
+theorem PAHilbertCanonicalCalibratedExactnessCore.proofLengthFreeMonth12Candidate_closure
+    (core : PAHilbertCanonicalCalibratedExactnessCore)
+    (upper_provider :
+      (PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+        core).checkedMeasuredUpperProviderType) :
+    ((PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+        core)
+      |>.toCheckedSearchCollisionEndpoint upper_provider).Audit ∧
+      Nonempty (Month12ProofLengthFreeCheckerSearchCandidate core.scale_data) ∧
+      Nonempty (Month9Month10CheckedSearchCollisionEndpoint core.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            core.scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        (((PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+          core)
+          |>.toCheckedSearchCollisionEndpoint upper_provider)
+            |>.computedCollisionNOfRationality hrat) =
+          core.rejectionExtractor.witness
+            (checkedSearchUpperTail
+              (PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+                core) upper_provider hrat).U
+            (checkedSearchUpperTail
+              (PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+                core) upper_provider hrat).polynomial
+            (checkedSearchUpperTail
+              (PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate
+                core) upper_provider hrat).upperN) := by
+  have hclosure :=
+    (PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore core)
+      |>.proofLengthFreeMonth12Candidate_closure upper_provider
+  simpa [
+    PAHilbertCanonicalCalibratedExactnessCore.toProofLengthFreeMonth12Candidate,
+    PAHilbertCanonicalCalibratedExactnessCore.toCanonicalSearchCore,
+    PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate]
+    using hclosure
+
 structure Month12ProofLengthTransportResidual
     {scale_data : InternalPudlakTheorem5ScaleData}
     (candidate :
@@ -294,6 +442,40 @@ theorem checker_minProofCodeSize_to_actualProofLength
       (candidate.checkerSemantics.minProofCodeSizeAt n : Real) :=
   candidate.proofLengthTransport n
 
+/-- Upgrade a canonical calibrated PA/Hilbert core to the full Month 12
+candidate.  The only extra field beyond the proof-length-free candidate is the
+family transport from root project `proof_length` to the checker minimum; it is
+obtained by specializing the core's calibrated proof-length exactness to
+`powerBoundRawCode n`. -/
+def PAHilbertCanonicalCalibratedExactnessCore.toMonth12UnconditionalCandidate
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+      core.scale_data where
+  formulaSyntax := PAHilbertFormula
+  syntaxCode := PAHilbertFormula.code
+  proofObject := PAHilbertProofObject
+  proofObjectCode := PAHilbertProofObject.code
+  proofObjectConclusion := PAHilbertProofObject.conclusion
+  recognizer := core.checker.recognizer
+  inferenceRule := PAHilbertInferenceRule
+  inferenceRuleName := id
+  checker := core.checker
+  checker_recognizer_eq := rfl
+  semantics := core.semantics
+  recognizerExactness := core.recognizerExactness
+  canonicalInterface := core.canonicalInterface
+  checkerSemantics := core.checkerSemantics
+  finiteEnumeration := core.finiteEnumeration
+  rejectionExtractor := core.rejectionExtractor
+  acceptedCodeExactness := core.accepted_decoded_code_to_formulaCode_derivable
+  minProofCodeSizeExactness :=
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+      core.proofLengthExactness
+  proofLengthTransport := by
+    intro n
+    simpa [actualProofLengthMeasured]
+      using core.proofLengthExactness.at_powerBoundRawCode n
+
 def actualProofLengthGapConstructor
     {scale_data : InternalPudlakTheorem5ScaleData}
     (candidate :
@@ -444,6 +626,37 @@ theorem month12_candidate_closure
       ⟨candidate.toMonth9Month10ComputableNoSmallProofLengthFrontier⟩,
       ⟨actualProofLengthGapConstructor candidate⟩,
       checker_minProofCodeSize_to_actualProofLength candidate⟩
+
+/-- Closure of the canonical-core-to-Month-12 upgrade.  This is the point where
+the checker-generated finite search, actual proof-length gap, and root
+proof-length transport are all available from one calibrated core. -/
+theorem PAHilbertCanonicalCalibratedExactnessCore.month12_unconditionalCandidate_closure
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    Nonempty
+        (Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+          core.scale_data) ∧
+      Nonempty PAHilbertCanonicalCalibratedExactnessCore ∧
+        Nonempty
+          InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{0} ∧
+        Nonempty Month9Month10ComputableNoSmallProofLengthFrontier.{0} ∧
+          Nonempty
+            (ComputableSearchGapCertificate
+              (actualProofLengthMeasured core.scale_data)) ∧
+          (∀ n : Nat,
+            actualProofLengthMeasured core.scale_data n =
+              (core.checkerSemantics.minProofCodeSizeAt n : Real)) := by
+  have hclosure :=
+    month12_candidate_closure
+      (PAHilbertCanonicalCalibratedExactnessCore.toMonth12UnconditionalCandidate
+        core)
+  exact
+    ⟨⟨PAHilbertCanonicalCalibratedExactnessCore.toMonth12UnconditionalCandidate
+        core⟩,
+      hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
 
 end SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 end SondowMainCheckedCodeBridge
