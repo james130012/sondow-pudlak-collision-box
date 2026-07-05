@@ -3344,6 +3344,121 @@ theorem month9_month10_proof_length_free_checked_gap_kernel_checklist :
       month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion_witness_eq
         cert U hU N
 
+/-! ## Project-length replacement for the checked measured route -/
+
+/-- The theorem-5 power-bound family measured by the concrete
+`ProofCodeSemantics.projectLength` replacement for root `proof_length`.
+
+The fallback is present because `projectLength` is a total formula-code
+semantics.  It is definitionally irrelevant on the theorem-5 raw family, where
+`powerBoundRawCode n` is tagged as relevant by construction. -/
+noncomputable def month9_month10_checkerProjectLengthMeasured
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (fallback : _root_.FormulaCode → Nat) :
+    Nat → Real :=
+  fun n =>
+    sem.projectLength fallback (scale_data.powerBoundRawCode n)
+
+/-- On the theorem-5 power-bound raw family, the checker-defined project length
+is exactly the checked minimum proof-code size already used by the
+proof-length-free kernel. -/
+theorem month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (fallback : _root_.FormulaCode → Nat) (n : Nat) :
+    month9_month10_checkerProjectLengthMeasured scale_data sem fallback n =
+      month9_month10_checkedProofCodeMeasured scale_data sem n := by
+  rw [month9_month10_checkerProjectLengthMeasured,
+    _root_.ProofCodeSemantics.projectLength_eq_minProofCodeSize]
+  rfl
+
+/-- Transport a checked computable gap certificate to the
+`ProofCodeSemantics.projectLength` replacement route.  This is the local bridge
+needed before any root `proof_length` calibration is consulted. -/
+def month9_month10_checkerProjectLengthGapOfCheckedGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (fallback : _root_.FormulaCode → Nat)
+    (gap :
+      ComputableSearchGapCertificate
+        (month9_month10_checkedProofCodeMeasured scale_data sem)) :
+    ComputableSearchGapCertificate
+      (month9_month10_checkerProjectLengthMeasured scale_data sem fallback) :=
+  transportComputableSearchGap
+    (fun n =>
+      (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+        scale_data sem fallback n).symm)
+    gap
+
+theorem month9_month10_checkerProjectLengthGapOfCheckedGap_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (fallback : _root_.FormulaCode → Nat)
+    (gap :
+      ComputableSearchGapCertificate
+        (month9_month10_checkedProofCodeMeasured scale_data sem))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((month9_month10_checkerProjectLengthGapOfCheckedGap fallback gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      (gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- Audit checklist for replacing the checked measured route by the concrete
+checker project-length semantics on exactly the theorem-5 raw-code family. -/
+structure Month9Month10CheckerProjectLengthReplacementChecklist : Prop where
+  projectLengthEqChecked :
+    ∀ scale_data : InternalPudlakTheorem5ScaleData,
+      ∀ sem :
+        _root_.ProofCodeSemantics.{0}
+          (InternalPudlakTheorem5PowerBoundRelevantCode scale_data),
+        ∀ fallback : _root_.FormulaCode → Nat,
+          ∀ n : Nat,
+            month9_month10_checkerProjectLengthMeasured
+                scale_data sem fallback n =
+              month9_month10_checkedProofCodeMeasured scale_data sem n
+  checkedGapTransportsToProjectLength :
+    ∀ scale_data : InternalPudlakTheorem5ScaleData,
+      ∀ sem :
+        _root_.ProofCodeSemantics.{0}
+          (InternalPudlakTheorem5PowerBoundRelevantCode scale_data),
+        ∀ fallback : _root_.FormulaCode → Nat,
+          ∀ gap : ComputableSearchGapCertificate
+            (month9_month10_checkedProofCodeMeasured scale_data sem),
+            Nonempty
+              { projectGap : ComputableSearchGapCertificate
+                  (month9_month10_checkerProjectLengthMeasured
+                    scale_data sem fallback) //
+                ∀ U : Nat → Real,
+                  ∀ hU : _root_.is_polynomial_bound U,
+                    ∀ N : Nat,
+                      (projectGap.gap_for_polynomial_upper U hU).witness N =
+                        (gap.gap_for_polynomial_upper U hU).witness N }
+
+theorem month9_month10_checker_project_length_replacement_checklist :
+    Month9Month10CheckerProjectLengthReplacementChecklist where
+  projectLengthEqChecked := by
+    intro scale_data sem fallback n
+    exact
+      month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+        scale_data sem fallback n
+  checkedGapTransportsToProjectLength := by
+    intro scale_data sem fallback gap
+    exact
+      ⟨⟨month9_month10_checkerProjectLengthGapOfCheckedGap fallback gap, by
+        intro U hU N
+        exact
+          month9_month10_checkerProjectLengthGapOfCheckedGap_witness_eq
+            fallback gap U hU N⟩⟩
+
 /-- Checked-measured direct endpoint.  It is still proof-length-free: it only
 knows the checker minimum, a computable search gap for that measured function,
 and a rationality upper tail for that same measured function. -/
