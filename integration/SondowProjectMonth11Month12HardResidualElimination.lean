@@ -640,6 +640,244 @@ theorem correctedActualEndpointOfProofLengthFreeCandidate_closure
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+/-! ## Proof-length-free candidate plus project upper route -/
+
+/-- The isolated transport residual also gives the checked/actual bridge
+needed to move a checked upper provider to the actual proof-length measurement.
+This keeps the lower-gap and upper-tail transports synchronized by the same
+single residual. -/
+def checkedMeasuredToActualBridgeOfProofLengthFreeCandidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      scale_data candidate.checkerSemantics.toProofCodeSemantics where
+  checked_eq_actual := by
+    intro n
+    simpa [month9_month10_checkedProofCodeMeasured,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+      using (residual.actualProofLengthMeasured_eq_minProofCodeSizeAt n).symm
+
+/-- Actual upper provider obtained from the Sondow project upper route, the
+same additive projection used by the theorem-5 source measurement, and the
+isolated proof-length transport residual. -/
+def actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (actualProofLengthMeasured scale_data) :=
+  actualUpperProviderOfProjectUpperAndAdditiveProjection
+    projection
+    (checkedMeasuredToActualBridgeOfProofLengthFreeCandidate
+      candidate residual)
+    project_upper
+
+/-- Corrected actual endpoint from proof-length-free checker/search data, the
+single actual-transport residual, additive project-box projection, and Sondow
+project upper route. -/
+def correctedActualEndpointOfProofLengthFreeCandidateProjectUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  correctedActualEndpointOfProofLengthFreeCandidate candidate residual
+    (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+      candidate residual projection project_upper)
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateProjectUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (correctedActualEndpointOfProofLengthFreeCandidateProjectUpper
+      candidate residual projection project_upper).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (correctedActualEndpointOfProofLengthFreeCandidateProjectUpper
+              candidate residual projection project_upper).computedCollisionNOfRationality hrat =
+            candidate.rejectionExtractor.witness
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection project_upper)
+                hrat).U
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection project_upper)
+                hrat).polynomial
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection project_upper)
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [correctedActualEndpointOfProofLengthFreeCandidateProjectUpper] using
+    correctedActualEndpointOfProofLengthFreeCandidate_closure
+      candidate residual
+      (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+        candidate residual projection project_upper)
+
+/-- C-line instantiation of the corrected actual endpoint.  This is the
+current cleanest combined route: checker/search is proof-length-free, the only
+proof-length field is the isolated actual-transport residual, and the Sondow
+upper source is the concrete C-line closure. -/
+def correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  correctedActualEndpointOfProofLengthFreeCandidateProjectUpper
+    candidate residual projection
+    (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+      cline)
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    (correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure
+      candidate residual projection cline).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure
+              candidate residual projection cline).computedCollisionNOfRationality hrat =
+            candidate.rejectionExtractor.witness
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).U
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).polynomial
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+                  candidate residual projection
+                  (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+                    cline))
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure] using
+    correctedActualEndpointOfProofLengthFreeCandidateProjectUpper_closure
+      candidate residual projection
+      (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+        cline)
+
+/-- Fully split C-line component entry point for the corrected actual endpoint.
+This removes the abstract `SondowProjectLocalS21CollapseConclusion` parameter
+from the final route and exposes the exact three current Sondow-side
+certificates. -/
+def correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure
+    candidate residual projection
+    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+      hkernel hchecker hlength)
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLength
+      candidate residual projection hkernel hchecker hlength).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure_closure
+      candidate residual projection
+      (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+        hkernel hchecker hlength)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
 /-! ## Month 12 full-candidate adapter for the corrected actual route -/
 
 /-- A full Month 12 checker internalization candidate supplies exactly the
