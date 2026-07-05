@@ -4906,6 +4906,42 @@ theorem computedNOfRationality_closure
       h.computedNOfUpper_closure
         (h.upperTailOfRationality upper_provider hrat)
 
+theorem not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  exact (h.computedNOfRationality_closure upper_provider hrat).2.2.2.2.2
+
+theorem not_rational_with_witness_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := h.upperTailOfRationality upper_provider hrat
+      let n := h.computedNOfRationality upper_provider hrat
+      upper.upperN ≤ n ∧
+        upper.U n <
+          month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics n ∧
+        month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics n ≤
+          upper.U n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  refine ⟨?_, h.not_rational upper_provider⟩
+  intro hrat
+  have hclosure := h.computedNOfRationality_closure upper_provider hrat
+  exact ⟨hclosure.1, hclosure.2.2.2.1,
+    hclosure.2.2.2.2.1, hclosure.2.2.2.2.2⟩
+
 end Month9Month10ProofLengthFreeExtractorHandoff
 
 /-- The only place where a checker minimum becomes root proof length on the
