@@ -508,6 +508,36 @@ abbrev Month6ProofCodeCheckerCalibrationFrontierCertificate
   _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month6ProofCodeCheckerCalibrationFrontierCertificate
     interp
 
+abbrev Month7ProofLengthFreeCheckerKernelCertificate
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :=
+  _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month7ProofLengthFreeCheckerKernelCertificate
+    interp
+
+abbrev Month7GlobalProofLengthRealizationFrontierCertificate
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :=
+  _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month7GlobalProofLengthRealizationFrontierCertificate
+    interp
+
+abbrev Month7ProofLengthEliminationFrontierCertificate
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :=
+  _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.Month7ProofLengthEliminationFrontierCertificate
+    interp
+
 abbrev Month6LocalConventionBoundaryCertificate
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
     {Ax : L.BoundedFormula α n → Prop}
@@ -2308,6 +2338,32 @@ theorem month6_project_checked_semantics_iff_checker_calibration_frontier
         _root_.MiniHilbert.FormulaCodeHilbertRelevantCode ↔
       Nonempty (Month6ProofCodeCheckerCalibrationFrontierCertificate interp) :=
   _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.projectCheckedCodeSemantics_iff_checkerCalibrationFrontier
+    interp
+
+theorem month7_checker_kernel_nonempty
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nonempty (Month7ProofLengthFreeCheckerKernelCertificate interp) :=
+  _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.month7ProofLengthFreeCheckerKernel_nonempty
+    interp
+
+theorem month7_project_checked_semantics_iff_elimination_frontier
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        interp.localCheckedCodeProofLength
+        _root_.MiniHilbert.FormulaCodeHilbertRelevantCode ↔
+      Nonempty (Month7ProofLengthEliminationFrontierCertificate interp) :=
+  _root_.MiniHilbert.Month6ProofLengthCalibrationInternalizationSurface.projectCheckedCodeSemantics_iff_month7ProofLengthEliminationFrontier
     interp
 
 theorem month6_project_checked_semantics_iff_proof_length_convention_boundary
