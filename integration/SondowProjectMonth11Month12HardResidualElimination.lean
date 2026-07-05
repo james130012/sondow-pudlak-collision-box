@@ -534,6 +534,112 @@ theorem corrected_actual_measured_endpoint_closure
       (corrected_actual_measured_endpoint
         extractor residual actual_upper).not_rational⟩
 
+/-! ## Proof-length-free candidate plus isolated transport residual -/
+
+/-- A proof-length-free Month 12 checker-search candidate can enter the
+corrected actual route once, and only once, the isolated transport residual is
+provided.  This avoids bundling the transport equality into the checker/search
+candidate itself. -/
+def correctedResidualOfProofLengthFreeCandidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data}
+    (residual : Month12ProofLengthTransportResidual candidate) :
+    CorrectedActualMeasuredResidual candidate.checkerSemantics where
+  actual_transport :=
+    actual_transport_of_checker_proof_length_family_exactness
+      residual.toCheckerProofLengthFamilyExactness
+
+/-- Corrected actual endpoint from the proof-length-free checker/search
+candidate plus the isolated transport residual. -/
+def correctedActualEndpointOfProofLengthFreeCandidate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  corrected_actual_measured_endpoint
+    candidate.rejectionExtractor
+    (correctedResidualOfProofLengthFreeCandidate residual)
+    actual_upper
+
+theorem correctedActualEndpointOfProofLengthFreeCandidate_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfProofLengthFreeCandidate
+        candidate residual actual_upper).computedCollisionNOfRationality hrat =
+      candidate.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          actual_upper hrat).U
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          actual_upper hrat).polynomial
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          actual_upper hrat).upperN :=
+  corrected_actual_computed_n_eq_extractor_witness
+    candidate.rejectionExtractor
+    (correctedResidualOfProofLengthFreeCandidate residual)
+    actual_upper hrat
+
+theorem correctedActualEndpointOfProofLengthFreeCandidate_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    (correctedActualEndpointOfProofLengthFreeCandidate
+      candidate residual actual_upper).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (correctedActualEndpointOfProofLengthFreeCandidate
+              candidate residual actual_upper).computedCollisionNOfRationality hrat =
+            candidate.rejectionExtractor.witness
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                actual_upper hrat).U
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                actual_upper hrat).polynomial
+              (corrected_actual_upper_tail
+                candidate.rejectionExtractor
+                (correctedResidualOfProofLengthFreeCandidate residual)
+                actual_upper hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    corrected_actual_measured_endpoint_closure
+      candidate.rejectionExtractor
+      (correctedResidualOfProofLengthFreeCandidate residual)
+      actual_upper
+  exact
+    ⟨hclosure.2.1,
+      hclosure.2.2.1,
+      correctedActualEndpointOfProofLengthFreeCandidate_computed_n_eq
+        candidate residual actual_upper,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
 /-! ## Month 12 full-candidate adapter for the corrected actual route -/
 
 /-- A full Month 12 checker internalization candidate supplies exactly the
