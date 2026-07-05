@@ -686,6 +686,29 @@ theorem computed_n_contradiction
     h.strengthened_to_partial h.transfer_to_graft h.project_gap
     h.project_upper hrat
 
+theorem computedCollisionN_project_upper_lower_trace
+    (h : Month9Month10NoSmallCoreResidualEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.toProjectChecklist.upperTailOfRationality hrat
+    upper.U (h.computedCollisionNOfRationality hrat) <
+        sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ∧
+      sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ≤
+        upper.U (h.computedCollisionNOfRationality hrat) ∧
+      False := by
+  let witness := h.toProjectChecklist.projectCollisionWitnessOfRationality hrat
+  have hlower :
+      (h.toProjectChecklist.upperTailOfRationality hrat).U witness.n <
+        sondowProjectLocalPudlakCollisionBox witness.n :=
+    witness.lower_at_n
+  have hupper :
+      sondowProjectLocalPudlakCollisionBox witness.n ≤
+        (h.toProjectChecklist.upperTailOfRationality hrat).U witness.n :=
+    witness.upper_at_n
+  dsimp [computedCollisionNOfRationality, witness] at hlower hupper ⊢
+  exact ⟨hlower, hupper, (not_lt_of_ge hupper) hlower⟩
+
 theorem not_rational
     (h : Month9Month10NoSmallCoreResidualEndpoint) :
     ¬ _root_.is_rational _root_.euler_mascheroni :=
