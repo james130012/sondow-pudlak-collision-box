@@ -2144,6 +2144,35 @@ theorem cLineKernelCheckerLengthProvider_closure
     theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
       input.toCanonicalSearchCore projection hkernel hchecker hlength
 
+def concreteProofFamilyProjectionOfLengthCodeAtEq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hsource :
+      ∀ m : Nat,
+        input.lengthCodeAt m =
+          target_family.rightConjElim.minCheckedCodeSize m) :
+    InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+      scale_data input.checkerSemantics.toProofCodeSemantics
+      target_family where
+  theorem5_source_eq_family_source := by
+    intro m
+    change input.checkerSemantics.minProofCodeSizeAt m =
+      target_family.rightConjElim.minCheckedCodeSize m
+    have hmin :
+        input.checkerSemantics.minProofCodeSizeAt m =
+          input.lengthCodeAt m :=
+      concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+        scale_data input.lengthCodeAt m input.powerBoundRawCode_injective
+    exact hmin.trans (hsource m)
+
 def toConcreteProofFamilyCheckedUpperProvider
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
@@ -2258,6 +2287,84 @@ def toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProvider
   input.toProofLengthAxiomFreeConcreteProofFamilyTargetProvider
     projection
     (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial hpoly)
+
+def toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hsource :
+      ∀ m : Nat,
+        input.lengthCodeAt m =
+          target_family.rightConjElim.minCheckedCodeSize m)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProvider
+    (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
+    hpoly
+
+theorem concreteProofFamilyLengthPolynomialProviderOfEq_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hsource :
+      ∀ m : Nat,
+        input.lengthCodeAt m =
+          target_family.rightConjElim.minCheckedCodeSize m)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    (input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+      hsource hpoly).Audit ∧
+      (input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+        hsource hpoly).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+            hsource hpoly).computedCollisionNOfRationality hrat =
+            input.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toConcreteProofFamilyCheckedUpperProvider
+                  (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
+                  (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+                    hpoly))
+                hrat).U
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toConcreteProofFamilyCheckedUpperProvider
+                  (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
+                  (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+                    hpoly))
+                hrat).polynomial
+              (checkedSearchUpperTail
+                input.toProofLengthFreeMonth12Candidate
+                (input.toConcreteProofFamilyCheckedUpperProvider
+                  (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
+                  (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial
+                    hpoly))
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  exact
+    input.concreteProofFamilyTargetProvider_closure
+      (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
+      (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial hpoly)
 
 theorem concreteProofFamilyLengthPolynomialProvider_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
