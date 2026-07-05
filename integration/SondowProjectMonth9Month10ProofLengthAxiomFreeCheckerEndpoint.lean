@@ -810,6 +810,472 @@ theorem theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper_closure
       (theorem5ProviderOfCanonicalSearchCorePayloadFreeUpper
         core projection upper_provider).not_rational⟩
 
+/-! ## Generic checked-target upper instantiation -/
+
+/-- Generic checked-target projection for theorem 5.  It separates the
+source-to-target `+2` proof from any particular local-Hilbert realization, so a
+future internal checker proof can instantiate it without unfolding payload or
+root proof-length vocabulary. -/
+structure InternalPudlakTheorem5CheckedTargetProjection
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (targetMeasured : Nat → Nat) : Prop where
+  source_le_target_add_two :
+    ∀ m : Nat,
+      sem.minProofCodeSize (scale_data.powerBoundRawCode m) ⟨m, rfl⟩ ≤
+        targetMeasured m + 2
+
+/-- Polynomial upper provider for an abstract checked target measurement. -/
+structure InternalPudlakTheorem5CheckedTargetUpperProvider
+    (targetMeasured : Nat → Nat) : Type where
+  upper_under_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (targetMeasured m : Real) ≤ U m
+
+namespace InternalPudlakTheorem5CheckedTargetUpperProvider
+
+structure Audit
+    {targetMeasured : Nat → Nat}
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured) :
+    Prop where
+  upperUnderRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (targetMeasured m : Real) ≤ U m
+
+theorem audit
+    {targetMeasured : Nat → Nat}
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured) :
+    upper_provider.Audit where
+  upperUnderRationality := upper_provider.upper_under_rationality
+
+theorem closure
+    {targetMeasured : Nat → Nat}
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider targetMeasured) :
+    upper_provider.Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            (targetMeasured m : Real) ≤ U m) :=
+  ⟨upper_provider.audit, upper_provider.upper_under_rationality⟩
+
+end InternalPudlakTheorem5CheckedTargetUpperProvider
+
+/-- Transport an abstract checked-target upper bound to the theorem-5 checked
+source measurement through a source-to-target `+2` projection. -/
+def checkedUpperProviderOfCheckedTargetProjectionAndUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        scale_data sem targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider
+        targetMeasured) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  upper_under_rationality := by
+    intro hrat
+    rcases upper_provider.upper_under_rationality hrat with
+      ⟨U, hU, upperN, hupper⟩
+    refine
+      ⟨fun m => U m + 2,
+        _root_.is_polynomial_bound_add_const hU (by norm_num),
+        upperN,
+        ?_⟩
+    intro m hm
+    have hsource :
+        (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
+          ⟨m, rfl⟩ : Real) ≤ (targetMeasured m : Real) + 2 := by
+      exact_mod_cast projection.source_le_target_add_two m
+    have htarget := hupper m hm
+    have hchecked :
+        (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
+          ⟨m, rfl⟩ : Real) ≤ U m + 2 := by
+      nlinarith
+    simpa [month9_month10_checkedProofCodeMeasured] using hchecked
+
+theorem checkedUpperProviderOfCheckedTargetProjectionAndUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        scale_data sem targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider
+        targetMeasured) :
+    (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+      projection upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            month9_month10_checkedProofCodeMeasured scale_data sem m ≤
+              U m) :=
+  (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+    projection upper_provider).closure
+
+/-- Theorem-5 provider from a generic checked-target projection and target
+upper provider. -/
+def theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider
+        targetMeasured) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCheckedUpper core
+    (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+      projection upper_provider)
+
+theorem theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider
+        targetMeasured) :
+    (theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+      core projection upper_provider).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+        core projection upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+            core projection upper_provider).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+                  projection upper_provider)
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+                  projection upper_provider)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+                  projection upper_provider)
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
+      core
+      (checkedUpperProviderOfCheckedTargetProjectionAndUpper
+        projection upper_provider)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2⟩
+
+/-! ## Local-Hilbert checked target upper instantiation -/
+
+/-- Local-Hilbert source projection for the checked theorem-5 measurement.  This
+is the proof-length-free half of
+`InternalPudlakTheorem5LocalHilbertProjectBoxProjection`: it keeps the
+theorem-5 source identification and the local `source ≤ target + 2` projection,
+but deliberately does not identify the target with the root proof-length
+project box. -/
+structure InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Prop where
+  local_projection :
+    _root_.MiniHilbert.LocalHilbertProofCodeProjectionModel interp
+  theorem5_source_eq_local_source :
+    ∀ m : Nat,
+      sem.minProofCodeSize (scale_data.powerBoundRawCode m) ⟨m, rfl⟩ =
+        interp.localHilbertProofCodeSemantics.minProofCodeSize
+          (_root_.partialConsistencyCode m) (Or.inl ⟨m, rfl⟩)
+
+namespace InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+
+def targetMeasured
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Nat → Nat :=
+  fun m =>
+    interp.localHilbertProofCodeSemantics.minProofCodeSize
+      (_root_.sondowReflectionGraftCode m) (Or.inr ⟨m, rfl⟩)
+
+def toCheckedTargetProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        scale_data sem interp) :
+    InternalPudlakTheorem5CheckedTargetProjection
+      scale_data sem (targetMeasured interp) where
+  source_le_target_add_two := by
+    intro m
+    rw [projection.theorem5_source_eq_local_source m]
+    exact projection.local_projection.source_le_target_add_two m
+
+end InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+
+/-- Upper provider for the local-Hilbert target checked size.  This is the
+checked-code version of the Sondow upper route target: it bounds the local
+reflection-graft target minimum directly, without mentioning root
+`proof_length`. -/
+structure InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    (interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign) :
+    Type (max u v w) where
+  upper_under_rationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (interp.localHilbertProofCodeSemantics.minProofCodeSize
+            (_root_.sondowReflectionGraftCode m) (Or.inr ⟨m, rfl⟩) :
+            Real) ≤ U m
+
+namespace InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+
+structure Audit
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp) :
+    Prop where
+  upperUnderRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+        ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+          (interp.localHilbertProofCodeSemantics.minProofCodeSize
+            (_root_.sondowReflectionGraftCode m) (Or.inr ⟨m, rfl⟩) :
+            Real) ≤ U m
+
+theorem audit
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp) :
+    upper_provider.Audit where
+  upperUnderRationality := upper_provider.upper_under_rationality
+
+theorem closure
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider interp) :
+    upper_provider.Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            (interp.localHilbertProofCodeSemantics.minProofCodeSize
+              (_root_.sondowReflectionGraftCode m) (Or.inr ⟨m, rfl⟩) :
+              Real) ≤ U m) :=
+  ⟨upper_provider.audit, upper_provider.upper_under_rationality⟩
+
+end InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+
+/-- Transport a local-Hilbert target upper provider through the local projection
+to the theorem-5 checked source measurement.  This is the checked-code analogue
+of the project-box upper bridge and does not unfold the root proof-length box. -/
+def checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        scale_data sem interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+        interp) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  upper_under_rationality := by
+    intro hrat
+    rcases upper_provider.upper_under_rationality hrat with
+      ⟨U, hU, upperN, hupper⟩
+    refine
+      ⟨fun m => U m + 2,
+        _root_.is_polynomial_bound_add_const hU (by norm_num),
+        upperN,
+        ?_⟩
+    intro m hm
+    have hlocal :
+        (interp.localHilbertProofCodeSemantics.minProofCodeSize
+          (_root_.partialConsistencyCode m) (Or.inl ⟨m, rfl⟩) : Real) ≤
+          (interp.localHilbertProofCodeSemantics.minProofCodeSize
+            (_root_.sondowReflectionGraftCode m) (Or.inr ⟨m, rfl⟩) :
+            Real) + 2 := by
+      exact_mod_cast projection.local_projection.source_le_target_add_two m
+    have htarget := hupper m hm
+    have hchecked :
+        (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
+          ⟨m, rfl⟩ : Real) ≤ U m + 2 := by
+      rw [projection.theorem5_source_eq_local_source m]
+      nlinarith
+    simpa [month9_month10_checkedProofCodeMeasured] using hchecked
+
+theorem checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        scale_data sem interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+        interp) :
+    (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+      projection upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat, ∀ m : Nat, upperN ≤ m →
+            month9_month10_checkedProofCodeMeasured scale_data sem m ≤
+              U m) :=
+  (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+    projection upper_provider).closure
+
+/-- Theorem-5 provider using the local-Hilbert checked target upper route. -/
+def theorem5ProviderOfCanonicalSearchCoreLocalHilbertTargetUpper
+    (core : PAHilbertCanonicalSearchCore)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+        interp) :
+    ProofLengthAxiomFreeInternalTheorem5Provider :=
+  theorem5ProviderOfCanonicalSearchCoreCheckedUpper core
+    (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+      projection upper_provider)
+
+theorem theorem5ProviderOfCanonicalSearchCoreLocalHilbertTargetUpper_closure
+    (core : PAHilbertCanonicalSearchCore)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics interp)
+    (upper_provider :
+      InternalPudlakTheorem5LocalHilbertCheckedTargetUpperProvider
+        interp) :
+    (theorem5ProviderOfCanonicalSearchCoreLocalHilbertTargetUpper
+      core projection upper_provider).Audit ∧
+      (theorem5ProviderOfCanonicalSearchCoreLocalHilbertTargetUpper
+        core projection upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (theorem5ProviderOfCanonicalSearchCoreLocalHilbertTargetUpper
+            core projection upper_provider).computedCollisionNOfRationality hrat =
+            core.rejectionExtractor.witness
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).U
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).polynomial
+              (checkedSearchUpperTail
+                core.toProofLengthFreeMonth12Candidate
+                (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+                  projection upper_provider)
+                hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
+      core
+      (checkedUpperProviderOfLocalHilbertProjectionAndTargetUpper
+        projection upper_provider)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.2.2.1,
+      hclosure.2.2.2.2.2.2⟩
+
 /-! ## C-line instantiation of the project upper route -/
 
 /-- Replace the abstract Sondow project upper input by the current concrete
