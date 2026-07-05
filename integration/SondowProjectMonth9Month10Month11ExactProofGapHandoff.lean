@@ -4219,6 +4219,146 @@ theorem checkerProfile_contradiction_at_computedN
     (checkerProfile_upper_at_computedN profile upper_provider hrat))
     (checkerProfile_lower_at_computedN profile upper_provider hrat)
 
+/-- A concrete checker rejection extractor directly supplies the proof-length-free
+lower-gap source. -/
+def lowerGapSourceOfCheckerComputableRejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration) :
+    PAHilbertProofLengthFreeLowerGapSource :=
+  lowerGapSourceOfCheckerComputableSearchProfile
+    extractor.toCheckerComputableSearchProfile
+
+noncomputable def rejectionExtractorUpperTailOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (month9_month10_checkedProofCodeMeasured
+        scale_data checker.toProofCodeSemantics) :=
+  checkerProfileUpperTailOfRationality
+    extractor.toCheckerComputableSearchProfile upper_provider hrat
+
+noncomputable def rejectionExtractorComputedNOfRationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  extractor.witness
+    (rejectionExtractorUpperTailOfRationality
+      extractor upper_provider hrat).U
+    (rejectionExtractorUpperTailOfRationality
+      extractor upper_provider hrat).polynomial
+    (rejectionExtractorUpperTailOfRationality
+      extractor upper_provider hrat).upperN
+
+theorem rejectionExtractorComputedN_eq_checkerProfileComputedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    rejectionExtractorComputedNOfRationality extractor upper_provider hrat =
+      checkerProfileComputedNOfRationality
+        extractor.toCheckerComputableSearchProfile upper_provider hrat :=
+  rfl
+
+theorem rejectionExtractor_lower_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (rejectionExtractorUpperTailOfRationality
+      extractor upper_provider hrat).U
+        (rejectionExtractorComputedNOfRationality
+          extractor upper_provider hrat) <
+      month9_month10_checkedProofCodeMeasured
+        scale_data checker.toProofCodeSemantics
+        (rejectionExtractorComputedNOfRationality
+          extractor upper_provider hrat) :=
+  checkerProfile_lower_at_computedN
+    extractor.toCheckerComputableSearchProfile upper_provider hrat
+
+theorem rejectionExtractor_upper_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    month9_month10_checkedProofCodeMeasured
+        scale_data checker.toProofCodeSemantics
+        (rejectionExtractorComputedNOfRationality
+          extractor upper_provider hrat) ≤
+      (rejectionExtractorUpperTailOfRationality
+        extractor upper_provider hrat).U
+        (rejectionExtractorComputedNOfRationality
+          extractor upper_provider hrat) :=
+  checkerProfile_upper_at_computedN
+    extractor.toCheckerComputableSearchProfile upper_provider hrat
+
+theorem rejectionExtractor_contradiction_at_computedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (not_lt_of_ge
+    (rejectionExtractor_upper_at_computedN
+      extractor upper_provider hrat))
+    (rejectionExtractor_lower_at_computedN
+      extractor upper_provider hrat)
+
 /-- The only place where a checker minimum becomes root proof length on the
 theorem-5 raw family.  Keeping this as a separate bridge prevents the checked
 collision kernel from depending on `proof_length`. -/
