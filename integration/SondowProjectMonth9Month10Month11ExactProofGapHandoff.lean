@@ -5472,6 +5472,41 @@ def projectLengthUpperProviderOfChecked
         scale_data h.checkerSemantics.toProofCodeSemantics fallback n).symm)
     upper_provider
 
+/-- Transport a checked-measured explicit upper provider to the checker
+`projectLength` route.  This is the no-`choose` counterpart of
+`projectLengthUpperProviderOfChecked`: it preserves the selected polynomial
+upper function and cutoff under rationality. -/
+noncomputable def projectLengthExplicitUpperProviderOfChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    Month9Month10ExplicitMeasuredUpperProvider
+      (month9_month10_checkerProjectLengthMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback) :=
+  Month9Month10ExplicitMeasuredUpperProvider.transportEq
+    (fun n =>
+      (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback n).symm)
+    upper_provider
+
+theorem projectLengthExplicitUpperProviderOfChecked_upperN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ((h.projectLengthExplicitUpperProviderOfChecked fallback upper_provider)
+      |>.upperTailOfRationality hrat).upperN =
+      (upper_provider.upperTailOfRationality hrat).upperN :=
+  rfl
+
 /-- Direct computable collision endpoint over the checker-induced project-length
 measurement.  This is the proof-length-free endpoint parallel to the checked
 minimum route, before any transport to root `proof_length` is attempted. -/
@@ -6736,6 +6771,73 @@ theorem projectLengthExplicitUpperProvider_not_rational
   intro hrat
   exact
     (input.projectLengthExplicitUpperProvider_gapWitnessCertificate
+      fallback upper_provider hrat).2.2.2.2.2
+
+/-- Checked-upper-provider version of the strict singleton project-length
+certificate.  The explicit checked-measured upper provider is transported to
+checker `projectLength`, preserving the selected upper cutoff; the final
+collision index remains the original singleton gap witness. -/
+theorem projectLengthExplicitCheckedUpperProvider_gapWitnessCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let core := input.toCanonicalSearchExactnessCore
+    let handoff := core.toProofLengthFreeExtractorHandoff
+    let project_upper_provider :=
+      handoff.projectLengthExplicitUpperProviderOfChecked fallback
+        upper_provider
+    let measured :=
+      month9_month10_checkerProjectLengthMeasured
+        scale_data core.checkerSemantics.toProofCodeSemantics fallback
+    let upper := project_upper_provider.upperTailOfRationality hrat
+    let projectGap := handoff.projectLengthGap fallback
+    let bigN :=
+      (input.gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN
+    (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN = bigN ∧
+      handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN ∧
+        upper.upperN ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  exact
+    input.projectLengthExplicitUpperProvider_gapWitnessCertificate
+      fallback
+      (input.toCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff
+        |>.projectLengthExplicitUpperProviderOfChecked fallback
+          upper_provider)
+      hrat
+
+/-- Strict singleton project-length closure from an explicit checked-measured
+upper provider.  This is closer to the upstream theorem-5 checked target data
+than the project-length-provider endpoint and still avoids root `proof_length`
+and payload assumptions. -/
+theorem projectLengthExplicitCheckedUpperProvider_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  exact
+    (input.projectLengthExplicitCheckedUpperProvider_gapWitnessCertificate
       fallback upper_provider hrat).2.2.2.2.2
 
 theorem proofLengthFree_closure_toCheckedPowerBoundLowerBound
