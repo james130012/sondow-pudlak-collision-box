@@ -2180,6 +2180,21 @@ def toEventualStrictGap
       ⟨gap.witness N, gap.witness_ge_upper N,
         gap.strict_at_witness N⟩
 
+noncomputable def ofEventuallyAtTop
+    (h : ∀ᶠ n in Filter.atTop, U n < measured n) :
+    TailStrictGapCertificate U measured where
+  threshold := Classical.choose (Filter.eventually_atTop.mp h)
+  strict_after := by
+    intro n hn
+    exact (Classical.choose_spec (Filter.eventually_atTop.mp h)) n hn
+
+theorem ofEventuallyAtTop_strict_after
+    (h : ∀ᶠ n in Filter.atTop, U n < measured n)
+    (n : Nat)
+    (hn : (ofEventuallyAtTop h).threshold ≤ n) :
+    U n < measured n :=
+  (ofEventuallyAtTop h).strict_after n hn
+
 theorem computed_witness_contradiction
     (gap : TailStrictGapCertificate U measured)
     (upperN : Nat)
@@ -4775,6 +4790,27 @@ def toComputableSearchGapCertificate
     ComputableSearchGapCertificate measured where
   gap_for_polynomial_upper := fun U hU =>
     (gap.gap_for_polynomial_upper U hU).toSearchStrictGapCertificate
+
+noncomputable def ofEventuallyStrict
+    {measured : Nat → Real}
+    (h :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ n in Filter.atTop, U n < measured n) :
+    ComputableGapCertificate measured where
+  gap_for_polynomial_upper := fun U hU =>
+    TailStrictGapCertificate.ofEventuallyAtTop (h U hU)
+
+theorem ofEventuallyStrict_strict_after
+    {measured : Nat → Real}
+    (h :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ n in Filter.atTop, U n < measured n)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U)
+    (n : Nat)
+    (hn :
+      ((ofEventuallyStrict h).gap_for_polynomial_upper U hU).threshold ≤ n) :
+    U n < measured n :=
+  ((ofEventuallyStrict h).gap_for_polynomial_upper U hU).strict_after n hn
 
 def collisionWitness
     {measured : Nat → Real}
