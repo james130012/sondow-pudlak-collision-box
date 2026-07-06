@@ -6675,6 +6675,69 @@ theorem projectLengthExplicitUpper_gapWitnessCertificate
       hupper,
       (not_lt_of_ge hupper) hlower⟩
 
+/-- Provider-level version of
+`projectLengthExplicitUpper_gapWitnessCertificate`.  Under rationality, an
+explicit project-length upper provider selects the upper certificate, and the
+computed collision index is still exactly the original strict singleton gap
+witness. -/
+theorem projectLengthExplicitUpperProvider_gapWitnessCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkerProjectLengthMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics
+          fallback))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let core := input.toCanonicalSearchExactnessCore
+    let handoff := core.toProofLengthFreeExtractorHandoff
+    let measured :=
+      month9_month10_checkerProjectLengthMeasured
+        scale_data core.checkerSemantics.toProofCodeSemantics fallback
+    let upper := upper_provider.upperTailOfRationality hrat
+    let projectGap := handoff.projectLengthGap fallback
+    let bigN :=
+      (input.gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN
+    (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN = bigN ∧
+      handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN ∧
+        upper.upperN ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  exact
+    input.projectLengthExplicitUpper_gapWitnessCertificate fallback
+      (upper_provider.upperTailOfRationality hrat)
+
+/-- The strict singleton project-length route closes rationality directly from
+an explicit upper provider.  This is the proof-length-free endpoint used for
+the computable-`N` route: no root `proof_length` or payload bridge appears in
+the statement. -/
+theorem projectLengthExplicitUpperProvider_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10ExplicitMeasuredUpperProvider
+        (month9_month10_checkerProjectLengthMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics
+          fallback)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  exact
+    (input.projectLengthExplicitUpperProvider_gapWitnessCertificate
+      fallback upper_provider hrat).2.2.2.2.2
+
 theorem proofLengthFree_closure_toCheckedPowerBoundLowerBound
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
