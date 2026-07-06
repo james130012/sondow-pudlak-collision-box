@@ -6275,6 +6275,22 @@ theorem computableSearchGapCertificateOfFrequentlyStrict_witness_spec
   computableSearchGapCertificateOfWitnessExists_witness_spec
     (fun U hU => Filter.frequently_atTop.mp (hfreq U hU)) U hU N
 
+theorem frequentlyStrict_of_eventuallyStrict
+    {measured : Nat → Real}
+    (heventually :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ n in Filter.atTop, U n < measured n) :
+    ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+      ∃ᶠ n in Filter.atTop, U n < measured n := by
+  intro U hU
+  refine Filter.frequently_atTop.2 ?_
+  rcases Filter.eventually_atTop.mp (heventually U hU) with ⟨N0, hN0⟩
+  intro N
+  exact
+    ⟨max N N0,
+      Nat.le_max_left N N0,
+      hN0 (max N N0) (Nat.le_max_right N N0)⟩
+
 /-- Proof-length-free strict-scale singleton-gap input.  Compared with the
 older calibrated singleton route, this deliberately removes the root
 `proof_length` exactness field: strict scale growth gives raw-code injectivity,
@@ -6364,6 +6380,19 @@ noncomputable def ofFrequentlyStrictLength
     scale_strict
   gap :=
     computableSearchGapCertificateOfFrequentlyStrict hfreq
+
+noncomputable def ofEventuallyStrictLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (heventually :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+      scale_data :=
+  ofFrequentlyStrictLength lengthCodeAt scale_strict
+    (frequentlyStrict_of_eventuallyStrict heventually)
 
 theorem ofFrequentlyStrictLength_gap_witness_spec
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -6960,6 +6989,21 @@ theorem ofFrequentlyStrictLength_closure_toCheckedPowerBoundLowerBound
   (ofFrequentlyStrictLength
     (scale_data := scale_data) lengthCodeAt scale_strict hfreq)
     |>.proofLengthFree_closure_toCheckedPowerBoundLowerBound
+
+theorem ofEventuallyStrictLength_closure_toCheckedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (heventually :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real)) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt := by
+  simpa [ofEventuallyStrictLength] using
+    ofFrequentlyStrictLength_closure_toCheckedPowerBoundLowerBound
+      (scale_data := scale_data) lengthCodeAt scale_strict
+      (frequentlyStrict_of_eventuallyStrict heventually)
 
 theorem ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
