@@ -11,6 +11,7 @@ open SondowProjectMonth9Month10InternalPudlakWitnessSurface
 open SondowProjectMonth9Month10ProofLengthGapFrontier
 open SondowProjectMonth9Month10Month11ExactProofGapHandoff
 open SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
+open SondowProjectMonth11PAHilbertCheckerSurface
 open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
 /-- Deliverable 1: strict growth of the scale follows from strict growth of the
@@ -84,6 +85,42 @@ def actual_transport_of_checker_proof_length_family_exactness
       month9_month10_checkedProofCodeMeasured,
       InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
       using (family.proof_length_eq_minProofCodeSizeAt n).symm
+
+/-- The actual-transport blocker is not a second independent assumption: it is
+exactly the family-shaped checker proof-length exactness statement rewritten as a
+pointwise equality between checked measurement and `actualProofLengthMeasured`. -/
+theorem checker_proof_length_family_exactness_of_actual_transport
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (transport : ActualProofLengthGapTransportBlocker checker) :
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness checker where
+  proof_length_eq_minProofCodeSizeAt := by
+    intro n
+    simpa [actualProofLengthMeasured,
+      month9_month10_checkedProofCodeMeasured,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+      using (transport.checked_eq_actual n).symm
+
+/-- Equivalence form of the actual proof-length transport residual.  This is the
+audit target for eliminating the remaining `proof_length` bridge: prove either
+side, and the other side follows without changing witnesses. -/
+theorem actual_transport_iff_checker_proof_length_family_exactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data) :
+    Nonempty (ActualProofLengthGapTransportBlocker checker) ↔
+      Nonempty (InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        checker) := by
+  constructor
+  · intro h
+    rcases h with ⟨transport⟩
+    exact ⟨checker_proof_length_family_exactness_of_actual_transport
+      transport⟩
+  · intro h
+    rcases h with ⟨family⟩
+    exact ⟨actual_transport_of_checker_proof_length_family_exactness
+      family⟩
 
 /-- Named probe target for the actual-transport route.  Under the current
 foundation this is the strongest available route: it closes the transport only
@@ -1679,8 +1716,7 @@ core then feeds the corrected actual C-line route. -/
 def correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (projection :
       InternalPudlakTheorem5AdditiveProjectBoxProjection
@@ -1704,8 +1740,7 @@ def correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
 theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
     (projection :
       InternalPudlakTheorem5AdditiveProjectBoxProjection
@@ -1803,8 +1838,7 @@ payload assumptions. -/
 def correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     (actual_upper :
       Month9Month10AbstractMeasuredUpperProvider
         (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data)) :
@@ -1817,8 +1851,7 @@ def correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
 noncomputable def finalExactCheckerCoreActualUpperTail
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     (actual_upper :
       Month9Month10AbstractMeasuredUpperProvider
         (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data))
@@ -1836,8 +1869,7 @@ noncomputable def finalExactCheckerCoreActualUpperTail
 theorem correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_proofLengthGapWitness
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     (actual_upper :
       Month9Month10AbstractMeasuredUpperProvider
         (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data))
@@ -1894,8 +1926,7 @@ enter only when such an `actual_upper` is instantiated from the C-line route. -/
 structure FinalExactCheckerCoreActualUpperAudit
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
-      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
-        scale_data)
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
     (actual_upper :
       Month9Month10AbstractMeasuredUpperProvider
         (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data)) :
@@ -2220,6 +2251,2015 @@ theorem finalExactCheckerCoreCorrectedRouteAudit_closure
         input projection hkernel hchecker hlength,
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
+
+/-! ## Final exact checker-core from calibrated-size gap -/
+
+/-- Strict growth of the theorem-5 scale gives injectivity of the scale.  This
+standalone form avoids hiding the same trichotomy proof inside later adapters. -/
+theorem scale_injective_of_scale_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b) :
+    Function.Injective scale_data.scale := by
+  intro a b hscale_eq
+  rcases Nat.lt_trichotomy a b with hlt | heq | hgt
+  · have hstrict : scale_data.scale a < scale_data.scale b :=
+      scale_strict hlt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+  · exact heq
+  · have hstrict : scale_data.scale b < scale_data.scale a :=
+      scale_strict hgt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+
+/-- Strict growth of the scale makes the theorem-5 raw-code family injective. -/
+theorem powerBoundRawCode_injective_of_scale_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b) :
+    Function.Injective scale_data.powerBoundRawCode :=
+  concretePAHilbert_powerBoundRawCode_injective_of_scale_injective
+    scale_data (scale_injective_of_scale_strict scale_strict)
+
+/-- For the concrete calibrated PA/Hilbert checker, checked minimum proof-code
+measurement is exactly the calibrated `lengthCodeAt` measurement once the raw
+theorem-5 code family is injective.  This is proof-length-free: it is a checker
+minimum-size fact, not a root `proof_length` fact. -/
+theorem checkedMeasured_eq_lengthCodeAt_of_calibrated_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    (n : Nat) :
+    month9_month10_checkedProofCodeMeasured scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics n =
+      (lengthCodeAt n : Real) := by
+  have hmin :
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        n = lengthCodeAt n :=
+    concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+      scale_data lengthCodeAt n hinjective
+  have hmin_real :
+      ((InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        n : Nat) : Real) = (lengthCodeAt n : Real) := by
+    exact_mod_cast hmin
+  simpa [month9_month10_checkedProofCodeMeasured,
+    InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+    using hmin_real
+
+/-- For the concrete calibrated PA/Hilbert checker, project length on the
+theorem-5 raw-code family is exactly the calibrated `lengthCodeAt` measurement.
+This is still proof-length-free: it identifies the checker-induced
+`projectLength`, not the root `proof_length`. -/
+theorem calibratedProjectLength_eq_lengthCodeAt_of_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (fallback : _root_.FormulaCode → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    (n : Nat) :
+    month9_month10_checkerProjectLengthMeasured scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics fallback n =
+      (lengthCodeAt n : Real) := by
+  simpa [month9_month10_checkerProjectLengthMeasured] using
+    concretePAHilbertPowerBoundCalibrated_projectLengthAt_eq_lengthCodeAt_of_injective
+      scale_data lengthCodeAt fallback n hinjective
+
+/-- The remaining root proof-length calibration to `lengthCodeAt` is equivalent
+to saying that the actual theorem-5 proof length agrees with the concrete
+calibrated checker `projectLength` on the raw-code family.  This does not solve
+the root bridge, but states its exact local form without an extra scale or search
+assumption. -/
+theorem proofLength_eq_lengthCodeAt_iff_actual_eq_calibratedProjectLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (fallback : _root_.FormulaCode → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    (∀ n : Nat,
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) =
+        (lengthCodeAt n : Real)) ↔
+      (∀ n : Nat,
+        actualProofLengthMeasured scale_data n =
+          month9_month10_checkerProjectLengthMeasured scale_data
+            (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics fallback n) := by
+  constructor
+  · intro h n
+    calc
+      actualProofLengthMeasured scale_data n =
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) := rfl
+      _ = (lengthCodeAt n : Real) := h n
+      _ =
+          month9_month10_checkerProjectLengthMeasured scale_data
+            (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics fallback n :=
+          (calibratedProjectLength_eq_lengthCodeAt_of_injective
+            lengthCodeAt fallback hinjective n).symm
+  · intro h n
+    calc
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) =
+          actualProofLengthMeasured scale_data n := rfl
+      _ =
+          month9_month10_checkerProjectLengthMeasured scale_data
+            (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics fallback n := h n
+      _ = (lengthCodeAt n : Real) :=
+          calibratedProjectLength_eq_lengthCodeAt_of_injective
+            lengthCodeAt fallback hinjective n
+
+/-- A checker proof-length exactness certificate is exactly enough to identify
+the actual theorem-5 proof-length measurement with the checker `projectLength`
+replacement on the raw-code family. -/
+theorem actual_eq_projectLength_of_checkerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics scale_data}
+    (exactness : InternalPudlakTheorem5CheckerProofLengthExactness checker)
+    (fallback : _root_.FormulaCode → Nat)
+    (n : Nat) :
+    actualProofLengthMeasured scale_data n =
+      month9_month10_checkerProjectLengthMeasured scale_data
+        checker.toProofCodeSemantics fallback n := by
+  calc
+    actualProofLengthMeasured scale_data n =
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) := rfl
+    _ = (checker.minProofCodeSizeAt n : Real) :=
+        exactness.at_powerBoundRawCode n
+    _ = month9_month10_checkedProofCodeMeasured scale_data
+          checker.toProofCodeSemantics n := by
+        rfl
+    _ = month9_month10_checkerProjectLengthMeasured scale_data
+          checker.toProofCodeSemantics fallback n :=
+        (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics fallback n).symm
+
+/-- For the concrete calibrated PA/Hilbert checker, checker proof-length
+exactness plus raw-code injectivity supplies the by-size root calibration
+`proof_length(powerBoundRawCode n) = lengthCodeAt n`.  Thus the by-size
+residual is not independent of the established checker exactness residual. -/
+theorem proofLength_eq_lengthCodeAt_of_calibratedCheckerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (fallback : _root_.FormulaCode → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)) :
+    ∀ n : Nat,
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) =
+        (lengthCodeAt n : Real) :=
+  (proofLength_eq_lengthCodeAt_iff_actual_eq_calibratedProjectLength
+    lengthCodeAt fallback hinjective).mpr
+    (fun n =>
+      actual_eq_projectLength_of_checkerProofLengthExactness
+        exactness fallback n)
+
+/-- A concrete calibrated rejection extractor generates the `lengthCodeAt`
+computable search gap.  The witness is inherited from the extractor through the
+checked/minimum-size gap; no root proof-length calibration is used here. -/
+def lengthCodeAtGapOfCalibratedExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration) :
+    ComputableSearchGapCertificate
+      (fun n : Nat => (lengthCodeAt n : Real)) :=
+  transportComputableSearchGap
+    (fun n =>
+      checkedMeasured_eq_lengthCodeAt_of_calibrated_injective
+        lengthCodeAt hinjective n)
+    (checked_minProofCodeSize_gap_constructor extractor)
+
+theorem lengthCodeAtGapOfCalibratedExtractor_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((lengthCodeAtGapOfCalibratedExtractor
+        lengthCodeAt hinjective extractor)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      extractor.witness U hU N :=
+  rfl
+
+/-- Build the strict-scale by-size singleton input from a concrete calibrated
+rejection extractor.  This removes the independent `lengthCodeAt` gap field:
+the gap is generated by the proof-length-free extractor, while the only root
+proof-length residual remains the pointwise calibration equation. -/
+def strictScaleSingletonBySizeInputOfCalibratedExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput scale_data where
+  lengthCodeAt := lengthCodeAt
+  scale_strict := scale_strict
+  gap :=
+    lengthCodeAtGapOfCalibratedExtractor lengthCodeAt
+      (powerBoundRawCode_injective_of_scale_strict scale_strict)
+      extractor
+  proof_length_eq_lengthCodeAt := proof_length_eq_lengthCodeAt
+
+theorem strictScaleSingletonBySizeInputOfCalibratedExtractor_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((strictScaleSingletonBySizeInputOfCalibratedExtractor
+        lengthCodeAt scale_strict extractor proof_length_eq_lengthCodeAt).gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      extractor.witness U hU N :=
+  rfl
+
+/-- Build the strict-scale by-size singleton input from a concrete calibrated
+extractor and checker proof-length exactness.  This removes the independent
+by-size calibration argument: it is generated from the exactness certificate and
+the proof-length-free calibrated project-length computation. -/
+def strictScaleSingletonBySizeInputOfCalibratedExtractorExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput scale_data :=
+  strictScaleSingletonBySizeInputOfCalibratedExtractor
+    lengthCodeAt scale_strict extractor
+    (proofLength_eq_lengthCodeAt_of_calibratedCheckerProofLengthExactness
+      lengthCodeAt fallback
+      (powerBoundRawCode_injective_of_scale_strict scale_strict)
+      exactness)
+
+theorem strictScaleSingletonBySizeInputOfCalibratedExtractorExactness_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((strictScaleSingletonBySizeInputOfCalibratedExtractorExactness
+        lengthCodeAt scale_strict extractor fallback exactness).gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      extractor.witness U hU N :=
+  rfl
+
+/-- Build the strict-scale by-size singleton input from the executable
+PA/Hilbert calibrated rejection-search package.  This exposes the lower-bound
+residual at the executable checker/search layer: the search procedure supplies
+the witness, cutoff, and Boolean rejection sweep. -/
+def strictScaleSingletonBySizeInputOfExecutableRejectionSearch
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput scale_data :=
+  strictScaleSingletonBySizeInputOfCalibratedExtractor
+    lengthCodeAt scale_strict search.toCheckerExtractor
+    proof_length_eq_lengthCodeAt
+
+theorem strictScaleSingletonBySizeInputOfExecutableRejectionSearch_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((strictScaleSingletonBySizeInputOfExecutableRejectionSearch
+        lengthCodeAt scale_strict enumeration search
+        proof_length_eq_lengthCodeAt).gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      search.witness U hU N :=
+  rfl
+
+/-- Build the strict-scale by-size singleton input from the executable
+PA/Hilbert calibrated rejection-search package and checker proof-length
+exactness.  The executable search supplies the proof-length-free gap; exactness
+supplies the root calibration. -/
+def strictScaleSingletonBySizeInputOfExecutableRejectionSearchExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput scale_data :=
+  strictScaleSingletonBySizeInputOfCalibratedExtractorExactness
+    lengthCodeAt scale_strict search.toCheckerExtractor fallback exactness
+
+theorem strictScaleSingletonBySizeInputOfExecutableRejectionSearchExactness_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((strictScaleSingletonBySizeInputOfExecutableRejectionSearchExactness
+        lengthCodeAt scale_strict enumeration search fallback exactness).gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      search.witness U hU N :=
+  rfl
+
+/-- Transport a computable search gap for the calibrated Nat-valued size
+`lengthCodeAt` into the project-level root proof-length measurement.  The
+computed witness is unchanged; only the measured function is rewritten through
+the exact calibration equation. -/
+def proofLengthGapOfLengthCodeAtGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    ComputableSearchGapCertificate
+      (fun n : Nat =>
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n)) :=
+  transportComputableSearchGap
+    (fun n => (proof_length_eq_lengthCodeAt n).symm)
+    length_gap
+
+theorem proofLengthGapOfLengthCodeAtGap_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((proofLengthGapOfLengthCodeAtGap
+        lengthCodeAt length_gap proof_length_eq_lengthCodeAt)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      (length_gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- Build the final exact checker core from a proof-length-free calibrated-size
+gap plus the single root proof-length calibration equation.  This removes the
+need to supply an actual proof-length gap independently of the calibrated
+checker lower-bound route. -/
+def finalExactCheckerCoreInputOfLengthCodeAtGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data where
+  lengthCodeAt := lengthCodeAt
+  timeConstructiblePower_strict := timeConstructiblePower_strict
+  proof_length_gap :=
+    proofLengthGapOfLengthCodeAtGap
+      lengthCodeAt length_gap proof_length_eq_lengthCodeAt
+  proof_length_eq_lengthCodeAt := proof_length_eq_lengthCodeAt
+
+theorem finalExactCheckerCoreInputOfLengthCodeAtGap_proofLengthGap_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((finalExactCheckerCoreInputOfLengthCodeAtGap
+        lengthCodeAt timeConstructiblePower_strict
+        length_gap proof_length_eq_lengthCodeAt).proof_length_gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      (length_gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- The strict-scale singleton calibrated route already contains enough
+checker exactness to identify root proof length with the chosen calibrated
+size.  The only project-level proof-length content is the supplied calibrated
+proof-length exactness; injectivity turns the checker minimum into
+`lengthCodeAt`. -/
+theorem strictScaleSingletonGapCalibrated_proof_length_eq_lengthCodeAt
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (n : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) =
+      (input.lengthCodeAt n : Real) := by
+  have hmin :
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data input.lengthCodeAt)
+        n = input.lengthCodeAt n :=
+    concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+      scale_data input.lengthCodeAt n input.powerBoundRawCode_injective
+  simpa [hmin] using input.proof_length.proof_length_eq_minProofCodeSizeAt n
+
+/-- The strict-scale singleton input already proves the powered
+time-constructible strictness required by the final exact checker core.  This is
+just `scale_strict` rewritten through the theorem-5 scale equation. -/
+theorem strictScaleSingletonGapCalibrated_timeConstructiblePower_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data) :
+    ∀ {a b : Nat}, a < b →
+      scale_data.time_constructible_bound a ^ scale_data.exponent <
+        scale_data.time_constructible_bound b ^ scale_data.exponent := by
+  intro a b hlt
+  have hscale : scale_data.scale a < scale_data.scale b :=
+    input.scale_strict hlt
+  simpa [scale_data.scale_eq a, scale_data.scale_eq b] using hscale
+
+/-- Reuse the existing strict-scale singleton calibrated checker route as a
+final exact checker core.  Its calibrated-size gap supplies the lower side, and
+the theorem above supplies the single root proof-length calibration equation. -/
+def finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibrated
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent) :
+    ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data :=
+  finalExactCheckerCoreInputOfLengthCodeAtGap
+    input.lengthCodeAt
+    timeConstructiblePower_strict
+    input.gap
+    (strictScaleSingletonGapCalibrated_proof_length_eq_lengthCodeAt input)
+
+theorem finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibrated_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibrated
+        input timeConstructiblePower_strict).proof_length_gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      (input.gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- Closed form of the previous adapter: the existing strict-scale singleton
+input supplies both the calibrated-size lower gap and the powered strictness
+needed by the final exact checker core. -/
+def finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibratedClosed
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data) :
+    ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data :=
+  finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibrated
+    input
+    (strictScaleSingletonGapCalibrated_timeConstructiblePower_strict input)
+
+theorem finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibratedClosed_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibratedClosed
+        input).proof_length_gap)
+      |>.gap_for_polynomial_upper U hU).witness N =
+      (input.gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- Recover the stricter by-size singleton package from the calibrated singleton
+package.  The reverse direction already exists upstream as
+`toStrictScaleSingletonGapCalibratedInput`; together they show that the two
+residual formulations are equivalent at this strict-scale singleton layer. -/
+def strictScaleSingletonGapCalibratedToBySizeInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput scale_data where
+  lengthCodeAt := input.lengthCodeAt
+  scale_strict := input.scale_strict
+  gap := input.gap
+  proof_length_eq_lengthCodeAt :=
+    strictScaleSingletonGapCalibrated_proof_length_eq_lengthCodeAt input
+
+/-- Equivalence audit for the strict-scale singleton residual.  The route can be
+stated either by a direct by-size equality
+`proof_length(powerBoundRawCode n) = lengthCodeAt n` or by calibrated checker
+proof-length exactness; under strict-scale injectivity these are interderivable. -/
+theorem strictScaleSingleton_bySize_nonempty_iff_gapCalibrated_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData} :
+    Nonempty
+        (ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput
+          scale_data) ↔
+      Nonempty
+        (ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+          scale_data) := by
+  constructor
+  · intro h
+    rcases h with ⟨input⟩
+    exact ⟨input.toStrictScaleSingletonGapCalibratedInput⟩
+  · intro h
+    rcases h with ⟨input⟩
+    exact ⟨strictScaleSingletonGapCalibratedToBySizeInput input⟩
+
+/-! ## Final exact checker-core from constant projection -/
+
+/-- Generate the additive project-box projection used by the corrected final
+actual route from the narrower root proof-length constant projection.  This is
+the compressed projection input: source exactness is already supplied by the
+final exact checker core. -/
+def finalExactCheckerCoreAdditiveProjectionOfConstant
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode) :
+    InternalPudlakTheorem5AdditiveProjectBoxProjection
+      input.toCanonicalCalibratedExactnessCore.scale_data
+      input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics :=
+  input.toCanonicalCalibratedExactnessCore.toComputableFiniteSearchNoSmallCore
+    |>.toAdditiveProjectBoxProjectionOfConstantProjection constant_projection
+
+/-- Corrected final actual endpoint with the projection side stated through the
+root proof-length constant projection rather than a prebuilt additive projection. -/
+def finalExactEndpointOfConstantProjectionCLine
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint
+      input.toCanonicalCalibratedExactnessCore.scale_data :=
+  correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+    input
+    (finalExactCheckerCoreAdditiveProjectionOfConstant
+      input constant_projection)
+    hkernel hchecker hlength
+
+theorem finalExactEndpointOfConstantProjectionCLine_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (finalExactEndpointOfConstantProjectionCLine input constant_projection
+      hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      (input.proof_length_gap.gap_for_polynomial_upper
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).U
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).polynomial).witness
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).upperN := by
+  calc
+    (finalExactEndpointOfConstantProjectionCLine input constant_projection
+      hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+        input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).polynomial
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).upperN := by
+          simpa [finalExactEndpointOfConstantProjectionCLine,
+            finalExactCheckerCoreCorrectedUpperTail] using
+            (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+              input
+              (finalExactCheckerCoreAdditiveProjectionOfConstant
+                input constant_projection)
+              hkernel hchecker hlength).2.2.2.1 hrat
+    _ =
+        ((input.toStrictScaleSingletonExactProofLengthGapInput
+          |>.transportedGap).gap_for_polynomial_upper
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).polynomial).witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).upperN := by
+          rfl
+    _ =
+        (input.proof_length_gap.gap_for_polynomial_upper
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).U
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).polynomial).witness
+          (finalExactCheckerCoreCorrectedUpperTail
+            input
+            (finalExactCheckerCoreAdditiveProjectionOfConstant
+              input constant_projection)
+            hkernel hchecker hlength hrat).upperN :=
+          input.toStrictScaleSingletonExactProofLengthGapInput
+            |>.transported_gap_witness_eq
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).U
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).polynomial
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).upperN
+
+theorem finalExactEndpointOfConstantProjectionCLine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    (finalExactEndpointOfConstantProjectionCLine
+      input constant_projection hkernel hchecker hlength).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured
+            input.toCanonicalCalibratedExactnessCore.scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (finalExactEndpointOfConstantProjectionCLine
+            input constant_projection hkernel hchecker
+            hlength).computedCollisionNOfRationality hrat =
+            (input.proof_length_gap.gap_for_polynomial_upper
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).U
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).polynomial).witness
+              (finalExactCheckerCoreCorrectedUpperTail
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hlength hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+      input
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        input constant_projection)
+      hkernel hchecker hlength
+  exact
+    ⟨by
+      simpa [finalExactEndpointOfConstantProjectionCLine] using hclosure.1,
+      hclosure.2.2.1,
+      finalExactEndpointOfConstantProjectionCLine_computed_n_eq
+        input constant_projection hkernel hchecker hlength,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
+/-! ## Final scale-size closure into the scaled project endpoint -/
+
+/-- Feed the materialized final scale-size exact proof-gap closure into the
+Month 9-10 scaled checker-extractor endpoint.  This is the route aligned with the
+existing scale-projection pieces `powerBoundRawCode n -> graft (scale n)`. -/
+def finalScaleSizeExactProofGapClosureToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (closure :
+      ConcretePAHilbertPowerBoundFinalScaleSizeExactProofGapClosure
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} where
+  scale_data := scale_data
+  checker := closure.checkerSemantics
+  enumeration := closure.finiteEnumeration
+  extractor := closure.rejectionExtractor
+  family_exactness :=
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+      closure.proofLengthExactness
+  strengthened_to_partial_projection := strengthened_to_partial
+  partial_to_graft_projection := partial_to_graft
+  computable_gap := computable_gap
+  project_upper := project_upper
+
+/-- Closure of the scaled endpoint generated from the final scale-size exact
+proof-gap closure.  The remaining external data are the two constant projection
+certificates, the project upper route, and the project-box computable gap. -/
+theorem finalScaleSizeExactProofGapClosure_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (closure :
+      ConcretePAHilbertPowerBoundFinalScaleSizeExactProofGapClosure
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalScaleSizeExactProofGapClosureToFamilyEndpointInputs
+        closure strengthened_to_partial partial_to_graft computable_gap
+        project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalScaleSizeExactProofGapClosureToFamilyEndpointInputs
+      closure strengthened_to_partial partial_to_graft computable_gap
+      project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Feed an arbitrary final exact checker core into the Month 9-10 scaled
+checker-extractor endpoint.  Unlike the scale-size bridge above, this keeps the
+calibrated `lengthCodeAt` from the final core instead of forcing the old
+`proof_length = scale` specialization. -/
+noncomputable def finalExactCheckerCoreToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} where
+  scale_data := input.toCanonicalCalibratedExactnessCore.scale_data
+  checker := input.toCanonicalCalibratedExactnessCore.checkerSemantics
+  enumeration := input.toCanonicalCalibratedExactnessCore.finiteEnumeration
+  extractor := input.toCanonicalCalibratedExactnessCore.rejectionExtractor
+  family_exactness :=
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+      input.toCanonicalCalibratedExactnessCore.proofLengthExactness
+  strengthened_to_partial_projection := strengthened_to_partial
+  partial_to_graft_projection := partial_to_graft
+  computable_gap := computable_gap
+  project_upper := project_upper
+
+/-- Closure of the scaled project endpoint from an arbitrary final exact checker
+core.  This records that the Month 9-10 endpoint machinery can be reused once the
+final core itself is constructed, without the obsolete exact-scale side condition. -/
+theorem finalExactCheckerCore_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalExactCheckerCoreToFamilyEndpointInputs input strengthened_to_partial
+        partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalExactCheckerCoreToFamilyEndpointInputs input strengthened_to_partial
+      partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from a calibrated-size lower gap.  This is the
+non-exact-scale route: the lower-bound side may stay on `lengthCodeAt`, and the
+only root proof-length obligation is the pointwise calibration equation used to
+transport that gap into the final checker core. -/
+noncomputable def finalLengthCodeAtGapToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalExactCheckerCoreToFamilyEndpointInputs
+    (finalExactCheckerCoreInputOfLengthCodeAtGap
+      lengthCodeAt timeConstructiblePower_strict
+      length_gap proof_length_eq_lengthCodeAt)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closure of the scaled project endpoint from a calibrated-size lower gap.
+This is the current compressed route for the final checker core: lower search
+gap on `lengthCodeAt`, one proof-length calibration equation, then the existing
+Month 9-10 endpoint machinery. -/
+theorem finalLengthCodeAtGap_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (length_gap :
+      ComputableSearchGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalLengthCodeAtGapToFamilyEndpointInputs lengthCodeAt
+        timeConstructiblePower_strict length_gap proof_length_eq_lengthCodeAt
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalLengthCodeAtGapToFamilyEndpointInputs lengthCodeAt
+      timeConstructiblePower_strict length_gap proof_length_eq_lengthCodeAt
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Endpoint input obtained directly from the existing strict-scale singleton
+calibrated checker package.  This reuses the Month 11-12 singleton route: its
+calibrated-size gap is transported through the proof-length exactness already
+stored in the package. -/
+noncomputable def finalStrictScaleSingletonGapCalibratedToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalExactCheckerCoreToFamilyEndpointInputs
+    (finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibrated
+      input timeConstructiblePower_strict)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closure of the scaled project endpoint from the existing strict-scale
+singleton calibrated checker package.  The remaining proof work is now exposed
+where it belongs: construct that package, the time-power strictness, and the
+project-side certificates unconditionally. -/
+theorem finalStrictScaleSingletonGapCalibrated_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalStrictScaleSingletonGapCalibratedToFamilyEndpointInputs input
+        timeConstructiblePower_strict strengthened_to_partial partial_to_graft
+        computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalStrictScaleSingletonGapCalibratedToFamilyEndpointInputs input
+      timeConstructiblePower_strict strengthened_to_partial partial_to_graft
+      computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Closed endpoint input from the existing strict-scale singleton calibrated
+checker package.  The package supplies the lower gap, proof-length calibration,
+and powered strictness, so no separate `timeConstructiblePower_strict` argument
+is exposed. -/
+noncomputable def finalStrictScaleSingletonGapCalibratedClosedToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalExactCheckerCoreToFamilyEndpointInputs
+    (finalExactCheckerCoreInputOfStrictScaleSingletonGapCalibratedClosed input)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from the existing strict-scale singleton calibrated
+checker package.  This is the tightest current endpoint bridge from the
+Month 11-12 singleton route to the Month 9-10 scaled machinery. -/
+theorem finalStrictScaleSingletonGapCalibratedClosed_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapCalibratedInput
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalStrictScaleSingletonGapCalibratedClosedToFamilyEndpointInputs input
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalStrictScaleSingletonGapCalibratedClosedToFamilyEndpointInputs input
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Closed endpoint input from the stricter by-size singleton package.  This is
+one layer closer to the remaining hard proof: the lower side is a
+`lengthCodeAt` search gap and the root proof-length contribution is exactly the
+pointwise equation `proof_length = lengthCodeAt`. -/
+noncomputable def finalStrictScaleSingletonBySizeToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalStrictScaleSingletonGapCalibratedClosedToFamilyEndpointInputs
+    input.toStrictScaleSingletonGapCalibratedInput
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from the by-size singleton package.  Compared with
+the final exact checker-core route, this exposes the true residual directly:
+construct a calibrated-size computable lower gap and prove
+`proof_length(powerBoundRawCode n) = lengthCodeAt n`. -/
+theorem finalStrictScaleSingletonBySize_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonBySizeInput
+        scale_data)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalStrictScaleSingletonBySizeToFamilyEndpointInputs input
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalStrictScaleSingletonBySizeToFamilyEndpointInputs input
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from a concrete calibrated rejection extractor.  The
+proof-length-free extractor supplies the calibrated-size lower gap; the only
+root proof-length residual left at this boundary is
+`proof_length(powerBoundRawCode n) = lengthCodeAt n`. -/
+noncomputable def finalCalibratedExtractorToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalStrictScaleSingletonBySizeToFamilyEndpointInputs
+    (strictScaleSingletonBySizeInputOfCalibratedExtractor
+      lengthCodeAt scale_strict extractor proof_length_eq_lengthCodeAt)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from a concrete calibrated rejection extractor.  This
+is the current sharp lower-bound handoff: construct the extractor, prove scale
+strictness and the root proof-length calibration, and the existing Month 9-10
+endpoint machinery closes. -/
+theorem finalCalibratedExtractor_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalCalibratedExtractorToFamilyEndpointInputs
+        lengthCodeAt scale_strict extractor proof_length_eq_lengthCodeAt
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalCalibratedExtractorToFamilyEndpointInputs
+      lengthCodeAt scale_strict extractor proof_length_eq_lengthCodeAt
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from the executable PA/Hilbert calibrated rejection
+search package.  This is one step more concrete than the extractor boundary:
+the executable search object supplies the rejection extractor used downstream. -/
+noncomputable def finalExecutableRejectionSearchToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedExtractorToFamilyEndpointInputs
+    lengthCodeAt scale_strict search.toCheckerExtractor
+    proof_length_eq_lengthCodeAt strengthened_to_partial partial_to_graft
+    computable_gap project_upper
+
+/-- Closed scaled endpoint from the executable calibrated rejection search.
+The remaining theorem-5 lower-bound construction is now stated at executable
+checker/search level plus the root proof-length calibration equation. -/
+theorem finalExecutableRejectionSearch_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalExecutableRejectionSearchToFamilyEndpointInputs
+        lengthCodeAt scale_strict enumeration search
+        proof_length_eq_lengthCodeAt strengthened_to_partial partial_to_graft
+        computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalExecutableRejectionSearchToFamilyEndpointInputs
+      lengthCodeAt scale_strict enumeration search
+      proof_length_eq_lengthCodeAt strengthened_to_partial partial_to_graft
+      computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from a concrete calibrated rejection extractor plus
+checker proof-length exactness.  Compared with
+`finalCalibratedExtractorToFamilyEndpointInputs`, this boundary no longer asks
+for a separate by-size root calibration equation. -/
+noncomputable def finalCalibratedExtractorExactnessToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedExtractorToFamilyEndpointInputs
+    lengthCodeAt scale_strict extractor
+    (proofLength_eq_lengthCodeAt_of_calibratedCheckerProofLengthExactness
+      lengthCodeAt fallback
+      (powerBoundRawCode_injective_of_scale_strict scale_strict)
+      exactness)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from a concrete calibrated rejection extractor plus
+checker proof-length exactness.  The remaining lower-bound work is now exposed
+as the extractor construction, scale strictness, checker exactness, and the
+project-side Sondow/Pudlak certificates. -/
+theorem finalCalibratedExtractorExactness_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalCalibratedExtractorExactnessToFamilyEndpointInputs
+        lengthCodeAt scale_strict extractor fallback exactness
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalCalibratedExtractorExactnessToFamilyEndpointInputs
+      lengthCodeAt scale_strict extractor fallback exactness
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from executable PA/Hilbert calibrated rejection search
+plus checker proof-length exactness.  This is the most concrete current
+boundary: executable rejection search supplies the lower witness, and checker
+exactness supplies the root calibration. -/
+noncomputable def finalExecutableRejectionSearchExactnessToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalExecutableRejectionSearchToFamilyEndpointInputs
+    lengthCodeAt scale_strict enumeration search
+    (proofLength_eq_lengthCodeAt_of_calibratedCheckerProofLengthExactness
+      lengthCodeAt fallback
+      (powerBoundRawCode_injective_of_scale_strict scale_strict)
+      exactness)
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from executable calibrated rejection search plus
+checker proof-length exactness.  This removes the independent
+`proof_length_eq_lengthCodeAt` argument from the executable endpoint boundary. -/
+theorem finalExecutableRejectionSearchExactness_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt))
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalExecutableRejectionSearchExactnessToFamilyEndpointInputs
+        lengthCodeAt scale_strict enumeration search fallback exactness
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalExecutableRejectionSearchExactnessToFamilyEndpointInputs
+      lengthCodeAt scale_strict enumeration search fallback exactness
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from the concrete calibrated four-piece package.
+The package already contains the calibrated finite enumeration, executable
+rejection search, and proof-length exactness certificate; the remaining
+endpoint-side arguments are scale strictness and the project Sondow/Pudlak
+certificates. -/
+noncomputable def finalCalibratedFourPieceToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalExecutableRejectionSearchExactnessToFamilyEndpointInputs
+    input.lengthCodeAt scale_strict input.enumeration input.rejection_search
+    fallback input.proofLengthExactness strengthened_to_partial
+    partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from the concrete calibrated four-piece package.
+This is the current concrete boundary for the theorem-5 lower-search side:
+construct the four-piece package and scale strictness, then the existing
+Sondow/project certificates close the endpoint. -/
+theorem finalCalibratedFourPiece_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalCalibratedFourPieceToFamilyEndpointInputs input scale_strict
+        fallback strengthened_to_partial partial_to_graft computable_gap
+        project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalCalibratedFourPieceToFamilyEndpointInputs input scale_strict
+      fallback strengthened_to_partial partial_to_graft computable_gap
+      project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Direct endpoint input from the calibrated four-piece package using the
+primitive time-bound strictness field.  This derives `scale_strict` from
+`scale n = time_constructible_bound n ^ exponent`, so the endpoint boundary
+matches the original scale-data shape more closely. -/
+noncomputable def finalCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedFourPieceToFamilyEndpointInputs input
+    (your_scale_strict_theorem time_bound_strict exponent_ne_zero)
+    fallback strengthened_to_partial partial_to_graft computable_gap
+    project_upper
+
+/-- Closed scaled endpoint from the calibrated four-piece package using the
+primitive time-bound strictness field instead of an already-derived
+`scale_strict` hypothesis. -/
+theorem finalCalibratedFourPieceTimeStrict_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalCalibratedFourPieceTimeStrictToFamilyEndpointInputs input
+        time_bound_strict exponent_ne_zero fallback strengthened_to_partial
+        partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalCalibratedFourPieceTimeStrictToFamilyEndpointInputs input
+      time_bound_strict exponent_ne_zero fallback strengthened_to_partial
+      partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Endpoint input from the dominating-length calibrated four-piece package.
+Here the finite enumeration code bound is already reduced to the size cutoff:
+small calibrated size implies the numeric code lies in `List.range cutoff`. -/
+noncomputable def finalDominatingCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundDominatingCalibratedFourPieceInput
+        scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+    input.toCalibratedFourPieceInput time_bound_strict exponent_ne_zero
+    fallback strengthened_to_partial partial_to_graft computable_gap
+    project_upper
+
+/-- Closed scaled endpoint from the dominating-length calibrated four-piece
+package.  This removes the arbitrary calibrated code-bound residual from the
+endpoint boundary. -/
+theorem finalDominatingCalibratedFourPieceTimeStrict_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundDominatingCalibratedFourPieceInput
+        scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalDominatingCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+        input time_bound_strict exponent_ne_zero fallback
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalDominatingCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+      input time_bound_strict exponent_ne_zero fallback
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Endpoint input from the identity-size scale-no-collision calibrated package.
+This is the sharpest current concrete boundary on the lower-search side: proof
+codes are measured by identity size, and the finite Boolean rejection sweep is
+generated from scale no-collision below the cutoff. -/
+noncomputable def finalIdentityScaleNoCollisionTimeStrictToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundIdentityScaleNoCollisionCalibratedFourPieceInput
+        scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedFourPieceTimeStrictToFamilyEndpointInputs
+    input.toCalibratedFourPieceInput time_bound_strict exponent_ne_zero
+    fallback strengthened_to_partial partial_to_graft computable_gap
+    project_upper
+
+/-- Closed scaled endpoint from the identity-size scale-no-collision package.
+The remaining lower-side construction is now concentrated in scale
+no-collision below the searched cutoff and proof-length exactness for identity
+calibrated size. -/
+theorem finalIdentityScaleNoCollisionTimeStrict_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundIdentityScaleNoCollisionCalibratedFourPieceInput
+        scale_data)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalIdentityScaleNoCollisionTimeStrictToFamilyEndpointInputs
+        input time_bound_strict exponent_ne_zero fallback
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalIdentityScaleNoCollisionTimeStrictToFamilyEndpointInputs
+      input time_bound_strict exponent_ne_zero fallback
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Endpoint input from the final strict-scale by-index residual.  This pushes
+the identity-size no-collision boundary one step lower: scale no-collision below
+the cutoff is generated from strict scale, scale injectivity, and
+`cutoff ≤ witness`. -/
+noncomputable def finalStrictScaleByIndexResidualToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalStrictScaleByIndexResidualInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalCalibratedFourPieceToFamilyEndpointInputs
+    input.toFinalResidualInput.toCalibratedFourPieceInput input.scale_strict
+    fallback strengthened_to_partial partial_to_graft computable_gap
+    project_upper
+
+/-- Closed scaled endpoint from the final strict-scale by-index residual.  The
+remaining lower-side fields are now witness/cutoff, `cutoff ≤ witness`, strict
+scale, and by-index proof-length exactness. -/
+theorem finalStrictScaleByIndexResidual_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalStrictScaleByIndexResidualInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalStrictScaleByIndexResidualToFamilyEndpointInputs input fallback
+        strengthened_to_partial partial_to_graft computable_gap project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalStrictScaleByIndexResidualToFamilyEndpointInputs input fallback
+      strengthened_to_partial partial_to_graft computable_gap project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Endpoint input from the bounded strict-scale by-index residual.  Here the
+same computable bound supplies both witness and cutoff, so `cutoff ≤ witness`
+is no longer an exposed field. -/
+noncomputable def finalBoundedStrictScaleByIndexResidualToFamilyEndpointInputs
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalBoundedStrictScaleByIndexResidualInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10CheckerExtractorFamilyEndpointInputs.{0} :=
+  finalStrictScaleByIndexResidualToFamilyEndpointInputs
+    input.toFinalStrictScaleByIndexResidualInput fallback
+    strengthened_to_partial partial_to_graft computable_gap project_upper
+
+/-- Closed scaled endpoint from the bounded strict-scale by-index residual.
+This is the most compact current residual boundary: provide one computable
+bound dominating the polynomial upper, strict scale, and by-index proof-length
+exactness.  The negative audit below shows this boundary is over-strong as a
+positive route to the final theorem. -/
+theorem finalBoundedStrictScaleByIndexResidual_scaledEndpoint_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalBoundedStrictScaleByIndexResidualInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (strengthened_to_partial :
+      _root_.StrengthenedToPartialConsistencyConstantProjection)
+    (partial_to_graft : _root_.PAConjunctionEliminationConstantCost)
+    (computable_gap :
+      ComputableGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      finalBoundedStrictScaleByIndexResidualToFamilyEndpointInputs
+        input fallback strengthened_to_partial partial_to_graft computable_gap
+        project_upper
+    Nonempty Month9Month10CheckerExtractorFamilyEndpointInputs.{0} ∧
+      endpoint.toProjectEndpointInputs.EndpointFrontier ∧
+        (∀ _ : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let endpoint :=
+    finalBoundedStrictScaleByIndexResidualToFamilyEndpointInputs
+      input fallback strengthened_to_partial partial_to_graft computable_gap
+      project_upper
+  exact
+    ⟨⟨endpoint⟩,
+      endpoint.endpoint_frontier,
+      (fun hrat => endpoint.endpoint_contradiction hrat),
+      endpoint.not_rational⟩
+
+/-- Negative audit: the final identity-size residual cannot satisfy every
+polynomial upper.  Taking `U n = n + 1`, `cutoff_gt` gives `witness < cutoff`;
+then `scaleNoCollisionBelow` can be applied to the witness itself and produces
+`scale w ≠ scale w`. -/
+theorem noFinalResidualInput_of_selfPlusOneUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundFinalResidualInput scale_data) :
+    False := by
+  let U : Nat → Real := fun n => (n : Real) + 1
+  have hU : _root_.is_polynomial_bound U := by
+    refine ⟨1, 1, ?_⟩
+    intro n
+    simp [U]
+  let w := input.witness U hU 0
+  let K := input.cutoff U hU 0
+  have hcut : U w < (K : Real) :=
+    input.cutoff_gt U hU 0
+  have hw_lt_K_real : (w : Real) < (K : Real) := by
+    dsimp [U] at hcut
+    nlinarith
+  have hw_lt_K : w < K := by
+    exact_mod_cast hw_lt_K_real
+  have hne : scale_data.scale w ≠ scale_data.scale w :=
+    input.scaleNoCollisionBelow U hU 0 w hw_lt_K
+  exact hne rfl
+
+/-- Negative audit for the strict-scale by-index residual: its projection to
+the final identity-size residual is already contradictory. -/
+theorem noFinalStrictScaleByIndexResidualInput_of_selfPlusOneUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalStrictScaleByIndexResidualInput
+        scale_data) :
+    False :=
+  noFinalResidualInput_of_selfPlusOneUpper input.toFinalResidualInput
+
+/-- Negative audit for the bounded strict-scale by-index residual. -/
+theorem noFinalBoundedStrictScaleByIndexResidualInput_of_selfPlusOneUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalBoundedStrictScaleByIndexResidualInput
+        scale_data) :
+    False :=
+  noFinalResidualInput_of_selfPlusOneUpper input.toFinalResidualInput
 
 /-! ## Final exact checker-core accepted-code exactness -/
 

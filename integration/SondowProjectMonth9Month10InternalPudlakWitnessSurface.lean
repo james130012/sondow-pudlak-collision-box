@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: James
 -/
 import integration.SondowProjectMonth8ProofLengthInstantiationSurface
+import EulerLimit.PudlakTheorem5ExactMinimalFieldPackageSurface
 
 /-!
 # Month 9-10 internal Pudlak theorem 5 and computable witness surface
@@ -87,6 +88,115 @@ theorem eventualPartialConsistencyLowerBound
       _root_.ProofLengthMeasure.symbolSize _root_.partialConsistencyCode :=
   machine.toPudlakFiniteConsistencyLowerBoundPackage.eventualPartialConsistencyLowerBound
 
+theorem strongReflectionGraftLowerBound_of_transfer
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    _root_.StrongProofLengthLowerBound _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize _root_.sondowReflectionGraftCode :=
+  machine.toPudlakFiniteConsistencyLowerBoundPackage
+    |>.strongReflectionGraftLowerBound_of_transfer htransfer
+
+/-- The direct transfer chain from the machine's rescaled lower-bound field to
+the reflection-graft family.  This avoids reading the lower bound through the
+whole `PudlakFiniteConsistencyLowerBoundPackage`: the only ingredients are the
+machine's scale cofinality and the explicit partial-to-graft transfer. -/
+def rescaledToReflectionGraftTransfer
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    _root_.StrongLowerBoundTransfer _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize
+      (_root_.rescaledPartialConsistencyCode machine.scale)
+      _root_.sondowReflectionGraftCode :=
+  (_root_.rescaled_partial_consistency_transfer_of_polynomial_cofinal_scale
+      machine.scale_properties).comp htransfer
+
+/-- Field-level lower-bound route: the reflection-graft strong lower bound can
+be obtained directly from `rescaled_strong_lower_bound` by the composed
+rescaled-to-partial and partial-to-graft transfer chain. -/
+theorem strongReflectionGraftLowerBound_from_rescaled_field
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    _root_.StrongProofLengthLowerBound _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize _root_.sondowReflectionGraftCode :=
+  machine.rescaled_strong_lower_bound.transfer
+    (machine.rescaledToReflectionGraftTransfer htransfer)
+
+theorem eventualReflectionGraftLowerBound_from_rescaled_field
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    _root_.EventualLowerBound _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize _root_.sondowReflectionGraftCode :=
+  (machine.strongReflectionGraftLowerBound_from_rescaled_field htransfer)
+    |>.toEventualLowerBound
+
+theorem reflectionGraftGap_from_rescaled_field
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    _root_.EventualStrictGap U
+      (fun n : Nat => sondowProjectLocalPudlakCollisionBox n) :=
+  _root_.EventualLowerBound.toProofLengthGap
+    (machine.eventualReflectionGraftLowerBound_from_rescaled_field htransfer)
+    U hU
+
+theorem reflectionGraftGap_from_rescaled_field_gap_after
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n :=
+  (machine.reflectionGraftGap_from_rescaled_field htransfer U hU).gap_after N
+
+/-- Transfer-witness form of the field-level lower route.  For a target upper
+bound `U`, the composed rescaled-to-graft transfer supplies a concrete
+polynomial source bound `g`; any frequent win over `g` on the rescaled finite
+consistency family transfers to a frequent win over `U` on the reflection-graft
+family. -/
+theorem reflectionGraftGap_from_rescaled_field_transfer_witness
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    ∃ g : Nat → Real,
+      _root_.is_polynomial_bound g ∧
+        ((∃ᶠ n in atTop,
+            _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (_root_.rescaledPartialConsistencyCode machine.scale n) > g n) →
+          ∃ᶠ n in atTop,
+            _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (_root_.sondowReflectionGraftCode n) > U n) :=
+  (machine.rescaledToReflectionGraftTransfer htransfer).transfer U hU
+
+/-- Witness-extraction trace for the direct field-level route.  It keeps the
+intermediate polynomial `g` produced by the transfer certificate, then uses the
+machine's rescaled strong lower-bound field to obtain a concrete tail witness
+for the project reflection-graft gap. -/
+theorem reflectionGraftGap_from_rescaled_field_gap_after_trace
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ g : Nat → Real,
+      _root_.is_polynomial_bound g ∧
+        ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n := by
+  rcases machine.reflectionGraftGap_from_rescaled_field_transfer_witness
+      htransfer U hU with
+    ⟨g, hg, htransfer_g⟩
+  have hsource :
+      ∃ᶠ n in atTop,
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.rescaledPartialConsistencyCode machine.scale n) > g n :=
+    machine.rescaled_strong_lower_bound.frequently_beats_every_polynomial g hg
+  have htarget :
+      ∃ᶠ n in atTop,
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (_root_.sondowReflectionGraftCode n) > U n :=
+    htransfer_g hsource
+  rcases Filter.frequently_atTop.mp htarget N with ⟨n, hn, hgt⟩
+  exact ⟨g, hg, n, hn, by
+    simpa [sondowProjectLocalPudlakCollisionBox] using hgt⟩
+
 theorem eventualReflectionGraftLowerBound_of_transfer
     (machine : InternalFiniteConsistencyLowerBoundMachine)
     (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
@@ -104,6 +214,34 @@ theorem reflectionGraftGap_of_transfer
   machine.toPudlakFiniteConsistencyLowerBoundPackage.reflectionGraftGap_of_transfer
     htransfer U hU
 
+theorem eventualReflectionGraftLowerBound_eq_strong_to_eventual
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer) :
+    machine.eventualReflectionGraftLowerBound_of_transfer htransfer =
+      _root_.StrongProofLengthLowerBound.toEventualLowerBound
+        (machine.strongReflectionGraftLowerBound_of_transfer htransfer) :=
+  rfl
+
+theorem reflectionGraftGap_eq_eventualLowerBound_toGap
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    machine.reflectionGraftGap_of_transfer htransfer U hU =
+      _root_.EventualLowerBound.toProofLengthGap
+        (machine.eventualReflectionGraftLowerBound_of_transfer htransfer)
+        U hU :=
+  rfl
+
+theorem reflectionGraftGap_gap_after_from_eventualLowerBound
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n := by
+  simpa [reflectionGraftGap_of_transfer,
+    sondowProjectLocalPudlakCollisionBox] using
+    (machine.eventualReflectionGraftLowerBound_of_transfer htransfer).lower_bound
+      U hU N
+
 def toProjectCollisionInputs
     (machine : InternalFiniteConsistencyLowerBoundMachine)
     (project_upper : SondowProjectLocalS21CollapseConclusion)
@@ -120,6 +258,39 @@ theorem toProjectCollisionInputs_pudlak_lower_bound
     (machine.toProjectCollisionInputs project_upper htransfer).pudlak_lower_bound =
       machine.toPudlakFiniteConsistencyLowerBoundPackage :=
   rfl
+
+/-- Same-object lower-route trace for the internal finite-consistency machine.
+After the machine is inserted into the project collision inputs, the final
+Pudlak gap certificate used by the collision core is exactly the reflection
+graft gap generated by this machine and the same transfer certificate. -/
+theorem toProjectCollisionInputs_finalGap_eq_machineGap
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    SondowProjectLocalPudlakCollisionInputs.finalPudlakGapCertificate
+        (machine.toProjectCollisionInputs project_upper htransfer) U hU =
+      machine.reflectionGraftGap_of_transfer htransfer U hU :=
+  rfl
+
+/-- Field-level audit for the same lower route: the project checklist keeps the
+same project upper source, the same internal-machine lower-bound package, the
+same transfer certificate, and the same final gap certificate. -/
+theorem toProjectCollisionInputs_full_lower_route_trace
+    (machine : InternalFiniteConsistencyLowerBoundMachine)
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    (machine.toProjectCollisionInputs project_upper htransfer).project_upper =
+        project_upper ∧
+      (machine.toProjectCollisionInputs project_upper htransfer).pudlak_lower_bound =
+        machine.toPudlakFiniteConsistencyLowerBoundPackage ∧
+      (machine.toProjectCollisionInputs project_upper htransfer).transfer_to_graft =
+        htransfer ∧
+      SondowProjectLocalPudlakCollisionInputs.finalPudlakGapCertificate
+          (machine.toProjectCollisionInputs project_upper htransfer) U hU =
+        machine.reflectionGraftGap_of_transfer htransfer U hU := by
+  exact ⟨rfl, rfl, rfl, rfl⟩
 
 end InternalFiniteConsistencyLowerBoundMachine
 
@@ -708,6 +879,224 @@ theorem toProjectCollisionInputsOfConstantPieces_pudlak_lower_bound
   rfl
 
 end InternalPudlakTheorem5LowerBoundCore
+
+/-- Project-facing theorem-5 statement map extracted from Pudlak's power-bound
+presentation.  This is intentionally not the old literature certificate: it
+spells out the scale fields and the proof-length lower-bound target that Month
+9-10 consumes internally. -/
+structure InternalPudlakTheorem5ProjectPowerBoundStatementMap : Type where
+  time_constructible_bound : Nat → Nat
+  exponent : Nat
+  scale : Nat → Nat
+  scale_eq :
+    ∀ n : Nat, scale n = time_constructible_bound n ^ exponent
+  scale_id_le : ∀ n : Nat, n ≤ scale n
+  scale_polynomial_bound :
+    _root_.is_polynomial_bound (fun n : Nat => (scale n : Real))
+  power_bound_lower_bound :
+    _root_.StrongProofLengthLowerBound _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize
+      (fun n : Nat =>
+        _root_.bussPudlakPAFiniteConsistencyRawCode
+          (time_constructible_bound n ^ exponent))
+
+namespace InternalPudlakTheorem5ProjectPowerBoundStatementMap
+
+def toScaleData
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap) :
+    InternalPudlakTheorem5ScaleData where
+  time_constructible_bound := h.time_constructible_bound
+  exponent := h.exponent
+  scale := h.scale
+  scale_eq := h.scale_eq
+  scale_id_le := h.scale_id_le
+  scale_polynomial_bound := h.scale_polynomial_bound
+
+theorem toPowerBoundLowerBound
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap) :
+    h.toScaleData.PowerBoundLowerBound := by
+  change _root_.StrongProofLengthLowerBound _root_.ProofSystem.PA
+    _root_.ProofLengthMeasure.symbolSize
+    (fun n : Nat =>
+      _root_.bussPudlakPAFiniteConsistencyRawCode
+        (h.time_constructible_bound n ^ h.exponent))
+  exact h.power_bound_lower_bound
+
+def toLowerBoundCore
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap) :
+    InternalPudlakTheorem5LowerBoundCore where
+  scale_data := h.toScaleData
+  power_bound_lower_bound := h.toPowerBoundLowerBound
+
+def toInternalFiniteConsistencyLowerBoundMachine
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    InternalFiniteConsistencyLowerBoundMachine :=
+  h.toLowerBoundCore.toInternalFiniteConsistencyLowerBoundMachine hpartial
+
+def toPudlakFiniteConsistencyLowerBoundPackage
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    _root_.PudlakFiniteConsistencyLowerBoundPackage :=
+  h.toInternalFiniteConsistencyLowerBoundMachine hpartial
+    |>.toPudlakFiniteConsistencyLowerBoundPackage
+
+def ofLowerBoundCore
+    (core : InternalPudlakTheorem5LowerBoundCore) :
+    InternalPudlakTheorem5ProjectPowerBoundStatementMap where
+  time_constructible_bound := core.scale_data.time_constructible_bound
+  exponent := core.scale_data.exponent
+  scale := core.scale_data.scale
+  scale_eq := core.scale_data.scale_eq
+  scale_id_le := core.scale_data.scale_id_le
+  scale_polynomial_bound := core.scale_data.scale_polynomial_bound
+  power_bound_lower_bound := core.power_bound_lower_bound
+
+theorem toLowerBoundCore_ofLowerBoundCore
+    (core : InternalPudlakTheorem5LowerBoundCore) :
+    (ofLowerBoundCore core).toLowerBoundCore = core := by
+  cases core
+  rfl
+
+theorem ofLowerBoundCore_toLowerBoundCore
+    (h : InternalPudlakTheorem5ProjectPowerBoundStatementMap) :
+    ofLowerBoundCore h.toLowerBoundCore = h := by
+  cases h
+  rfl
+
+theorem nonempty_iff_lower_bound_core :
+    Nonempty InternalPudlakTheorem5ProjectPowerBoundStatementMap ↔
+      Nonempty InternalPudlakTheorem5LowerBoundCore := by
+  constructor
+  · intro h
+    rcases h with ⟨statement⟩
+    exact ⟨statement.toLowerBoundCore⟩
+  · intro h
+    rcases h with ⟨core⟩
+    exact ⟨ofLowerBoundCore core⟩
+
+noncomputable def ofExactMinimalFieldPackage
+    (pkg :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.ExactMinimalFieldPackage) :
+    InternalPudlakTheorem5ProjectPowerBoundStatementMap where
+  time_constructible_bound :=
+    _root_.PudlakTheorem5MinimalExternalFieldsSurface.timeConstructibleBound
+  exponent :=
+    _root_.PudlakTheorem5MinimalExternalFieldsSurface.exponent
+  scale :=
+    _root_.PudlakTheorem5MinimalExternalFieldsSurface.scale
+  scale_eq := pkg.scale_eq_power_bound
+  scale_id_le := pkg.scale_id_le
+  scale_polynomial_bound := pkg.scale_polynomial_bound
+  power_bound_lower_bound := by
+    have hrescaled :
+        _root_.StrongRescaledExternalStrengthenedLowerBound
+          (_root_.PudlakTheorem5MinimalExternalFieldsSurface.scaleData).rawCode
+          (_root_.PudlakTheorem5MinimalExternalFieldsSurface.scaleData).scale := by
+      simpa [_root_.PudlakTheorem5MinimalExternalFieldsSurface.rawCode,
+        _root_.PudlakTheorem5MinimalExternalFieldsSurface.scale]
+        using pkg.rescaled_lower_bound
+    have hp :
+        _root_.LiteraturePudlakTheorem5PowerBoundLowerBound
+          _root_.PudlakTheorem5MinimalExternalFieldsSurface.scaleData :=
+      pkg.power_bound_iff_rescaled.2 hrescaled
+    change _root_.LiteraturePudlakTheorem5PowerBoundLowerBound
+      _root_.PudlakTheorem5MinimalExternalFieldsSurface.scaleData
+    exact hp
+
+noncomputable def fromExactMinimalFieldPackageStatement
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement) :
+    InternalPudlakTheorem5ProjectPowerBoundStatementMap :=
+  ofExactMinimalFieldPackage h.some
+
+theorem exactMinimalFieldPackageStatement_to_nonempty :
+    _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement →
+      Nonempty InternalPudlakTheorem5ProjectPowerBoundStatementMap := by
+  intro h
+  exact ⟨fromExactMinimalFieldPackageStatement h⟩
+
+theorem exactMinimalFieldPackageStatement_to_lower_bound_core_nonempty :
+    _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement →
+      Nonempty InternalPudlakTheorem5LowerBoundCore :=
+  nonempty_iff_lower_bound_core.mp ∘
+    exactMinimalFieldPackageStatement_to_nonempty
+
+noncomputable def exactMinimalFieldPackageStatement_to_lower_bound_core
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement) :
+    InternalPudlakTheorem5LowerBoundCore :=
+  (fromExactMinimalFieldPackageStatement h).toLowerBoundCore
+
+theorem fromExactMinimalFieldPackageStatement_scale_eq
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (n : Nat) :
+    (fromExactMinimalFieldPackageStatement h).scale n =
+      (fromExactMinimalFieldPackageStatement h).time_constructible_bound n ^
+        (fromExactMinimalFieldPackageStatement h).exponent :=
+  (fromExactMinimalFieldPackageStatement h).scale_eq n
+
+theorem fromExactMinimalFieldPackageStatement_scale_id_le
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (n : Nat) :
+    n ≤ (fromExactMinimalFieldPackageStatement h).scale n :=
+  (fromExactMinimalFieldPackageStatement h).scale_id_le n
+
+theorem fromExactMinimalFieldPackageStatement_powerBoundLowerBound
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement) :
+    (fromExactMinimalFieldPackageStatement h).toScaleData.PowerBoundLowerBound :=
+  (fromExactMinimalFieldPackageStatement h).toPowerBoundLowerBound
+
+noncomputable def exactMinimalFieldPackageStatement_toInternalFiniteConsistencyLowerBoundMachine
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    InternalFiniteConsistencyLowerBoundMachine :=
+  (fromExactMinimalFieldPackageStatement h)
+    |>.toInternalFiniteConsistencyLowerBoundMachine hpartial
+
+noncomputable def exactMinimalFieldPackageStatement_toPudlakFiniteConsistencyLowerBoundPackage
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    _root_.PudlakFiniteConsistencyLowerBoundPackage :=
+  (exactMinimalFieldPackageStatement_toInternalFiniteConsistencyLowerBoundMachine
+      h hpartial).toPudlakFiniteConsistencyLowerBoundPackage
+
+theorem exactMinimalFieldPackageStatement_toPackage_eq_statementMapPackage
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+  exactMinimalFieldPackageStatement_toPudlakFiniteConsistencyLowerBoundPackage
+        h hpartial =
+      toPudlakFiniteConsistencyLowerBoundPackage
+        (fromExactMinimalFieldPackageStatement h) hpartial :=
+  rfl
+
+theorem exactMinimalFieldPackageStatement_internal_machine_gap_after_trace
+    (h :
+      _root_.PudlakTheorem5ExactMinimalFieldPackageSurface.Statement)
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (htransfer :
+      _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ g : Nat → Real,
+      _root_.is_polynomial_bound g ∧
+        ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n :=
+  (exactMinimalFieldPackageStatement_toInternalFiniteConsistencyLowerBoundMachine
+      h hpartial).reflectionGraftGap_from_rescaled_field_gap_after_trace
+    htransfer U hU N
+
+end InternalPudlakTheorem5ProjectPowerBoundStatementMap
 
 /-- Checked-code version of the theorem-5 power-bound lower bound.  This is the
 next internalization target below the abstract `proof_length` statement: prove
@@ -1473,6 +1862,36 @@ def computedLowerSearchWitness
   no_small_at_n := cert.noSmallAtWitness f hf N
   minProofCodeSize_gt := cert.minProofCodeSize_gt_at_witness f hf N
 
+theorem computedLowerSearchWitness_full_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {search : InternalPudlakTheorem5SmallCodeSearch scale_data sem}
+    (cert :
+      InternalPudlakTheorem5ComputableFiniteSearchExclusion
+        scale_data sem search)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat) :
+    let w := cert.computedLowerSearchWitness f hf N
+    w.n = cert.witness f hf N ∧
+      w.K = cert.cutoff f hf N ∧
+      N ≤ w.n ∧
+      f w.n < (w.K : Real) ∧
+      (∀ c : sem.Code, c ∈ search.candidates w.n w.K →
+        ¬ sem.checks c (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : sem.Code, sem.checks c (scale_data.powerBoundRawCode w.n) →
+        f w.n < (sem.size c : Real)) ∧
+      (sem.minProofCodeSize (scale_data.powerBoundRawCode w.n)
+        ⟨w.n, rfl⟩ : Real) > f w.n := by
+  dsimp [computedLowerSearchWitness]
+  exact
+    ⟨rfl, rfl,
+      cert.witness_ge f hf N,
+      cert.cutoff_gt f hf N,
+      fun c hmem => cert.rejects_candidates f hf N c hmem,
+      cert.noSmallAtWitness f hf N,
+      cert.minProofCodeSize_gt_at_witness f hf N⟩
+
 theorem toFiniteSearchExclusion
     {scale_data : InternalPudlakTheorem5ScaleData}
     {sem :
@@ -1595,6 +2014,118 @@ theorem rejects_candidates_at_witness
       (core.scale_data.powerBoundRawCode
         (core.computable_search_exclusion.witness f hf N)) :=
   core.computable_search_exclusion.rejects_candidates f hf N c hmem
+
+theorem proof_length_gt_at_computedLowerSearchWitness
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat) :
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness f hf N
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (core.scale_data.powerBoundRawCode w.n) > f w.n := by
+  let w :=
+    core.computable_search_exclusion
+      |>.computedLowerSearchWitness f hf N
+  have hexact :
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (core.scale_data.powerBoundRawCode w.n) =
+        (core.proof_code_semantics.minProofCodeSize
+          (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) :=
+    core.toProofLengthCodeSemanticsCore.proof_length_eq_minProofCodeSize
+      (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩
+  change
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (core.scale_data.powerBoundRawCode w.n) > f w.n
+  rw [hexact]
+  exact w.minProofCodeSize_gt
+
+theorem toPowerBoundLowerBound_direct
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q}) :
+    core.scale_data.PowerBoundLowerBound where
+  frequently_beats_every_polynomial := by
+    intro f hf
+    refine Filter.frequently_atTop.2 ?_
+    intro N
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness f hf N
+    refine ⟨w.n, w.n_ge, ?_⟩
+    simpa [InternalPudlakTheorem5ScaleData.powerBoundRawCode] using
+      core.proof_length_gt_at_computedLowerSearchWitness f hf N
+
+theorem toPowerBoundLowerBound_direct_eq_wrapped
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q}) :
+    core.toPowerBoundLowerBound_direct =
+      core.toLowerBoundCore.power_bound_lower_bound := by
+  rfl
+
+theorem toRescaledLowerBound_direct
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q}) :
+    _root_.StrongRescaledExternalStrengthenedLowerBound
+      core.scale_data.rawCode core.scale_data.scale :=
+  core.scale_data.powerBoundLowerBound_to_rescaledLowerBound
+    core.toPowerBoundLowerBound_direct
+
+def toLowerBoundCore_direct
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q}) :
+    InternalPudlakTheorem5LowerBoundCore where
+  scale_data := core.scale_data
+  power_bound_lower_bound := core.toPowerBoundLowerBound_direct
+
+theorem toLowerBoundCore_direct_eq_wrapped
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q}) :
+    core.toLowerBoundCore_direct = core.toLowerBoundCore := by
+  rfl
+
+def toIntrinsicPowerBoundMachine_direct
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    IntrinsicPudlakTheorem5PowerBoundMachine where
+  scale_data := core.scale_data
+  power_bound_lower_bound := core.toPowerBoundLowerBound_direct
+  strengthened_to_partial := hpartial
+
+theorem toIntrinsicPowerBoundMachine_direct_eq_wrapped
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    core.toIntrinsicPowerBoundMachine_direct hpartial =
+      core.toLowerBoundCore.toIntrinsicPowerBoundMachine hpartial := by
+  rfl
+
+def toInternalFiniteConsistencyLowerBoundMachine_direct
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    InternalFiniteConsistencyLowerBoundMachine :=
+  (core.toIntrinsicPowerBoundMachine_direct hpartial)
+    |>.toInternalFiniteConsistencyLowerBoundMachine
+
+theorem toInternalFiniteConsistencyLowerBoundMachine_direct_eq_wrapped
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer) :
+    core.toInternalFiniteConsistencyLowerBoundMachine_direct hpartial =
+      core.toLowerBoundCore.toInternalFiniteConsistencyLowerBoundMachine
+        hpartial := by
+  rfl
+
+theorem direct_internal_machine_gap_after_trace
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (hpartial :
+      _root_.StrengthenedToPartialConsistencyLowerBoundTransfer)
+    (htransfer : _root_.PartialConsistencyToReflectionGraftLowerBoundTransfer)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ g : Nat → Real,
+      _root_.is_polynomial_bound g ∧
+        ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n :=
+  (core.toInternalFiniteConsistencyLowerBoundMachine_direct hpartial)
+    |>.reflectionGraftGap_from_rescaled_field_gap_after_trace
+      htransfer U hU N
 
 theorem nonempty_to_finite_search_no_small_core :
     Nonempty InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q} →
@@ -1792,6 +2323,41 @@ theorem toSearchStrictGapCertificate_witness_eq
     (align.toSearchStrictGapCertificate cert U hU).witness N =
       (cert.computedLowerSearchWitness U hU N).n :=
   rfl
+
+theorem computed_project_lower_search_full_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {search : InternalPudlakTheorem5SmallCodeSearch scale_data sem}
+    (align : InternalPudlakTheorem5ProjectBoxAlignment scale_data sem)
+    (cert :
+      InternalPudlakTheorem5ComputableFiniteSearchExclusion
+        scale_data sem search)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    let w := cert.computedLowerSearchWitness U hU N
+    w.n = cert.witness U hU N ∧
+      w.K = cert.cutoff U hU N ∧
+      N ≤ w.n ∧
+      U w.n < (w.K : Real) ∧
+      (∀ c : sem.Code, c ∈ search.candidates w.n w.K →
+        ¬ sem.checks c (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : sem.Code, sem.checks c (scale_data.powerBoundRawCode w.n) →
+        U w.n < (sem.size c : Real)) ∧
+      (sem.minProofCodeSize (scale_data.powerBoundRawCode w.n)
+        ⟨w.n, rfl⟩ : Real) > U w.n ∧
+      U w.n < sondowProjectLocalPudlakCollisionBox w.n := by
+  dsimp [InternalPudlakTheorem5ComputableFiniteSearchExclusion.computedLowerSearchWitness]
+  exact
+    ⟨rfl, rfl,
+      cert.witness_ge U hU N,
+      cert.cutoff_gt U hU N,
+      fun c hmem => cert.rejects_candidates U hU N c hmem,
+      cert.noSmallAtWitness U hU N,
+      cert.minProofCodeSize_gt_at_witness U hU N,
+      by
+        rw [align.project_box_eq_minProofCodeSize (cert.witness U hU N)]
+        exact cert.minProofCodeSize_gt_at_witness U hU N⟩
 
 end InternalPudlakTheorem5ProjectBoxAlignment
 
@@ -3676,6 +4242,153 @@ def toScaledComputableProjectGapTransferOfConstantProjection
     projectIndex projectIndex_ge_source projectIndex_polynomial projection)
     |>.toComputableProjectGapTransfer
 
+def additiveProjectSearchCollisionWitness
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U sondowProjectLocalPudlakCollisionBox :=
+  ((projection.toComputableProjectGapTransfer
+      (search := core.small_code_search))
+    |>.toComputableSearchGapCertificate core.computable_search_exclusion)
+    |>.collisionWitness upper
+
+theorem additiveProjectSearchCollisionWitness_n_eq_shifted_source_search
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (core.additiveProjectSearchCollisionWitness projection upper).n =
+      (core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.shiftedUpper upper.U)
+          (projection.shiftedUpper_polynomial upper.U upper.polynomial)
+          upper.upperN).n := by
+  rfl
+
+/-- Payload-free additive projection endpoint.  This is the replacement target
+for the old local-Hilbert projection route: once the source checker minimum is
+known to be at most the project box plus a fixed overhead, the computed witness
+is the finite-search witness for the shifted upper bound `U + overhead`. -/
+theorem additiveProjectSearchCollisionWitness_full_trace
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let shiftedUpper := projection.shiftedUpper upper.U
+    let hshifted :=
+      projection.shiftedUpper_polynomial upper.U upper.polynomial
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness shiftedUpper hshifted upper.upperN
+    let witness := core.additiveProjectSearchCollisionWitness projection upper
+    witness.n = w.n ∧
+      upper.upperN ≤ witness.n ∧
+        shiftedUpper w.n < (w.K : Real) ∧
+          (∀ c : core.proof_code_semantics.Code,
+            c ∈ core.small_code_search.candidates w.n w.K →
+              ¬ core.proof_code_semantics.checks c
+                (core.scale_data.powerBoundRawCode w.n)) ∧
+          (core.proof_code_semantics.minProofCodeSize
+              (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ :
+              Real) > shiftedUpper w.n ∧
+          upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+          False := by
+  let shiftedUpper := projection.shiftedUpper upper.U
+  let hshifted :=
+    projection.shiftedUpper_polynomial upper.U upper.polynomial
+  let w :=
+    core.computable_search_exclusion
+      |>.computedLowerSearchWitness shiftedUpper hshifted upper.upperN
+  let witness := core.additiveProjectSearchCollisionWitness projection upper
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.minProofCodeSize_gt,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
+
+def scaledAdditiveProjectSearchCollisionWitness
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5ScaledAdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U sondowProjectLocalPudlakCollisionBox :=
+  ((projection.toComputableProjectGapTransfer
+      (search := core.small_code_search))
+    |>.toComputableSearchGapCertificate core.computable_search_exclusion)
+    |>.collisionWitness upper
+
+theorem scaledAdditiveProjectSearchCollisionWitness_n_eq_indexed_source_search
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5ScaledAdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (core.scaledAdditiveProjectSearchCollisionWitness projection upper).n =
+      projection.projectIndex
+        (core.computable_search_exclusion
+          |>.computedLowerSearchWitness
+            (projection.indexedShiftedUpper upper.U)
+            (projection.indexedShiftedUpper_polynomial
+              upper.U upper.polynomial)
+            upper.upperN).n := by
+  rfl
+
+/-- Payload-free scaled projection endpoint.  This is the theorem-5 shaped
+version of the additive endpoint: the project collision witness is the scaled
+project index of the source finite-search witness. -/
+theorem scaledAdditiveProjectSearchCollisionWitness_full_trace
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5ScaledAdditiveProjectBoxProjection
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let indexedUpper := projection.indexedShiftedUpper upper.U
+    let hindexed :=
+      projection.indexedShiftedUpper_polynomial upper.U upper.polynomial
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness indexedUpper hindexed upper.upperN
+    let witness := core.scaledAdditiveProjectSearchCollisionWitness projection upper
+    witness.n = projection.projectIndex w.n ∧
+      upper.upperN ≤ witness.n ∧
+        indexedUpper w.n < (w.K : Real) ∧
+          (∀ c : core.proof_code_semantics.Code,
+            c ∈ core.small_code_search.candidates w.n w.K →
+              ¬ core.proof_code_semantics.checks c
+                (core.scale_data.powerBoundRawCode w.n)) ∧
+          (core.proof_code_semantics.minProofCodeSize
+              (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ :
+              Real) > indexedUpper w.n ∧
+          upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+          False := by
+  let indexedUpper := projection.indexedShiftedUpper upper.U
+  let hindexed :=
+    projection.indexedShiftedUpper_polynomial upper.U upper.polynomial
+  let w :=
+    core.computable_search_exclusion
+      |>.computedLowerSearchWitness indexedUpper hindexed upper.upperN
+  let witness := core.scaledAdditiveProjectSearchCollisionWitness projection upper
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.minProofCodeSize_gt,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
+
 end InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore
 
 /-- Local-Hilbert instantiation of the additive project-box projection.  This is
@@ -3761,6 +4474,205 @@ def toComputableProjectGapTransfer
 
 end InternalPudlakTheorem5LocalHilbertProjectBoxProjection
 
+/-- Payload-free replacement for the legacy local-Hilbert projection bridge.  The
+old `LocalHilbertProofCodeProjectionModel` routes the same `source ≤ target + 2`
+fact through `FormulaCodeHilbertInterpretation.localHilbertProofCodeSemantics`,
+whose current construction still unfolds payload certificates.  This structure
+keeps only the theorem-5 source minimum, the project collision box, and the
+scaled project index needed by the finite-search route. -/
+structure InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)) :
+    Type (q + 1) where
+  projectIndex : Nat → Nat
+  projectIndex_ge_source : ∀ m : Nat, m ≤ projectIndex m
+  projectIndex_polynomial :
+    _root_.is_polynomial_bound (fun m : Nat => (projectIndex m : Real))
+  source_le_target_add_two :
+    ∀ m : Nat,
+      (sem.minProofCodeSize (scale_data.powerBoundRawCode m) ⟨m, rfl⟩ :
+        Real) ≤
+        sondowProjectLocalPudlakCollisionBox (projectIndex m) + 2
+
+namespace InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+
+def toScaledAdditiveProjectBoxProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (h :
+      InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+        scale_data sem) :
+    InternalPudlakTheorem5ScaledAdditiveProjectBoxProjection
+      scale_data sem where
+  projectIndex := h.projectIndex
+  projectIndex_ge_source := h.projectIndex_ge_source
+  projectIndex_polynomial := h.projectIndex_polynomial
+  overhead := 2
+  overhead_nonneg := by norm_num
+  source_le_project_add := h.source_le_target_add_two
+
+theorem toScaledAdditiveProjectBoxProjection_source_le_target_add_two
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (h :
+      InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+        scale_data sem)
+    (m : Nat) :
+    (h.toScaledAdditiveProjectBoxProjection.source_le_project_add m) =
+      h.source_le_target_add_two m := by
+  rfl
+
+end InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+
+namespace InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore
+
+def payloadFreeLocalHilbertProjectSearchCollisionWitness
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U sondowProjectLocalPudlakCollisionBox :=
+  core.scaledAdditiveProjectSearchCollisionWitness
+    projection.toScaledAdditiveProjectBoxProjection upper
+
+theorem payloadFreeLocalHilbertProjectSearchCollisionWitness_n_eq_indexed_source_search
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (core.payloadFreeLocalHilbertProjectSearchCollisionWitness
+      projection upper).n =
+      projection.projectIndex
+        (core.computable_search_exclusion
+          |>.computedLowerSearchWitness
+            (projection.toScaledAdditiveProjectBoxProjection.indexedShiftedUpper
+              upper.U)
+            (projection.toScaledAdditiveProjectBoxProjection
+              |>.indexedShiftedUpper_polynomial upper.U upper.polynomial)
+            upper.upperN).n := by
+  rfl
+
+/-- Payload-free Local-Hilbert-shaped endpoint trace.  The final collision index
+is the clean project index applied to the source finite-search witness; no
+`partial_consistency_payload` or strengthened payload axiom is mentioned. -/
+theorem payloadFreeLocalHilbertProjectSearchCollisionWitness_full_trace
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    (projection :
+      InternalPudlakTheorem5PayloadFreeLocalHilbertProjectionModel
+        core.scale_data core.proof_code_semantics)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let scaledProjection := projection.toScaledAdditiveProjectBoxProjection
+    let indexedUpper := scaledProjection.indexedShiftedUpper upper.U
+    let hindexed :=
+      scaledProjection.indexedShiftedUpper_polynomial upper.U upper.polynomial
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness indexedUpper hindexed upper.upperN
+    let witness :=
+      core.payloadFreeLocalHilbertProjectSearchCollisionWitness projection upper
+    witness.n = projection.projectIndex w.n ∧
+      upper.upperN ≤ witness.n ∧
+        indexedUpper w.n < (w.K : Real) ∧
+          (∀ c : core.proof_code_semantics.Code,
+            c ∈ core.small_code_search.candidates w.n w.K →
+              ¬ core.proof_code_semantics.checks c
+                (core.scale_data.powerBoundRawCode w.n)) ∧
+          (core.proof_code_semantics.minProofCodeSize
+              (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ :
+              Real) > indexedUpper w.n ∧
+          upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+          False := by
+  exact
+    scaledAdditiveProjectSearchCollisionWitness_full_trace
+      core projection.toScaledAdditiveProjectBoxProjection upper
+
+def localHilbertProjectSearchCollisionWitness
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        core.scale_data core.proof_code_semantics interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U sondowProjectLocalPudlakCollisionBox :=
+  ((projection.toComputableProjectGapTransfer
+      (search := core.small_code_search))
+    |>.toComputableSearchGapCertificate core.computable_search_exclusion)
+    |>.collisionWitness upper
+
+theorem localHilbertProjectSearchCollisionWitness_n_eq_source_search
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        core.scale_data core.proof_code_semantics interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (core.localHilbertProjectSearchCollisionWitness projection upper).n =
+      (core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper upper.U)
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper_polynomial
+            upper.U upper.polynomial)
+          upper.upperN).n := by
+  rfl
+
+/-- Core-level Local-Hilbert endpoint trace.  Unlike the project checklist
+wrappers, this statement depends only on the computable finite-search core, the
+local Hilbert projection, and a Sondow upper-tail certificate. -/
+theorem localHilbertProjectSearchCollisionWitness_full_trace
+    (core : InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        core.scale_data core.proof_code_semantics interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let w :=
+      core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper upper.U)
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper_polynomial
+            upper.U upper.polynomial)
+          upper.upperN
+    let witness :=
+      core.localHilbertProjectSearchCollisionWitness projection upper
+    witness.n = w.n ∧
+      upper.upperN ≤ witness.n ∧
+        upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+            False := by
+  let witness := core.localHilbertProjectSearchCollisionWitness projection upper
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
+
+end InternalPudlakTheorem5ComputableFiniteSearchNoSmallCore
+
 namespace InternalPudlakTheorem5ProjectBoxAlignment
 
 def toComputableSearchGapCertificate
@@ -3804,6 +4716,47 @@ theorem toComputableSearchGapCertificate_witness_eq
         U hU).witness N =
       (cert.computedLowerSearchWitness U hU N).n :=
   rfl
+
+/-- Full source-to-project search trace for a project-box alignment.  It exposes
+that the project computable gap uses exactly the finite-search lower witness, and
+keeps the cutoff, finite rejection, no-small proof-code statement, and
+minimum-size inequality available for audit. -/
+theorem toComputableSearchGapCertificate_full_lower_search_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{q}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {search : InternalPudlakTheorem5SmallCodeSearch scale_data sem}
+    (align : InternalPudlakTheorem5ProjectBoxAlignment scale_data sem)
+    (cert :
+      InternalPudlakTheorem5ComputableFiniteSearchExclusion
+        scale_data sem search)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    let gap := align.toComputableSearchGapCertificate cert
+    let w := cert.computedLowerSearchWitness U hU N
+    ((gap.gap_for_polynomial_upper U hU).witness N = w.n) ∧
+      N ≤ w.n ∧
+        U w.n < (w.K : Real) ∧
+          (∀ c : sem.Code, c ∈ search.candidates w.n w.K →
+            ¬ sem.checks c (scale_data.powerBoundRawCode w.n)) ∧
+          (∀ c : sem.Code,
+            sem.checks c (scale_data.powerBoundRawCode w.n) →
+              U w.n < (sem.size c : Real)) ∧
+          (sem.minProofCodeSize (scale_data.powerBoundRawCode w.n)
+            ⟨w.n, rfl⟩ : Real) > U w.n ∧
+          U ((gap.gap_for_polynomial_upper U hU).witness N) <
+            sondowProjectLocalPudlakCollisionBox
+              ((gap.gap_for_polynomial_upper U hU).witness N) := by
+  let gap := align.toComputableSearchGapCertificate cert
+  let w := cert.computedLowerSearchWitness U hU N
+  exact
+    ⟨rfl,
+      w.n_ge,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.no_small_at_n,
+      w.minProofCodeSize_gt,
+      (gap.gap_for_polynomial_upper U hU).strict_at_witness N⟩
 
 end InternalPudlakTheorem5ProjectBoxAlignment
 
@@ -5149,6 +6102,53 @@ theorem no_small_codes_to_minProofCodeSize_lower_bound
     |>.toNoSmallCodeSemanticsCore
     |>.proof_code_lower_bound
 
+theorem direct_powerBoundLowerBound_from_computable_search
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    h.theorem5_computable_search_core.scale_data.PowerBoundLowerBound :=
+  h.theorem5_computable_search_core.toPowerBoundLowerBound_direct
+
+theorem direct_rescaledLowerBound_from_computable_search
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    _root_.StrongRescaledExternalStrengthenedLowerBound
+      h.theorem5_computable_search_core.scale_data.rawCode
+      h.theorem5_computable_search_core.scale_data.scale :=
+  h.theorem5_computable_search_core.toRescaledLowerBound_direct
+
+def directLowerBoundCore
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    InternalPudlakTheorem5LowerBoundCore :=
+  h.theorem5_computable_search_core.toLowerBoundCore_direct
+
+theorem directLowerBoundCore_eq_wrapped
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    h.directLowerBoundCore =
+      h.theorem5_computable_search_core.toLowerBoundCore := by
+  rfl
+
+def directInternalFiniteConsistencyLowerBoundMachine
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    InternalFiniteConsistencyLowerBoundMachine :=
+  h.theorem5_computable_search_core
+    |>.toInternalFiniteConsistencyLowerBoundMachine_direct
+        h.strengthened_to_partial
+
+theorem directInternalFiniteConsistencyLowerBoundMachine_eq_wrapped
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q}) :
+    h.directInternalFiniteConsistencyLowerBoundMachine =
+      InternalPudlakTheorem5LowerBoundCore.toInternalFiniteConsistencyLowerBoundMachine
+        h.theorem5_computable_search_core.toLowerBoundCore
+        h.strengthened_to_partial := by
+  rfl
+
+theorem direct_internal_machine_gap_after_trace
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ∃ g : Nat → Real,
+      _root_.is_polynomial_bound g ∧
+        ∃ n : Nat, N ≤ n ∧ U n < sondowProjectLocalPudlakCollisionBox n :=
+  h.theorem5_computable_search_core.direct_internal_machine_gap_after_trace
+    h.strengthened_to_partial h.transfer_to_graft U hU N
+
 theorem project_collision_witness_n_eq_max
     (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
     (project_upper : SondowProjectLocalS21CollapseConclusion)
@@ -5316,6 +6316,70 @@ theorem project_search_witness_eq_lower_search
         project_upper hrat).n := by
   rfl
 
+/-- Full same-witness audit for the project-box-aligned search route.  The
+project collision witness is definitionally the finite-search lower witness, and
+the latter still carries the cutoff, finite candidate rejection, no-small proof
+code statement, checked minimum-size lower bound, and final contradiction. -/
+theorem project_search_witness_full_lower_search_trace
+    (h : Month9Month10ProjectBoxAlignedComputableSearchChecklist.{q})
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.upperTailOfRationality project_upper hrat
+    let w :=
+      h.computable_search_checklist.projectLowerSearchWitnessOfRationality
+        project_upper hrat
+    (h.projectSearchCollisionWitnessOfRationality project_upper hrat).n =
+        w.n ∧
+      upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+          (∀ c : h.theorem5_computable_search_core.proof_code_semantics.Code,
+            c ∈ h.theorem5_computable_search_core.small_code_search.candidates
+              w.n w.K →
+              ¬ h.theorem5_computable_search_core.proof_code_semantics.checks c
+                (h.theorem5_computable_search_core.scale_data.powerBoundRawCode
+                  w.n)) ∧
+          (∀ c : h.theorem5_computable_search_core.proof_code_semantics.Code,
+            h.theorem5_computable_search_core.proof_code_semantics.checks c
+              (h.theorem5_computable_search_core.scale_data.powerBoundRawCode
+                w.n) →
+              upper.U w.n <
+                (h.theorem5_computable_search_core.proof_code_semantics.size c :
+                  Real)) ∧
+          (h.theorem5_computable_search_core.proof_code_semantics.minProofCodeSize
+              (h.theorem5_computable_search_core.scale_data.powerBoundRawCode
+                w.n) ⟨w.n, rfl⟩ : Real) >
+            upper.U w.n ∧
+          upper.U
+              (h.projectSearchCollisionWitnessOfRationality
+                project_upper hrat).n <
+            sondowProjectLocalPudlakCollisionBox
+              (h.projectSearchCollisionWitnessOfRationality
+                project_upper hrat).n ∧
+          sondowProjectLocalPudlakCollisionBox
+              (h.projectSearchCollisionWitnessOfRationality
+                project_upper hrat).n ≤
+            upper.U
+              (h.projectSearchCollisionWitnessOfRationality
+                project_upper hrat).n ∧
+          False := by
+  let upper := h.upperTailOfRationality project_upper hrat
+  let w :=
+    h.computable_search_checklist.projectLowerSearchWitnessOfRationality
+      project_upper hrat
+  exact
+    ⟨rfl,
+      w.n_ge,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.no_small_at_n,
+      w.minProofCodeSize_gt,
+      (h.projectSearchCollisionWitnessOfRationality
+        project_upper hrat).lower_at_n,
+      (h.projectSearchCollisionWitnessOfRationality
+        project_upper hrat).upper_at_n,
+      (h.projectSearchCollisionWitnessOfRationality
+        project_upper hrat).contradiction⟩
+
 theorem project_search_witness_ge_upperN
     (h : Month9Month10ProjectBoxAlignedComputableSearchChecklist.{q})
     (project_upper : SondowProjectLocalS21CollapseConclusion)
@@ -5427,6 +6491,45 @@ def toSearchGenericCollisionInputs
   h.toComputableSearchGapCertificate.toGenericRationalCollisionInputs
     (h.upperUnderRationality project_upper)
 
+def projectSearchCollisionWitness
+    (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U
+      sondowProjectLocalPudlakCollisionBox :=
+  h.toComputableSearchGapCertificate.collisionWitness upper
+
+theorem project_search_witness_eq_gap_transfer_witness_for_upper
+    (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (h.projectSearchCollisionWitness upper).n =
+      ((h.toComputableSearchGapCertificate.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN) :=
+  rfl
+
+/-- Payload-free calculation trace once the Sondow side has already supplied a
+polynomial upper-tail certificate.  This is the exact computation core for the
+final printed witness number: the witness is the project-gap-transfer search
+result at `upper.upperN`, and the two certified inequalities contradict. -/
+theorem project_gap_transfer_computed_witness_for_upper_full_trace
+    (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let gap :=
+      h.toComputableSearchGapCertificate.gap_for_polynomial_upper
+        upper.U upper.polynomial
+    let witness := h.projectSearchCollisionWitness upper
+    witness.n = gap.witness upper.upperN ∧
+      upper.upperN ≤ witness.n ∧
+        upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+            False := by
+  let witness := h.projectSearchCollisionWitness upper
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
+
 noncomputable def upperTailOfRationality
     (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
     (project_upper : SondowProjectLocalS21CollapseConclusion)
@@ -5443,6 +6546,44 @@ noncomputable def projectSearchCollisionWitnessOfRationality
       sondowProjectLocalPudlakCollisionBox :=
   h.toComputableSearchGapCertificate.collisionWitness
     (h.upperTailOfRationality project_upper hrat)
+
+theorem project_search_witness_eq_gap_transfer_witness
+    (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (h.projectSearchCollisionWitnessOfRationality project_upper hrat).n =
+      ((h.toComputableSearchGapCertificate.gap_for_polynomial_upper
+          (h.upperTailOfRationality project_upper hrat).U
+          (h.upperTailOfRationality project_upper hrat).polynomial).witness
+        (h.upperTailOfRationality project_upper hrat).upperN) :=
+  rfl
+
+/-- Endpoint trace for the project-gap-transfer search route.  This is the
+calculation shape the evaluator has to expose: the final contradiction witness
+is exactly the lower gap witness returned by the computable project transfer at
+the upper route's threshold. -/
+theorem project_gap_transfer_computed_witness_full_trace
+    (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.upperTailOfRationality project_upper hrat
+    let gap :=
+      h.toComputableSearchGapCertificate.gap_for_polynomial_upper
+        upper.U upper.polynomial
+    let witness := h.projectSearchCollisionWitnessOfRationality project_upper hrat
+    witness.n = gap.witness upper.upperN ∧
+      upper.upperN ≤ witness.n ∧
+        upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+            False := by
+  let upper := h.upperTailOfRationality project_upper hrat
+  let witness := h.projectSearchCollisionWitnessOfRationality project_upper hrat
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
 
 theorem project_search_witness_ge_upperN
     (h : Month9Month10ProjectGapTransferComputableSearchChecklist.{q})
@@ -5584,6 +6725,117 @@ def toProjectGapTransferChecklistOfLocalHilbertProjection
     Month9Month10ProjectGapTransferComputableSearchChecklist.{q} :=
   h.toProjectGapTransferChecklistOfAdditiveProjection
     projection.toAdditiveProjectBoxProjection
+
+/-- Local-Hilbert witness equation.  The project gap witness produced by the
+local `+2` projection is exactly the source finite-search witness for the
+shifted upper bound `U + 2`. -/
+theorem project_gap_witness_eq_local_hilbert_source_search
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        h.theorem5_computable_search_core.scale_data
+        h.theorem5_computable_search_core.proof_code_semantics
+        interp)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((h.toProjectGapTransferChecklistOfLocalHilbertProjection projection)
+      |>.toComputableSearchGapCertificate
+      |>.gap_for_polynomial_upper U hU).witness N) =
+      (h.theorem5_computable_search_core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper U)
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper_polynomial
+            U hU)
+          N).n := by
+  rfl
+
+def projectSearchCollisionWitnessOfLocalHilbertProjection
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        h.theorem5_computable_search_core.scale_data
+        h.theorem5_computable_search_core.proof_code_semantics
+        interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    ComputedSearchCollisionWitness upper.U sondowProjectLocalPudlakCollisionBox :=
+  (h.toProjectGapTransferChecklistOfLocalHilbertProjection projection)
+    |>.projectSearchCollisionWitness upper
+
+theorem project_search_witness_n_eq_local_hilbert_source_search
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        h.theorem5_computable_search_core.scale_data
+        h.theorem5_computable_search_core.proof_code_semantics
+        interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    (h.projectSearchCollisionWitnessOfLocalHilbertProjection
+      projection upper).n =
+      (h.theorem5_computable_search_core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper upper.U)
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper_polynomial
+            upper.U upper.polynomial)
+          upper.upperN).n := by
+  rfl
+
+/-- Payload-free endpoint trace for the local-Hilbert projection route.  Once
+the Sondow side supplies an upper-tail certificate, the final collision witness
+is exactly the lower finite-search witness for the shifted upper bound induced
+by the local Hilbert `+2` projection. -/
+theorem project_local_hilbert_computed_witness_for_upper_full_trace
+    (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (projection :
+      InternalPudlakTheorem5LocalHilbertProjectBoxProjection
+        h.theorem5_computable_search_core.scale_data
+        h.theorem5_computable_search_core.proof_code_semantics
+        interp)
+    (upper : PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox) :
+    let w :=
+      h.theorem5_computable_search_core.computable_search_exclusion
+        |>.computedLowerSearchWitness
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper upper.U)
+          (projection.toAdditiveProjectBoxProjection.shiftedUpper_polynomial
+            upper.U upper.polynomial)
+          upper.upperN
+    let witness :=
+      h.projectSearchCollisionWitnessOfLocalHilbertProjection projection upper
+    witness.n = w.n ∧
+      upper.upperN ≤ witness.n ∧
+        upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n ∧
+          sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n ∧
+            False := by
+  let witness :=
+    h.projectSearchCollisionWitnessOfLocalHilbertProjection projection upper
+  exact
+    ⟨rfl,
+      witness.n_ge_upper,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction⟩
 
 def toProjectGapTransferChecklistOfConstantProjection
     (h : Month9Month10ComputableFiniteSearchNoSmallCodeChecklist.{q})

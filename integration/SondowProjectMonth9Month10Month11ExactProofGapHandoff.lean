@@ -1481,6 +1481,19 @@ theorem no_final_three_certificate_endpoint_for_internal_scale
   no_scale_search_gap_for_internal_scale scale_data
     (scaleGapOfFinalThreeCertificateEndpoint endpoint)
 
+/-- Stronger form of the same negative audit: the old final endpoint's exact
+calibration to the polynomially bounded scale is already incompatible with the
+current strong proof-length lower-bound target for `powerBoundRawCode`. -/
+theorem no_final_three_certificate_endpoint_strong_lower_bound_for_internal_scale
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (endpoint :
+      ConcretePAHilbertPowerBoundFinalThreeCertificateEndpoint scale_data) :
+    ¬ _root_.StrongProofLengthLowerBound
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+      scale_data.powerBoundRawCode :=
+  no_internal_power_bound_strong_lower_bound_of_proof_length_eq_scale
+    endpoint.proof_length_eq_scale
+
 theorem no_final_three_certificate_deliverables_for_internal_scale
     {scale_data : InternalPudlakTheorem5ScaleData}
     (deliverables :
@@ -3915,6 +3928,96 @@ theorem closure
     h.computed_n_contradiction,
     h.not_rational⟩
 
+/-- Full finite-search trace for the checked-search endpoint.  The computed
+collision index is the same index carried by the computable finite-search
+certificate, and the endpoint exposes the cutoff, candidate rejection, no-small
+proof-code inequality, checked minimum-size lower bound, and final checked
+upper/lower contradiction at that index. -/
+theorem full_lower_search_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10CheckedSearchCollisionEndpoint scale_data)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.toDirectEndpoint.toAbstractMeasuredEndpoint
+      |>.upperTailOfRationality hrat
+    let w :=
+      h.cert.computedLowerSearchWitness
+        upper.U upper.polynomial upper.upperN
+    let n := h.computedCollisionNOfRationality hrat
+    n = w.n ∧
+      w.n = h.cert.witness upper.U upper.polynomial upper.upperN ∧
+      w.K = h.cert.cutoff upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ w.n ∧
+      upper.U w.n < (w.K : Real) ∧
+      (∀ c : h.sem.Code, c ∈ h.search.candidates w.n w.K →
+        ¬ h.sem.checks c (scale_data.powerBoundRawCode w.n)) ∧
+      (∀ c : h.sem.Code,
+        h.sem.checks c (scale_data.powerBoundRawCode w.n) →
+          upper.U w.n < (h.sem.size c : Real)) ∧
+      (h.sem.minProofCodeSize
+          (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+        upper.U w.n ∧
+      upper.U n <
+        month9_month10_checkedProofCodeMeasured scale_data h.sem n ∧
+      month9_month10_checkedProofCodeMeasured scale_data h.sem n ≤
+        upper.U n ∧
+      False := by
+  let endpoint := h.toDirectEndpoint.toAbstractMeasuredEndpoint
+  let upper := endpoint.upperTailOfRationality hrat
+  let w :=
+    h.cert.computedLowerSearchWitness
+      upper.U upper.polynomial upper.upperN
+  let n := h.computedCollisionNOfRationality hrat
+  have hcomputed :
+      n = h.cert.witness upper.U upper.polynomial upper.upperN := by
+    simpa [n, upper, endpoint]
+      using h.computedCollisionN_eq_certWitness hrat
+  have hwitness :
+      w.n = h.cert.witness upper.U upper.polynomial upper.upperN := by
+    change
+      (h.cert.computedLowerSearchWitness
+        upper.U upper.polynomial upper.upperN).n =
+        h.cert.witness upper.U upper.polynomial upper.upperN
+    rfl
+  have hK :
+      w.K = h.cert.cutoff upper.U upper.polynomial upper.upperN := by
+    change
+      (h.cert.computedLowerSearchWitness
+        upper.U upper.polynomial upper.upperN).K =
+        h.cert.cutoff upper.U upper.polynomial upper.upperN
+    rfl
+  have hn : n = w.n :=
+    hcomputed.trans hwitness.symm
+  have hlower :
+      upper.U n <
+        month9_month10_checkedProofCodeMeasured scale_data h.sem n := by
+    simpa [n, upper, endpoint,
+      Month9Month10CheckedSearchCollisionEndpoint.computedCollisionNOfRationality,
+      Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint,
+      Month9Month10CheckedMeasuredDirectCollisionEndpoint.computedCollisionNOfRationality]
+      using endpoint.lower_at_computedCollisionN hrat
+  have hupper :
+      month9_month10_checkedProofCodeMeasured scale_data h.sem n ≤
+        upper.U n := by
+    simpa [n, upper, endpoint,
+      Month9Month10CheckedSearchCollisionEndpoint.computedCollisionNOfRationality,
+      Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint,
+      Month9Month10CheckedMeasuredDirectCollisionEndpoint.computedCollisionNOfRationality]
+      using endpoint.upper_at_computedCollisionN hrat
+  have hfalse : False := by
+    exact (not_lt_of_ge hupper) hlower
+  exact
+    ⟨hn,
+      hwitness,
+      hK,
+      w.n_ge,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.no_small_at_n,
+      w.minProofCodeSize_gt,
+      hlower,
+      hupper,
+      hfalse⟩
+
 end Month9Month10CheckedSearchCollisionEndpoint
 
 /-- Collision endpoint whose lower side is generated by the proof-length-free
@@ -4121,6 +4224,39 @@ theorem lowerGapSource_contradiction_at_computedN
     (lowerGapSource_upper_at_computedN source upper_provider hrat))
     (lowerGapSource_lower_at_computedN source upper_provider hrat)
 
+theorem lowerGapSource_computedN_trace_closure
+    (source : PAHilbertProofLengthFreeLowerGapSource)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          source.scale_data source.proof_code_semantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := lowerGapSourceUpperTailOfRationality
+        source upper_provider hrat
+      let n := lowerGapSourceComputedNOfRationality
+        source upper_provider hrat
+      n =
+          (checkedSearchCollisionEndpointOfLowerGapSource
+            source upper_provider).computedCollisionNOfRationality hrat ∧
+        upper.upperN ≤ n ∧
+          upper.U n < source.measured n ∧
+            source.measured n ≤ upper.U n ∧
+              False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  refine ⟨?_, ?_⟩
+  · intro hrat
+    exact
+      ⟨lowerGapSourceComputedN_eq_endpointComputedN
+          source upper_provider hrat,
+        lowerGapSourceComputedN_ge_upperN source upper_provider hrat,
+        lowerGapSource_lower_at_computedN source upper_provider hrat,
+        lowerGapSource_upper_at_computedN source upper_provider hrat,
+        lowerGapSource_contradiction_at_computedN
+          source upper_provider hrat⟩
+  · intro hrat
+    exact lowerGapSource_contradiction_at_computedN
+      source upper_provider hrat
+
 /-- Checked-search collision endpoint generated directly from a checker
 computable-search profile. -/
 def checkedSearchCollisionEndpointOfCheckerComputableSearchProfile
@@ -4241,6 +4377,41 @@ theorem checkerProfile_contradiction_at_computedN
   (not_lt_of_ge
     (checkerProfile_upper_at_computedN profile upper_provider hrat))
     (checkerProfile_lower_at_computedN profile upper_provider hrat)
+
+theorem checkerProfile_computedN_trace_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (profile :
+      InternalPudlakTheorem5CheckerComputableSearchProfile.{0}
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data profile.proof_code_semantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := checkerProfileUpperTailOfRationality
+        profile upper_provider hrat
+      let n := checkerProfileComputedNOfRationality
+        profile upper_provider hrat
+      n =
+          (checkedSearchCollisionEndpointOfCheckerComputableSearchProfile
+            profile upper_provider).computedCollisionNOfRationality hrat ∧
+        upper.upperN ≤ n ∧
+          upper.U n <
+            month9_month10_checkedProofCodeMeasured
+              scale_data profile.proof_code_semantics n ∧
+            month9_month10_checkedProofCodeMeasured
+                scale_data profile.proof_code_semantics n ≤
+              upper.U n ∧
+              False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [
+    checkerProfileUpperTailOfRationality,
+    checkerProfileComputedNOfRationality,
+    checkedSearchCollisionEndpointOfCheckerComputableSearchProfile]
+    using
+      lowerGapSource_computedN_trace_closure
+        (lowerGapSourceOfCheckerComputableSearchProfile profile)
+        upper_provider
 
 /-- A concrete checker rejection extractor directly supplies the proof-length-free
 lower-gap source. -/
@@ -4381,6 +4552,43 @@ theorem rejectionExtractor_contradiction_at_computedN
       extractor upper_provider hrat))
     (rejectionExtractor_lower_at_computedN
       extractor upper_provider hrat)
+
+theorem rejectionExtractor_computedN_trace_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    {enumeration :
+      InternalPudlakTheorem5CheckerFiniteEnumeration checker}
+    (extractor :
+      InternalPudlakTheorem5CheckerComputableRejectionExtractor
+        checker enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := rejectionExtractorUpperTailOfRationality
+        extractor upper_provider hrat
+      let n := rejectionExtractorComputedNOfRationality
+        extractor upper_provider hrat
+      n =
+          checkerProfileComputedNOfRationality
+            extractor.toCheckerComputableSearchProfile
+            upper_provider hrat ∧
+        upper.upperN ≤ n ∧
+          upper.U n <
+            month9_month10_checkedProofCodeMeasured
+              scale_data checker.toProofCodeSemantics n ∧
+            month9_month10_checkedProofCodeMeasured
+                scale_data checker.toProofCodeSemantics n ≤
+              upper.U n ∧
+              False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [
+    rejectionExtractorUpperTailOfRationality,
+    rejectionExtractorComputedNOfRationality]
+    using
+      checkerProfile_computedN_trace_closure
+        extractor.toCheckerComputableSearchProfile upper_provider
 
 /-- Fully explicit search witness once the upper route has supplied a concrete
 polynomial upper tail.  This is the computable endpoint below rationality
@@ -4739,6 +4947,94 @@ def toLowerGapSource
   computable_search_exclusion :=
     h.rejectionExtractor.toComputableFiniteSearchExclusion
 
+def computableFiniteSearchExclusion
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    InternalPudlakTheorem5ComputableFiniteSearchExclusion
+      scale_data h.checkerSemantics.toProofCodeSemantics
+      h.finiteEnumeration.toSmallCodeSearch :=
+  h.rejectionExtractor.toComputableFiniteSearchExclusion
+
+theorem finiteSearchExclusion
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    InternalPudlakTheorem5FiniteSearchExclusion
+      scale_data h.checkerSemantics.toProofCodeSemantics
+      h.finiteEnumeration.toSmallCodeSearch :=
+  h.computableFiniteSearchExclusion.toFiniteSearchExclusion
+
+theorem noSmallProofCodes
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    InternalPudlakTheorem5NoSmallProofCodes
+      scale_data h.checkerSemantics.toProofCodeSemantics :=
+  h.computableFiniteSearchExclusion.toNoSmallProofCodes
+
+theorem minProofCodeSizeLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    ∀ f : Nat → Real, _root_.is_polynomial_bound f →
+      ∃ᶠ n in Filter.atTop,
+        (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n :=
+  InternalPudlakTheorem5NoSmallProofCodes.toProofCodeLowerBound
+    h.noSmallProofCodes
+
+def checkedMeasuredGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    ComputableSearchGapCertificate
+      (month9_month10_checkedProofCodeMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics) :=
+  month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion
+    h.computableFiniteSearchExclusion
+
+theorem checkedMeasuredGap_witness_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((h.checkedMeasuredGap |>.gap_for_polynomial_upper U hU).witness N) =
+      h.rejectionExtractor.witness U hU N := by
+  calc
+    ((h.checkedMeasuredGap |>.gap_for_polynomial_upper U hU).witness N)
+        = h.computableFiniteSearchExclusion.witness U hU N := by
+          exact
+            month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion_witness_eq
+              h.computableFiniteSearchExclusion U hU N
+    _ = h.rejectionExtractor.witness U hU N := by
+        exact h.rejectionExtractor.toComputableFiniteSearchExclusion_witness_eq
+          U hU N
+
+/-- Proof-length-free lower-bound machine extracted from the checker
+rejection extractor.  This is the theorem-5 lower-bound content before any root
+`proof_length` calibration is used: finite-search exclusion, no-small proof
+codes, a min-proof-code-size lower bound, and a computable checked gap whose
+witness is definitionally the rejection-extractor witness. -/
+theorem proofLengthFree_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data) :
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data h.checkerSemantics.toProofCodeSemantics
+        h.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data h.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((h.checkedMeasuredGap |>.gap_for_polynomial_upper U hU).witness N) =
+          h.rejectionExtractor.witness U hU N) :=
+  ⟨h.finiteSearchExclusion,
+    h.noSmallProofCodes,
+    h.minProofCodeSizeLowerBound,
+    ⟨h.checkedMeasuredGap⟩,
+    h.checkedMeasuredGap_witness_eq_rejectionExtractor⟩
+
 def computedNOfUpper
     {scale_data : InternalPudlakTheorem5ScaleData}
     (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
@@ -4965,7 +5261,2362 @@ theorem not_rational_with_witness_trace
   exact ⟨hclosure.1, hclosure.2.2.2.1,
     hclosure.2.2.2.2.1, hclosure.2.2.2.2.2⟩
 
+/-- Full proof-length-free theorem-5 trace at the rationality-computed
+candidate.  The same natural number `w.n` is simultaneously the rejection
+extractor witness, the finite-search lower witness, the checked lower-gap
+witness, and the upper-tail contradiction witness.  This is the audit form that
+prevents the proof from silently switching between different `n`s. -/
+theorem proofLengthFree_full_lower_search_collision_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := h.upperTailOfRationality upper_provider hrat
+      let w := h.lowerSearchWitnessOfUpper upper
+      w.n = h.computedNOfRationality upper_provider hrat ∧
+        w.K = h.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+        upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+        (∀ c : h.checkerSemantics.Code,
+          c ∈ h.finiteEnumeration.candidates w.n w.K →
+            ¬ h.checkerSemantics.checks c
+              (scale_data.powerBoundRawCode w.n)) ∧
+        (∀ c : h.checkerSemantics.Code,
+          h.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n) →
+            upper.U w.n < (h.checkerSemantics.size c : Real)) ∧
+        (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+          upper.U w.n ∧
+        upper.U w.n <
+          month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics w.n ∧
+        month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics w.n ≤
+          upper.U w.n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  refine ⟨?_, h.not_rational upper_provider⟩
+  intro hrat
+  let upper := h.upperTailOfRationality upper_provider hrat
+  let w := h.lowerSearchWitnessOfUpper upper
+  rcases h.lowerSearchWitnessOfRationality_closure upper_provider hrat with
+    ⟨hn, hK, hge, hcut, hreject, hnoSmall, hmin⟩
+  rcases h.computedNOfRationality_closure upper_provider hrat with
+    ⟨_hge, _hnoSmall, _hrejectSmall, hlower, hupper, hfalse⟩
+  have hlower_w :
+      upper.U w.n <
+        month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics w.n := by
+    simpa [upper, w, hn] using hlower
+  have hupper_w :
+      month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics w.n ≤
+        upper.U w.n := by
+    simpa [upper, w, hn] using hupper
+  exact
+    ⟨hn, hK, hge, hcut, hreject, hnoSmall, hmin,
+      hlower_w, hupper_w, hfalse⟩
+
+/-- The same computable lower gap, transported from checked minimum proof-code
+size to the `ProofCodeSemantics.projectLength` measurement.  This remains
+proof-length-free: it uses only the checker/extractor finite-search certificate
+and the definitional equality between project length and checked minimum on the
+theorem-5 raw-code family. -/
+def projectLengthGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat) :
+    ComputableSearchGapCertificate
+      (month9_month10_checkerProjectLengthMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback) :=
+  month9_month10_checkerProjectLengthGapOfCheckedGap
+    fallback h.toLowerGapSource.checkedGap
+
+theorem projectLengthGap_witness_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((h.projectLengthGap fallback |>.gap_for_polynomial_upper U hU).witness N) =
+      h.rejectionExtractor.witness U hU N := by
+  calc
+    ((h.projectLengthGap fallback |>.gap_for_polynomial_upper U hU).witness N)
+        = ((h.toLowerGapSource.checkedGap |>.gap_for_polynomial_upper U hU).witness N) := by
+          exact
+            month9_month10_checkerProjectLengthGapOfCheckedGap_witness_eq
+              fallback h.toLowerGapSource.checkedGap U hU N
+    _ = h.rejectionExtractor.witness U hU N := by
+        calc
+          ((h.toLowerGapSource.checkedGap |>.gap_for_polynomial_upper U hU).witness N)
+              = h.rejectionExtractor.toComputableFiniteSearchExclusion.witness U hU N := by
+                exact
+                  PAHilbertProofLengthFreeLowerGapSource.checkedGap_witness_eq
+                    h.toLowerGapSource U hU N
+          _ = h.rejectionExtractor.witness U hU N := by
+              exact
+                h.rejectionExtractor.toComputableFiniteSearchExclusion_witness_eq
+                  U hU N
+
+/-- Transport a checked-measured Sondow upper provider to the checker
+`projectLength` route.  The upper function and threshold are preserved by
+pointwise equality. -/
+def projectLengthUpperProviderOfChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkerProjectLengthMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback) :=
+  Month9Month10AbstractMeasuredUpperProvider.transportEq
+    (fun n =>
+      (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback n).symm)
+    upper_provider
+
+/-- Direct computable collision endpoint over the checker-induced project-length
+measurement.  This is the proof-length-free endpoint parallel to the checked
+minimum route, before any transport to root `proof_length` is attempted. -/
+def projectLengthDirectEndpointOfCheckedUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    Month9Month10AbstractMeasuredDirectCollisionEndpoint
+      (month9_month10_checkerProjectLengthMeasured
+        scale_data h.checkerSemantics.toProofCodeSemantics fallback) where
+  gap := h.projectLengthGap fallback
+  upper_provider :=
+    h.projectLengthUpperProviderOfChecked fallback upper_provider
+
+theorem projectLengthDirectEndpoint_computedN_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      h.rejectionExtractor.witness
+        (endpoint.upperTailOfRationality hrat).U
+        (endpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.upperTailOfRationality hrat).upperN := by
+  let endpoint :=
+    h.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+  have hcomputed :
+      endpoint.computedCollisionNOfRationality hrat =
+        (endpoint.gap.gap_for_polynomial_upper
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.upperTailOfRationality hrat).upperN :=
+    endpoint.computedCollisionN_eq_searchGapWitness hrat
+  have hwitness :
+      ((h.projectLengthGap fallback |>.gap_for_polynomial_upper
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.upperTailOfRationality hrat).upperN) =
+        h.rejectionExtractor.witness
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.upperTailOfRationality hrat).upperN :=
+    h.projectLengthGap_witness_eq_rejectionExtractor fallback
+      (endpoint.upperTailOfRationality hrat).U
+      (endpoint.upperTailOfRationality hrat).polynomial
+      (endpoint.upperTailOfRationality hrat).upperN
+  exact hcomputed.trans (by
+    simpa [endpoint, projectLengthDirectEndpointOfCheckedUpper] using hwitness)
+
+theorem projectLengthDirectEndpoint_full_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10ProofLengthFreeExtractorHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+    let n := endpoint.computedCollisionNOfRationality hrat
+    endpoint.computedCollisionNOfRationality hrat =
+        h.rejectionExtractor.witness
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.upperTailOfRationality hrat).upperN ∧
+      (endpoint.upperTailOfRationality hrat).upperN ≤ n ∧
+        (endpoint.upperTailOfRationality hrat).U n <
+          month9_month10_checkerProjectLengthMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics fallback n ∧
+          month9_month10_checkerProjectLengthMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics fallback n ≤
+            (endpoint.upperTailOfRationality hrat).U n ∧
+            False := by
+  let endpoint :=
+    h.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+  let n := endpoint.computedCollisionNOfRationality hrat
+  exact
+    ⟨h.projectLengthDirectEndpoint_computedN_eq_rejectionExtractorWitness
+        fallback upper_provider hrat,
+      endpoint.computedCollisionN_ge_upperN hrat,
+      endpoint.lower_at_computedCollisionN hrat,
+      endpoint.upper_at_computedCollisionN hrat,
+      endpoint.computed_n_contradiction hrat⟩
+
 end Month9Month10ProofLengthFreeExtractorHandoff
+
+/-! ## Executable calibrated rejection search to proof-length-free machine -/
+
+/-- Forget the calibrated proof-length layer and expose the theorem-5 search
+kernel generated directly by an executable calibrated rejection sweep.  This
+uses the concrete PA/Hilbert checker, the supplied finite enumeration, and the
+Boolean rejection search, but does not use root `proof_length` exactness. -/
+def executableRejectionSearchToProofLengthFreeExtractorHandoff
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    Month9Month10ProofLengthFreeExtractorHandoff scale_data where
+  checkerSemantics :=
+    concretePAHilbertPowerBoundCalibratedCheckerSemantics
+      scale_data lengthCodeAt
+  finiteEnumeration :=
+    enumeration.toFiniteEnumeration
+  rejectionExtractor :=
+    input.toCheckerExtractor
+
+/-- The executable calibrated rejection search already supplies the full
+proof-length-free theorem-5 lower-bound machine.  The final witness is the
+search witness, not a later proof-length calibration witness. -/
+theorem executableRejectionSearch_proofLengthFree_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    let handoff : Month9Month10ProofLengthFreeExtractorHandoff scale_data :=
+      executableRejectionSearchToProofLengthFreeExtractorHandoff input
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data handoff.checkerSemantics.toProofCodeSemantics
+        handoff.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data handoff.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (handoff.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data handoff.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((handoff.checkedMeasuredGap
+          |>.gap_for_polynomial_upper U hU).witness N) =
+          input.witness U hU N) := by
+  dsimp
+  have hclosure :=
+    (executableRejectionSearchToProofLengthFreeExtractorHandoff input)
+      |>.proofLengthFree_lower_bound_machine_closure
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      by
+        intro U hU N
+        calc
+          (((executableRejectionSearchToProofLengthFreeExtractorHandoff input)
+              |>.checkedMeasuredGap
+              |>.gap_for_polynomial_upper U hU).witness N) =
+              input.toCheckerExtractor.witness U hU N :=
+            hclosure.2.2.2.2 U hU N
+          _ = input.witness U hU N := rfl⟩
+
+/-- Full computed lower-search trace from the executable calibrated rejection
+search.  This is the concrete proof-length-free audit form: the same `n`
+computed from the upper tail is the executable search witness, the lower-search
+witness, and the checked-measured contradiction witness. -/
+theorem executableRejectionSearch_proofLengthFree_full_lower_search_collision_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured scale_data
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt).toProofCodeSemantics)) :
+    let handoff : Month9Month10ProofLengthFreeExtractorHandoff scale_data :=
+      executableRejectionSearchToProofLengthFreeExtractorHandoff input
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := handoff.upperTailOfRationality upper_provider hrat
+      let w := handoff.lowerSearchWitnessOfUpper upper
+      w.n = handoff.computedNOfRationality upper_provider hrat ∧
+        w.K = input.cutoff upper.U upper.polynomial upper.upperN ∧
+        upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+        (∀ c : handoff.checkerSemantics.Code,
+          c ∈ handoff.finiteEnumeration.candidates w.n w.K →
+            ¬ handoff.checkerSemantics.checks c
+              (scale_data.powerBoundRawCode w.n)) ∧
+        (∀ c : handoff.checkerSemantics.Code,
+          handoff.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n) →
+            upper.U w.n < (handoff.checkerSemantics.size c : Real)) ∧
+        (handoff.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+          upper.U w.n ∧
+        upper.U w.n <
+          month9_month10_checkedProofCodeMeasured scale_data
+            handoff.checkerSemantics.toProofCodeSemantics w.n ∧
+        month9_month10_checkedProofCodeMeasured scale_data
+            handoff.checkerSemantics.toProofCodeSemantics w.n ≤
+          upper.U w.n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let handoff :=
+    executableRejectionSearchToProofLengthFreeExtractorHandoff input
+  have htrace :=
+    handoff.proofLengthFree_full_lower_search_collision_trace
+      upper_provider
+  refine ⟨?_, htrace.2⟩
+  intro hrat
+  let upper := handoff.upperTailOfRationality upper_provider hrat
+  let w := handoff.lowerSearchWitnessOfUpper upper
+  rcases htrace.1 hrat with
+    ⟨hn, hK, hge, hcut, hreject, hnoSmall, hmin, hlower, hupper,
+      hfalse⟩
+  have hK' :
+      w.K = input.cutoff upper.U upper.polynomial upper.upperN := by
+    calc
+      w.K =
+          handoff.rejectionExtractor.cutoff
+            upper.U upper.polynomial upper.upperN := hK
+      _ = input.cutoff upper.U upper.polynomial upper.upperN := rfl
+  exact
+    ⟨hn, hK', hge, hcut, hreject, hnoSmall, hmin,
+      hlower, hupper, hfalse⟩
+
+/-- Project-length endpoint trace generated directly from executable calibrated
+rejection search.  This stays below the root proof-length bridge: the computed
+collision witness is already the executable search witness for the
+checker-induced `projectLength` measurement. -/
+theorem executableRejectionSearch_projectLengthDirectEndpoint_full_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured scale_data
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt).toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let handoff :=
+      executableRejectionSearchToProofLengthFreeExtractorHandoff input
+    let endpoint :=
+      handoff.projectLengthDirectEndpointOfCheckedUpper
+        fallback upper_provider
+    let n := endpoint.computedCollisionNOfRationality hrat
+    endpoint.computedCollisionNOfRationality hrat =
+        input.witness
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.upperTailOfRationality hrat).upperN ∧
+      (endpoint.upperTailOfRationality hrat).upperN ≤ n ∧
+        (endpoint.upperTailOfRationality hrat).U n <
+          month9_month10_checkerProjectLengthMeasured scale_data
+            (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics fallback n ∧
+          month9_month10_checkerProjectLengthMeasured scale_data
+            (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics fallback n ≤
+            (endpoint.upperTailOfRationality hrat).U n ∧
+            False := by
+  dsimp
+  let handoff :=
+    executableRejectionSearchToProofLengthFreeExtractorHandoff input
+  let endpoint :=
+    handoff.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+  have htrace :=
+    handoff.projectLengthDirectEndpoint_full_trace
+      fallback upper_provider hrat
+  rcases htrace with ⟨hn, hge, hlower, hupper, hfalse⟩
+  have hn' :
+      endpoint.computedCollisionNOfRationality hrat =
+        input.witness
+          (endpoint.upperTailOfRationality hrat).U
+          (endpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.upperTailOfRationality hrat).upperN := by
+    calc
+      endpoint.computedCollisionNOfRationality hrat =
+          handoff.rejectionExtractor.witness
+            (endpoint.upperTailOfRationality hrat).U
+            (endpoint.upperTailOfRationality hrat).polynomial
+            (endpoint.upperTailOfRationality hrat).upperN := hn
+      _ = input.witness
+            (endpoint.upperTailOfRationality hrat).U
+            (endpoint.upperTailOfRationality hrat).polynomial
+            (endpoint.upperTailOfRationality hrat).upperN := rfl
+  exact ⟨hn', hge, hlower, hupper, hfalse⟩
+
+/-! ## Canonical PA/Hilbert search core to proof-length-free lower-bound machine -/
+
+/-- Proof-length-free PA/Hilbert checker/search core.  This is the canonical
+checker exactness data needed for the theorem-5 lower-search machine, with the
+root proof-length calibration deliberately left out. -/
+structure PAHilbertCanonicalSearchExactnessCore : Type 2 where
+  checker : PAHilbertChecker
+  semantics : PAHilbertDerivabilitySemantics
+  recognizerExactness :
+    PAHilbertAxiomRecognizerExactness checker.recognizer semantics
+  canonicalInterface :
+    PAHilbertCanonicalCheckerInterface checker semantics
+  scale_data : InternalPudlakTheorem5ScaleData
+  checkerSemantics :
+    InternalPudlakTheorem5CheckerSemantics.{0} scale_data
+  finiteEnumeration :
+    InternalPudlakTheorem5CheckerFiniteEnumeration checkerSemantics
+  rejectionExtractor :
+    InternalPudlakTheorem5CheckerComputableRejectionExtractor
+      checkerSemantics finiteEnumeration
+
+namespace PAHilbertCanonicalSearchExactnessCore
+
+/-- Forget the PA/Hilbert syntax layer and expose exactly the finite-search
+data consumed by the Month 9-10 proof-length-free lower-bound machine. -/
+def toProofLengthFreeExtractorHandoff
+    (core : PAHilbertCanonicalSearchExactnessCore) :
+    Month9Month10ProofLengthFreeExtractorHandoff core.scale_data where
+  checkerSemantics :=
+    core.checkerSemantics
+  finiteEnumeration :=
+    core.finiteEnumeration
+  rejectionExtractor :=
+    core.rejectionExtractor
+
+theorem accepted_decoded_code_to_formulaCode_derivable
+    (core : PAHilbertCanonicalSearchExactnessCore)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        core.checker formulaCode code) :
+    PAHilbertFormulaCodeDerivable core.semantics formulaCode :=
+  core.canonicalInterface.accepted_decoded_code_to_formulaCode_derivable
+    formulaCode code haccepted
+
+/-- The proof-length-free PA/Hilbert search core already supplies the internal
+finite-search lower-bound machine.  The conclusion is the theorem-5 lower
+content before any root `proof_length` calibration is used. -/
+theorem proofLengthFree_lower_bound_machine_closure
+    (core : PAHilbertCanonicalSearchExactnessCore) :
+    InternalPudlakTheorem5FiniteSearchExclusion
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        core.scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (core.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            core.scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          core.rejectionExtractor.witness U hU N) :=
+  core.toProofLengthFreeExtractorHandoff
+    |>.proofLengthFree_lower_bound_machine_closure
+
+/-- Full computed lower-search collision trace from the proof-length-free
+PA/Hilbert search core.  This records that the same `n` is used by the
+lower-search witness, the checked gap, and the final contradiction. -/
+theorem proofLengthFree_full_lower_search_collision_trace
+    (core : PAHilbertCanonicalSearchExactnessCore)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          core.scale_data core.checkerSemantics.toProofCodeSemantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper :=
+        core.toProofLengthFreeExtractorHandoff.upperTailOfRationality
+          upper_provider hrat
+      let w :=
+        core.toProofLengthFreeExtractorHandoff.lowerSearchWitnessOfUpper
+          upper
+      w.n =
+          core.toProofLengthFreeExtractorHandoff.computedNOfRationality
+            upper_provider hrat ∧
+        w.K = core.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+        upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+        (∀ c : core.checkerSemantics.Code,
+          c ∈ core.finiteEnumeration.candidates w.n w.K →
+            ¬ core.checkerSemantics.checks c
+              (core.scale_data.powerBoundRawCode w.n)) ∧
+        (∀ c : core.checkerSemantics.Code,
+          core.checkerSemantics.checks c
+            (core.scale_data.powerBoundRawCode w.n) →
+            upper.U w.n < (core.checkerSemantics.size c : Real)) ∧
+        (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (core.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+          upper.U w.n ∧
+        upper.U w.n <
+          month9_month10_checkedProofCodeMeasured
+            core.scale_data core.checkerSemantics.toProofCodeSemantics w.n ∧
+        month9_month10_checkedProofCodeMeasured
+            core.scale_data core.checkerSemantics.toProofCodeSemantics w.n ≤
+          upper.U w.n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni :=
+  core.toProofLengthFreeExtractorHandoff
+    |>.proofLengthFree_full_lower_search_collision_trace upper_provider
+
+end PAHilbertCanonicalSearchExactnessCore
+
+/-- Compatibility projection from the older calibrated core to the new
+proof-length-free search core.  The new core is the one whose theorems should
+be used for proof-length-free audit probes. -/
+def canonicalCalibratedCoreToCanonicalSearchExactnessCore
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    PAHilbertCanonicalSearchExactnessCore where
+  checker :=
+    core.checker
+  semantics :=
+    core.semantics
+  recognizerExactness :=
+    core.recognizerExactness
+  canonicalInterface :=
+    core.canonicalInterface
+  scale_data :=
+    core.scale_data
+  checkerSemantics :=
+    core.checkerSemantics
+  finiteEnumeration :=
+    core.finiteEnumeration
+  rejectionExtractor :=
+    core.rejectionExtractor
+
+/-- Direct canonical search core from executable calibrated rejection search.
+This bypasses the older calibrated core, so the proof-length-free lower-search
+route does not mention root proof-length exactness. -/
+def executableRejectionSearchToCanonicalSearchExactnessCore
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    PAHilbertCanonicalSearchExactnessCore where
+  checker :=
+    concretePAHilbertPowerBoundChecker scale_data
+  semantics :=
+    concretePAHilbertTheorem5DerivabilitySemantics
+  recognizerExactness :=
+    concretePAHilbertTheorem5AxiomRecognizerExactness
+  canonicalInterface :=
+    concretePAHilbertPowerBoundCanonicalCheckerInterface scale_data
+  scale_data :=
+    scale_data
+  checkerSemantics :=
+    concretePAHilbertPowerBoundCalibratedCheckerSemantics
+      scale_data lengthCodeAt
+  finiteEnumeration :=
+    enumeration.toFiniteEnumeration
+  rejectionExtractor :=
+    input.toCheckerExtractor
+
+theorem executableRejectionSearchToCanonicalSearchExactnessCore_handoff_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff
+        (executableRejectionSearchToCanonicalSearchExactnessCore input) =
+      executableRejectionSearchToProofLengthFreeExtractorHandoff input :=
+  rfl
+
+theorem executableRejectionSearch_canonicalSearchCore_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    Nonempty PAHilbertCanonicalSearchExactnessCore :=
+  ⟨executableRejectionSearchToCanonicalSearchExactnessCore input⟩
+
+theorem executableRejectionSearch_canonicalSearchCore_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    let core := executableRejectionSearchToCanonicalSearchExactnessCore input
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          input.witness U hU N) := by
+  let core := executableRejectionSearchToCanonicalSearchExactnessCore input
+  have hclosure := core.proofLengthFree_lower_bound_machine_closure
+  dsimp [core, executableRejectionSearchToCanonicalSearchExactnessCore] at hclosure ⊢
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      by
+        intro U hU N
+        exact (hclosure.2.2.2.2 U hU N).trans rfl⟩
+
+/-- Direct proof-length-free canonical search core from the singleton-gap
+calibrated rejection route.  This packages the empty-at-witness singleton
+enumeration and its computable gap extractor as the canonical lower-search
+machine input, without going through the root `proof_length` calibration. -/
+def singletonGapRejectionInputToCanonicalSearchExactnessCore
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt) :
+    PAHilbertCanonicalSearchExactnessCore where
+  checker :=
+    concretePAHilbertPowerBoundChecker scale_data
+  semantics :=
+    concretePAHilbertTheorem5DerivabilitySemantics
+  recognizerExactness :=
+    concretePAHilbertTheorem5AxiomRecognizerExactness
+  canonicalInterface :=
+    concretePAHilbertPowerBoundCanonicalCheckerInterface scale_data
+  scale_data :=
+    scale_data
+  checkerSemantics :=
+    concretePAHilbertPowerBoundCalibratedCheckerSemantics
+      scale_data lengthCodeAt
+  finiteEnumeration :=
+    input.finiteEnumeration
+  rejectionExtractor :=
+    input.toCheckerExtractor
+
+/-- The singleton-gap rejection route now directly inhabits the canonical
+proof-length-free search core. -/
+theorem singletonGapRejectionInput_canonicalSearchCore_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt) :
+    Nonempty PAHilbertCanonicalSearchExactnessCore :=
+  ⟨singletonGapRejectionInputToCanonicalSearchExactnessCore input⟩
+
+/-- Exact witness/cutoff trace for the singleton-gap route after it has been
+installed as the canonical proof-length-free search core. -/
+theorem singletonGapRejectionInput_canonicalSearchCore_gap_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt) :
+    let core := singletonGapRejectionInputToCanonicalSearchExactnessCore input
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      core.rejectionExtractor.witness f hf N =
+          (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+        core.rejectionExtractor.cutoff f hf N =
+          lengthCodeAt
+            ((input.gap.gap_for_polynomial_upper f hf).witness N) ∧
+          N ≤ (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+            f ((input.gap.gap_for_polynomial_upper f hf).witness N) <
+              (lengthCodeAt
+                ((input.gap.gap_for_polynomial_upper f hf).witness N) :
+                  Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        core.finiteEnumeration.candidates
+          (core.rejectionExtractor.witness f hf N)
+          (core.rejectionExtractor.cutoff f hf N) = []) ∧
+        (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+          ∀ code : core.checkerSemantics.Code,
+          code ∈
+            core.finiteEnumeration.candidates
+              (core.rejectionExtractor.witness f hf N)
+              (core.rejectionExtractor.cutoff f hf N) →
+            ¬ core.checkerSemantics.checks code
+              (scale_data.powerBoundRawCode
+                (core.rejectionExtractor.witness f hf N))) := by
+  dsimp [singletonGapRejectionInputToCanonicalSearchExactnessCore]
+  refine ⟨?_, ?_, ?_⟩
+  · exact (input.toCheckerExtractor_gap_trace).1
+  · intro f hf N
+    exact input.toCheckerExtractor_candidates_at_witness_empty f hf N
+  · exact (input.toCheckerExtractor_gap_trace).2
+
+/-- Singleton-gap rejection gives the full proof-length-free lower-bound
+machine closure, with the checked-gap witness definitionally following the
+original computable gap certificate. -/
+theorem singletonGapRejectionInput_canonicalSearchCore_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt) :
+    let core := singletonGapRejectionInputToCanonicalSearchExactnessCore input
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) := by
+  let core := singletonGapRejectionInputToCanonicalSearchExactnessCore input
+  have hclosure := core.proofLengthFree_lower_bound_machine_closure
+  have htrace := singletonGapRejectionInput_canonicalSearchCore_gap_trace input
+  dsimp [core, singletonGapRejectionInputToCanonicalSearchExactnessCore] at hclosure htrace ⊢
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.1,
+      hclosure.2.2.2.1,
+      by
+        intro U hU N
+        exact (hclosure.2.2.2.2 U hU N).trans
+          ((htrace.1 U hU N).1)⟩
+
+noncomputable def computableSearchGapCertificateOfWitnessExists
+    {measured : Nat → Real}
+    (hexists :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ N : Nat, ∃ n : Nat, N ≤ n ∧ U n < measured n) :
+    ComputableSearchGapCertificate measured where
+  gap_for_polynomial_upper := by
+    intro U hU
+    exact
+      { witness := fun N => Classical.choose (hexists U hU N)
+        witness_ge := by
+          intro N
+          exact (Classical.choose_spec (hexists U hU N)).1
+        strict_at_witness := by
+          intro N
+          exact (Classical.choose_spec (hexists U hU N)).2 }
+
+theorem computableSearchGapCertificateOfWitnessExists_witness_spec
+    {measured : Nat → Real}
+    (hexists :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ N : Nat, ∃ n : Nat, N ≤ n ∧ U n < measured n)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    N ≤
+        ((computableSearchGapCertificateOfWitnessExists hexists)
+          |>.gap_for_polynomial_upper U hU).witness N ∧
+      U (((computableSearchGapCertificateOfWitnessExists hexists)
+          |>.gap_for_polynomial_upper U hU).witness N) <
+        measured
+          (((computableSearchGapCertificateOfWitnessExists hexists)
+            |>.gap_for_polynomial_upper U hU).witness N) :=
+  ⟨((computableSearchGapCertificateOfWitnessExists hexists)
+      |>.gap_for_polynomial_upper U hU).witness_ge N,
+    ((computableSearchGapCertificateOfWitnessExists hexists)
+      |>.gap_for_polynomial_upper U hU).strict_at_witness N⟩
+
+noncomputable def computableSearchGapCertificateOfFrequentlyStrict
+    {measured : Nat → Real}
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < measured n) :
+    ComputableSearchGapCertificate measured :=
+  computableSearchGapCertificateOfWitnessExists (fun U hU =>
+    Filter.frequently_atTop.mp (hfreq U hU))
+
+theorem computableSearchGapCertificateOfFrequentlyStrict_witness_spec
+    {measured : Nat → Real}
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < measured n)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    N ≤
+        ((computableSearchGapCertificateOfFrequentlyStrict hfreq)
+          |>.gap_for_polynomial_upper U hU).witness N ∧
+      U (((computableSearchGapCertificateOfFrequentlyStrict hfreq)
+          |>.gap_for_polynomial_upper U hU).witness N) <
+        measured
+          (((computableSearchGapCertificateOfFrequentlyStrict hfreq)
+            |>.gap_for_polynomial_upper U hU).witness N) :=
+  computableSearchGapCertificateOfWitnessExists_witness_spec
+    (fun U hU => Filter.frequently_atTop.mp (hfreq U hU)) U hU N
+
+/-- Proof-length-free strict-scale singleton-gap input.  Compared with the
+older calibrated singleton route, this deliberately removes the root
+`proof_length` exactness field: strict scale growth gives raw-code injectivity,
+and the computable calibrated-size gap supplies the rejection extractor. -/
+structure ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+    (scale_data : InternalPudlakTheorem5ScaleData) : Type where
+  lengthCodeAt : Nat → Nat
+  scale_strict :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b
+  gap :
+    ComputableSearchGapCertificate
+      (fun n : Nat => (lengthCodeAt n : Real))
+
+namespace ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+
+theorem scale_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    Function.Injective scale_data.scale := by
+  intro a b hscale_eq
+  rcases Nat.lt_trichotomy a b with hlt | heq | hgt
+  · have hstrict :
+        scale_data.scale a < scale_data.scale b :=
+      input.scale_strict hlt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+  · exact heq
+  · have hstrict :
+        scale_data.scale b < scale_data.scale a :=
+      input.scale_strict hgt
+    rw [hscale_eq] at hstrict
+    exact False.elim ((Nat.lt_irrefl _) hstrict)
+
+theorem powerBoundRawCode_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    Function.Injective scale_data.powerBoundRawCode :=
+  concretePAHilbert_powerBoundRawCode_injective_of_scale_injective
+    scale_data input.scale_injective
+
+def toSingletonGapRejectionInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+      scale_data input.lengthCodeAt where
+  powerBoundRawCode_injective :=
+    input.powerBoundRawCode_injective
+  gap :=
+    input.gap
+
+def toCanonicalSearchExactnessCore
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    PAHilbertCanonicalSearchExactnessCore :=
+  singletonGapRejectionInputToCanonicalSearchExactnessCore
+    input.toSingletonGapRejectionInput
+
+theorem canonicalSearchCore_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    Nonempty PAHilbertCanonicalSearchExactnessCore :=
+  ⟨input.toCanonicalSearchExactnessCore⟩
+
+noncomputable def ofFrequentlyStrictLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+      scale_data where
+  lengthCodeAt :=
+    lengthCodeAt
+  scale_strict :=
+    scale_strict
+  gap :=
+    computableSearchGapCertificateOfFrequentlyStrict hfreq
+
+theorem ofFrequentlyStrictLength_gap_witness_spec
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    let input :=
+      ofFrequentlyStrictLength
+        (scale_data := scale_data) lengthCodeAt scale_strict hfreq
+    N ≤ (input.gap.gap_for_polynomial_upper U hU).witness N ∧
+      U ((input.gap.gap_for_polynomial_upper U hU).witness N) <
+        (lengthCodeAt
+          ((input.gap.gap_for_polynomial_upper U hU).witness N) : Real) := by
+  simpa [ofFrequentlyStrictLength] using
+    computableSearchGapCertificateOfFrequentlyStrict_witness_spec
+      hfreq U hU N
+
+noncomputable def ofCheckedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt) :
+    ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+      scale_data :=
+  ofFrequentlyStrictLength lengthCodeAt scale_strict
+    (fun U hU =>
+      (hchecked U hU).mono (fun _ hn => by
+        simpa [gt_iff_lt] using hn))
+
+theorem ofCheckedPowerBoundLowerBound_gap_witness_spec
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    let input :=
+      ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    N ≤ (input.gap.gap_for_polynomial_upper U hU).witness N ∧
+      U ((input.gap.gap_for_polynomial_upper U hU).witness N) <
+        (lengthCodeAt
+          ((input.gap.gap_for_polynomial_upper U hU).witness N) : Real) := by
+  simpa [ofCheckedPowerBoundLowerBound] using
+    ofFrequentlyStrictLength_gap_witness_spec
+      (scale_data := scale_data) lengthCodeAt scale_strict
+      (fun U hU =>
+        (hchecked U hU).mono (fun _ hn => by
+          simpa [gt_iff_lt] using hn))
+      U hU N
+
+theorem canonicalSearchCore_gap_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    let core := input.toCanonicalSearchExactnessCore
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      core.rejectionExtractor.witness f hf N =
+          (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+        core.rejectionExtractor.cutoff f hf N =
+          input.lengthCodeAt
+            ((input.gap.gap_for_polynomial_upper f hf).witness N) ∧
+          N ≤ (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+            f ((input.gap.gap_for_polynomial_upper f hf).witness N) <
+              (input.lengthCodeAt
+                ((input.gap.gap_for_polynomial_upper f hf).witness N) :
+                  Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        core.finiteEnumeration.candidates
+          (core.rejectionExtractor.witness f hf N)
+          (core.rejectionExtractor.cutoff f hf N) = []) ∧
+        (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+          ∀ code : core.checkerSemantics.Code,
+          code ∈
+            core.finiteEnumeration.candidates
+              (core.rejectionExtractor.witness f hf N)
+              (core.rejectionExtractor.cutoff f hf N) →
+            ¬ core.checkerSemantics.checks code
+              (scale_data.powerBoundRawCode
+                (core.rejectionExtractor.witness f hf N))) := by
+  dsimp [toCanonicalSearchExactnessCore,
+    singletonGapRejectionInputToCanonicalSearchExactnessCore,
+    toSingletonGapRejectionInput]
+  refine ⟨?_, ?_, ?_⟩
+  · exact (input.toSingletonGapRejectionInput.toCheckerExtractor_gap_trace).1
+  · intro f hf N
+    exact
+      input.toSingletonGapRejectionInput
+        |>.toCheckerExtractor_candidates_at_witness_empty f hf N
+  · exact (input.toSingletonGapRejectionInput.toCheckerExtractor_gap_trace).2
+
+theorem proofLengthFree_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) := by
+  have hclosure :=
+    singletonGapRejectionInput_canonicalSearchCore_lower_bound_machine_closure
+      input.toSingletonGapRejectionInput
+  simpa [toCanonicalSearchExactnessCore, toSingletonGapRejectionInput] using
+    hclosure
+
+theorem proofLengthFree_closure_toCheckedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data input.lengthCodeAt := by
+  intro f hf
+  let core := input.toCanonicalSearchExactnessCore
+  have hclosure := input.proofLengthFree_lower_bound_machine_closure
+  have hlower :=
+    hclosure.2.2.1 f hf
+  exact hlower.mono (fun n hn => by
+    have hmin_nat :
+        core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ =
+          input.lengthCodeAt n := by
+      simpa [core, toCanonicalSearchExactnessCore,
+        singletonGapRejectionInputToCanonicalSearchExactnessCore,
+        toSingletonGapRejectionInput,
+        InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+        using
+          concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+            scale_data input.lengthCodeAt n input.powerBoundRawCode_injective
+    have hmin_real :
+        (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) =
+          (input.lengthCodeAt n : Real) := by
+      exact_mod_cast hmin_nat
+    rw [hmin_real] at hn
+    simpa [gt_iff_lt] using hn)
+
+theorem ofFrequentlyStrictLength_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real)) :
+    let input :=
+      ofFrequentlyStrictLength
+        (scale_data := scale_data) lengthCodeAt scale_strict hfreq
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          ((computableSearchGapCertificateOfFrequentlyStrict hfreq
+              |>.gap_for_polynomial_upper U hU).witness N)) := by
+  simpa [ofFrequentlyStrictLength] using
+    (ofFrequentlyStrictLength
+      (scale_data := scale_data) lengthCodeAt scale_strict hfreq)
+      |>.proofLengthFree_lower_bound_machine_closure
+
+theorem ofFrequentlyStrictLength_closure_toCheckedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hfreq :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∃ᶠ n in Filter.atTop, U n < (lengthCodeAt n : Real)) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt :=
+  (ofFrequentlyStrictLength
+    (scale_data := scale_data) lengthCodeAt scale_strict hfreq)
+    |>.proofLengthFree_closure_toCheckedPowerBoundLowerBound
+
+theorem ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt) :
+    let input :=
+      ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) := by
+  simpa [ofCheckedPowerBoundLowerBound] using
+    (ofCheckedPowerBoundLowerBound
+      (scale_data := scale_data) lengthCodeAt scale_strict hchecked)
+      |>.proofLengthFree_lower_bound_machine_closure
+
+theorem ofCheckedPowerBoundLowerBound_closure_preserves_checkedLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt :=
+  (ofCheckedPowerBoundLowerBound
+    (scale_data := scale_data) lengthCodeAt scale_strict hchecked)
+    |>.proofLengthFree_closure_toCheckedPowerBoundLowerBound
+
+/-- Exact proof-length-free equivalence for the current checked target.  Under
+strict scale growth, proving the checked lower bound is the same as producing a
+strict-scale singleton search input with that calibrated length.  The reverse
+direction uses the lower-machine closure and the singleton minimum-size
+calibration, so this is an audit check that the search-input route has not
+weakened the checked lower-bound target. -/
+theorem checkedPowerBoundLowerBound_iff_nonempty_strictScaleSearchInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt ↔
+      Nonempty
+        { input :
+            ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+              scale_data //
+          input.lengthCodeAt = lengthCodeAt } := by
+  constructor
+  · intro hchecked
+    exact
+      ⟨⟨ofCheckedPowerBoundLowerBound
+          (scale_data := scale_data) lengthCodeAt scale_strict hchecked,
+        rfl⟩⟩
+  · intro hinput
+    rcases hinput with ⟨input, hlength⟩
+    have hchecked :=
+      input.proofLengthFree_closure_toCheckedPowerBoundLowerBound
+    simpa [hlength] using hchecked
+
+theorem checkedPowerBoundLowerBound_to_strictScaleSearchInput_nonempty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt) :
+    Nonempty
+      { input :
+          ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+            scale_data //
+        input.lengthCodeAt = lengthCodeAt } :=
+  (checkedPowerBoundLowerBound_iff_nonempty_strictScaleSearchInput
+    (scale_data := scale_data) lengthCodeAt scale_strict).mp hchecked
+
+theorem strictScaleSearchInput_nonempty_to_checkedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hinput :
+      Nonempty
+        { input :
+            ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+              scale_data //
+          input.lengthCodeAt = lengthCodeAt }) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt :=
+  (checkedPowerBoundLowerBound_iff_nonempty_strictScaleSearchInput
+    (scale_data := scale_data) lengthCodeAt scale_strict).mpr hinput
+
+end ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+
+/-- For the calibrated PA/Hilbert singleton semantics, no-small proof codes are
+exactly the checked lower-bound target, provided the theorem-5 raw-code family
+is injective.  This is the local mathematical core behind the proof-length-free
+route: every accepted code for `powerBoundRawCode n` is the canonical code `n`,
+so "every accepted code is larger than `f n`" is equivalent to
+`lengthCodeAt n > f n`. -/
+theorem concretePAHilbertPowerBoundCalibrated_noSmallProofCodes_iff_checkedPowerBoundLowerBound_of_injective
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    InternalPudlakTheorem5NoSmallProofCodes
+        scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics ↔
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt := by
+  constructor
+  · intro hno f hf
+    have hlower :=
+      InternalPudlakTheorem5NoSmallProofCodes.toProofCodeLowerBound
+        hno f hf
+    exact hlower.mono (fun n hn => by
+      have hmin_nat :
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics.minProofCodeSize
+              (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ =
+            lengthCodeAt n := by
+        simpa [InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt] using
+          concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+            scale_data lengthCodeAt n hinjective
+      have hmin_real :
+          ((concretePAHilbertPowerBoundCalibratedCheckerSemantics
+              scale_data lengthCodeAt).toProofCodeSemantics.minProofCodeSize
+              (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) =
+            (lengthCodeAt n : Real) := by
+        exact_mod_cast hmin_nat
+      rw [hmin_real] at hn
+      exact hn)
+  · intro hchecked f hf
+    exact (hchecked f hf).mono (fun n hn c hchecks => by
+      have haccepted :
+          PAHilbertAcceptedProofCodeForFormulaCode
+            (concretePAHilbertPowerBoundChecker scale_data)
+            (scale_data.powerBoundRawCode n) c := by
+        simpa [InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics,
+          concretePAHilbertPowerBoundCalibratedCheckerSemantics] using hchecks
+      have hc_eq : c = n :=
+        concretePAHilbertPowerBound_acceptedProofCode_to_code_eq_of_injective
+          hinjective haccepted
+      subst c
+      simpa [InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics,
+        concretePAHilbertPowerBoundCalibratedCheckerSemantics] using hn)
+
+namespace ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+
+theorem noSmallProofCodes_iff_checkedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data) :
+    InternalPudlakTheorem5NoSmallProofCodes
+        scale_data
+        input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics ↔
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data input.lengthCodeAt := by
+  simpa [toCanonicalSearchExactnessCore,
+    singletonGapRejectionInputToCanonicalSearchExactnessCore,
+    toSingletonGapRejectionInput] using
+    concretePAHilbertPowerBoundCalibrated_noSmallProofCodes_iff_checkedPowerBoundLowerBound_of_injective
+      scale_data input.lengthCodeAt input.powerBoundRawCode_injective
+
+theorem noSmallProofCodes_to_checkedPowerBoundLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (hno :
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data
+        input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data input.lengthCodeAt :=
+  input.noSmallProofCodes_iff_checkedPowerBoundLowerBound.mp hno
+
+theorem checkedPowerBoundLowerBound_to_noSmallProofCodes
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data input.lengthCodeAt) :
+    InternalPudlakTheorem5NoSmallProofCodes
+      scale_data
+      input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics :=
+  input.noSmallProofCodes_iff_checkedPowerBoundLowerBound.mpr hchecked
+
+end ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+
+/-- Polynomial bounds are closed under taking the pointwise maximum with zero.
+This lets the theorem-5 lower bound produce eventually positive proof lengths
+while preserving the original polynomial test function. -/
+theorem is_polynomial_bound_max_zero
+    {f : Nat → Real} (hf : _root_.is_polynomial_bound f) :
+    _root_.is_polynomial_bound (fun n : Nat => max (f n) 0) := by
+  rcases hf.nonneg_coefficient with ⟨C, k, hC, hbound⟩
+  refine ⟨C, k, ?_⟩
+  intro n
+  have hbase_nonneg : 0 ≤ (n : Real) + 1 := by positivity
+  have hpoly_nonneg : 0 ≤ C * ((n : Real) + 1) ^ k :=
+    mul_nonneg hC (pow_nonneg hbase_nonneg k)
+  exact max_le (hbound n) hpoly_nonneg
+
+/-- Nat-valued upper rounding of the actual theorem-5 PA proof length on the
+power-bound raw-code family.  This is a witness route, not the final concrete
+PA/Hilbert calibration: the length family is still defined from the abstract
+root `proof_length`. -/
+noncomputable def actualProofLengthFloorSuccCodeAt
+    (scale_data : InternalPudlakTheorem5ScaleData) : Nat → Nat :=
+  fun n =>
+    Int.toNat
+      (Int.floor
+          (_root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n)) + 1)
+
+theorem actualProofLength_lt_actualProofLengthFloorSuccCodeAt
+    (scale_data : InternalPudlakTheorem5ScaleData) (n : Nat)
+    (hpos :
+      0 <
+        _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n)) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) <
+      (actualProofLengthFloorSuccCodeAt scale_data n : Real) := by
+  let x : Real :=
+    _root_.proof_length _root_.ProofSystem.PA
+      _root_.ProofLengthMeasure.symbolSize
+      (scale_data.powerBoundRawCode n)
+  have hfloor_lt : x < ((Int.floor x + 1 : Int) : Real) := by
+    rw [Int.cast_add, Int.cast_one]
+    exact Int.lt_floor_add_one x
+  have hfloor_nonneg : 0 ≤ Int.floor x :=
+    Int.floor_nonneg.mpr (le_of_lt hpos)
+  have hfloor_succ_nonneg : 0 ≤ Int.floor x + 1 :=
+    Int.add_nonneg hfloor_nonneg (by norm_num)
+  have htoNat_int :
+      (((Int.floor x + 1).toNat : Nat) : Int) =
+        Int.floor x + 1 :=
+    Int.toNat_of_nonneg hfloor_succ_nonneg
+  have htoNat_real :
+      (((Int.floor x + 1).toNat : Nat) : Real) =
+        ((Int.floor x + 1 : Int) : Real) := by
+    exact_mod_cast htoNat_int
+  change x < (actualProofLengthFloorSuccCodeAt scale_data n : Real)
+  exact hfloor_lt.trans_eq (by
+    simpa [actualProofLengthFloorSuccCodeAt, x] using htoNat_real.symm)
+
+/-- The theorem-5 external power-bound lower bound directly yields a checked
+lower bound for the Nat-valued upper rounding of actual PA proof length.  This
+removes the pointwise equality calibration assumption from the lower-bound
+transport: no `proof_length = lengthCodeAt` hypothesis is used. -/
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data (actualProofLengthFloorSuccCodeAt scale_data) := by
+  intro f hf
+  let f_nonneg : Nat → Real := fun n => max (f n) 0
+  have hf_nonneg : _root_.is_polynomial_bound f_nonneg :=
+    is_polynomial_bound_max_zero hf
+  exact
+    (hlower.frequently_beats_every_polynomial f_nonneg hf_nonneg).mono
+      (fun n hn => by
+        have hn_internal :
+            f_nonneg n <
+              _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.powerBoundRawCode n) := by
+          simpa [f_nonneg, InternalPudlakTheorem5ScaleData.powerBoundRawCode]
+            using hn
+        have hf_lt_proof :
+            f n <
+              _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.powerBoundRawCode n) :=
+          lt_of_le_of_lt (le_max_left (f n) (0 : Real)) hn_internal
+        have hpos :
+            0 <
+              _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.powerBoundRawCode n) :=
+          lt_of_le_of_lt (le_max_right (f n) (0 : Real)) hn_internal
+        exact
+          hf_lt_proof.trans
+            (actualProofLength_lt_actualProofLengthFloorSuccCodeAt
+              scale_data n hpos))
+
+theorem checkedPowerBoundLowerBound_actualProofLengthFloorSucc_to_powerBoundLowerBound
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data (actualProofLengthFloorSuccCodeAt scale_data)) :
+    scale_data.PowerBoundLowerBound where
+  frequently_beats_every_polynomial := by
+    intro f hf
+    let g : Nat → Real := fun n => max (f n + 1) 0 + 1
+    have hf_add_one :
+        _root_.is_polynomial_bound (fun n : Nat => f n + 1) :=
+      _root_.is_polynomial_bound_add_const hf (by norm_num)
+    have hg : _root_.is_polynomial_bound g := by
+      dsimp [g]
+      exact
+        _root_.is_polynomial_bound_add_const
+          (is_polynomial_bound_max_zero hf_add_one) (by norm_num)
+    exact
+      (hchecked g hg).mono
+        (fun n hn => by
+          let x : Real :=
+            _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (scale_data.powerBoundRawCode n)
+          let z : Int := Int.floor x + 1
+          let y : Nat := z.toNat
+          have hy_eq :
+              actualProofLengthFloorSuccCodeAt scale_data n = y := by
+            rfl
+          have hy_gt_g : g n < (y : Real) := by
+            simpa [hy_eq] using hn
+          have hone_le_g : (1 : Real) ≤ g n := by
+            have hmax_nonneg : 0 ≤ max (f n + 1) 0 :=
+              le_max_right (f n + 1) (0 : Real)
+            dsimp [g]
+            linarith
+          have hy_gt_one : (1 : Real) < (y : Real) :=
+            lt_of_le_of_lt hone_le_g hy_gt_g
+          have hy_ne_zero : y ≠ 0 := by
+            intro hy0
+            rw [hy0] at hy_gt_one
+            norm_num at hy_gt_one
+          have hz_pos : 0 < z := by
+            by_contra hz_not_pos
+            have hz_nonpos : z ≤ 0 := le_of_not_gt hz_not_pos
+            have hy0 : y = 0 := by
+              simpa [y] using (Int.toNat_eq_zero.mpr hz_nonpos)
+            exact hy_ne_zero hy0
+          have htoNat_int : ((y : Nat) : Int) = z := by
+            simpa [y] using Int.toNat_of_nonneg (le_of_lt hz_pos)
+          have htoNat_real : (y : Real) = (z : Real) := by
+            exact_mod_cast htoNat_int
+          have hf_two_le_g : f n + 2 ≤ g n := by
+            have hf_one_le_max : f n + 1 ≤ max (f n + 1) 0 :=
+              le_max_left (f n + 1) (0 : Real)
+            dsimp [g]
+            linarith
+          have hf_two_lt_z : f n + 2 < (z : Real) :=
+            lt_of_le_of_lt hf_two_le_g (hy_gt_g.trans_eq htoNat_real)
+          have hfloor_gt_f_one :
+              f n + 1 < (Int.floor x : Real) := by
+            have hz_expand :
+                (z : Real) = (Int.floor x : Real) + 1 := by
+              simp [z, Int.cast_add, Int.cast_one]
+            rw [hz_expand] at hf_two_lt_z
+            linarith
+          have hx_gt_f : f n < x := by
+            have hfloor_le_x : (Int.floor x : Real) ≤ x :=
+              Int.floor_le x
+            linarith
+          simpa [x, InternalPudlakTheorem5ScaleData.powerBoundRawCode]
+            using hx_gt_f)
+
+theorem powerBoundLowerBound_iff_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+    (scale_data : InternalPudlakTheorem5ScaleData) :
+    scale_data.PowerBoundLowerBound ↔
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data (actualProofLengthFloorSuccCodeAt scale_data) :=
+  ⟨powerBoundLowerBound_to_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+      scale_data,
+    checkedPowerBoundLowerBound_actualProofLengthFloorSucc_to_powerBoundLowerBound
+      scale_data⟩
+
+/-- External theorem-5 lower bound to strict-scale singleton search input with
+no pointwise proof-length equality hypothesis.  The selected Nat length is the
+upper rounding of actual PA proof length, so this is still rooted in the
+abstract `proof_length`, but the old equality-calibration residual has been
+removed from this transport. -/
+theorem powerBoundLowerBound_to_strictScaleSearchInput_nonempty_actualProofLengthFloorSucc
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    Nonempty
+      { input :
+          ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+            scale_data //
+        input.lengthCodeAt = actualProofLengthFloorSuccCodeAt scale_data } :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.checkedPowerBoundLowerBound_to_strictScaleSearchInput_nonempty
+    (scale_data := scale_data)
+    (actualProofLengthFloorSuccCodeAt scale_data) scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+      scale_data hlower)
+
+/-- Direct lower-machine closure from theorem-5 external power-bound lower
+bound using the upper-rounded actual proof length.  This is the same
+proof-length-free PA/Hilbert singleton search machine as before, but it no
+longer needs a separate hypothesis equating root `proof_length` with a
+preselected `lengthCodeAt`; that Nat family is built from the actual
+proof-length values. -/
+theorem powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_actualProofLengthFloorSucc
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let lengthCodeAt := actualProofLengthFloorSuccCodeAt scale_data
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+        scale_data hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
+    (scale_data := scale_data)
+    (actualProofLengthFloorSuccCodeAt scale_data) scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_actualProofLengthFloorSucc
+      scale_data hlower)
+
+/-- One-sided replacement for the old equality calibration.  To transport
+Pudlak's root proof-length lower bound to a Nat-valued checked length, it is
+enough that the checked length dominates root `proof_length` on the theorem-5
+raw-code family.  No pointwise equality is required. -/
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthLe
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (proof_length_le_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) ≤
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt := by
+  intro f hf
+  exact
+    (hlower.frequently_beats_every_polynomial f hf).mono
+      (fun n hn => by
+        have hle :
+            _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.toLiteratureScaleData.powerBoundRawCode n) ≤
+              (lengthCodeAt n : Real) := by
+          simpa [InternalPudlakTheorem5ScaleData.powerBoundRawCode]
+            using proof_length_le_lengthCodeAt n
+        exact lt_of_lt_of_le hn hle)
+
+/-- Concrete checker version of the one-sided residual.  If the actual
+theorem-5 proof length is bounded above by the checker-computed minimum proof
+code size at every index, the external power-bound lower bound transfers to the
+checker minimum-size lower bound. -/
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_checkedMeasured
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (actual_le_checked :
+      ∀ n : Nat,
+        actualProofLengthMeasured scale_data n ≤
+          month9_month10_checkedProofCodeMeasured scale_data sem n)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data
+      (fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩) := by
+  intro f hf
+  exact
+    (hlower.frequently_beats_every_polynomial f hf).mono
+      (fun n hn => by
+        have hle :
+            _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.toLiteratureScaleData.powerBoundRawCode n) ≤
+              ((sem.minProofCodeSize
+                (scale_data.powerBoundRawCode n) ⟨n, rfl⟩) : Real) := by
+          calc
+            _root_.proof_length _root_.ProofSystem.PA
+                _root_.ProofLengthMeasure.symbolSize
+                (scale_data.toLiteratureScaleData.powerBoundRawCode n)
+                = actualProofLengthMeasured scale_data n := by
+                    rfl
+            _ ≤ month9_month10_checkedProofCodeMeasured scale_data sem n :=
+                    actual_le_checked n
+            _ = ((sem.minProofCodeSize
+                    (scale_data.powerBoundRawCode n) ⟨n, rfl⟩) : Real) :=
+                    rfl
+        exact lt_of_lt_of_le hn hle)
+
+/-- Same one-sided residual, stated against the checker-induced project length.
+The project-length measurement is already definitionally the checker minimum on
+the theorem-5 raw-code family, so this is the exact single-sided local target
+for eliminating the root `proof_length` bridge. -/
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_projectLength
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (fallback : _root_.FormulaCode → Nat)
+    (actual_le_projectLength :
+      ∀ n : Nat,
+        actualProofLengthMeasured scale_data n ≤
+          month9_month10_checkerProjectLengthMeasured
+            scale_data sem fallback n)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data
+      (fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩) :=
+  powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_checkedMeasured
+    scale_data sem
+    (fun n => by
+      calc
+        actualProofLengthMeasured scale_data n
+            ≤ month9_month10_checkerProjectLengthMeasured
+                scale_data sem fallback n :=
+              actual_le_projectLength n
+        _ = month9_month10_checkedProofCodeMeasured scale_data sem n :=
+              month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+                scale_data sem fallback n)
+    hlower
+
+theorem powerBoundLowerBound_to_strictScaleSearchInput_nonempty_of_proofLengthLe
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_le_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) ≤
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    Nonempty
+      { input :
+          ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+            scale_data //
+        input.lengthCodeAt = lengthCodeAt } :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.checkedPowerBoundLowerBound_to_strictScaleSearchInput_nonempty
+    (scale_data := scale_data) lengthCodeAt scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthLe
+      scale_data lengthCodeAt proof_length_le_lengthCodeAt hlower)
+
+/-- Lower-machine closure under the one-sided proof-length domination residual.
+This is strictly weaker than the older equality-calibration route and is the
+right target for a concrete checker soundness theorem. -/
+theorem powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_proofLengthLe
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_le_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) ≤
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthLe
+        scale_data lengthCodeAt proof_length_le_lengthCodeAt hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
+    (scale_data := scale_data) lengthCodeAt scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthLe
+      scale_data lengthCodeAt proof_length_le_lengthCodeAt hlower)
+
+/-- Project-length domination version of the lower-bound transfer.  The only
+root residual is the one-sided statement that actual PA proof length is bounded
+by the checker-induced `projectLength`; the rest is the existing
+proof-length-free checker route. -/
+theorem powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_actualLe_projectLength
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (fallback : _root_.FormulaCode → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (actual_le_projectLength :
+      ∀ n : Nat,
+        actualProofLengthMeasured scale_data n ≤
+          month9_month10_checkerProjectLengthMeasured
+            scale_data sem fallback n)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let lengthCodeAt :=
+      fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_projectLength
+        scale_data sem fallback actual_le_projectLength hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
+    (scale_data := scale_data)
+    (fun n : Nat =>
+      sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩)
+    scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_projectLength
+      scale_data sem fallback actual_le_projectLength hlower)
+
+/-- Exactness certificates imply the one-sided project-length domination needed
+above.  This lemma deliberately uses only the already-proved local equality from
+checker exactness to project length, then weakens it to `≤`. -/
+theorem actualLeProjectLength_of_checkerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics scale_data}
+    (exactness : InternalPudlakTheorem5CheckerProofLengthExactness checker)
+    (fallback : _root_.FormulaCode → Nat) :
+    ∀ n : Nat,
+      actualProofLengthMeasured scale_data n ≤
+        month9_month10_checkerProjectLengthMeasured
+          scale_data checker.toProofCodeSemantics fallback n := by
+  intro n
+  have heq :
+      actualProofLengthMeasured scale_data n =
+        month9_month10_checkerProjectLengthMeasured
+          scale_data checker.toProofCodeSemantics fallback n := by
+    calc
+      actualProofLengthMeasured scale_data n =
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) := rfl
+      _ = (checker.minProofCodeSizeAt n : Real) :=
+          exactness.at_powerBoundRawCode n
+      _ = month9_month10_checkedProofCodeMeasured scale_data
+            checker.toProofCodeSemantics n := by
+          rfl
+      _ = month9_month10_checkerProjectLengthMeasured scale_data
+            checker.toProofCodeSemantics fallback n :=
+          (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+            scale_data checker.toProofCodeSemantics fallback n).symm
+  exact le_of_eq heq
+
+/-- Local checker soundness-to-domination bridge.  If every proof code accepted
+by the checker for the theorem-5 raw formula has size at least the root actual
+PA proof length, then the root actual length is bounded by the checker minimum
+proof-code size.  This is the concrete local obligation left after removing the
+older equality calibration. -/
+theorem actualLeCheckedMeasured_of_allCheckedCode_size_ge_actual
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (checked_code_size_ge_actual :
+      ∀ n : Nat, ∀ c : sem.Code,
+        sem.checks c (scale_data.powerBoundRawCode n) →
+          actualProofLengthMeasured scale_data n ≤ (sem.size c : Real)) :
+    ∀ n : Nat,
+      actualProofLengthMeasured scale_data n ≤
+        month9_month10_checkedProofCodeMeasured scale_data sem n := by
+  intro n
+  rcases sem.hasProofCodeOfSize_minProofCodeSize
+      (code := scale_data.powerBoundRawCode n) ⟨n, rfl⟩ with
+    ⟨c, hchecks, hsize_le_min⟩
+  have hactual_le_size :
+      actualProofLengthMeasured scale_data n ≤ (sem.size c : Real) :=
+    checked_code_size_ge_actual n c hchecks
+  have hsize_le_min :
+      (sem.size c : Real) ≤
+        (sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) := by
+    exact_mod_cast hsize_le_min
+  exact hactual_le_size.trans hsize_le_min
+
+/-- Checker proof-length exactness implies the local all-accepted-code
+soundness domination above.  This uses the already-proved minimum-size property
+of `ProofCodeSemantics`; no new proof-length machinery is introduced. -/
+theorem allCheckedCode_size_ge_actual_of_checkerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics scale_data}
+    (exactness : InternalPudlakTheorem5CheckerProofLengthExactness checker) :
+    ∀ n : Nat, ∀ c : checker.toProofCodeSemantics.Code,
+      checker.toProofCodeSemantics.checks c (scale_data.powerBoundRawCode n) →
+        actualProofLengthMeasured scale_data n ≤
+          (checker.toProofCodeSemantics.size c : Real) := by
+  intro n c hchecks
+  let sem := checker.toProofCodeSemantics
+  have hactual_eq_min :
+      actualProofLengthMeasured scale_data n =
+        (sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) := by
+    simpa [actualProofLengthMeasured, sem,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt] using
+      exactness.at_powerBoundRawCode n
+  have hmin_le_size_nat :
+      sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ ≤
+        sem.size c :=
+    sem.minProofCodeSize_le_of_hasProofCodeOfSize
+      (code := scale_data.powerBoundRawCode n) ⟨n, rfl⟩
+      ⟨c, hchecks, le_rfl⟩
+  have hmin_le_size :
+      (sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) ≤
+        (sem.size c : Real) := by
+    exact_mod_cast hmin_le_size_nat
+  exact hactual_eq_min.le.trans hmin_le_size
+
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_allCheckedCode_size_ge_actual
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (checked_code_size_ge_actual :
+      ∀ n : Nat, ∀ c : sem.Code,
+        sem.checks c (scale_data.powerBoundRawCode n) →
+          actualProofLengthMeasured scale_data n ≤ (sem.size c : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data
+      (fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩) :=
+  powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_checkedMeasured
+    scale_data sem
+    (actualLeCheckedMeasured_of_allCheckedCode_size_ge_actual
+      scale_data sem checked_code_size_ge_actual)
+    hlower
+
+/-- Lower-machine closure from the local all-accepted-code soundness
+domination.  This is the most local current residual: prove accepted checker
+codes are genuine PA proof objects whose measured size cannot be below root PA
+proof length, and Pudlak's lower bound reaches the proof-length-free search
+machine. -/
+theorem powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_allCheckedCode_size_ge_actual
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (checked_code_size_ge_actual :
+      ∀ n : Nat, ∀ c : sem.Code,
+        sem.checks c (scale_data.powerBoundRawCode n) →
+          actualProofLengthMeasured scale_data n ≤ (sem.size c : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let lengthCodeAt :=
+      fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_allCheckedCode_size_ge_actual
+        scale_data sem checked_code_size_ge_actual hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_actualLe_projectLength
+    scale_data sem (fun _ => 0) scale_strict
+    (fun n =>
+      calc
+        actualProofLengthMeasured scale_data n
+            ≤ month9_month10_checkedProofCodeMeasured scale_data sem n :=
+              actualLeCheckedMeasured_of_allCheckedCode_size_ge_actual
+                scale_data sem checked_code_size_ge_actual n
+        _ = month9_month10_checkerProjectLengthMeasured
+              scale_data sem (fun _ => 0) n :=
+              (month9_month10_checkerProjectLengthMeasured_eq_checkedProofCodeMeasured
+                scale_data sem (fun _ => 0) n).symm)
+    hlower
+
+namespace Month9Month10Month11ThreeCertificateHandoff
+
+theorem actual_le_projectLength
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat) :
+    ∀ n : Nat,
+      actualProofLengthMeasured scale_data n ≤
+        month9_month10_checkerProjectLengthMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics fallback n :=
+  actualLeProjectLength_of_checkerProofLengthExactness
+    h.proofLengthExactness fallback
+
+/-- Existing three-certificate handoff, routed through the weaker one-sided
+project-length domination bridge.  This shows the downstream lower machine only
+needs the handoff's checker project length to dominate actual proof length; the
+older equality calibration is stronger than necessary. -/
+theorem powerBoundLowerBound_to_projectLengthDominated_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let sem := h.checkerSemantics.toProofCodeSemantics
+    let lengthCodeAt :=
+      fun n : Nat =>
+        sem.minProofCodeSize (scale_data.powerBoundRawCode n) ⟨n, rfl⟩
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_minProofCodeSize_of_actualLe_projectLength
+        scale_data sem fallback (h.actual_le_projectLength fallback) hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt h.scaleStrict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_actualLe_projectLength
+    scale_data h.checkerSemantics.toProofCodeSemantics fallback h.scaleStrict
+    (h.actual_le_projectLength fallback) hlower
+
+end Month9Month10Month11ThreeCertificateHandoff
+
+/-- Exact residual bridge between the external theorem-5 power-bound statement
+and the checked lower-bound target.  Once the family calibration
+`proof_length(powerBoundRawCode n) = lengthCodeAt n` is supplied, Pudlak's
+power-bound lower bound and the checked lower bound are definitionally the same
+frequent lower-bound assertion.  This theorem deliberately exposes the remaining
+root `proof_length` residual instead of hiding it in a larger package. -/
+theorem powerBoundLowerBound_iff_checkedPowerBoundLowerBound_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    scale_data.PowerBoundLowerBound ↔
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt := by
+  constructor
+  · intro hlower f hf
+    exact
+      (hlower.frequently_beats_every_polynomial f hf).mono
+        (fun n hn => by
+          have heq :
+              _root_.proof_length _root_.ProofSystem.PA
+                  _root_.ProofLengthMeasure.symbolSize
+                  (scale_data.toLiteratureScaleData.powerBoundRawCode n) =
+                (lengthCodeAt n : Real) := by
+            simpa [InternalPudlakTheorem5ScaleData.powerBoundRawCode]
+              using proof_length_eq_lengthCodeAt n
+          rw [heq] at hn
+          exact hn)
+  · intro hchecked
+    exact
+      { frequently_beats_every_polynomial := by
+          intro f hf
+          exact
+            (hchecked f hf).mono
+              (fun n hn => by
+                have heq :
+                    _root_.proof_length _root_.ProofSystem.PA
+                        _root_.ProofLengthMeasure.symbolSize
+                        (scale_data.toLiteratureScaleData.powerBoundRawCode n) =
+                      (lengthCodeAt n : Real) := by
+                  simpa [InternalPudlakTheorem5ScaleData.powerBoundRawCode]
+                    using proof_length_eq_lengthCodeAt n
+                rw [heq]
+                exact hn) }
+
+theorem powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    InternalPudlakTheorem5CheckedPowerBoundLowerBound
+      scale_data lengthCodeAt :=
+  (powerBoundLowerBound_iff_checkedPowerBoundLowerBound_of_proofLengthEq
+    scale_data lengthCodeAt proof_length_eq_lengthCodeAt).mp hlower
+
+theorem checkedPowerBoundLowerBound_to_powerBoundLowerBound_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (hchecked :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt) :
+    scale_data.PowerBoundLowerBound :=
+  (powerBoundLowerBound_iff_checkedPowerBoundLowerBound_of_proofLengthEq
+    scale_data lengthCodeAt proof_length_eq_lengthCodeAt).mpr hchecked
+
+/-- Under the explicit proof-length calibration, the external theorem-5
+power-bound lower-bound statement is equivalent to the proof-length-free
+strict-scale singleton search-input route.  This packages the remaining hard
+gap as the calibration
+`proof_length(powerBoundRawCode n) = lengthCodeAt n`; the search-input side
+itself is the clean PA/Hilbert checker route and does not add a new
+`proof_length` field. -/
+theorem powerBoundLowerBound_iff_nonempty_strictScaleSearchInput_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    scale_data.PowerBoundLowerBound ↔
+      Nonempty
+        { input :
+            ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+              scale_data //
+          input.lengthCodeAt = lengthCodeAt } := by
+  have hchecked_search :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+          scale_data lengthCodeAt ↔
+        Nonempty
+          { input :
+              ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+                scale_data //
+            input.lengthCodeAt = lengthCodeAt } :=
+    ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.checkedPowerBoundLowerBound_iff_nonempty_strictScaleSearchInput
+      (scale_data := scale_data) lengthCodeAt scale_strict
+  exact
+    (powerBoundLowerBound_iff_checkedPowerBoundLowerBound_of_proofLengthEq
+      scale_data lengthCodeAt proof_length_eq_lengthCodeAt).trans
+      hchecked_search
+
+theorem powerBoundLowerBound_to_strictScaleSearchInput_nonempty_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    Nonempty
+      { input :
+          ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+            scale_data //
+        input.lengthCodeAt = lengthCodeAt } :=
+  (powerBoundLowerBound_iff_nonempty_strictScaleSearchInput_of_proofLengthEq
+    scale_data lengthCodeAt scale_strict proof_length_eq_lengthCodeAt).mp hlower
+
+theorem strictScaleSearchInput_nonempty_to_powerBoundLowerBound_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (hinput :
+      Nonempty
+        { input :
+            ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+              scale_data //
+          input.lengthCodeAt = lengthCodeAt }) :
+    scale_data.PowerBoundLowerBound :=
+  (powerBoundLowerBound_iff_nonempty_strictScaleSearchInput_of_proofLengthEq
+    scale_data lengthCodeAt scale_strict proof_length_eq_lengthCodeAt).mpr hinput
+
+/-- Direct bridge from the theorem-5 external power-bound lower-bound statement
+to the proof-length-free lower-bound machine, with the sole residual written as
+the explicit proof-length calibration.  The produced machine closure is the
+same PA/Hilbert strict-scale singleton route used above: finite-search
+exclusion, no-small proof codes, frequent minimum-code lower bound, and a
+computable checked gap certificate. -/
+theorem powerBoundLowerBound_to_proofLengthFree_lower_bound_machine_closure_of_proofLengthEq
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b)
+    (proof_length_eq_lengthCodeAt :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real))
+    (hlower : scale_data.PowerBoundLowerBound) :
+    let hchecked :=
+      powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthEq
+        scale_data lengthCodeAt proof_length_eq_lengthCodeAt hlower
+    let input :=
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound
+        (scale_data := scale_data) lengthCodeAt scale_strict hchecked
+    let core := input.toCanonicalSearchExactnessCore
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data core.checkerSemantics.toProofCodeSemantics
+        core.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data core.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((core.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          (input.gap.gap_for_polynomial_upper U hU).witness N) :=
+  ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput.ofCheckedPowerBoundLowerBound_lower_bound_machine_closure
+    (scale_data := scale_data) lengthCodeAt scale_strict
+    (powerBoundLowerBound_to_checkedPowerBoundLowerBound_of_proofLengthEq
+      scale_data lengthCodeAt proof_length_eq_lengthCodeAt hlower)
+
+namespace Month9Month10Month11ThreeCertificateHandoff
+
+/-- Direct proof-length-free projection of the final three-certificate handoff.
+This is the point where the generated checker, finite enumeration, and
+rejection extractor are handed to the Month 9-10 lower-search machine without
+using the root `proof_length` calibration. -/
+def toProofLengthFreeExtractorHandoff
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data) :
+    Month9Month10ProofLengthFreeExtractorHandoff scale_data where
+  checkerSemantics :=
+    h.checkerSemantics
+  finiteEnumeration :=
+    h.finiteEnumeration
+  rejectionExtractor :=
+    h.rejectionExtractor
+
+theorem proofLengthFree_lower_bound_machine_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data) :
+    InternalPudlakTheorem5FiniteSearchExclusion
+        scale_data h.checkerSemantics.toProofCodeSemantics
+        h.finiteEnumeration.toSmallCodeSearch ∧
+      InternalPudlakTheorem5NoSmallProofCodes
+        scale_data h.checkerSemantics.toProofCodeSemantics ∧
+      (∀ f : Nat → Real, _root_.is_polynomial_bound f →
+        ∃ᶠ n in Filter.atTop,
+          (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((h.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) =
+          h.rejectionExtractor.witness U hU N) :=
+  h.toProofLengthFreeExtractorHandoff
+    |>.proofLengthFree_lower_bound_machine_closure
+
+/-- Full proof-length-free collision trace for the final three-certificate
+handoff.  The same generated rejection extractor controls the lower-search
+witness and the checked-measured contradiction; root `proof_length` is not used
+in this closure. -/
+theorem proofLengthFree_full_lower_search_collision_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data h.checkerSemantics.toProofCodeSemantics)) :
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper :=
+        h.toProofLengthFreeExtractorHandoff.upperTailOfRationality
+          upper_provider hrat
+      let w :=
+        h.toProofLengthFreeExtractorHandoff.lowerSearchWitnessOfUpper
+          upper
+      w.n =
+          h.toProofLengthFreeExtractorHandoff.computedNOfRationality
+            upper_provider hrat ∧
+        w.K = h.rejectionExtractor.cutoff
+          upper.U upper.polynomial upper.upperN ∧
+        upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+        (∀ c : h.checkerSemantics.Code,
+          c ∈ h.finiteEnumeration.candidates w.n w.K →
+            ¬ h.checkerSemantics.checks c
+              (scale_data.powerBoundRawCode w.n)) ∧
+        (∀ c : h.checkerSemantics.Code,
+          h.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n) →
+            upper.U w.n < (h.checkerSemantics.size c : Real)) ∧
+        (h.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+          upper.U w.n ∧
+        upper.U w.n <
+          month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics w.n ∧
+        month9_month10_checkedProofCodeMeasured
+            scale_data h.checkerSemantics.toProofCodeSemantics w.n ≤
+          upper.U w.n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.toProofLengthFreeExtractorHandoff
+    |>.proofLengthFree_full_lower_search_collision_trace upper_provider
+
+end Month9Month10Month11ThreeCertificateHandoff
 
 /-- The only place where a checker minimum becomes root proof length on the
 theorem-5 raw family.  Keeping this as a separate bridge prevents the checked
@@ -4982,6 +7633,48 @@ structure Month9Month10CheckedMeasuredToActualProofLengthBridge
         actualProofLengthMeasured scale_data n
 
 namespace Month9Month10CheckedMeasuredToActualProofLengthBridge
+
+def ofCheckerProofLengthFamilyExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness checker) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      scale_data checker.toProofCodeSemantics where
+  checked_eq_actual := by
+    intro n
+    simpa [month9_month10_checkedProofCodeMeasured,
+      actualProofLengthMeasured,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+      using (family.proof_length_eq_minProofCodeSizeAt n).symm
+
+def ofCheckerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness checker) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      scale_data checker.toProofCodeSemantics :=
+  ofCheckerProofLengthFamilyExactness
+    (InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+      exactness)
+
+theorem ofCheckerProofLengthExactness_checked_eq_actual
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker :
+      InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness checker)
+    (n : Nat) :
+    (ofCheckerProofLengthExactness exactness).checked_eq_actual n =
+      (by
+        simpa [month9_month10_checkedProofCodeMeasured,
+          actualProofLengthMeasured,
+          InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+          using (exactness.at_powerBoundRawCode n).symm) :=
+  rfl
 
 def transportGapToActualProofLength
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -5080,25 +7773,139 @@ theorem transportUpperToCheckedMeasured_closure
 
 end Month9Month10CheckedMeasuredToActualProofLengthBridge
 
-/-- Transport the Sondow project-box upper route to the theorem-5 checked
-source measurement using an additive projection
+/-! ## Calibrated proof-length exactness as checked/actual transport -/
+
+/-- For the concrete calibrated PA/Hilbert checker, the calibrated
+proof-length input is exactly the checked-measured-to-actual bridge restated
+pointwise on `powerBoundRawCode`. -/
+def calibratedProofLengthInputOfCheckedMeasuredToActualBridge
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+      scale_data lengthCodeAt where
+  proof_length_eq_minProofCodeSizeAt := by
+    intro n
+    simpa [month9_month10_checkedProofCodeMeasured,
+      actualProofLengthMeasured,
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt]
+      using (bridge.checked_eq_actual n).symm
+
+/-- Conversely, the calibrated proof-length input supplies exactly the
+checked-measured-to-actual bridge for the concrete calibrated checker. -/
+def checkedMeasuredToActualBridgeOfCalibratedProofLengthInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+      (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data lengthCodeAt).toProofCodeSemantics :=
+  Month9Month10CheckedMeasuredToActualProofLengthBridge.ofCheckerProofLengthExactness
+    proof_length.toCheckerExactness
+
+/-- Equivalence audit for the concrete calibrated proof-length residual.  The
+remaining proof-length blocker can be attacked as either the calibrated
+proof-length input or the checked/actual transport bridge; they are the same
+obligation. -/
+theorem calibratedProofLengthInput_iff_checkedMeasuredToActualBridge
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat} :
+    Nonempty
+        (ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+          scale_data lengthCodeAt) ↔
+      Nonempty
+        (Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt).toProofCodeSemantics) := by
+  constructor
+  · intro h
+    rcases h with ⟨proof_length⟩
+    exact
+      ⟨checkedMeasuredToActualBridgeOfCalibratedProofLengthInput
+        proof_length⟩
+  · intro h
+    rcases h with ⟨bridge⟩
+    exact
+      ⟨calibratedProofLengthInputOfCheckedMeasuredToActualBridge
+        bridge⟩
+
+namespace Month9Month10Month11ThreeCertificateHandoff
+
+def checkedMeasuredToActualBridge
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      scale_data h.checkerSemantics.toProofCodeSemantics :=
+  Month9Month10CheckedMeasuredToActualProofLengthBridge.ofCheckerProofLengthExactness
+    h.proofLengthExactness
+
+def transportedActualGapFromChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data) :
+    ComputableSearchGapCertificate (actualProofLengthMeasured scale_data) :=
+  h.checkedMeasuredToActualBridge.transportGapToActualProofLength
+    h.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+
+theorem transportedActualGapFromChecked_witness_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((h.transportedActualGapFromChecked
+        |>.gap_for_polynomial_upper U hU).witness N) =
+      h.rejectionExtractor.witness U hU N := by
+  calc
+    ((h.transportedActualGapFromChecked
+        |>.gap_for_polynomial_upper U hU).witness N)
+        =
+          ((h.toProofLengthFreeExtractorHandoff.checkedMeasuredGap
+            |>.gap_for_polynomial_upper U hU).witness N) := by
+            simpa [transportedActualGapFromChecked] using
+              h.checkedMeasuredToActualBridge
+                |>.transportGapToActualProofLength_witness_eq
+                  h.toProofLengthFreeExtractorHandoff.checkedMeasuredGap U hU N
+    _ = h.rejectionExtractor.witness U hU N :=
+        h.toProofLengthFreeExtractorHandoff
+          |>.checkedMeasuredGap_witness_eq_rejectionExtractor U hU N
+
+theorem transportedActualGapFromChecked_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data) :
+    Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+      (∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        ((h.transportedActualGapFromChecked
+          |>.gap_for_polynomial_upper U hU).witness N) =
+          h.rejectionExtractor.witness U hU N) :=
+  ⟨⟨h.transportedActualGapFromChecked⟩,
+    h.transportedActualGapFromChecked_witness_eq_rejectionExtractor⟩
+
+end Month9Month10Month11ThreeCertificateHandoff
+
+/-- Transport any project-box upper route to the theorem-5 checked source
+measurement using an additive projection
 `source <= projectBox + overhead`.  The resulting upper function is
 `U + overhead`, still polynomial by `shiftedUpper_polynomial`. -/
-def checkedUpperProviderOfProjectUpperAndAdditiveProjection
+def checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection
     {scale_data : InternalPudlakTheorem5ScaleData}
     {sem :
       _root_.ProofCodeSemantics.{0}
         (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
     (projection :
       InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
-    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
     Month9Month10AbstractMeasuredUpperProvider
       (month9_month10_checkedProofCodeMeasured scale_data sem) where
   upper_under_rationality := by
     intro hrat
-    rcases
-        (projectBoxUpperProviderOfS21Collapse project_upper)
-          |>.upper_under_rationality hrat with
+    rcases project_box_upper_provider.upper_under_rationality hrat with
       ⟨U, hU, upperN, hupper⟩
     refine
       ⟨projection.shiftedUpper U,
@@ -5118,6 +7925,43 @@ def checkedUpperProviderOfProjectUpperAndAdditiveProjection
       InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
       using hchecked
 
+theorem checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    (checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              month9_month10_checkedProofCodeMeasured scale_data sem n ≤ U n) :=
+  (checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection
+    projection project_box_upper_provider).closure
+
+/-- S²₁-collapse specialization of the project-box upper transport.  The
+accepted-certificate side condition stays inside
+`projectBoxUpperProviderOfS21Collapse`; the additive projection itself only
+uses the exported project-box upper tail. -/
+def checkedUpperProviderOfProjectUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) :=
+  checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection
+    projection (projectBoxUpperProviderOfS21Collapse project_upper)
+
 theorem checkedUpperProviderOfProjectUpperAndAdditiveProjection_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     {sem :
@@ -5136,6 +7980,48 @@ theorem checkedUpperProviderOfProjectUpperAndAdditiveProjection_closure
   (checkedUpperProviderOfProjectUpperAndAdditiveProjection
     projection project_upper).closure
 
+/-- Full upper-provider adapter from an already-isolated project-box upper route
+to the corrected actual route. -/
+def actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data sem)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (actualProofLengthMeasured scale_data) :=
+  bridge.transportUpperToActualProofLength
+    (checkedUpperProviderOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider)
+
+theorem actualUpperProviderOfProjectBoxUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data sem)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+      projection bridge project_box_upper_provider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              actualProofLengthMeasured scale_data n ≤ U n) :=
+  (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+    projection bridge project_box_upper_provider).closure
+
 /-- Full upper-provider adapter for the corrected actual route: first use the
 additive project-box projection to move the Sondow project upper tail to the
 checked theorem-5 source measurement, then use the checker/actual proof-length
@@ -5152,9 +8038,8 @@ def actualUpperProviderOfProjectUpperAndAdditiveProjection
     (project_upper : SondowProjectLocalS21CollapseConclusion) :
     Month9Month10AbstractMeasuredUpperProvider
       (actualProofLengthMeasured scale_data) :=
-  bridge.transportUpperToActualProofLength
-    (checkedUpperProviderOfProjectUpperAndAdditiveProjection
-      projection project_upper)
+  actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+    projection bridge (projectBoxUpperProviderOfS21Collapse project_upper)
 
 theorem actualUpperProviderOfProjectUpperAndAdditiveProjection_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -5634,6 +8519,227 @@ theorem month9_month10_actual_proof_length_direct_collision_closure
                     ¬ _root_.is_rational _root_.euler_mascheroni :=
   h.closure
 
+namespace Month9Month10Month11ThreeCertificateHandoff
+
+/-- Final three-certificate handoff assembled with an arbitrary actual
+proof-length upper provider.  This isolates the actual-gap/rejection-witness
+transport from any particular source of the upper tail. -/
+def actualEndpointOfActualUpperProvider
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data where
+  gap := h.transportedActualGapFromChecked
+  upper_provider := upper_provider
+
+theorem actualEndpointOfActualUpperProvider_computedN_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.actualEndpointOfActualUpperProvider upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      h.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  let endpoint := h.actualEndpointOfActualUpperProvider upper_provider
+  have hcomputed :
+      endpoint.computedCollisionNOfRationality hrat =
+        (endpoint.gap.gap_for_polynomial_upper
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN :=
+    endpoint.computedCollisionN_eq_searchGapWitness hrat
+  have hwitness :
+      ((h.transportedActualGapFromChecked |>.gap_for_polynomial_upper
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) =
+        h.rejectionExtractor.witness
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN :=
+    h.transportedActualGapFromChecked_witness_eq_rejectionExtractor
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN
+  exact hcomputed.trans (by
+    simpa [endpoint, actualEndpointOfActualUpperProvider] using hwitness)
+
+theorem actualEndpointOfActualUpperProvider_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured scale_data)) :
+    let endpoint :=
+      h.actualEndpointOfActualUpperProvider upper_provider
+    endpoint.Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        endpoint.upper_provider.Audit ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            endpoint.computedCollisionNOfRationality hrat =
+              h.rejectionExtractor.witness
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  let endpoint := h.actualEndpointOfActualUpperProvider upper_provider
+  exact
+    ⟨endpoint.audit,
+      ⟨endpoint.gap⟩,
+      endpoint.upper_provider.audit,
+      h.actualEndpointOfActualUpperProvider_computedN_eq_rejectionExtractor
+        upper_provider,
+      endpoint.computed_n_contradiction,
+      endpoint.not_rational⟩
+
+/-- Three-certificate actual endpoint assembled from an already-isolated
+project-box upper provider.  This is the payload-free upper-source boundary for
+the actual proof-length collision route. -/
+def actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  h.actualEndpointOfActualUpperProvider
+    (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+      projection h.checkedMeasuredToActualBridge project_box_upper_provider)
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+        projection project_box_upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      h.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  simpa [actualEndpointOfProjectBoxUpperAndAdditiveProjection] using
+    h.actualEndpointOfActualUpperProvider_computedN_eq_rejectionExtractor
+      (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+        projection h.checkedMeasuredToActualBridge project_box_upper_provider)
+      hrat
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    let endpoint :=
+      h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+        projection project_box_upper_provider
+    endpoint.Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        endpoint.upper_provider.Audit ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            endpoint.computedCollisionNOfRationality hrat =
+              h.rejectionExtractor.witness
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [actualEndpointOfProjectBoxUpperAndAdditiveProjection] using
+    h.actualEndpointOfActualUpperProvider_closure
+      (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+        projection h.checkedMeasuredToActualBridge project_box_upper_provider)
+
+/-- Final three-certificate handoff assembled into the actual proof-length
+endpoint using the existing checked/actual bridge and additive project-box
+upper projection. -/
+def actualEndpointOfProjectUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    projection (projectBoxUpperProviderOfS21Collapse project_upper)
+
+theorem actualEndpointOfProjectUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.actualEndpointOfProjectUpperAndAdditiveProjection
+        projection project_upper
+    endpoint.computedCollisionNOfRationality hrat =
+      h.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  simpa [actualEndpointOfProjectUpperAndAdditiveProjection] using
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+      projection (projectBoxUpperProviderOfS21Collapse project_upper) hrat
+
+theorem actualEndpointOfProjectUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : Month9Month10Month11ThreeCertificateHandoff scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data h.checkerSemantics.toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      h.actualEndpointOfProjectUpperAndAdditiveProjection
+        projection project_upper
+    endpoint.Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        endpoint.upper_provider.Audit ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            endpoint.computedCollisionNOfRationality hrat =
+              h.rejectionExtractor.witness
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [actualEndpointOfProjectUpperAndAdditiveProjection] using
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection_closure
+      projection (projectBoxUpperProviderOfS21Collapse project_upper)
+
+end Month9Month10Month11ThreeCertificateHandoff
+
 def Month9Month10Month11NoSmallCoreHandoff.toActualProofLengthDirectEndpoint
     (h : Month9Month10Month11NoSmallCoreHandoff)
     (upper_provider :
@@ -5642,6 +8748,609 @@ def Month9Month10Month11NoSmallCoreHandoff.toActualProofLengthDirectEndpoint
     Month9Month10ActualProofLengthDirectCollisionEndpoint h.scale_data where
   gap := h.actualProofLengthGap
   upper_provider := upper_provider
+
+def Month9Month10Month11NoSmallCoreHandoff.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    (h : Month9Month10Month11NoSmallCoreHandoff)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        h.scale_data h.proofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint h.scale_data :=
+  h.toActualProofLengthDirectEndpoint
+    (actualUpperProviderOfProjectBoxUpperAndAdditiveProjection
+      projection h.checkedMeasuredToActualBridge project_box_upper_provider)
+
+namespace Month9Month10Month11NoSmallCoreHandoff
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_core
+    (h : Month9Month10Month11NoSmallCoreHandoff)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        h.scale_data h.proofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+        projection project_box_upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      h.core.computable_search_exclusion.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  let endpoint :=
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider
+  have hcomputed :
+      endpoint.computedCollisionNOfRationality hrat =
+        (endpoint.gap.gap_for_polynomial_upper
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN :=
+    endpoint.computedCollisionN_eq_searchGapWitness hrat
+  have hwitness :
+      ((h.actualProofLengthGap.gap_for_polynomial_upper
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial).witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) =
+        h.core.computable_search_exclusion.witness
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+          (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN :=
+    h.actual_gap_witness_eq_core
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+      (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN
+  exact hcomputed.trans (by
+    simpa [endpoint,
+      actualEndpointOfProjectBoxUpperAndAdditiveProjection,
+      Month9Month10Month11NoSmallCoreHandoff.toActualProofLengthDirectEndpoint]
+      using hwitness)
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_closure
+    (h : Month9Month10Month11NoSmallCoreHandoff)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        h.scale_data h.proofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    let endpoint :=
+      h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+        projection project_box_upper_provider
+    endpoint.Audit ∧
+      endpoint.toAbstractMeasuredEndpoint.Audit ∧
+        h.proofLengthFrontier.Audit ∧
+          Nonempty
+            (ComputableSearchGapCertificate
+              (actualProofLengthMeasured h.scale_data)) ∧
+            endpoint.upper_provider.Audit ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                endpoint.computedCollisionNOfRationality hrat =
+                  h.core.computable_search_exclusion.witness
+                    (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                    (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                    (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                  ¬ _root_.is_rational _root_.euler_mascheroni := by
+  let endpoint :=
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider
+  exact
+    ⟨endpoint.audit,
+      endpoint.toAbstractMeasuredEndpoint.audit,
+      h.proofLengthFrontier.audit,
+      ⟨endpoint.gap⟩,
+      endpoint.upper_provider.audit,
+      h.actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_core
+        projection project_box_upper_provider,
+      endpoint.computed_n_contradiction,
+      endpoint.not_rational⟩
+
+end Month9Month10Month11NoSmallCoreHandoff
+
+namespace ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+
+def toNoSmallCoreHandoff
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+      scale_data) :
+    Month9Month10Month11NoSmallCoreHandoff where
+  core := input.toComputableFiniteSearchNoSmallCore
+
+theorem actualProofLengthGap_witness_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+      scale_data)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((((toNoSmallCoreHandoff input).actualProofLengthGap
+        |>.gap_for_polynomial_upper U hU).witness N) =
+      input.rejectionExtractor.witness U hU N) :=
+  rfl
+
+def actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+      scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  toNoSmallCoreHandoff input
+    |>.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input : ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+      scale_data)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data input.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      actualEndpointOfProjectBoxUpperAndAdditiveProjection input
+        projection project_box_upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      input.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  let h := toNoSmallCoreHandoff input
+  let endpoint :=
+    actualEndpointOfProjectBoxUpperAndAdditiveProjection input
+      projection project_box_upper_provider
+  have hcore :=
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_core
+      projection project_box_upper_provider hrat
+  have hwitness :
+      h.core.computable_search_exclusion.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN =
+      input.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+    rfl
+  exact hcore.trans hwitness
+
+end ConcretePAHilbertPowerBoundCalibratedFourPieceInput
+
+/-! ## Executable calibrated rejection search to actual proof-length endpoint -/
+
+/-- Assemble the calibrated four-piece package from the executable rejection
+search and the single proof-length exactness input.  This is the exact point
+where the proof-length-free executable search layer enters the actual
+proof-length transport layer. -/
+def calibratedFourPieceInputOfExecutableRejectionSearch
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt) :
+    ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data where
+  lengthCodeAt := lengthCodeAt
+  enumeration := enumeration
+  rejection_search := search
+  proof_length := proof_length
+
+/-- Actual proof-length endpoint from executable calibrated rejection search,
+proof-length exactness, an additive project-box projection, and an already
+isolated project-box upper provider. -/
+noncomputable def executableRejectionSearchActualEndpointOfProjectBoxUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  open ConcretePAHilbertPowerBoundCalibratedFourPieceInput in
+  actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    (calibratedFourPieceInputOfExecutableRejectionSearch
+      search proof_length)
+      projection project_box_upper_provider
+
+/-- Closure of the actual proof-length endpoint generated from executable
+calibrated rejection search.  The computed collision witness remains exactly
+the executable search witness; the only root proof-length dependency is the
+explicit `proof_length` exactness input used to assemble the four-piece package. -/
+theorem executableRejectionSearch_actualEndpointOfProjectBoxUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    let endpoint :=
+      executableRejectionSearchActualEndpointOfProjectBoxUpper
+        search proof_length projection project_box_upper_provider
+    endpoint.Audit ∧
+      endpoint.toAbstractMeasuredEndpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          endpoint.upper_provider.Audit ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              endpoint.computedCollisionNOfRationality hrat =
+                search.witness
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+              (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  let input :=
+    calibratedFourPieceInputOfExecutableRejectionSearch
+      search proof_length
+  let endpoint :=
+    executableRejectionSearchActualEndpointOfProjectBoxUpper
+      search proof_length projection project_box_upper_provider
+  rcases endpoint.closure with
+    ⟨haudit, habstract, hgap, hupperAudit, _hcomputed,
+      _hlower, _hupper, hfalse, hnot⟩
+  have hwitness :
+      ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        endpoint.computedCollisionNOfRationality hrat =
+          search.witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+    intro hrat
+    have hcomputed :=
+      open ConcretePAHilbertPowerBoundCalibratedFourPieceInput in
+      actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+        input
+        projection project_box_upper_provider hrat
+    calc
+      endpoint.computedCollisionNOfRationality hrat =
+          input.rejectionExtractor.witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+        simpa [endpoint,
+          executableRejectionSearchActualEndpointOfProjectBoxUpper]
+          using hcomputed
+      _ = search.witness
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+            (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := rfl
+  exact
+    ⟨haudit, habstract, hgap, hupperAudit, hwitness, hfalse, hnot⟩
+
+/-- S²₁ project-upper specialization of the executable-search actual endpoint. -/
+noncomputable def executableRejectionSearchActualEndpointOfProjectUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  executableRejectionSearchActualEndpointOfProjectBoxUpper
+    search proof_length projection
+    (projectBoxUpperProviderOfS21Collapse project_upper)
+
+/-- Closure of the S²₁ project-upper executable-search actual endpoint. -/
+theorem executableRejectionSearch_actualEndpointOfProjectUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (proof_length :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      executableRejectionSearchActualEndpointOfProjectUpper
+        search proof_length projection project_upper
+    endpoint.Audit ∧
+      endpoint.toAbstractMeasuredEndpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          endpoint.upper_provider.Audit ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              endpoint.computedCollisionNOfRationality hrat =
+                search.witness
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+              (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [executableRejectionSearchActualEndpointOfProjectUpper] using
+    executableRejectionSearch_actualEndpointOfProjectBoxUpper_closure
+      search proof_length projection
+      (projectBoxUpperProviderOfS21Collapse project_upper)
+
+/-- Four-piece package assembled from executable calibrated rejection search
+and the equivalent checked/actual transport bridge. -/
+def calibratedFourPieceInputOfExecutableRejectionSearchBridge
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics) :
+    ConcretePAHilbertPowerBoundCalibratedFourPieceInput scale_data :=
+  calibratedFourPieceInputOfExecutableRejectionSearch search
+    (calibratedProofLengthInputOfCheckedMeasuredToActualBridge bridge)
+
+/-- Actual proof-length endpoint from executable calibrated rejection search
+where the proof-length residual is supplied as the equivalent checked/actual
+transport bridge. -/
+noncomputable def executableRejectionSearchBridgeActualEndpointOfProjectBoxUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  executableRejectionSearchActualEndpointOfProjectBoxUpper search
+    (calibratedProofLengthInputOfCheckedMeasuredToActualBridge bridge)
+    projection project_box_upper_provider
+
+/-- Closure of the bridge-form executable-search actual endpoint.  This is the
+same actual proof-length endpoint as above, but its only proof-length residual
+is the checked/actual transport bridge. -/
+theorem executableRejectionSearchBridge_actualEndpointOfProjectBoxUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    let endpoint :=
+      executableRejectionSearchBridgeActualEndpointOfProjectBoxUpper
+        search bridge projection project_box_upper_provider
+    endpoint.Audit ∧
+      endpoint.toAbstractMeasuredEndpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          endpoint.upper_provider.Audit ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              endpoint.computedCollisionNOfRationality hrat =
+                search.witness
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+              (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [executableRejectionSearchBridgeActualEndpointOfProjectBoxUpper]
+    using
+      executableRejectionSearch_actualEndpointOfProjectBoxUpper_closure
+        search
+        (calibratedProofLengthInputOfCheckedMeasuredToActualBridge bridge)
+        projection project_box_upper_provider
+
+/-- S²₁ project-upper specialization of the bridge-form executable-search
+actual endpoint. -/
+noncomputable def executableRejectionSearchBridgeActualEndpointOfProjectUpper
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  executableRejectionSearchBridgeActualEndpointOfProjectBoxUpper
+    search bridge projection
+    (projectBoxUpperProviderOfS21Collapse project_upper)
+
+/-- Closure of the S²₁ project-upper bridge-form executable-search actual
+endpoint. -/
+theorem executableRejectionSearchBridge_actualEndpointOfProjectUpper_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).toProofCodeSemantics)
+    (project_upper : SondowProjectLocalS21CollapseConclusion) :
+    let endpoint :=
+      executableRejectionSearchBridgeActualEndpointOfProjectUpper
+        search bridge projection project_upper
+    endpoint.Audit ∧
+      endpoint.toAbstractMeasuredEndpoint.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate
+            (actualProofLengthMeasured scale_data)) ∧
+          endpoint.upper_provider.Audit ∧
+            (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+              endpoint.computedCollisionNOfRationality hrat =
+                search.witness
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+                  (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN) ∧
+              (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [executableRejectionSearchBridgeActualEndpointOfProjectUpper] using
+    executableRejectionSearchBridge_actualEndpointOfProjectBoxUpper_closure
+      search bridge projection
+      (projectBoxUpperProviderOfS21Collapse project_upper)
+
+namespace PAHilbertCanonicalCalibratedExactnessCore
+
+def toNoSmallCoreHandoff
+    (core : PAHilbertCanonicalCalibratedExactnessCore) :
+    Month9Month10Month11NoSmallCoreHandoff where
+  core := core.toComputableFiniteSearchNoSmallCore
+
+theorem actualProofLengthGap_witness_eq_rejectionExtractor
+    (core : PAHilbertCanonicalCalibratedExactnessCore)
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((((toNoSmallCoreHandoff core).actualProofLengthGap
+        |>.gap_for_polynomial_upper U hU).witness N) =
+      core.rejectionExtractor.witness U hU N) :=
+  rfl
+
+def actualEndpointOfProjectBoxUpperAndAdditiveProjection
+    (core : PAHilbertCanonicalCalibratedExactnessCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint core.scale_data :=
+  toNoSmallCoreHandoff core
+    |>.actualEndpointOfProjectBoxUpperAndAdditiveProjection
+      projection project_box_upper_provider
+
+theorem actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_rejectionExtractor
+    (core : PAHilbertCanonicalCalibratedExactnessCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (project_box_upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        sondowProjectLocalPudlakCollisionBox)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      actualEndpointOfProjectBoxUpperAndAdditiveProjection core
+        projection project_box_upper_provider
+    endpoint.computedCollisionNOfRationality hrat =
+      core.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+  let h := toNoSmallCoreHandoff core
+  let endpoint :=
+    actualEndpointOfProjectBoxUpperAndAdditiveProjection core
+      projection project_box_upper_provider
+  have hcore :=
+    h.actualEndpointOfProjectBoxUpperAndAdditiveProjection_computedN_eq_core
+      projection project_box_upper_provider hrat
+  have hwitness :
+      h.core.computable_search_exclusion.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN =
+      core.rejectionExtractor.witness
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).U
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).polynomial
+        (endpoint.toAbstractMeasuredEndpoint.upperTailOfRationality hrat).upperN := by
+    rfl
+  exact hcore.trans hwitness
+
+end PAHilbertCanonicalCalibratedExactnessCore
 
 theorem month9_month10_no_small_core_handoff_actual_proof_length_endpoint_closure
     (h : Month9Month10Month11NoSmallCoreHandoff)
@@ -5920,6 +9629,22 @@ theorem computedCollisionN_eq_searchGapWitness
           (h.toDirectRoute.upperTailOfRationality hrat).upperN :=
   h.toDirectRoute.computedCollisionN_eq_searchGapWitness hrat
 
+theorem computedCollisionN_upper_lower_trace
+    (h : Month9Month10PayloadFreeUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.toDirectRoute.upperTailOfRationality hrat
+    upper.U (h.computedCollisionNOfRationality hrat) <
+        sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ∧
+      sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ≤
+        upper.U (h.computedCollisionNOfRationality hrat) ∧
+      False := by
+  have hlower := h.toDirectRoute.lower_at_computedCollisionN hrat
+  have hupper := h.toDirectRoute.upper_at_computedCollisionN hrat
+  dsimp [computedCollisionNOfRationality]
+  exact ⟨hlower, ⟨hupper, (not_lt_of_ge hupper) hlower⟩⟩
+
 theorem computed_n_contradiction
     (h : Month9Month10PayloadFreeUpperDirectCollisionEndpoint)
     (hrat : _root_.is_rational _root_.euler_mascheroni) :
@@ -5955,6 +9680,16 @@ structure Audit
           (h.toDirectRoute.upperTailOfRationality hrat).U
           (h.toDirectRoute.upperTailOfRationality hrat).polynomial).witness
             (h.toDirectRoute.upperTailOfRationality hrat).upperN
+  computedWitnessUpperLowerTrace :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := h.toDirectRoute.upperTailOfRationality hrat
+      upper.U (h.computedCollisionNOfRationality hrat) <
+          sondowProjectLocalPudlakCollisionBox
+            (h.computedCollisionNOfRationality hrat) ∧
+        sondowProjectLocalPudlakCollisionBox
+            (h.computedCollisionNOfRationality hrat) ≤
+          upper.U (h.computedCollisionNOfRationality hrat) ∧
+        False
   contradictionAtComputedN :
     ∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False
   notRationalEqGenericCore :
@@ -5971,6 +9706,7 @@ theorem audit
   directRouteAudit := h.toDirectRoute.audit
   computableSearchGap := ⟨h.gap⟩
   computedWitnessFormula := h.computedCollisionN_eq_searchGapWitness
+  computedWitnessUpperLowerTrace := h.computedCollisionN_upper_lower_trace
   contradictionAtComputedN := h.computed_n_contradiction
   notRationalEqGenericCore := h.not_rational_eq_generic_core
   endpointNotRational := h.not_rational

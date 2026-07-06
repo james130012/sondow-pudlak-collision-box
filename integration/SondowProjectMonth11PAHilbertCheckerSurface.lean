@@ -2178,6 +2178,22 @@ theorem concretePAHilbertPowerBoundPaperProofInterface_nonempty
         concretePAHilbertTheorem5DerivabilitySemantics) :=
   ⟨concretePAHilbertPowerBoundPaperProofInterface scale_data⟩
 
+/-- PowerBound accepted-code soundness through the paper-proof interface only.
+This avoids the heavier exactness cores that also carry root proof-length
+calibration data. -/
+theorem concretePAHilbertPowerBoundPaperProofInterface_accepted_code_to_formulaCode_derivable
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        formulaCode code) :
+    PAHilbertFormulaCodeDerivable
+      concretePAHilbertTheorem5DerivabilitySemantics formulaCode :=
+  (concretePAHilbertPowerBoundPaperProofInterface scale_data)
+    |>.accepted_decoded_code_to_formulaCode_derivable
+      formulaCode code haccepted
+
 /-- Canonical checker interface.  It replaces the impossible unrestricted
 decoder completeness field by completeness for the proof objects that satisfy
 the canonical/code-indexed invariant, while retaining the paper-facing
@@ -2773,6 +2789,44 @@ def PAHilbertAcceptedNatCodeRejectionExtractorData.toCheckerExtractor
       simpa [PAHilbertAcceptedNatCodeFiniteEnumeration] using hmem
     exact data.rejects_lt_cutoff f hf N code hlt
 
+namespace PAHilbertAcceptedNatCodeRejectionExtractorData
+
+/-- Exact constructor trace for the accepted-code rejection data before the
+checker-level `rejectsCode` packaging.  The internal extractor preserves the
+given witness and cutoff functions, and the finite range semantics is exactly
+the concrete `code < cutoff` condition. -/
+theorem toCheckerExtractor_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : PAHilbertChecker}
+    {completion :
+      PAHilbertAcceptedNatCodeCompletion scale_data checker}
+    (data :
+      PAHilbertAcceptedNatCodeRejectionExtractorData scale_data checker) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      (data.toCheckerExtractor
+          (completion := completion)).witness f hf N =
+          data.witness f hf N ∧
+        (data.toCheckerExtractor
+            (completion := completion)).cutoff f hf N =
+            data.cutoff f hf N ∧
+          N ≤ data.witness f hf N ∧
+            f (data.witness f hf N) < (data.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : Nat,
+          code < data.cutoff f hf N →
+            ¬
+              (PAHilbertAcceptedNatCodeCheckerSemantics
+                scale_data checker completion).checks code
+                  (scale_data.powerBoundRawCode (data.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl, data.witness_ge f hf N, data.cutoff_gt f hf N⟩
+  · intro f hf N code hlt
+    simpa using data.rejects_lt_cutoff f hf N code hlt
+
+end PAHilbertAcceptedNatCodeRejectionExtractorData
+
 /-- Executable rejection input phrased directly in terms of the PA/Hilbert
 checker: every numeric code below the cutoff is rejected by `rejectsCode` for
 the theorem-5 formula at the chosen witness. -/
@@ -2876,6 +2930,47 @@ theorem toCheckerExtractor_rejects_candidates
           (scale_data.powerBoundRawCode (data.witness f hf N)) :=
   (data.toCheckerExtractor paper).rejects_candidates
     f hf N code hmem
+
+/-- Exact constructor trace for the executable accepted-code rejection route.
+The generated internal rejection extractor keeps the same witness and cutoff
+functions as the checker-level rejection data, and a concrete `code < cutoff`
+bound is enough to obtain the internal semantic rejection. -/
+theorem toCheckerExtractor_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : PAHilbertChecker}
+    {semantics : PAHilbertDerivabilitySemantics}
+    {completion :
+      PAHilbertAcceptedNatCodeCompletion scale_data checker}
+    (paper :
+      PAHilbertCheckerPaperProofInterface checker semantics)
+    (data :
+      PAHilbertAcceptedNatCodeCheckerRejectionData scale_data checker) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      (data.toCheckerExtractor
+          (completion := completion) paper).witness f hf N =
+          data.witness f hf N ∧
+        (data.toCheckerExtractor
+            (completion := completion) paper).cutoff f hf N =
+            data.cutoff f hf N ∧
+          N ≤ data.witness f hf N ∧
+            f (data.witness f hf N) < (data.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : Nat,
+          code < data.cutoff f hf N →
+            ¬
+              (PAHilbertAcceptedNatCodeCheckerSemantics
+                scale_data checker completion).checks code
+                  (scale_data.powerBoundRawCode (data.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl, data.witness_ge f hf N, data.cutoff_gt f hf N⟩
+  · intro f hf N code hlt
+    simpa [
+      PAHilbertAcceptedNatCodeCheckerRejectionData.toAcceptedNatCodeRejectionExtractorData]
+      using
+      (data.toAcceptedNatCodeRejectionExtractorData paper).rejects_lt_cutoff
+        f hf N code hlt
 
 end PAHilbertAcceptedNatCodeCheckerRejectionData
 
@@ -3216,6 +3311,41 @@ def ConcretePAHilbertMonth11RejectionExtractorInput.toCheckerExtractor
     (completion := completion)
     concretePAHilbertIndexedPaperProofInterface
     input
+
+/-- Search-only exact trace for the concrete Month 11 rejection extractor.  This
+avoids the four-piece package because that package also carries proof-length
+exactness data. -/
+theorem ConcretePAHilbertMonth11RejectionExtractorInput.toCheckerExtractor_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {completion :
+      PAHilbertAcceptedNatCodeCompletion
+        scale_data concretePAHilbertMonth11Checker}
+    (input :
+      ConcretePAHilbertMonth11RejectionExtractorInput scale_data) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      (input.toCheckerExtractor
+          (completion := completion)).witness f hf N =
+          input.witness f hf N ∧
+        (input.toCheckerExtractor
+            (completion := completion)).cutoff f hf N =
+            input.cutoff f hf N ∧
+          N ≤ input.witness f hf N ∧
+            f (input.witness f hf N) < (input.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : Nat,
+          code < input.cutoff f hf N →
+            ¬
+              (concretePAHilbertMonth11CheckerSemantics
+                scale_data completion).checks code
+                  (scale_data.powerBoundRawCode (input.witness f hf N))) := by
+  simpa [
+    ConcretePAHilbertMonth11RejectionExtractorInput.toCheckerExtractor,
+    concretePAHilbertMonth11CheckerSemantics]
+    using
+      PAHilbertAcceptedNatCodeCheckerRejectionData.toCheckerExtractor_exact_trace
+        (completion := completion)
+        concretePAHilbertIndexedPaperProofInterface
+        input
 
 /-- Concrete residual input for proof-length exactness of the induced numeric
 checker semantics. -/
@@ -3708,6 +3838,38 @@ abbrev concretePAHilbertPowerBoundCheckerSemantics
     (concretePAHilbertPowerBoundChecker scale_data)
     (concretePAHilbertPowerBoundCompletion scale_data)
 
+/-- Soundness of the concrete powerBound checker semantics, stated directly at
+the Month 9-10 checker interface and proved through the paper-proof interface
+only. -/
+theorem concretePAHilbertPowerBoundCheckerSemantics_checks_to_formulaCode_derivable
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (code : (concretePAHilbertPowerBoundCheckerSemantics scale_data).Code)
+    (formulaCode : _root_.FormulaCode)
+    (hchecks :
+      (concretePAHilbertPowerBoundCheckerSemantics scale_data).checks
+        code formulaCode) :
+    PAHilbertFormulaCodeDerivable
+      concretePAHilbertTheorem5DerivabilitySemantics formulaCode :=
+  concretePAHilbertPowerBoundPaperProofInterface_accepted_code_to_formulaCode_derivable
+    scale_data formulaCode code hchecks
+
+/-- The same soundness bridge after forgetting the concrete checker to the
+generic `ProofCodeSemantics` surface consumed by the Month 9-10 lower-bound
+machinery. -/
+theorem concretePAHilbertPowerBoundProofCodeSemantics_checks_to_formulaCode_derivable
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (code :
+      (concretePAHilbertPowerBoundCheckerSemantics
+        scale_data).toProofCodeSemantics.Code)
+    (formulaCode : _root_.FormulaCode)
+    (hchecks :
+      (concretePAHilbertPowerBoundCheckerSemantics
+        scale_data).toProofCodeSemantics.checks code formulaCode) :
+    PAHilbertFormulaCodeDerivable
+      concretePAHilbertTheorem5DerivabilitySemantics formulaCode :=
+  concretePAHilbertPowerBoundCheckerSemantics_checks_to_formulaCode_derivable
+    scale_data code formulaCode hchecks
+
 theorem concretePAHilbertPowerBound_acceptedProofCode_to_powerBoundRawCode_eq
     {scale_data : InternalPudlakTheorem5ScaleData}
     {formulaCode : _root_.FormulaCode} {code : Nat}
@@ -3910,6 +4072,42 @@ def ConcretePAHilbertPowerBoundRejectionExtractorInput.toCheckerExtractor
     (completion := concretePAHilbertPowerBoundCompletion scale_data)
     (concretePAHilbertPowerBoundPaperProofInterface scale_data)
     input
+
+/-- Search-only exact trace for the scale-dependent powerBound rejection
+extractor.  This is the clean witness/cutoff trace before any proof-length
+calibration package is added. -/
+theorem ConcretePAHilbertPowerBoundRejectionExtractorInput.toCheckerExtractor_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundRejectionExtractorInput scale_data) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      input.toCheckerExtractor.witness f hf N =
+          input.witness f hf N ∧
+        input.toCheckerExtractor.cutoff f hf N =
+            input.cutoff f hf N ∧
+          N ≤ input.witness f hf N ∧
+            f (input.witness f hf N) < (input.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : Nat,
+          code < input.cutoff f hf N →
+            ¬
+              (concretePAHilbertPowerBoundCheckerSemantics
+                scale_data).checks code
+                  (scale_data.powerBoundRawCode (input.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl,
+        input.witness_ge f hf N,
+        input.cutoff_gt f hf N⟩
+  · intro f hf N code hsmall
+    simpa [
+      concretePAHilbertPowerBoundCheckerSemantics,
+      PAHilbertAcceptedNatCodeCheckerSemantics,
+      ConcretePAHilbertPowerBoundRejectionExtractorInput.toAcceptedNatCodeData,
+      PAHilbertAcceptedNatCodeCheckerRejectionData.toAcceptedNatCodeRejectionExtractorData] using
+      (input.toAcceptedNatCodeData
+        |>.rejects_lt_cutoff f hf N code hsmall)
 
 /-- Four-piece package for the theorem-5 powerBound checker.  Compared with
 `ConcretePAHilbertMonth11FourPiece`, the completion proof is already concrete:
@@ -5948,6 +6146,12 @@ def concretePAHilbertPowerBoundCalibratedSingletonCandidates
     (lengthCodeAt : Nat → Nat) (n K : Nat) : List Nat :=
   if lengthCodeAt n < K then [n] else []
 
+theorem concretePAHilbertPowerBoundCalibratedSingletonCandidates_self_empty
+    (lengthCodeAt : Nat → Nat) (n : Nat) :
+    concretePAHilbertPowerBoundCalibratedSingletonCandidates
+      lengthCodeAt n (lengthCodeAt n) = [] := by
+  simp [concretePAHilbertPowerBoundCalibratedSingletonCandidates]
+
 def concretePAHilbertPowerBoundCalibratedSingletonFiniteEnumeration
     (scale_data : InternalPudlakTheorem5ScaleData)
     (lengthCodeAt : Nat → Nat)
@@ -6013,6 +6217,36 @@ def finiteEnumeration
   concretePAHilbertPowerBoundCalibratedSingletonFiniteEnumeration
     scale_data lengthCodeAt input.powerBoundRawCode_injective
 
+theorem candidates_at_witness_empty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat) :
+    input.finiteEnumeration.candidates
+        (input.witness f hf N) (input.cutoff f hf N) = [] := by
+  simp [finiteEnumeration,
+    concretePAHilbertPowerBoundCalibratedSingletonFiniteEnumeration,
+    cutoff,
+    concretePAHilbertPowerBoundCalibratedSingletonCandidates_self_empty]
+
+theorem no_candidate_at_witness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat)
+    (code : Nat) :
+    code ∈
+        input.finiteEnumeration.candidates
+          (input.witness f hf N) (input.cutoff f hf N) →
+      False := by
+  intro hmem
+  rw [input.candidates_at_witness_empty f hf N] at hmem
+  simp at hmem
+
 def toCheckerExtractor
     {scale_data : InternalPudlakTheorem5ScaleData}
     {lengthCodeAt : Nat → Nat}
@@ -6033,10 +6267,81 @@ def toCheckerExtractor
     exact (input.gap.gap_for_polynomial_upper f hf).strict_at_witness N
   rejects_candidates := by
     intro f hf N code hmem _hchecks
-    simp [finiteEnumeration,
-      concretePAHilbertPowerBoundCalibratedSingletonFiniteEnumeration,
-      concretePAHilbertPowerBoundCalibratedSingletonCandidates,
-      cutoff, witness] at hmem
+    exact False.elim (input.no_candidate_at_witness f hf N code hmem)
+
+theorem toCheckerExtractor_candidates_at_witness_empty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat) :
+    input.finiteEnumeration.candidates
+        (input.toCheckerExtractor.witness f hf N)
+        (input.toCheckerExtractor.cutoff f hf N) = [] := by
+  simpa [toCheckerExtractor] using
+    input.candidates_at_witness_empty f hf N
+
+theorem toCheckerExtractor_rejects_candidates_from_empty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat)
+    (code : Nat)
+    (hmem :
+      code ∈
+        input.finiteEnumeration.candidates
+          (input.toCheckerExtractor.witness f hf N)
+          (input.toCheckerExtractor.cutoff f hf N)) :
+    ¬ (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data lengthCodeAt).checks code
+        (scale_data.powerBoundRawCode
+          (input.toCheckerExtractor.witness f hf N)) := by
+  have hfalse : False := by
+    rw [input.toCheckerExtractor_candidates_at_witness_empty f hf N] at hmem
+    simp at hmem
+  exact False.elim hfalse
+
+/-- Exact gap-to-extractor trace for the singleton calibrated rejection input.
+The extractor witness is exactly the computable gap witness, and the cutoff is
+exactly the calibrated size at that same witness. -/
+theorem toCheckerExtractor_gap_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+        scale_data lengthCodeAt) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      input.toCheckerExtractor.witness f hf N =
+          (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+        input.toCheckerExtractor.cutoff f hf N =
+          lengthCodeAt ((input.gap.gap_for_polynomial_upper f hf).witness N) ∧
+          N ≤ (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+            f ((input.gap.gap_for_polynomial_upper f hf).witness N) <
+              (lengthCodeAt
+                ((input.gap.gap_for_polynomial_upper f hf).witness N) : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code :
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt).Code,
+          code ∈
+            input.finiteEnumeration.candidates
+              (input.toCheckerExtractor.witness f hf N)
+              (input.toCheckerExtractor.cutoff f hf N) →
+            ¬ (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+                scale_data lengthCodeAt).checks code
+                (scale_data.powerBoundRawCode
+                  (input.toCheckerExtractor.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl,
+        (input.gap.gap_for_polynomial_upper f hf).witness_ge N,
+        (input.gap.gap_for_polynomial_upper f hf).strict_at_witness N⟩
+  · intro f hf N code hmem
+    exact input.toCheckerExtractor.rejects_candidates f hf N code hmem
 
 end ConcretePAHilbertPowerBoundSingletonGapRejectionInput
 
@@ -6083,6 +6388,19 @@ def rejectionExtractor
       input.checkerSemantics
       input.finiteEnumeration :=
   input.rejection_search.toCheckerExtractor
+
+theorem rejectionExtractor_candidates_at_witness_empty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundSingletonGapCalibratedFourPieceInput
+        scale_data)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat) :
+    input.finiteEnumeration.candidates
+        (input.rejectionExtractor.witness f hf N)
+        (input.rejectionExtractor.cutoff f hf N) = [] := by
+  simpa [checkerSemantics, finiteEnumeration, rejectionExtractor] using
+    input.rejection_search.toCheckerExtractor_candidates_at_witness_empty
+      f hf N
 
 theorem proofLengthExactness
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -6352,6 +6670,111 @@ theorem concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt
     subst code
     simpa [InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt,
       sem, checkerSem, minSize] using hsize
+
+/-- Expanded audit trace for the calibrated singleton route.  It records the
+canonical accepted proof code, uniqueness of accepted proof codes at the same
+raw formula code, the concrete `HasProofCodeOfSize` witness, and the resulting
+minimum-size equality in one theorem. -/
+theorem concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_trace_of_injective
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat) (n : Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    let checkerSem :=
+      concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data lengthCodeAt
+    let sem := checkerSem.toProofCodeSemantics
+    PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode n) n ∧
+      (∀ code : Nat,
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode n) code →
+        code = n) ∧
+      sem.HasProofCodeOfSize
+        (scale_data.powerBoundRawCode n) (lengthCodeAt n) ∧
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        checkerSem n = lengthCodeAt n := by
+  classical
+  let checkerSem :=
+    concretePAHilbertPowerBoundCalibratedCheckerSemantics
+      scale_data lengthCodeAt
+  let sem := checkerSem.toProofCodeSemantics
+  have haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode n) n :=
+    concretePAHilbertPowerBoundChecker_acceptedProofCode_at_powerBoundRawCode
+      scale_data n
+  have hunique :
+      ∀ code : Nat,
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode n) code →
+        code = n := by
+    intro code hcode
+    exact
+      concretePAHilbertPowerBound_acceptedProofCode_to_code_eq_of_injective
+        hinjective hcode
+  have hhas_explicit :
+      ∃ code : Nat,
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode n) code ∧
+        lengthCodeAt code ≤ lengthCodeAt n :=
+    ⟨n, haccepted, le_rfl⟩
+  have hhas :
+      sem.HasProofCodeOfSize
+        (scale_data.powerBoundRawCode n) (lengthCodeAt n) := by
+    simpa [ProofCodeSemantics.HasProofCodeOfSize, sem, checkerSem,
+      InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics,
+      concretePAHilbertPowerBoundCalibratedCheckerSemantics] using
+      hhas_explicit
+  have hmin :
+      InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        checkerSem n = lengthCodeAt n := by
+    simpa [checkerSem] using
+      concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+        scale_data lengthCodeAt n hinjective
+  exact ⟨haccepted, hunique, hhas, hmin⟩
+
+/-- Proof-length-free calibration target: the project length induced directly by
+the checker semantics agrees with the calibrated size on the theorem-5 raw-code
+family.  This is the local replacement shape for the remaining root
+`proof_length` bridge. -/
+theorem concretePAHilbertPowerBoundCalibrated_projectLengthAt_eq_lengthCodeAt_of_injective
+    (scale_data : InternalPudlakTheorem5ScaleData)
+    (lengthCodeAt : Nat → Nat) (fallback : _root_.FormulaCode → Nat)
+    (n : Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data lengthCodeAt).toProofCodeSemantics.projectLength
+      fallback (scale_data.powerBoundRawCode n) =
+        (lengthCodeAt n : Real) := by
+  classical
+  let checkerSem :=
+    concretePAHilbertPowerBoundCalibratedCheckerSemantics
+      scale_data lengthCodeAt
+  let sem := checkerSem.toProofCodeSemantics
+  have hproject :
+      sem.projectLength fallback (scale_data.powerBoundRawCode n) =
+        (sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) := by
+    simpa [sem] using
+      (sem.projectLength_eq_minProofCodeSize
+        fallback (code := scale_data.powerBoundRawCode n) ⟨n, rfl⟩)
+  have hmin_nat :
+      sem.minProofCodeSize
+          (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ =
+        lengthCodeAt n := by
+    have hmin :
+        InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+          checkerSem n = lengthCodeAt n :=
+      concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+        scale_data lengthCodeAt n hinjective
+    simpa [InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt,
+      sem, checkerSem] using hmin
+  exact hproject.trans (by exact_mod_cast hmin_nat)
 
 /-- Project-level proof-length calibration by the chosen calibrated size.
 The minimum-size theorem above turns this direct family equality into the

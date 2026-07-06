@@ -277,6 +277,98 @@ theorem upper_at_computedCollisionN
   h.endpoint.toDirectEndpoint.toAbstractMeasuredEndpoint
     |>.upper_at_computedCollisionN hrat
 
+/-- Statement for the provider-level finite-search trace at the computed
+collision witness.  This keeps the lower-bound machine expanded at the exact
+`n` chosen by the Sondow upper route, without duplicating the long formula in
+the theorem and audit surface. -/
+abbrev lowerSearchWitnessTraceStatement
+    (h : ProofLengthAxiomFreeInternalTheorem5Provider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    Prop :=
+  let profile := h.searchProfile
+  let upper := checkedSearchUpperTail h.candidate h.upper_provider hrat
+  let w :=
+    profile.computable_search_exclusion.computedLowerSearchWitness
+      upper.U upper.polynomial upper.upperN
+  h.computedCollisionNOfRationality hrat = w.n ∧
+    w.n =
+      h.candidate.rejectionExtractor.witness
+        upper.U upper.polynomial upper.upperN ∧
+    w.K =
+      h.candidate.rejectionExtractor.cutoff
+        upper.U upper.polynomial upper.upperN ∧
+    upper.upperN ≤ w.n ∧
+    upper.U w.n < (w.K : Real) ∧
+    (∀ c : profile.checker.Code,
+      c ∈ profile.small_code_search.candidates w.n w.K →
+        ¬ profile.checker.checks c
+          (h.scale_data.powerBoundRawCode w.n)) ∧
+    (∀ c : profile.checker.Code,
+      profile.checker.checks c
+        (h.scale_data.powerBoundRawCode w.n) →
+        upper.U w.n < (profile.checker.size c : Real)) ∧
+    (profile.checker.toProofCodeSemantics.minProofCodeSize
+        (h.scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+      upper.U w.n ∧
+    month9_month10_checkedProofCodeMeasured
+        h.scale_data h.candidate.checkerSemantics.toProofCodeSemantics w.n ≤
+      upper.U w.n ∧
+    upper.U w.n <
+      month9_month10_checkedProofCodeMeasured
+        h.scale_data h.candidate.checkerSemantics.toProofCodeSemantics w.n ∧
+    False
+
+/-- Provider-level finite-search trace at the computed collision witness.  This
+is the proof-length-free lower-bound machine expanded at the exact `n` chosen
+by the Sondow upper route. -/
+theorem lowerSearchWitnessTraceOfRationality
+    (h : ProofLengthAxiomFreeInternalTheorem5Provider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    lowerSearchWitnessTraceStatement h hrat := by
+  let profile := h.searchProfile
+  let upper := checkedSearchUpperTail h.candidate h.upper_provider hrat
+  let w :=
+    profile.computable_search_exclusion.computedLowerSearchWitness
+      upper.U upper.polynomial upper.upperN
+  have hn_endpoint :
+      h.computedCollisionNOfRationality hrat =
+        h.candidate.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN := by
+    dsimp [computedCollisionNOfRationality, upper]
+    exact h.computedCollisionN_eq_rejectionExtractorWitness hrat
+  have hn_w :
+      w.n =
+        h.candidate.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN := by
+    dsimp [w, profile, searchProfile]
+    rfl
+  have hcomputed : h.computedCollisionNOfRationality hrat = w.n :=
+    hn_endpoint.trans hn_w.symm
+  have hupper_le :
+      month9_month10_checkedProofCodeMeasured
+          h.scale_data h.candidate.checkerSemantics.toProofCodeSemantics w.n ≤
+        upper.U w.n := by
+    simpa [hcomputed]
+      using h.upper_at_computedCollisionN hrat
+  have hlower :
+      upper.U w.n <
+        month9_month10_checkedProofCodeMeasured
+          h.scale_data h.candidate.checkerSemantics.toProofCodeSemantics w.n := by
+    simpa [hcomputed]
+      using h.lower_at_computedCollisionN hrat
+  exact
+    ⟨hcomputed,
+      hn_w,
+      by dsimp [w, profile, searchProfile]; rfl,
+      w.n_ge,
+      w.cutoff_gt,
+      w.rejects_candidates,
+      w.no_small_at_n,
+      w.minProofCodeSize_gt,
+      hupper_le,
+      hlower,
+      (not_lt_of_ge hupper_le) hlower⟩
+
 theorem computed_n_contradiction
     (h : ProofLengthAxiomFreeInternalTheorem5Provider)
     (hrat : _root_.is_rational _root_.euler_mascheroni) :
@@ -322,6 +414,9 @@ structure Audit
       (checkedSearchUpperTail
         h.candidate h.upper_provider hrat).upperN ≤
         h.computedCollisionNOfRationality hrat
+  lowerSearchWitnessTrace :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      h.lowerSearchWitnessTraceStatement hrat
   lowerAtComputedN :
     ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
       (checkedSearchUpperTail
@@ -353,6 +448,7 @@ theorem audit
   finiteConsistencyRawFamily := h.powerBoundRawCode_eq_scaled_strengthened
   computedWitnessFormula := h.computedCollisionN_eq_rejectionExtractorWitness
   computedNGeUpperN := h.computedCollisionN_ge_upperN
+  lowerSearchWitnessTrace := h.lowerSearchWitnessTraceOfRationality
   lowerAtComputedN := h.lower_at_computedCollisionN
   upperAtComputedN := h.upper_at_computedCollisionN
   contradictionAtComputedN := h.computed_n_contradiction
@@ -412,6 +508,62 @@ theorem closure
       h.upper_at_computedCollisionN,
       h.computed_n_contradiction,
       h.not_rational⟩
+
+/-- Stronger provider closure exposing the expanded lower-search witness trace.
+This is the audit-facing form used to check that the `computedCollisionN` chosen
+by the Sondow upper route is exactly the finite-search lower-bound witness. -/
+theorem closure_with_lowerSearchWitnessTrace
+    (h : ProofLengthAxiomFreeInternalTheorem5Provider) :
+    h.Audit ∧
+      h.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          h.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (h.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (h.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) > f n) ∧
+            (∀ n : Nat,
+              h.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (h.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                h.computedCollisionNOfRationality hrat =
+                  h.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      h.candidate h.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      h.candidate h.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      h.candidate h.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    h.candidate h.upper_provider hrat).upperN ≤
+                    h.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    h.candidate h.upper_provider hrat).U
+                      (h.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      h.scale_data
+                      h.candidate.checkerSemantics.toProofCodeSemantics
+                      (h.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      h.scale_data
+                      h.candidate.checkerSemantics.toProofCodeSemantics
+                      (h.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      h.candidate h.upper_provider hrat).U
+                      (h.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  rcases h.closure with
+    ⟨haudit, hendpoint, hlower, hraw, hcomputed, hge,
+      hlowerAt, hupperAt, hfalse, hnot⟩
+  exact
+    ⟨haudit, hendpoint, h.lowerSearchWitnessTraceOfRationality, hlower,
+      hraw, hcomputed, hge, hlowerAt, hupperAt, hfalse, hnot⟩
 
 end ProofLengthAxiomFreeInternalTheorem5Provider
 
@@ -1850,6 +2002,42 @@ theorem checkedMeasuredGap_witness_eq_rejectionExtractor
       input.rejectionExtractor.witness U hU N :=
   rfl
 
+/-- Exact trace from the strict-scale singleton input back to its computable gap
+certificate.  This is the search-side lower-bound data before any upper-route or
+root proof-length compatibility layer is introduced. -/
+theorem rejectionExtractor_gap_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      input.rejectionExtractor.witness f hf N =
+          (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+        input.rejectionExtractor.cutoff f hf N =
+          input.lengthCodeAt
+            ((input.gap.gap_for_polynomial_upper f hf).witness N) ∧
+          N ≤ (input.gap.gap_for_polynomial_upper f hf).witness N ∧
+            f ((input.gap.gap_for_polynomial_upper f hf).witness N) <
+              (input.lengthCodeAt
+                ((input.gap.gap_for_polynomial_upper f hf).witness N) : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : input.checkerSemantics.Code,
+          code ∈
+            input.finiteEnumeration.candidates
+              (input.rejectionExtractor.witness f hf N)
+              (input.rejectionExtractor.cutoff f hf N) →
+            ¬ input.checkerSemantics.checks code
+                (scale_data.powerBoundRawCode
+                  (input.rejectionExtractor.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl,
+        (input.gap.gap_for_polynomial_upper f hf).witness_ge N,
+        (input.gap.gap_for_polynomial_upper f hf).strict_at_witness N⟩
+  · intro f hf N code hmem
+    exact input.rejectionExtractor.rejects_candidates f hf N code hmem
+
 /-- The search-only input builds the canonical proof-length-free search core:
 concrete PA/Hilbert syntax, recognizer exactness, canonical checker interface,
 finite enumeration, and computable rejection. -/
@@ -1978,6 +2166,49 @@ theorem checkedUpperProvider_computedCollisionN_eq_checkedMeasuredGapWitness
           tail.upperN) := by
           exact (input.checkedMeasuredGap_witness_eq_inputGap
             tail.U tail.polynomial tail.upperN).symm
+
+/-- Checked-upper witness trace for the strict-scale singleton search input.
+This is the clean route that stays on checked proof-code size and exposes the
+computed collision witness as the finite-search lower-bound witness. -/
+theorem checkedUpperProvider_lowerSearchWitnessTrace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (input.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).lowerSearchWitnessTraceStatement hrat := by
+  exact
+    (input.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).lowerSearchWitnessTraceOfRationality hrat
+
+/-- Combined clean witness audit for the checked-upper route.  It records that
+the same computed `n` is both the lower-search witness and the checked-measured
+gap witness, without passing through the root `proof_length` symbol. -/
+theorem checkedUpperProvider_cleanComputedWitnessAudit
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    (upper_provider :
+      input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let tail :=
+      checkedSearchUpperTail
+        input.toProofLengthFreeMonth12Candidate upper_provider hrat
+    (input.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).lowerSearchWitnessTraceStatement hrat ∧
+      (input.toProofLengthAxiomFreeCheckedUpperProvider
+        upper_provider).computedCollisionNOfRationality hrat =
+        ((input.checkedMeasuredGap.gap_for_polynomial_upper
+          tail.U tail.polynomial).witness tail.upperN) := by
+  dsimp
+  exact
+    ⟨input.checkedUpperProvider_lowerSearchWitnessTrace upper_provider hrat,
+      input.checkedUpperProvider_computedCollisionN_eq_checkedMeasuredGapWitness
+        upper_provider hrat⟩
 
 def toProjectUpperProvider
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -2588,6 +2819,37 @@ theorem computedCollisionN_eq_tailGapMax
     _ = max tail.upperN
           (input.tail_gap.gap_for_polynomial_upper
             tail.U tail.polynomial).threshold := rfl
+
+/-- Tail-gap audit form of the checked-upper route.  The same computed witness
+has the expanded lower-search trace and is definitionally the explicit
+`max upperN threshold` witness from the tail-gap certificate. -/
+theorem cleanComputedWitnessAudit
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+        scale_data)
+    (upper_provider :
+      input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).lowerSearchWitnessTraceStatement hrat ∧
+      (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+        upper_provider).computedCollisionNOfRationality hrat =
+        max
+          (checkedSearchUpperTail
+            input.toSearchInput.toProofLengthFreeMonth12Candidate
+            upper_provider hrat).upperN
+          (input.tail_gap.gap_for_polynomial_upper
+            (checkedSearchUpperTail
+              input.toSearchInput.toProofLengthFreeMonth12Candidate
+              upper_provider hrat).U
+            (checkedSearchUpperTail
+              input.toSearchInput.toProofLengthFreeMonth12Candidate
+              upper_provider hrat).polynomial).threshold := by
+  exact
+    ⟨input.toSearchInput.checkedUpperProvider_lowerSearchWitnessTrace
+        upper_provider hrat,
+      input.computedCollisionN_eq_tailGapMax upper_provider hrat⟩
 
 end ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
 
@@ -3788,6 +4050,38 @@ theorem computedCollisionN_eq_tailGapMax
     _ = max tail.upperN
           (frontier.tail_gap.gap_for_polynomial_upper
             tail.U tail.polynomial).threshold := rfl
+
+/-- Project-level tail-gap audit: the provider still exposes the expanded
+lower-search trace, and the computed witness is the explicit
+`max upperN threshold` number from the tail-gap certificate. -/
+theorem cleanComputedWitnessAudit
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    frontier.provider.lowerSearchWitnessTraceStatement hrat ∧
+      frontier.computedCollisionNOfRationality hrat =
+        max
+          (checkedSearchUpperTail
+            frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+            frontier.concreteLengthCodeFrontier.checkedUpperProvider
+            hrat).upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).U
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).polynomial).threshold := by
+  exact
+    ⟨frontier.provider.lowerSearchWitnessTraceOfRationality hrat,
+      frontier.computedCollisionN_eq_tailGapMax hrat⟩
 
 theorem closure
     {scale_data : InternalPudlakTheorem5ScaleData}

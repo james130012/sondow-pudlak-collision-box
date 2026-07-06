@@ -128,6 +128,50 @@ theorem no_scale_search_gap_for_internal_scale
   no_computable_search_gap_of_polynomial_bound
     scale_data.scale_polynomial_bound
 
+/-- If actual proof length is pointwise equal to a polynomially bounded
+measurement, the current strong lower-bound statement cannot hold for that
+formula family.  The strong statement yields a strict gap above the polynomial
+upper `measured`; the pointwise equality gives the matching global upper bound. -/
+theorem no_strong_proof_length_lower_bound_of_polynomial_exact_upper
+    {φ : Nat → _root_.FormulaCode} {measured : Nat → Real}
+    (hpoly : _root_.is_polynomial_bound measured)
+    (heq : ∀ n : Nat,
+      _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize (φ n) = measured n) :
+    ¬ _root_.StrongProofLengthLowerBound
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize φ := by
+  intro hstrong
+  have hgap :=
+    _root_.EventualLowerBound.toProofLengthGap
+      (_root_.StrongProofLengthLowerBound.toEventualLowerBound hstrong)
+      measured hpoly
+  exact _root_.collisionCore_from_lower_upper_gap hgap 0
+    (fun n _ => le_of_eq (heq n))
+
+/-- Specialization to the theorem-5 power-bound family.  With the current
+`scale_polynomial_bound` field, an exact calibration
+`proof_length(powerBoundRawCode n) = scale n` rules out the strong proof-length
+lower bound for `powerBoundRawCode`. -/
+theorem no_internal_power_bound_strong_lower_bound_of_proof_length_eq_scale
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (proof_length_eq_scale :
+      ∀ n : Nat,
+        actualProofLengthMeasured scale_data n =
+          scaleMeasured scale_data n) :
+    ¬ _root_.StrongProofLengthLowerBound
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+      scale_data.powerBoundRawCode := by
+  exact no_strong_proof_length_lower_bound_of_polynomial_exact_upper
+    (φ := scale_data.powerBoundRawCode)
+    (measured := scaleMeasured scale_data)
+    (by
+      change _root_.is_polynomial_bound
+        (fun n : Nat => (scale_data.scale n : Real))
+      exact scale_data.scale_polynomial_bound)
+    (by
+      intro n
+      simpa [actualProofLengthMeasured] using proof_length_eq_scale n)
+
 /-- The correct Month 9-10 measured object is actual PA proof length.  A
 computable finite-search/no-small-code core gives the search gap directly,
 using its lower-search witness and proof-length calibration; no equality

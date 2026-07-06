@@ -20,6 +20,78 @@ open SondowProjectMonth9Month10Month11ExactProofGapHandoff
 open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 open SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
 
+/-! ## Tail-gap frontier instantiation adapters -/
+
+/-- Transport a tail-form strict gap across pointwise equality of the measured
+functions, preserving the explicit threshold. -/
+def transportTailStrictGapCertificate
+    {U measuredA measuredB : Nat → Real}
+    (heq : ∀ m : Nat, measuredA m = measuredB m)
+    (gap : TailStrictGapCertificate U measuredA) :
+    TailStrictGapCertificate U measuredB where
+  threshold := gap.threshold
+  strict_after := by
+    intro m hm
+    rw [← heq m]
+    exact gap.strict_after m hm
+
+/-- Transport a computable tail-gap certificate across pointwise equality of
+the measured functions, without changing the computed threshold. -/
+def transportComputableGapCertificate
+    {measuredA measuredB : Nat → Real}
+    (heq : ∀ m : Nat, measuredA m = measuredB m)
+    (gap : ComputableGapCertificate measuredA) :
+    ComputableGapCertificate measuredB where
+  gap_for_polynomial_upper := fun U hU =>
+    transportTailStrictGapCertificate heq
+      (gap.gap_for_polynomial_upper U hU)
+
+/-- Build the strongest time-bound canonical tail-gap frontier from the smaller
+singleton tail-gap input plus the concrete left/right proof families.  This
+turns the remaining frontier-instantiation task into the explicit obligations:
+time-bound strictness, nonzero exponent, two polynomial family-length bounds,
+and the checked-length code equality. -/
+def timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+      scale_data (Ax := Ax) (A := A) (B := B) where
+  left_family := left_family
+  right_family := right_family
+  time_bound_strict := time_bound_strict
+  exponent_ne_zero := exponent_ne_zero
+  tail_gap :=
+    transportComputableGapCertificate
+      (by
+        intro m
+        exact_mod_cast lengthCodeAt_eq_conj_source m)
+      tail_input.tail_gap
+  left_length_polynomial := left_length_polynomial
+  right_length_polynomial := right_length_polynomial
+
 /-! ## Project-length measured object -/
 
 /-- The theorem-5 power-bound family measured by the concrete checker
@@ -1616,6 +1688,1191 @@ noncomputable def projectLengthUpperTailOfTimeBoundCanonicalTailGap
         ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore]
         using hchecked }
 
+/-- On the time-bound canonical tail-gap frontier, the checker `projectLength`
+measurement is exactly the concrete right-conj-eliminated proof-family minimum
+checked code size.  This exposes the proof-length-free target that the final
+root `proof_length` exactness bridge must match. -/
+theorem projectLengthMeasuredOfTimeBoundCanonicalTailGap_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  rw [checkerProjectLengthMeasured_eq_checked]
+  simpa [month9_month10_checkedProofCodeMeasured] using
+    (show
+      (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+          (scale_data.powerBoundRawCode m) ⟨m, rfl⟩ : Real) =
+        (((frontier.left_family.conjIntro frontier.right_family)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m : Nat) : Real) from by
+        exact_mod_cast
+          frontier.concreteLengthCodeFrontier.projection
+            |>.theorem5_source_eq_family_source m)
+
+/-- The final root-proof-length residual for the time-bound canonical tail-gap
+route is exactly pointwise agreement with the concrete proof-family
+`minCheckedCodeSize`.  The left-to-right direction is the remaining bridge
+specialized to this frontier; the right-to-left direction reconstructs that
+bridge without any additional theorem-5 lower-bound data. -/
+theorem tailGapActualBridge_iff_actual_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (∀ m : Nat,
+        actualProofLengthMeasured scale_data m =
+          (((frontier.left_family.conjIntro frontier.right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m : Nat) : Real)) := by
+  constructor
+  · intro bridge m
+    have hproject_actual :
+        checkerProjectLengthMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+            fallback m =
+          actualProofLengthMeasured scale_data m :=
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data)
+        (checker :=
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback m).trans (bridge.checked_eq_actual m)
+    exact
+      hproject_actual.symm.trans
+        (projectLengthMeasuredOfTimeBoundCanonicalTailGap_eq_familyMinChecked
+          fallback frontier m)
+  · intro h
+    refine ⟨?_⟩
+    intro m
+    have hproject_family :=
+      projectLengthMeasuredOfTimeBoundCanonicalTailGap_eq_familyMinChecked
+        fallback frontier m
+    have hproject_checked :
+        checkerProjectLengthMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+            fallback m =
+          month9_month10_checkedProofCodeMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics
+            m :=
+      checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data)
+        (checker :=
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback m
+    exact hproject_checked.symm.trans (hproject_family.trans (h m).symm)
+
+/-- Concrete proof-length-code model replacing the bare root `proof_length`
+symbol on the theorem-5 power-bound fragment.  Its length is induced by the
+same PA/Hilbert checker semantics used by the clean project-length route. -/
+noncomputable def tailGapProofLengthCodeSemantics
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    _root_.ProofLengthCodeSemantics.{0}
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+      (InternalPudlakTheorem5PowerBoundRelevantCode scale_data) where
+  proof_code_semantics :=
+    frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics
+  fallback_length := fallback
+
+/-- The concrete replacement proof-length model agrees with the checker
+`projectLength` measured object on the theorem-5 raw-code family. -/
+theorem tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (scale_data.powerBoundRawCode m) : Nat) : Real) =
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m := by
+  rw [_root_.ProofLengthCodeSemantics.length,
+    checkerProjectLengthMeasured,
+    _root_.ProofCodeSemantics.projectLength]
+  rfl
+
+/-- The concrete replacement proof-length model is the same concrete
+right-conj-eliminated proof-family minimum checked code size.  This is the
+axiom-free exactness target that replaces the old root `proof_length` symbol in
+the final theorem-5 route. -/
+theorem tailGapProofLengthCodeSemantics_length_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (scale_data.powerBoundRawCode m) : Nat) : Real) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  exact
+    (tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+      fallback frontier m).trans
+      (projectLengthMeasuredOfTimeBoundCanonicalTailGap_eq_familyMinChecked
+        fallback frontier m)
+
+/-- Local theorem-5 code-map fact: the internal power-bound raw code is the
+rescaled Pudlak strengthened finite-consistency code used by the literature
+statement map. -/
+theorem tailGapPowerBoundRawCode_eq_rescaledPudlak
+    (scale_data : InternalPudlakTheorem5ScaleData) (m : Nat) :
+    scale_data.powerBoundRawCode m =
+      _root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+        scale_data.scale m :=
+  InternalPudlakTheorem5ScaleData.powerBoundRawCode_eq_rescaledPudlak
+    scale_data m
+
+/-- Local theorem-5 statement-map chain: the literature rescaled raw code, the
+internal power-bound raw code, and the rescaled Pudlak strengthened
+finite-consistency code are the same formula-code family. -/
+theorem tailGapRawRescaledPowerCodeChain
+    (scale_data : InternalPudlakTheorem5ScaleData) (m : Nat) :
+    scale_data.rescaledRawCode m = scale_data.powerBoundRawCode m ∧
+      scale_data.powerBoundRawCode m =
+        _root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+          scale_data.scale m :=
+  ⟨InternalPudlakTheorem5ScaleData.rescaledRawCode_eq_powerBoundRawCode
+      scale_data m,
+    tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m⟩
+
+/-- The concrete replacement proof-length model agrees with checker
+`projectLength` on the literature rescaled raw-code form of theorem 5. -/
+theorem tailGapProofLengthCodeSemantics_length_at_rescaledRawCode_eq_projectLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (scale_data.rescaledRawCode m) : Nat) : Real) =
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m := by
+  rw [(tailGapRawRescaledPowerCodeChain scale_data m).1]
+  exact
+    tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+      fallback frontier m
+
+/-- On the literature rescaled raw-code form, the concrete replacement
+proof-length model is exactly the concrete right-conj-eliminated proof-family
+minimum checked code size. -/
+theorem tailGapProofLengthCodeSemantics_length_at_rescaledRawCode_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (scale_data.rescaledRawCode m) : Nat) : Real) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  rw [(tailGapRawRescaledPowerCodeChain scale_data m).1]
+  exact
+    tailGapProofLengthCodeSemantics_length_eq_familyMinChecked
+      fallback frontier m
+
+/-- The concrete replacement proof-length model also agrees with checker
+`projectLength` when the theorem-5 family is stated in the rescaled Pudlak
+literature code, not only in the internal `powerBoundRawCode` name. -/
+theorem tailGapProofLengthCodeSemantics_length_at_rescaledPudlak_eq_projectLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+          scale_data.scale m) : Nat) : Real) =
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m := by
+  rw [← tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m]
+  exact
+    tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+      fallback frontier m
+
+/-- In the literature-code form, the concrete replacement proof-length model is
+exactly the concrete right-conj-eliminated proof-family minimum checked code
+size. -/
+theorem tailGapProofLengthCodeSemantics_length_at_rescaledPudlak_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    (((tailGapProofLengthCodeSemantics fallback frontier).length
+        (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+          scale_data.scale m) : Nat) : Real) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  rw [← tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m]
+  exact
+    tailGapProofLengthCodeSemantics_length_eq_familyMinChecked
+      fallback frontier m
+
+/-- The theorem-5 family measured by the concrete replacement proof-length
+model, not by the root `proof_length` axiom. -/
+noncomputable def tailGapConcreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Nat → Real :=
+  fun m =>
+    ((tailGapProofLengthCodeSemantics fallback frontier).length
+      (scale_data.powerBoundRawCode m) : Nat)
+
+/-- The concrete proof-length measured function is definitionally the same
+checker `projectLength` measurement on the theorem-5 raw-code family. -/
+theorem tailGapConcreteProofLengthMeasured_eq_projectLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    tailGapConcreteProofLengthMeasured fallback frontier m =
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m := by
+  simpa [tailGapConcreteProofLengthMeasured] using
+    tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+      fallback frontier m
+
+/-- The concrete proof-length measured function is exactly the concrete
+right-conj-eliminated proof-family minimum checked code size. -/
+theorem tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    tailGapConcreteProofLengthMeasured fallback frontier m =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  simpa [tailGapConcreteProofLengthMeasured] using
+    tailGapProofLengthCodeSemantics_length_eq_familyMinChecked
+      fallback frontier m
+
+/-- The concrete theorem-5 measurement is independent of the fallback outside
+the theorem-5 raw-code fragment.  Thus the computed collision route cannot be
+tuned by changing fallback lengths. -/
+theorem tailGapConcreteProofLengthMeasured_fallback_irrelevant
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback₁ fallback₂ : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (m : Nat) :
+    tailGapConcreteProofLengthMeasured fallback₁ frontier m =
+      tailGapConcreteProofLengthMeasured fallback₂ frontier m := by
+  exact
+    (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+      fallback₁ frontier m).trans
+      (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+        fallback₂ frontier m).symm
+
+/-- The old actual/root proof-length bridge is precisely the pointwise
+statement that root `actualProofLengthMeasured` agrees with the concrete
+proof-length model constructed from the PA/Hilbert checker.  This isolates the
+remaining root `proof_length` residual as one exact equality. -/
+theorem tailGapActualBridge_iff_actual_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (∀ m : Nat,
+        actualProofLengthMeasured scale_data m =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro bridge m
+    have hproject_actual :
+        checkerProjectLengthMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+            fallback m =
+          actualProofLengthMeasured scale_data m :=
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data)
+        (checker :=
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback m).trans (bridge.checked_eq_actual m)
+    have hconcrete_project :=
+      tailGapConcreteProofLengthMeasured_eq_projectLengthMeasured
+        fallback frontier m
+    exact hproject_actual.symm.trans hconcrete_project.symm
+  · intro h
+    refine ⟨?_⟩
+    intro m
+    have hproject_checked :
+        checkerProjectLengthMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+            fallback m =
+          month9_month10_checkedProofCodeMeasured
+            scale_data
+            frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics
+            m :=
+      checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data)
+        (checker :=
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback m
+    have hconcrete_project :=
+      tailGapConcreteProofLengthMeasured_eq_projectLengthMeasured
+        fallback frontier m
+    exact
+      hproject_checked.symm.trans
+        (hconcrete_project.symm.trans (h m).symm)
+
+/-- Same residual as
+`tailGapActualBridge_iff_actual_eq_concreteProofLengthMeasured`, unfolded to
+the root `proof_length` symbol.  This is the exact statement whose unconditional
+proof would make the old root-proof-length theorem-5 route close over the
+concrete checker model. -/
+theorem tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  simpa [actualProofLengthMeasured] using
+    tailGapActualBridge_iff_actual_eq_concreteProofLengthMeasured
+      fallback frontier
+
+/-- Literature-code form of the same root exactness residual.  The remaining
+old-root obligation is unchanged after replacing the internal
+`powerBoundRawCode` name by the rescaled Pudlak theorem-5 code. -/
+theorem tailGapActualBridge_iff_rootProofLength_at_rescaledPudlak_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+              scale_data.scale m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro bridge m
+    have hroot :=
+      (tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).1 bridge m
+    rwa [tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m] at hroot
+  · intro hroot
+    refine
+      (tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).2 ?_
+    intro m
+    rw [tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m]
+    exact hroot m
+
+/-- Literature-rescaled-raw-code form of the same root exactness residual.
+This matches the first code family exposed by the theorem-5 statement map. -/
+theorem tailGapActualBridge_iff_rootProofLength_at_rescaledRawCode_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.rescaledRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro bridge m
+    have hroot :=
+      (tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).1 bridge m
+    rwa [← (tailGapRawRescaledPowerCodeChain scale_data m).1] at hroot
+  · intro hroot
+    refine
+      (tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).2 ?_
+    intro m
+    rw [← (tailGapRawRescaledPowerCodeChain scale_data m).1]
+    exact hroot m
+
+/-- The root exactness residual is exactly the standard
+`ProofLengthCodeSemantics.Calibration` of the concrete theorem-5 proof-length
+model.  This is the minimal project-level convention still needed to turn the
+concrete checker model into the old root `proof_length` model. -/
+theorem tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (tailGapProofLengthCodeSemantics fallback frontier).Calibration
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro hcal m
+    simpa [tailGapConcreteProofLengthMeasured] using
+      hcal.proof_length_eq_length
+        (scale_data.powerBoundRawCode m) ⟨m, rfl⟩
+  · intro hroot
+    refine ⟨?_⟩
+    intro code hcode
+    rcases hcode with ⟨m, hcode_eq⟩
+    subst hcode_eq
+    simpa [tailGapConcreteProofLengthMeasured] using hroot m
+
+/-- Literature-code form of the standard calibration residual.  It says that
+calibrating the concrete checker model against root `proof_length` is exactly
+pointwise root equality on the rescaled Pudlak theorem-5 codes. -/
+theorem tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_at_rescaledPudlak_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (tailGapProofLengthCodeSemantics fallback frontier).Calibration
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+              scale_data.scale m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro hcal m
+    have hroot :=
+      (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).1 hcal m
+    rwa [tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m] at hroot
+  · intro hroot
+    refine
+      (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).2 ?_
+    intro m
+    rw [tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m]
+    exact hroot m
+
+/-- Calibration form at the literature rescaled raw-code entry point.  This is
+the root proof-length exactness obligation stated on the first theorem-5 code
+family of the literature statement map. -/
+theorem tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_at_rescaledRawCode_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    (tailGapProofLengthCodeSemantics fallback frontier).Calibration
+      ↔
+      (∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.rescaledRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m) := by
+  constructor
+  · intro hcal m
+    have hroot :=
+      (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).1 hcal m
+    rwa [← (tailGapRawRescaledPowerCodeChain scale_data m).1] at hroot
+  · intro hroot
+    refine
+      (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+        fallback frontier).2 ?_
+    intro m
+    rw [← (tailGapRawRescaledPowerCodeChain scale_data m).1]
+    exact hroot m
+
+/-- The old checked-to-actual bridge is equivalent to calibrating the concrete
+theorem-5 proof-length model against root `proof_length`.  After the concrete
+model route, this is the single remaining root-convention obligation. -/
+theorem tailGapActualBridge_iff_concreteProofLengthCalibration
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration :=
+  (tailGapActualBridge_iff_rootProofLength_eq_concreteProofLengthMeasured
+    fallback frontier).trans
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier).symm
+
+/-- Project-proof-length-semantics form of the remaining root calibration.
+This is definitionally the same obligation as
+`ProofLengthCodeSemantics.Calibration`, but stated in the project-level
+semantics interface used by the older proof-length bridge code. -/
+theorem tailGapProjectProofLengthSemantics_iff_concreteProofLengthCalibration
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)
+      ↔
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration := by
+  constructor
+  · intro hsem
+    exact ⟨hsem.proof_length_eq⟩
+  · intro hcal
+    exact hcal.toProjectProofLengthSemantics
+
+/-- The old checked-to-actual bridge is also equivalent to the standard
+`ProjectProofLengthSemantics` statement for the concrete theorem-5
+proof-length model. -/
+theorem tailGapActualBridge_iff_projectProofLengthSemantics
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data) :=
+  (tailGapActualBridge_iff_concreteProofLengthCalibration
+    fallback frontier).trans
+    (tailGapProjectProofLengthSemantics_iff_concreteProofLengthCalibration
+      fallback frontier).symm
+
+/-- Project-level proof-length semantics gives the root exactness statement
+against the concrete theorem-5 proof-length model. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode m) =
+      tailGapConcreteProofLengthMeasured fallback frontier m := by
+  have hcal :
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration :=
+    (tailGapProjectProofLengthSemantics_iff_concreteProofLengthCalibration
+      fallback frontier).1 hsem
+  exact
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier).1 hcal m
+
+/-- Project-level proof-length semantics identifies root proof length with the
+concrete right-conj-eliminated family minimum checked code size. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  exact
+    (tailGapProjectProofLengthSemantics_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier hsem m).trans
+      (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+        fallback frontier m)
+
+/-- Project-level proof-length semantics gives root exactness against the
+concrete theorem-5 proof-length model in the literature-code statement form. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledPudlak_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+          scale_data.scale m) =
+      tailGapConcreteProofLengthMeasured fallback frontier m := by
+  have hroot :=
+    tailGapProjectProofLengthSemantics_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier hsem m
+  rwa [tailGapPowerBoundRawCode_eq_rescaledPudlak scale_data m] at hroot
+
+/-- Under project-level proof-length semantics, the root `proof_length` of the
+rescaled Pudlak theorem-5 statement is exactly the concrete right-conj-eliminated
+family minimum checked code size. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledPudlak_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (_root_.rescaledPudlakStrengthenedFiniteConsistencyCode
+          scale_data.scale m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  exact
+    (tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledPudlak_eq_concreteProofLengthMeasured
+      fallback frontier hsem m).trans
+      (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+        fallback frontier m)
+
+/-- Project-level proof-length semantics gives root exactness at the literature
+rescaled raw-code entry point of theorem 5. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledRawCode_eq_concreteProofLengthMeasured
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.rescaledRawCode m) =
+      tailGapConcreteProofLengthMeasured fallback frontier m := by
+  have hroot :=
+    tailGapProjectProofLengthSemantics_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier hsem m
+  rwa [← (tailGapRawRescaledPowerCodeChain scale_data m).1] at hroot
+
+/-- Under project-level proof-length semantics, the root `proof_length` of the
+literature rescaled raw-code theorem-5 statement is exactly the concrete
+right-conj-eliminated family minimum checked code size. -/
+theorem tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledRawCode_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.rescaledRawCode m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  exact
+    (tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledRawCode_eq_concreteProofLengthMeasured
+      fallback frontier hsem m).trans
+      (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+        fallback frontier m)
+
+/-- The checker-native proof-length exactness certificate is exactly the same
+root residual as calibrating the concrete theorem-5 proof-length model built in
+this endpoint.  This collapses the old checker exactness input and the new
+project-length calibration input to one obligation. -/
+theorem tailGapCheckerProofLengthExactness_iff_concreteProofLengthCalibration
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    InternalPudlakTheorem5CheckerProofLengthExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      ↔
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration := by
+  constructor
+  · intro exactness
+    exact
+      (tailGapActualBridge_iff_concreteProofLengthCalibration
+        fallback frontier).1
+        (Month9Month10CheckedMeasuredToActualProofLengthBridge.ofCheckerProofLengthExactness
+          exactness)
+  · intro hcal
+    refine ⟨?_⟩
+    intro code hcode
+    let sem :=
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        |>.toProofCodeSemantics
+    calc
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize code =
+        ((tailGapProofLengthCodeSemantics fallback frontier).length code : Nat) :=
+          hcal.proof_length_eq_length code hcode
+      _ =
+        (sem.minProofCodeSize code hcode : Real) := by
+          change
+            ((sem.semanticProofLength fallback code : Nat) : Real) =
+              (sem.minProofCodeSize code hcode : Real)
+          exact_mod_cast
+            (sem.semanticProofLength_eq_minProofCodeSize fallback hcode)
+
+/-- Checker-native proof-length exactness is also exactly the same as the
+project-level `ProjectProofLengthSemantics` certificate for the concrete
+theorem-5 model. -/
+theorem tailGapCheckerProofLengthExactness_iff_projectProofLengthSemantics
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    InternalPudlakTheorem5CheckerProofLengthExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      ↔
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data) :=
+  (tailGapCheckerProofLengthExactness_iff_concreteProofLengthCalibration
+    fallback frontier).trans
+    (tailGapProjectProofLengthSemantics_iff_concreteProofLengthCalibration
+      fallback frontier).symm
+
+/-- The family-shaped checker exactness certificate and the relevant-code
+checker exactness certificate are equivalent on the theorem-5 fragment.  This
+aligns the endpoint residual with the shape used by the hard-residual audit
+file. -/
+theorem tailGapCheckerProofLengthFamilyExactness_iff_checkerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      ↔
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics :=
+  ⟨fun family => family.toCheckerProofLengthExactness,
+    fun exactness =>
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+        exactness⟩
+
+/-- Family-shaped checker proof-length exactness is the same residual as
+calibrating the concrete theorem-5 proof-length model. -/
+theorem tailGapCheckerProofLengthFamilyExactness_iff_concreteProofLengthCalibration
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      ↔
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration :=
+  (tailGapCheckerProofLengthFamilyExactness_iff_checkerProofLengthExactness
+    frontier).trans
+    (tailGapCheckerProofLengthExactness_iff_concreteProofLengthCalibration
+      fallback frontier)
+
+/-- Family-shaped checker proof-length exactness is also the same residual as
+the project-level proof-length semantics certificate for the concrete theorem-5
+model. -/
+theorem tailGapCheckerProofLengthFamilyExactness_iff_projectProofLengthSemantics
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      ↔
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data) :=
+  (tailGapCheckerProofLengthFamilyExactness_iff_checkerProofLengthExactness
+    frontier).trans
+    (tailGapCheckerProofLengthExactness_iff_projectProofLengthSemantics
+      fallback frontier)
+
+/-- The old checked-to-actual bridge is not a separate residual from
+checker-native proof-length exactness.  They are the same theorem-5 root
+proof-length calibration obligation, stated in two different interfaces. -/
+theorem tailGapActualBridge_iff_checkerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics :=
+  (tailGapActualBridge_iff_concreteProofLengthCalibration
+    fallback frontier).trans
+    (tailGapCheckerProofLengthExactness_iff_concreteProofLengthCalibration
+      fallback frontier).symm
+
+/-- The old checked-to-actual bridge is also equivalent to the family-shaped
+checker proof-length exactness statement used by the hard-residual file. -/
+theorem tailGapActualBridge_iff_checkerProofLengthFamilyExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)
+      ↔
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics :=
+  (tailGapActualBridge_iff_checkerProofLengthExactness
+    fallback frontier).trans
+    (tailGapCheckerProofLengthFamilyExactness_iff_checkerProofLengthExactness
+      frontier).symm
+
+/-- Checker-native proof-length exactness identifies the root `proof_length` of
+the literature rescaled raw-code theorem-5 statement with the concrete
+right-conj-eliminated family minimum checked code size. -/
+theorem tailGapCheckerProofLengthExactness_rootProofLength_at_rescaledRawCode_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (exactness :
+      InternalPudlakTheorem5CheckerProofLengthExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.rescaledRawCode m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  have hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data) :=
+    (tailGapCheckerProofLengthExactness_iff_projectProofLengthSemantics
+      fallback frontier).1 exactness
+  exact
+    tailGapProjectProofLengthSemantics_rootProofLength_at_rescaledRawCode_eq_familyMinChecked
+      fallback frontier hsem m
+
+/-- Family-shaped checker proof-length exactness identifies the root
+`proof_length` of the literature rescaled raw-code theorem-5 statement with the
+concrete right-conj-eliminated family minimum checked code size. -/
+theorem tailGapCheckerProofLengthFamilyExactness_rootProofLength_at_rescaledRawCode_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (family :
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.rescaledRawCode m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) :=
+  tailGapCheckerProofLengthExactness_rootProofLength_at_rescaledRawCode_eq_familyMinChecked
+    fallback frontier family.toCheckerProofLengthExactness m
+
+/-- Project-level proof-length semantics directly rebuilds the old
+checked-to-actual bridge. -/
+theorem tailGapProjectProofLengthSemantics_to_actualBridge
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)) :
+    Month9Month10CheckedMeasuredToActualProofLengthBridge
+      scale_data
+      (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics) :=
+  (tailGapActualBridge_iff_projectProofLengthSemantics
+    fallback frontier).2 hsem
+
+/-- Root calibration identifies the old project-level proof length with the
+concrete proof-family minimum checked code size on every theorem-5 raw code. -/
+theorem tailGapCalibration_rootProofLength_eq_familyMinChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hcal :
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration)
+    (m : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode m) =
+      (((frontier.left_family.conjIntro frontier.right_family)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m : Nat) : Real) := by
+  have hroot :
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode m) =
+        tailGapConcreteProofLengthMeasured fallback frontier m :=
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier).1 hcal m
+  exact
+    hroot.trans
+      (tailGapConcreteProofLengthMeasured_eq_familyMinChecked
+        fallback frontier m)
+
+/-- If two theorem-5 concrete models are both calibrated to the same root
+`proof_length`, then they agree pointwise on the theorem-5 raw-code family.
+This is the uniqueness pressure behind the final root exactness obligation. -/
+theorem tailGapConcreteProofLengthMeasured_eq_of_calibrations
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback₁ fallback₂ : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier₁ frontier₂ :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hcal₁ :
+      (tailGapProofLengthCodeSemantics fallback₁ frontier₁).Calibration)
+    (hcal₂ :
+      (tailGapProofLengthCodeSemantics fallback₂ frontier₂).Calibration)
+    (m : Nat) :
+    tailGapConcreteProofLengthMeasured fallback₁ frontier₁ m =
+      tailGapConcreteProofLengthMeasured fallback₂ frontier₂ m := by
+  have hroot₁ :
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode m) =
+        tailGapConcreteProofLengthMeasured fallback₁ frontier₁ m :=
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback₁ frontier₁).1 hcal₁ m
+  have hroot₂ :
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode m) =
+        tailGapConcreteProofLengthMeasured fallback₂ frontier₂ m :=
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback₂ frontier₂).1 hcal₂ m
+  exact hroot₁.symm.trans hroot₂
+
 /-- The tail lower gap transported from the concrete checked target to the
 checker `projectLength` measured object. -/
 def projectLengthTailGapOfTimeBoundCanonicalTailGap
@@ -1758,6 +3015,704 @@ theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_n_eq
             frontier.concreteLengthCodeFrontier.checkedUpperProvider
             hrat).polynomial).threshold := by
   rfl
+
+/-- The explicit project-length tail-gap witness computes the same index as the
+proof-length-free checked provider.  This pins the clean route's large `N` to
+one auditable formula, `max upperN threshold`. -/
+theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_n_eq_providerComputedN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap
+      fallback frontier hrat).n =
+      frontier.computedCollisionNOfRationality hrat := by
+  calc
+    (projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap
+      fallback frontier hrat).n =
+        max
+          (checkedSearchUpperTail
+            frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+            frontier.concreteLengthCodeFrontier.checkedUpperProvider
+            hrat).upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).U
+            (checkedSearchUpperTail
+              frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+              frontier.concreteLengthCodeFrontier.checkedUpperProvider
+              hrat).polynomial).threshold :=
+          projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_n_eq
+            fallback frontier hrat
+    _ = frontier.computedCollisionNOfRationality hrat :=
+          (frontier.computedCollisionN_eq_tailGapMax hrat).symm
+
+/-- At the same proof-length-free provider-computed large `N`, the explicit
+project-length tail-gap route gives both sides of the collision inequality.
+This is the clean contradiction trace for the auditable `max upperN threshold`
+number, without root `proof_length` or payload assumptions. -/
+theorem projectLengthProviderComputedN_tailGapContradictionTrace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    let computedN := frontier.computedCollisionNOfRationality hrat
+    upper.U computedN <
+        checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback computedN ∧
+      checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback computedN ≤
+        upper.U computedN ∧
+      False := by
+  dsimp
+  let w :=
+    projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap
+      fallback frontier hrat
+  have hn :
+      w.n = frontier.computedCollisionNOfRationality hrat :=
+    projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_n_eq_providerComputedN
+      fallback frontier hrat
+  have hlower :
+      (projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat).U
+          (frontier.computedCollisionNOfRationality hrat) <
+        checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback
+          (frontier.computedCollisionNOfRationality hrat) := by
+    simpa [w, hn] using w.lower_at_n
+  have hupper :
+      checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback
+          (frontier.computedCollisionNOfRationality hrat) ≤
+        (projectLengthUpperTailOfTimeBoundCanonicalTailGap
+          fallback frontier hrat).U
+          (frontier.computedCollisionNOfRationality hrat) := by
+    simpa [w, hn] using w.upper_at_n
+  exact ⟨hlower, hupper, (not_lt_of_ge hupper) hlower⟩
+
+/-- Big-`N` certificate for the clean project-length tail-gap route.  The
+provider-computed collision index is the explicit `max upperN threshold`,
+dominates both thresholds, and is the exact point where the project-length
+upper and lower bounds collide. -/
+theorem projectLengthProviderComputedN_tailGapBigNCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  let checkedTail :=
+    checkedSearchUpperTail
+      frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      frontier.concreteLengthCodeFrontier.checkedUpperProvider
+      hrat
+  let bigN :=
+    max checkedTail.upperN
+      (frontier.tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  have hcomputed :
+      frontier.computedCollisionNOfRationality hrat = bigN := by
+    simpa [bigN, checkedTail] using
+      frontier.computedCollisionN_eq_tailGapMax hrat
+  have htrace :=
+    projectLengthProviderComputedN_tailGapContradictionTrace
+      fallback frontier hrat
+  rcases htrace with ⟨hlower, hupper, hfalse⟩
+  exact
+    ⟨hcomputed,
+      by
+        exact Nat.le_max_left checkedTail.upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            checkedTail.U checkedTail.polynomial).threshold,
+      by
+        exact Nat.le_max_right checkedTail.upperN
+          (frontier.tail_gap.gap_for_polynomial_upper
+            checkedTail.U checkedTail.polynomial).threshold,
+      by
+        simpa [bigN, hcomputed] using hlower,
+      by
+        simpa [bigN, hcomputed] using hupper,
+      hfalse⟩
+
+/-- At the same provider-computed big `N`, the concrete replacement
+proof-length model produces the tail-gap collision without using root
+`proof_length`. -/
+theorem tailGapConcreteProofLengthModel_bigNCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    let measured :=
+      tailGapConcreteProofLengthMeasured fallback frontier
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  let checkedTail :=
+    checkedSearchUpperTail
+      frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      frontier.concreteLengthCodeFrontier.checkedUpperProvider
+      hrat
+  let bigN :=
+    max checkedTail.upperN
+      (frontier.tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  have hproject :=
+    projectLengthProviderComputedN_tailGapBigNCertificate
+      fallback frontier hrat
+  rcases hproject with
+    ⟨hcomputed, hupperN, hthreshold, hlower, hupper, hfalse⟩
+  have hmeasured :
+      tailGapConcreteProofLengthMeasured fallback frontier bigN =
+        checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback bigN :=
+    tailGapProofLengthCodeSemantics_length_eq_projectLengthMeasured
+      fallback frontier bigN
+  have hlowerModel :
+      (projectLengthUpperTailOfTimeBoundCanonicalTailGap fallback frontier hrat).U
+          bigN <
+        tailGapConcreteProofLengthMeasured fallback frontier bigN := by
+    rw [hmeasured]
+    exact hlower
+  have hupperModel :
+      tailGapConcreteProofLengthMeasured fallback frontier bigN ≤
+        (projectLengthUpperTailOfTimeBoundCanonicalTailGap fallback frontier hrat).U
+          bigN := by
+    rw [hmeasured]
+    exact hupper
+  exact
+    ⟨hcomputed,
+      hupperN,
+      hthreshold,
+      by
+        simpa using hlowerModel,
+      by
+        simpa using hupperModel,
+      hfalse⟩
+
+/-- The concrete replacement proof-length model gives the contradiction at
+the provider-computed big `N`, without using root `proof_length`. -/
+theorem tailGapConcreteProofLengthModel_contradiction
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False := by
+  have hcert :=
+    tailGapConcreteProofLengthModel_bigNCertificate
+      fallback frontier hrat
+  dsimp at hcert
+  rcases hcert with ⟨_, _, _, _, _, hfalse⟩
+  exact hfalse
+
+/-- Closed theorem-5 tail-gap conclusion over the concrete replacement
+proof-length model.  This is the proof-length-axiom-free version of the final
+collision route. -/
+theorem tailGapConcreteProofLengthModel_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat =>
+    tailGapConcreteProofLengthModel_contradiction
+      fallback frontier hrat
+
+/-- End-to-end contradiction from the smaller singleton tail-gap input.  This
+uses the frontier-instantiation adapter above and then runs the closed concrete
+proof-length-model route, still without root `proof_length`. -/
+theorem tailGapConcreteProofLengthModel_contradiction_of_singletonTailGapInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  tailGapConcreteProofLengthModel_contradiction
+    fallback
+    (timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+      left_family right_family time_bound_strict exponent_ne_zero tail_input
+      lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial)
+    hrat
+
+/-- Big-`N` certificate from the smaller singleton tail-gap input.  This keeps
+the computable collision witness visible after frontier instantiation: the
+provider-computed index is the explicit `max upperN threshold` number, and the
+same index carries the concrete proof-length-model collision. -/
+theorem tailGapConcreteProofLengthModel_bigNCertificate_of_singletonTailGapInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero tail_input
+        lengthCodeAt_eq_conj_source left_length_polynomial
+        right_length_polynomial
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    let measured :=
+      tailGapConcreteProofLengthMeasured fallback frontier
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  exact
+    tailGapConcreteProofLengthModel_bigNCertificate
+      fallback
+      (timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero tail_input
+        lengthCodeAt_eq_conj_source left_length_polynomial
+        right_length_polynomial)
+      hrat
+
+/-- Closed proof-length-axiom-free theorem-5 tail-gap conclusion from the
+smaller singleton tail-gap input.  This is the direct endpoint after the
+frontier-instantiation adapter has supplied the canonical tail-gap frontier. -/
+theorem tailGapConcreteProofLengthModel_not_rational_of_singletonTailGapInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat =>
+    tailGapConcreteProofLengthModel_contradiction_of_singletonTailGapInput
+      fallback left_family right_family time_bound_strict exponent_ne_zero
+      tail_input lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial hrat
+
+/-- A root exactness proof at theorem-5 raw codes immediately transports the
+concrete model big-`N` certificate to the old `actualProofLengthMeasured`
+statement.  Thus the remaining old-root residual is exactly the input `hroot`.
+-/
+theorem projectLengthProviderComputedN_tailGapRootExactnessCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hroot :
+      ∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < actualProofLengthMeasured scale_data bigN ∧
+            actualProofLengthMeasured scale_data bigN ≤ upper.U bigN ∧
+              actualProofLengthMeasured scale_data bigN =
+                tailGapConcreteProofLengthMeasured fallback frontier bigN ∧
+                False := by
+  dsimp
+  let checkedTail :=
+    checkedSearchUpperTail
+      frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      frontier.concreteLengthCodeFrontier.checkedUpperProvider
+      hrat
+  let bigN :=
+    max checkedTail.upperN
+      (frontier.tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  have hconcrete :=
+    tailGapConcreteProofLengthModel_bigNCertificate
+      fallback frontier hrat
+  rcases hconcrete with
+    ⟨hcomputed, hupperN, hthreshold, hlower, hupper, hfalse⟩
+  have hactual :
+      actualProofLengthMeasured scale_data bigN =
+        tailGapConcreteProofLengthMeasured fallback frontier bigN := by
+    simpa [actualProofLengthMeasured] using hroot bigN
+  have hlowerActual :
+      (projectLengthUpperTailOfTimeBoundCanonicalTailGap fallback frontier hrat).U
+          bigN <
+        actualProofLengthMeasured scale_data bigN := by
+    rw [hactual]
+    exact hlower
+  have hupperActual :
+      actualProofLengthMeasured scale_data bigN ≤
+        (projectLengthUpperTailOfTimeBoundCanonicalTailGap fallback frontier hrat).U
+          bigN := by
+    rw [hactual]
+    exact hupper
+  exact
+    ⟨hcomputed,
+      hupperN,
+      hthreshold,
+      by
+        simpa using hlowerActual,
+      by
+        simpa using hupperActual,
+      hactual,
+      hfalse⟩
+
+/-- Standard-calibration form of
+`projectLengthProviderComputedN_tailGapRootExactnessCertificate`.  The only
+old-root input is now the canonical calibration object for the concrete
+theorem-5 proof-length model. -/
+theorem projectLengthProviderComputedN_tailGapCalibrationCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hcal :
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < actualProofLengthMeasured scale_data bigN ∧
+            actualProofLengthMeasured scale_data bigN ≤ upper.U bigN ∧
+              actualProofLengthMeasured scale_data bigN =
+                tailGapConcreteProofLengthMeasured fallback frontier bigN ∧
+                False := by
+  have hroot :
+      ∀ m : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode m) =
+          tailGapConcreteProofLengthMeasured fallback frontier m :=
+    (tailGapProofLengthCodeSemantics_calibration_iff_rootProofLength_eq_concreteProofLengthMeasured
+      fallback frontier).1 hcal
+  exact
+    projectLengthProviderComputedN_tailGapRootExactnessCertificate
+      fallback frontier hroot hrat
+
+/-- Project-proof-length-semantics form of the old-root big-`N` certificate.
+This is the same transport as the calibration certificate, but its input uses
+the project-level semantics interface shared by the older proof-length code. -/
+theorem projectLengthProviderComputedN_tailGapProjectSemanticsCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hsem :
+      _root_.ProjectProofLengthSemantics
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (tailGapProofLengthCodeSemantics fallback frontier).length
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < actualProofLengthMeasured scale_data bigN ∧
+            actualProofLengthMeasured scale_data bigN ≤ upper.U bigN ∧
+              actualProofLengthMeasured scale_data bigN =
+                tailGapConcreteProofLengthMeasured fallback frontier bigN ∧
+                False := by
+  have hcal :
+      (tailGapProofLengthCodeSemantics fallback frontier).Calibration :=
+    (tailGapProjectProofLengthSemantics_iff_concreteProofLengthCalibration
+      fallback frontier).1 hsem
+  exact
+    projectLengthProviderComputedN_tailGapCalibrationCertificate
+      fallback frontier hcal hrat
+
+/-- Conditional root-`proof_length` transport of the clean tail-gap big-`N`
+certificate.  The only extra input is the checked-to-actual exactness bridge;
+under that bridge, the provider-computed `max upperN threshold` witness is
+unchanged and the collision is stated over `actualProofLengthMeasured`. -/
+theorem projectLengthProviderComputedN_tailGapActualBridgeCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (bridge :
+      Month9Month10CheckedMeasuredToActualProofLengthBridge
+        scale_data
+        (frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (frontier.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < actualProofLengthMeasured scale_data bigN ∧
+            actualProofLengthMeasured scale_data bigN ≤ upper.U bigN ∧
+              checkerProjectLengthMeasured
+                  scale_data
+                  frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+                  fallback bigN =
+                actualProofLengthMeasured scale_data bigN ∧
+                False := by
+  dsimp
+  let checkedTail :=
+    checkedSearchUpperTail
+      frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      frontier.concreteLengthCodeFrontier.checkedUpperProvider
+      hrat
+  let bigN :=
+    max checkedTail.upperN
+      (frontier.tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  have hproject :=
+    projectLengthProviderComputedN_tailGapBigNCertificate
+      fallback frontier hrat
+  rcases hproject with
+    ⟨hcomputed, hupperN, hthreshold, hlower, hupper, hfalse⟩
+  have hactual :
+      checkerProjectLengthMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+          fallback bigN =
+        actualProofLengthMeasured scale_data bigN :=
+    (checkerProjectLengthMeasured_eq_checked
+      (scale_data := scale_data)
+      (checker :=
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+      fallback bigN).trans (bridge.checked_eq_actual bigN)
+  have hlowerActual :
+      (projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat).U bigN <
+        actualProofLengthMeasured scale_data bigN := by
+    rw [← hactual]
+    exact hlower
+  have hupperActual :
+      actualProofLengthMeasured scale_data bigN ≤
+        (projectLengthUpperTailOfTimeBoundCanonicalTailGap
+          fallback frontier hrat).U bigN := by
+    rw [← hactual]
+    exact hupper
+  exact
+    ⟨hcomputed,
+      hupperN,
+      hthreshold,
+      hlowerActual,
+      hupperActual,
+      hactual,
+      hfalse⟩
 
 theorem projectLengthExplicitCollisionWitnessOfTimeBoundCanonicalTailGap_contradiction
     {scale_data : InternalPudlakTheorem5ScaleData}
