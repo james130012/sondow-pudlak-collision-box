@@ -9680,6 +9680,111 @@ theorem closure
 
 end Month9Month10PayloadFreeUpperProvider
 
+/-- Explicit payload-free upper provider for the shared project collision box.
+This is the no-choose downstream shape of the Sondow/S²₁ upper route: once
+rationality is assumed, it returns the concrete polynomial upper function and
+cutoff as a `PolynomialUpperTailCertificate`. -/
+abbrev Month9Month10PayloadFreeExplicitUpperProvider : Type :=
+  Month9Month10ExplicitMeasuredUpperProvider
+    sondowProjectLocalPudlakCollisionBox
+
+namespace Month9Month10PayloadFreeExplicitUpperProvider
+
+/-- Forget an explicit payload-free upper provider to the older existential
+payload-free upper-provider surface. -/
+def toPayloadFreeUpperProvider
+    (h : Month9Month10PayloadFreeExplicitUpperProvider) :
+    Month9Month10PayloadFreeUpperProvider where
+  upper_under_rationality := by
+    intro hrat
+    let upper := h.upperTailOfRationality hrat
+    exact ⟨upper.U, upper.polynomial, upper.upperN, upper.upper_after⟩
+
+theorem toPayloadFreeUpperProvider_closure
+    (h : Month9Month10PayloadFreeExplicitUpperProvider) :
+    (h.toPayloadFreeUpperProvider).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n →
+              sondowProjectLocalPudlakCollisionBox n ≤ U n) :=
+  h.toPayloadFreeUpperProvider.closure
+
+end Month9Month10PayloadFreeExplicitUpperProvider
+
+/-- Type-level Sondow/S²₁ upper tail certificate for the project collision box.
+Unlike `SondowProjectLocalS21CollapseConclusion`, this keeps the upper function
+and cutoff as data, so the downstream witness number can be evaluated. -/
+structure SondowProjectLocalS21ExplicitUpperTail : Type where
+  U : Nat → Real
+  polynomial : _root_.is_polynomial_bound U
+  upperN : Nat
+  accepted_after :
+    ∀ n : Nat, upperN ≤ n →
+      _root_.accepted_certificate (_root_.sondowReflectionGraftCode n)
+  upper_after :
+    ∀ n : Nat, upperN ≤ n →
+      sondowProjectLocalPudlakCollisionBox n ≤ U n
+
+namespace SondowProjectLocalS21ExplicitUpperTail
+
+def toPolynomialUpperTailCertificate
+    (upper : SondowProjectLocalS21ExplicitUpperTail) :
+    PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox where
+  U := upper.U
+  polynomial := upper.polynomial
+  upperN := upper.upperN
+  upper_after := upper.upper_after
+
+end SondowProjectLocalS21ExplicitUpperTail
+
+/-- Type-level Sondow/S²₁ upper provider.  This is the calculable replacement
+for the old propositional collapse conclusion when a concrete `N` is desired. -/
+structure SondowProjectLocalS21ExplicitUpperProvider : Type where
+  upperTailOfRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      SondowProjectLocalS21ExplicitUpperTail
+
+namespace SondowProjectLocalS21ExplicitUpperProvider
+
+/-- Forget the type-level explicit Sondow/S²₁ upper provider to the old
+propositional collapse conclusion. -/
+def toCollapseConclusion
+    (project_upper : SondowProjectLocalS21ExplicitUpperProvider) :
+    SondowProjectLocalS21CollapseConclusion := by
+  intro hrat
+  let upper := project_upper.upperTailOfRationality hrat
+  exact
+    ⟨upper.U,
+      upper.polynomial,
+      upper.upperN,
+      fun n hn => ⟨upper.accepted_after n hn, upper.upper_after n hn⟩⟩
+
+/-- Forget the type-level explicit Sondow/S²₁ upper provider to the payload-free
+explicit upper provider used by the collision endpoint. -/
+def toPayloadFreeExplicitUpperProvider
+    (project_upper : SondowProjectLocalS21ExplicitUpperProvider) :
+    Month9Month10PayloadFreeExplicitUpperProvider where
+  upperTailOfRationality := fun hrat =>
+    (project_upper.upperTailOfRationality hrat).toPolynomialUpperTailCertificate
+
+theorem toPayloadFreeExplicitUpperProvider_closure
+    (project_upper : SondowProjectLocalS21ExplicitUpperProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper :=
+      project_upper.toPayloadFreeExplicitUpperProvider.upperTailOfRationality
+        hrat
+    _root_.is_polynomial_bound upper.U ∧
+      (∀ n : Nat, upper.upperN ≤ n →
+        sondowProjectLocalPudlakCollisionBox n ≤ upper.U n) := by
+  dsimp [toPayloadFreeExplicitUpperProvider,
+    SondowProjectLocalS21ExplicitUpperTail.toPolynomialUpperTailCertificate]
+  constructor
+  · exact (project_upper.upperTailOfRationality hrat).polynomial
+  · exact (project_upper.upperTailOfRationality hrat).upper_after
+
+end SondowProjectLocalS21ExplicitUpperProvider
+
 /-- Endpoint form of the Month 9-10 direct route after splitting the upper
 provider from the lower/gap certificate.  This is the clean surface for the next
 provider replacement: produce a payload-free upper provider and a computable
@@ -9845,6 +9950,167 @@ theorem month9_month10_payload_free_upper_direct_collision_closure
                 ¬ _root_.is_rational _root_.euler_mascheroni :=
   h.closure
 
+/-- Direct endpoint using an explicit payload-free upper provider.  This avoids
+the downstream `upperTailCertificateOfRationality` choice path entirely: the
+upper certificate under rationality is selected by `upper_provider` itself. -/
+structure Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint : Type where
+  gap :
+    ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox
+  upper_provider : Month9Month10PayloadFreeExplicitUpperProvider
+
+namespace Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint
+
+def upperTailOfRationality
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate sondowProjectLocalPudlakCollisionBox :=
+  h.upper_provider.upperTailOfRationality hrat
+
+def computedWitnessOfRationality
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ComputedSearchCollisionWitness
+      (h.upperTailOfRationality hrat).U
+      sondowProjectLocalPudlakCollisionBox :=
+  h.gap.collisionWitness (h.upperTailOfRationality hrat)
+
+def computedCollisionNOfRationality
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  (h.computedWitnessOfRationality hrat).n
+
+theorem computedCollisionN_eq_searchGapWitness
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    h.computedCollisionNOfRationality hrat =
+      (h.gap.gap_for_polynomial_upper
+        (h.upperTailOfRationality hrat).U
+        (h.upperTailOfRationality hrat).polynomial).witness
+          (h.upperTailOfRationality hrat).upperN :=
+  rfl
+
+theorem computedCollisionN_upper_lower_trace
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper := h.upperTailOfRationality hrat
+    upper.U (h.computedCollisionNOfRationality hrat) <
+        sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ∧
+      sondowProjectLocalPudlakCollisionBox
+          (h.computedCollisionNOfRationality hrat) ≤
+        upper.U (h.computedCollisionNOfRationality hrat) ∧
+      False := by
+  dsimp [computedCollisionNOfRationality, computedWitnessOfRationality,
+    upperTailOfRationality]
+  let upper := h.upper_provider.upperTailOfRationality hrat
+  let witness := h.gap.collisionWitness upper
+  have hlower :
+      upper.U witness.n < sondowProjectLocalPudlakCollisionBox witness.n :=
+    witness.lower_at_n
+  have hupper :
+      sondowProjectLocalPudlakCollisionBox witness.n ≤ upper.U witness.n :=
+    witness.upper_at_n
+  exact ⟨hlower, hupper, (not_lt_of_ge hupper) hlower⟩
+
+theorem computed_n_contradiction
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  h.gap.collisionWitness_contradiction (h.upperTailOfRationality hrat)
+
+theorem not_rational
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat => h.computed_n_contradiction hrat
+
+def toPayloadFreeEndpoint
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    Month9Month10PayloadFreeUpperDirectCollisionEndpoint where
+  gap := h.gap
+  upper_provider := h.upper_provider.toPayloadFreeUpperProvider
+
+structure Audit
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    Prop where
+  explicitUpperProviderClosure :
+    h.upper_provider.toPayloadFreeUpperProvider.Audit
+  computableSearchGap :
+    Nonempty
+      (ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox)
+  computedWitnessFormula :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      h.computedCollisionNOfRationality hrat =
+        (h.gap.gap_for_polynomial_upper
+          (h.upperTailOfRationality hrat).U
+          (h.upperTailOfRationality hrat).polynomial).witness
+            (h.upperTailOfRationality hrat).upperN
+  computedWitnessUpperLowerTrace :
+    ∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let upper := h.upperTailOfRationality hrat
+      upper.U (h.computedCollisionNOfRationality hrat) <
+          sondowProjectLocalPudlakCollisionBox
+            (h.computedCollisionNOfRationality hrat) ∧
+        sondowProjectLocalPudlakCollisionBox
+            (h.computedCollisionNOfRationality hrat) ≤
+          upper.U (h.computedCollisionNOfRationality hrat) ∧
+        False
+  contradictionAtComputedN :
+    ∀ _hrat : _root_.is_rational _root_.euler_mascheroni, False
+  endpointNotRational :
+    ¬ _root_.is_rational _root_.euler_mascheroni
+
+theorem audit
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    h.Audit where
+  explicitUpperProviderClosure :=
+    h.upper_provider.toPayloadFreeUpperProvider.audit
+  computableSearchGap := ⟨h.gap⟩
+  computedWitnessFormula := h.computedCollisionN_eq_searchGapWitness
+  computedWitnessUpperLowerTrace := h.computedCollisionN_upper_lower_trace
+  contradictionAtComputedN := h.computed_n_contradiction
+  endpointNotRational := h.not_rational
+
+theorem closure
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    h.Audit ∧
+      h.upper_provider.toPayloadFreeUpperProvider.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            h.computedCollisionNOfRationality hrat =
+              (h.gap.gap_for_polynomial_upper
+                (h.upperTailOfRationality hrat).U
+                (h.upperTailOfRationality hrat).polynomial).witness
+                  (h.upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni :=
+  ⟨h.audit,
+    h.upper_provider.toPayloadFreeUpperProvider.audit,
+    ⟨h.gap⟩,
+    h.computedCollisionN_eq_searchGapWitness,
+    h.computed_n_contradiction,
+    h.not_rational⟩
+
+end Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint
+
+theorem month9_month10_payload_free_explicit_upper_direct_collision_closure
+    (h : Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint) :
+    h.Audit ∧
+      h.upper_provider.toPayloadFreeUpperProvider.Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            h.computedCollisionNOfRationality hrat =
+              (h.gap.gap_for_polynomial_upper
+                (h.upperTailOfRationality hrat).U
+                (h.upperTailOfRationality hrat).polynomial).witness
+                  (h.upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni :=
+  h.closure
+
 /-- Build the payload-free upper provider directly from the Sondow project-local
 upper route.  This strips the accepted-certificate payload component and keeps
 only the polynomial proof-length upper tail needed by the collision core. -/
@@ -9869,6 +10135,45 @@ theorem month9_month10_project_upper_to_payload_free_upper_provider_closure
               sondowProjectLocalPudlakCollisionBox n ≤ U n) :=
   (month9_month10_project_upper_to_payload_free_upper_provider
     project_upper).closure
+
+/-- Explicit endpoint built from the Sondow project-local upper route and a
+computable tail search gap.  This is the direct no-choose S21-to-witness
+surface: after the boundary conversion, `N` is computed from the explicit
+upper certificate. -/
+def month9_month10_payload_free_explicit_endpoint_of_tail_gap
+    (gap :
+      ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21ExplicitUpperProvider) :
+    Month9Month10PayloadFreeExplicitUpperDirectCollisionEndpoint where
+  gap := gap
+  upper_provider :=
+    project_upper.toPayloadFreeExplicitUpperProvider
+
+theorem month9_month10_payload_free_explicit_endpoint_of_tail_gap_closure
+    (gap :
+      ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox)
+    (project_upper : SondowProjectLocalS21ExplicitUpperProvider) :
+    (month9_month10_payload_free_explicit_endpoint_of_tail_gap
+      gap project_upper).Audit ∧
+      ((month9_month10_payload_free_explicit_endpoint_of_tail_gap
+        gap project_upper).upper_provider.toPayloadFreeUpperProvider).Audit ∧
+        Nonempty
+          (ComputableSearchGapCertificate sondowProjectLocalPudlakCollisionBox) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (month9_month10_payload_free_explicit_endpoint_of_tail_gap
+              gap project_upper).computedCollisionNOfRationality hrat =
+              (gap.gap_for_polynomial_upper
+                ((month9_month10_payload_free_explicit_endpoint_of_tail_gap
+                  gap project_upper).upperTailOfRationality hrat).U
+                ((month9_month10_payload_free_explicit_endpoint_of_tail_gap
+                  gap project_upper).upperTailOfRationality hrat).polynomial).witness
+                  ((month9_month10_payload_free_explicit_endpoint_of_tail_gap
+                    gap project_upper).upperTailOfRationality hrat).upperN) ∧
+            (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+              False) ∧
+              ¬ _root_.is_rational _root_.euler_mascheroni :=
+  (month9_month10_payload_free_explicit_endpoint_of_tail_gap
+    gap project_upper).closure
 
 /-- Build the payload-free direct endpoint from a tail-threshold computable gap
 and a payload-free upper provider.  This is the clean adapter: it does not look

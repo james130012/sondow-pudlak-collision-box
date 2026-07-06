@@ -852,6 +852,20 @@ theorem theorem5ProviderOfCanonicalSearchCoreProjectUpper_closure
 
 /-! ## Payload-free upper-provider instantiation -/
 
+/-- Local explicit measured upper provider used in this endpoint file.  It
+duplicates the downstream explicit-provider shape so this probe does not depend
+on rebuilt imported oleans. -/
+structure ProofLengthAxiomFreeExplicitMeasuredUpperProvider
+    (measured : Nat → Real) : Type where
+  upperTailOfRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      PolynomialUpperTailCertificate measured
+
+/-- Local explicit payload-free project-box upper provider. -/
+abbrev ProofLengthAxiomFreePayloadFreeExplicitUpperProvider : Type :=
+  ProofLengthAxiomFreeExplicitMeasuredUpperProvider
+    sondowProjectLocalPudlakCollisionBox
+
 /-- Transport a payload-free project-box upper provider to the checked
 theorem-5 measurement using the same additive projection as the legacy project
 upper route.  Unlike `checkedUpperProviderOfProjectUpperAndAdditiveProjection`,
@@ -887,6 +901,96 @@ def checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection
       month9_month10_checkedProofCodeMeasured,
       InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
       using hchecked
+
+/-- Explicit version of
+`checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection`.  It preserves the
+selected polynomial upper function and, crucially, the concrete upper cutoff
+`upperN` instead of hiding it behind an existential provider. -/
+def checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (upper_provider :
+      ProofLengthAxiomFreePayloadFreeExplicitUpperProvider) :
+    ProofLengthAxiomFreeExplicitMeasuredUpperProvider
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  upperTailOfRationality := by
+    intro hrat
+    let upper := upper_provider.upperTailOfRationality hrat
+    exact
+      { U := projection.shiftedUpper upper.U
+        polynomial :=
+          projection.shiftedUpper_polynomial upper.U upper.polynomial
+        upperN := upper.upperN
+        upper_after := by
+          intro n hn
+          have hsource := projection.source_le_project_add n
+          have hproject := upper.upper_after n hn
+          have hchecked :
+              (sem.minProofCodeSize
+                  (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) ≤
+                upper.U n + projection.overhead := by
+            nlinarith
+          simpa [
+            month9_month10_checkedProofCodeMeasured,
+            InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
+            using hchecked }
+
+theorem checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection_upperN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (upper_provider :
+      ProofLengthAxiomFreePayloadFreeExplicitUpperProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ((checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+      projection upper_provider).upperTailOfRationality hrat).upperN =
+      (upper_provider.upperTailOfRationality hrat).upperN :=
+  rfl
+
+theorem checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection scale_data sem)
+    (upper_provider :
+      ProofLengthAxiomFreePayloadFreeExplicitUpperProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checkedUpper :=
+      (checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection
+        projection upper_provider).upperTailOfRationality hrat
+    _root_.is_polynomial_bound checkedUpper.U ∧
+      checkedUpper.upperN =
+        (upper_provider.upperTailOfRationality hrat).upperN ∧
+      ∀ n : Nat, checkedUpper.upperN ≤ n →
+        month9_month10_checkedProofCodeMeasured scale_data sem n ≤
+          checkedUpper.U n := by
+  dsimp [checkedExplicitUpperProviderOfPayloadFreeUpperAndAdditiveProjection]
+  let upper := upper_provider.upperTailOfRationality hrat
+  exact
+    ⟨projection.shiftedUpper_polynomial upper.U upper.polynomial,
+      rfl,
+      by
+        intro n hn
+        have hsource := projection.source_le_project_add n
+        have hproject := upper.upper_after n hn
+        have hchecked :
+            (sem.minProofCodeSize
+                (scale_data.powerBoundRawCode n) ⟨n, rfl⟩ : Real) ≤
+              upper.U n + projection.overhead := by
+          nlinarith
+        simpa [
+          month9_month10_checkedProofCodeMeasured,
+          InternalPudlakTheorem5AdditiveProjectBoxProjection.shiftedUpper]
+          using hchecked⟩
 
 theorem checkedUpperProviderOfPayloadFreeUpperAndAdditiveProjection_closure
     {scale_data : InternalPudlakTheorem5ScaleData}

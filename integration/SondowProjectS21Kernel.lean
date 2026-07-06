@@ -1908,7 +1908,270 @@ structure SondowReflectionGraftSidecarProofObjectSystemValidEventually
     ∀ n : ℕ, threshold ≤ n →
       SondowReflectionGraftSidecarProofObjectSystemValidAt bounds n
 
+/-- Data-level checked Sondow certificate at one index.  This is stronger than
+`mainSondowAcceptedAt n`: it keeps the rational parameter and the checked-code
+proof as fields, so downstream compilers do not have to recover them from an
+existential proposition. -/
+structure MainSondowFullCertificateCheckedAt (n : ℕ) where
+  q : ℚ
+  checked : mainSondowFullCertificateChecks q n
+
+namespace MainSondowFullCertificateCheckedAt
+
+def toAcceptedAt {n : ℕ}
+    (h : MainSondowFullCertificateCheckedAt n) :
+    mainSondowAcceptedAt n :=
+  ⟨h.q, h.checked⟩
+
+end MainSondowFullCertificateCheckedAt
+
+/-- Data-level eventual accepted-tail certificate for the main Sondow
+certificate family.  This is the computable replacement for merely knowing
+`∃ N, ∀ n ≥ N, mainSondowAcceptedAt n`. -/
+structure MainSondowFullCertificateCheckedTail where
+  threshold : ℕ
+  checked_at :
+    ∀ n : ℕ, threshold ≤ n →
+      MainSondowFullCertificateCheckedAt n
+
+namespace MainSondowFullCertificateCheckedTail
+
+theorem accepted_eventually
+    (h : MainSondowFullCertificateCheckedTail) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → mainSondowAcceptedAt n :=
+  ⟨h.threshold, fun n hn => (h.checked_at n hn).toAcceptedAt⟩
+
+theorem four_mul_nine_sixteenth_pow_lt_one_of_three_le
+    {n : ℕ} (hn : 3 ≤ n) :
+    4 * ((9 : ℝ) / 16) ^ n < 1 := by
+  have hpow :
+      ((9 : ℝ) / 16) ^ n ≤ ((9 : ℝ) / 16) ^ 3 := by
+    exact pow_le_pow_of_le_one (by norm_num) (by norm_num) hn
+  have hmul :
+      4 * ((9 : ℝ) / 16) ^ n ≤
+        4 * ((9 : ℝ) / 16) ^ 3 := by
+    exact mul_le_mul_of_nonneg_left hpow (by norm_num)
+  have htarget : 4 * ((9 : ℝ) / 16) ^ 3 < 1 := by
+    norm_num
+  exact lt_of_le_of_lt hmul htarget
+
+theorem tail_bound_certificate_accepted_of_three_le
+    {n : ℕ} (hn : 3 ≤ n) :
+    _root_.tail_bound_certificate_accepted n := by
+  have hn_one : 1 ≤ n :=
+    le_trans (by norm_num) hn
+  exact lt_of_le_of_lt
+    (_root_.sondow_product_le_four_mul_nine_sixteenth_pow
+      _root_.SondowForwardInputs.of_reproof.lcm_bound n hn_one)
+    (four_mul_nine_sixteenth_pow_lt_one_of_three_le hn)
+
+def ofReproofRationalParameter
+    (q : ℚ) (hq : (q : ℝ) = _root_.euler_mascheroni) :
+    MainSondowFullCertificateCheckedTail where
+  threshold := max 3 q.den
+  checked_at := by
+    intro n hn
+    have hn_three : 3 ≤ n :=
+      le_trans (Nat.le_max_left 3 q.den) hn
+    have hn_den : q.den ≤ n :=
+      le_trans (Nat.le_max_right 3 q.den) hn
+    have hn_one : 1 ≤ n :=
+      le_trans (by norm_num) hn_three
+    exact
+      { q := q
+        checked :=
+          ⟨hq,
+            ⟨tail_bound_certificate_accepted_of_three_le hn_three,
+              _root_.denominator_certificate_accepted_of_den_le q
+                (by omega)⟩,
+            _root_.SondowForwardInputs.of_reproof.product_log n hn_one,
+            _root_.SondowForwardInputs.of_reproof.decomposition n hn_one⟩ }
+
+theorem ofReproofRationalParameter_threshold
+    (q : ℚ) (hq : (q : ℝ) = _root_.euler_mascheroni) :
+    (ofReproofRationalParameter q hq).threshold = max 3 q.den :=
+  rfl
+
+noncomputable def ofAcceptedEventually
+    (h : ∃ N : ℕ, ∀ n : ℕ, N ≤ n → mainSondowAcceptedAt n) :
+    MainSondowFullCertificateCheckedTail where
+  threshold := Classical.choose h
+  checked_at := by
+    intro n hn
+    let accepted : mainSondowAcceptedAt n :=
+      (Classical.choose_spec h) n hn
+    exact
+      { q := Classical.choose accepted
+        checked := Classical.choose_spec accepted }
+
+end MainSondowFullCertificateCheckedTail
+
+/-- Data-level rationality witness: the rational parameter is explicit data,
+while the equality to Euler's constant remains a proof field.  This is the
+computable-frontier replacement for eliminating `is_rational` directly into
+data. -/
+structure MainSondowRationalParameter : Type where
+  q : ℚ
+  gamma_eq : (q : ℝ) = _root_.euler_mascheroni
+
+namespace MainSondowRationalParameter
+
+def checkedTail
+    (h : MainSondowRationalParameter) :
+    MainSondowFullCertificateCheckedTail :=
+  MainSondowFullCertificateCheckedTail.ofReproofRationalParameter
+    h.q h.gamma_eq
+
+theorem checkedTail_threshold
+    (h : MainSondowRationalParameter) :
+    h.checkedTail.threshold = max 3 h.q.den :=
+  rfl
+
+end MainSondowRationalParameter
+
+/-- Rationality-to-checked-tail provider.  This is the data-level version of the
+accepted-tail theorem needed for a computable upper-bound route. -/
+structure MainSondowExplicitCheckedTailProvider : Type where
+  checkedTailOfRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      MainSondowFullCertificateCheckedTail
+
+namespace MainSondowExplicitCheckedTailProvider
+
+theorem accepted_eventually_under_rationality
+    (h : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → mainSondowAcceptedAt n :=
+  (h.checkedTailOfRationality hrat).accepted_eventually
+
+def ofRationalParameter
+    (h : MainSondowRationalParameter) :
+    MainSondowExplicitCheckedTailProvider where
+  checkedTailOfRationality := fun _hrat => h.checkedTail
+
+theorem ofRationalParameter_threshold
+    (h : MainSondowRationalParameter)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ((ofRationalParameter h).checkedTailOfRationality hrat).threshold =
+      max 3 h.q.den :=
+  rfl
+
+/-- Legacy compatibility provider obtained from the existing reproved Sondow
+accepted-tail theorem by classical choice.  This proves the explicit checked
+tail is not a weaker logical target.  It is deliberately not the final
+computational source for a numerical large `N`, because the selected threshold
+and parameters are hidden behind `Classical.choose`. -/
+noncomputable def ofReproofChoice :
+    MainSondowExplicitCheckedTailProvider where
+  checkedTailOfRationality := fun hrat =>
+    MainSondowFullCertificateCheckedTail.ofAcceptedEventually
+      (_root_.accepted_sondow_certificate_eventual_of_rationality_reproof hrat)
+
+theorem ofReproofChoice_accepted_eventually_under_rationality
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → mainSondowAcceptedAt n :=
+  ofReproofChoice.accepted_eventually_under_rationality hrat
+
+end MainSondowExplicitCheckedTailProvider
+
 namespace SondowReflectionGraftSidecarProofObjectSystemValidEventually
+
+def ofMainEventualCompilerAndCheckedTail
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (tail : MainSondowFullCertificateCheckedTail) :
+    SondowReflectionGraftSidecarProofObjectSystemValidEventually
+      bounds where
+  threshold := max compiler.threshold tail.threshold
+  proof_at := by
+    intro n hn
+    have hcompiler : compiler.threshold ≤ n :=
+      le_trans (Nat.le_max_left compiler.threshold tail.threshold) hn
+    have htail : tail.threshold ≤ n :=
+      le_trans (Nat.le_max_right compiler.threshold tail.threshold) hn
+    let checked := tail.checked_at n htail
+    exact
+      { component_certificate :=
+          { productProof :=
+              compiler.productProof n checked.q hcompiler checked.checked
+            logProof :=
+              compiler.logProof n checked.q hcompiler checked.checked
+            decompositionProof :=
+              compiler.decompositionProof n checked.q hcompiler checked.checked
+            threePowProof :=
+              compiler.threePowProof n checked.q hcompiler checked.checked
+            payloadProof :=
+              compiler.payloadProof n checked.q hcompiler checked.checked }
+        valid :=
+          { product_conclusion :=
+              compiler.product_conclusion
+                n checked.q hcompiler checked.checked
+            log_conclusion :=
+              compiler.log_conclusion
+                n checked.q hcompiler checked.checked
+            decomposition_conclusion :=
+              compiler.decomposition_conclusion
+                n checked.q hcompiler checked.checked
+            threePow_conclusion :=
+              compiler.threePow_conclusion
+                n checked.q hcompiler checked.checked
+            payload_conclusion :=
+              compiler.payload_conclusion
+                n checked.q hcompiler checked.checked
+            product_size_plus_two_le :=
+              compiler.product_size_plus_two_le
+                n checked.q hcompiler checked.checked
+            log_size_plus_two_le :=
+              compiler.log_size_plus_two_le
+                n checked.q hcompiler checked.checked
+            decomposition_size_plus_two_le :=
+              compiler.decomposition_size_plus_two_le
+                n checked.q hcompiler checked.checked
+            threePow_size_plus_two_le :=
+              compiler.threePow_size_plus_two_le
+                n checked.q hcompiler checked.checked
+            payload_size_plus_two_le :=
+              compiler.payload_size_plus_two_le
+                n checked.q hcompiler checked.checked } }
+
+theorem ofMainEventualCompilerAndCheckedTail_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (tail : MainSondowFullCertificateCheckedTail) :
+    (ofMainEventualCompilerAndCheckedTail compiler tail).threshold =
+      max compiler.threshold tail.threshold :=
+  rfl
+
+def ofMainEventualCompilerAndCheckedTailProvider
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (provider : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    SondowReflectionGraftSidecarProofObjectSystemValidEventually
+      bounds :=
+  ofMainEventualCompilerAndCheckedTail
+    compiler (provider.checkedTailOfRationality hrat)
+
+def ofMainEventualCompilerAndRationalParameter
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (rat : MainSondowRationalParameter) :
+    SondowReflectionGraftSidecarProofObjectSystemValidEventually
+      bounds :=
+  ofMainEventualCompilerAndCheckedTail compiler rat.checkedTail
+
+theorem ofMainEventualCompilerAndRationalParameter_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (rat : MainSondowRationalParameter) :
+    (ofMainEventualCompilerAndRationalParameter compiler rat).threshold =
+      max compiler.threshold (max 3 rat.q.den) :=
+  rfl
 
 noncomputable def toSemanticNonemptyEventually
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
@@ -2036,6 +2299,60 @@ theorem sondowReflectionGraftSidecarComponentProofObjectExistsEventually_nonempt
   · intro h
     rcases h with ⟨certificate⟩
     exact ⟨certificate.toComponentProofObjectExistsEventually⟩
+
+/-- Data-level Sondow checked-tail plus the concrete eventual component compiler
+directly produce the sidecar proof-object system-valid tail.  This is the
+choice-free upstream handoff for computable upper certificates. -/
+def sidecarProofObjectSystemValidEventually_of_mainEventualCompiler_checkedTailProvider
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (provider : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    SondowReflectionGraftSidecarProofObjectSystemValidEventually
+      bounds :=
+  SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndCheckedTailProvider
+    compiler provider hrat
+
+theorem sidecarProofObjectSystemValidEventually_of_mainEventualCompiler_checkedTailProvider_threshold
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (provider : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (sidecarProofObjectSystemValidEventually_of_mainEventualCompiler_checkedTailProvider
+      compiler provider hrat).threshold =
+      max compiler.threshold
+        (provider.checkedTailOfRationality hrat).threshold :=
+  rfl
+
+/-- Forget the data-level system-valid tail to the older component-exists tail.
+This implication goes from stronger data to weaker propositions, so it does not
+weaken the route. -/
+def sidecarComponentProofObjectExistsEventually_of_mainEventualCompiler_checkedTailProvider
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (provider : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    SondowReflectionGraftSidecarComponentProofObjectExistsEventually
+      bounds :=
+  (sidecarProofObjectSystemValidEventually_of_mainEventualCompiler_checkedTailProvider
+    compiler provider hrat).toComponentProofObjectExistsEventually
+
+/-- The semantic S²₁ nonemptiness tail derived from data-level checked
+certificates.  This is the clean counterpart of the legacy route through
+`SondowRationalityToProjectProofObjectCertificates`, which used choice to
+recover the certificates from existential propositions. -/
+noncomputable def sidecarS21SemanticNonemptyEventually_of_mainEventualCompiler_checkedTailProvider
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (provider : MainSondowExplicitCheckedTailProvider)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    SondowReflectionGraftSidecarS21SemanticNonemptyEventually :=
+  (sidecarProofObjectSystemValidEventually_of_mainEventualCompiler_checkedTailProvider
+    compiler provider hrat).toSemanticNonemptyEventually
 
 noncomputable def sidecarComponentProofObjectExistsEventually_of_rationalityProjectProofObjects
     {ctx : BoundedArithmeticLab.GammaRationalityContext}
@@ -2530,6 +2847,127 @@ noncomputable def sondowReflectionGraftTailVerificationBridge_of_s21Bridge_seman
     hs21
     ((SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.ofSidecarSemanticNonemptyEventuallyAndRootConvention
         hsemantic hroot).toS21ToPAEventualLinearEmbeddingOn)
+
+/-- Q-parametric tail-verification bridge.  Unlike the legacy rationality
+adapter below, this does not select the rational parameter or the Sondow checked
+tail from a proposition: the parameter is explicit data, and the tail threshold
+is definitionally `max compiler.threshold (max 3 rat.q.den)`. -/
+noncomputable def sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootConvention_and_rationalParameter
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (rat : MainSondowRationalParameter) :
+    EventualShortVerificationBridgeOnTail
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+      _root_.sondowReflectionGraftCode :=
+  sondowReflectionGraftTailVerificationBridge_of_s21Bridge_semanticEventual_rootConvention
+    hs21
+    ((SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+        compiler rat)
+      |>.toSemanticNonemptyEventually)
+    hroot
+
+theorem sondowReflectionGraftTailVerificationBridge_rationalParameter_explicit_short_proofs_after
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (rat : MainSondowRationalParameter) :
+    ∃ g : ℕ → ℝ, _root_.is_polynomial_bound g ∧
+      ∀ n : ℕ, max compiler.threshold (max 3 rat.q.den) ≤ n →
+        _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) →
+          _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (_root_.sondowReflectionGraftCode n) ≤ g n := by
+  rcases hs21.short_proofs_of_accepted_certificates with
+    ⟨f, hf_poly, hf_bound⟩
+  let hsemantic :=
+    (SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+        compiler rat)
+      |>.toSemanticNonemptyEventually
+  let hcal :=
+    SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.ofSidecarSemanticNonemptyEventuallyAndRootConvention
+      hsemantic hroot
+  let hembed := hcal.toS21ToPAEventualLinearEmbeddingOn
+  refine
+    ⟨fun n => hembed.C * f n + hembed.D,
+      hf_poly.linear_rescale hembed.C_nonneg hembed.D_nonneg,
+      ?_⟩
+  intro n hn hacc
+  have hthreshold : hembed.threshold ≤ n := by
+    dsimp [hembed, hcal, hsemantic,
+      SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter,
+      SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndCheckedTail,
+      SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.toS21ToPAEventualLinearEmbeddingOn,
+      SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.ofSidecarSemanticNonemptyEventuallyAndRootConvention,
+      SondowReflectionGraftSidecarProofObjectSystemValidEventually.toSemanticNonemptyEventually,
+      MainSondowRationalParameter.checkedTail,
+      MainSondowFullCertificateCheckedTail.ofReproofRationalParameter]
+    exact hn
+  have htarget :=
+    hembed.target_le_linear_source_after n hthreshold
+  have hsource := hf_bound n hacc
+  have hmul :
+      hembed.C *
+          _root_.proof_length _root_.ProofSystem.S21
+            _root_.ProofLengthMeasure.symbolSize
+            (_root_.sondowReflectionGraftCode n) ≤
+        hembed.C * f n :=
+    mul_le_mul_of_nonneg_left hsource hembed.C_nonneg
+  nlinarith
+
+theorem accepted_sondowReflectionGraftCode_after_rationalParameter_payloadTruth
+    (rat : MainSondowRationalParameter)
+    (hpayload : _root_.PartialConsistencyPayloadTruth) :
+    ∀ n : ℕ, max 3 rat.q.den ≤ n →
+      _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) := by
+  intro n hn
+  have htail :=
+    (MainSondowFullCertificateCheckedTail.ofReproofRationalParameter
+      rat.q rat.gamma_eq).checked_at n hn
+  exact
+    ⟨htail.q,
+      htail.checked,
+      hpayload.true_all n⟩
+
+theorem sondowReflectionGraft_rationalParameter_payloadTruth_explicit_upper_tail_prop
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (rat : MainSondowRationalParameter)
+    (hpayload : _root_.PartialConsistencyPayloadTruth) :
+    ∃ U : ℕ → ℝ, _root_.is_polynomial_bound U ∧
+      ∀ n : ℕ, max compiler.threshold (max 3 rat.q.den) ≤ n →
+        _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) ∧
+          _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (_root_.sondowReflectionGraftCode n) ≤ U n := by
+  rcases
+    sondowReflectionGraftTailVerificationBridge_rationalParameter_explicit_short_proofs_after
+      hs21 compiler hroot rat with
+    ⟨U, hU_poly, hU_after⟩
+  exact
+    ⟨U, hU_poly, fun n hn => by
+      have haccepted :
+          _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) :=
+        accepted_sondowReflectionGraftCode_after_rationalParameter_payloadTruth
+          rat hpayload n (le_trans (Nat.le_max_right compiler.threshold
+            (max 3 rat.q.den)) hn)
+      exact ⟨haccepted, hU_after n hn haccepted⟩⟩
 
 noncomputable def sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootConvention_and_rationality
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
@@ -3705,6 +4143,45 @@ def SondowProjectLocalS21CollapseConclusion : Prop :=
         _root_.proof_length _root_.ProofSystem.PA
               _root_.ProofLengthMeasure.symbolSize
               (_root_.sondowReflectionGraftCode n) ≤ f n
+
+/-- Q-parametric compatibility theorem for the old project-local S²₁ collapse
+surface.  The threshold is explicit in the construction,
+`max compiler.threshold (max 3 rat.q.den)`, but the result is deliberately
+forgotten back to the old propositional `∃ f, ∃ N` interface. -/
+theorem sondowProjectLocalS21CollapseConclusion_of_rationalParameter_mainEventualCompiler_rootConvention
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (rat : MainSondowRationalParameter)
+    (hpayload : _root_.PartialConsistencyPayloadTruth) :
+    SondowProjectLocalS21CollapseConclusion := by
+  intro _hrat
+  rcases
+    sondowReflectionGraft_rationalParameter_payloadTruth_explicit_upper_tail_prop
+      hs21 compiler hroot rat hpayload with
+    ⟨U, hU_poly, htail⟩
+  exact
+    ⟨U, hU_poly, max compiler.threshold (max 3 rat.q.den), htail⟩
+
+/-- Kernel-specialized q-parametric compatibility theorem for the old
+project-local S²₁ collapse surface. -/
+theorem sondowProjectLocalS21CollapseConclusion_of_rationalParameter_mainEventualCompiler_rootConvention_kernel
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (kernel : SondowProjectLocalS21Kernel)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hroot : SondowReflectionGraftRootProofLengthConvention)
+    (rat : MainSondowRationalParameter)
+    (hpayload : _root_.PartialConsistencyPayloadTruth) :
+    SondowProjectLocalS21CollapseConclusion :=
+  sondowProjectLocalS21CollapseConclusion_of_rationalParameter_mainEventualCompiler_rootConvention
+    kernel.toReflectionGraftS21ShortVerificationBridge compiler hroot
+    rat hpayload
 
 /-- The final project-local inputs for the short-proof upper-bound route after
 removing the global `S21VerifierTracePackage` dependency. -/
