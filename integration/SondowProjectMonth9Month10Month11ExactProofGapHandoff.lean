@@ -6419,6 +6419,165 @@ theorem proofLengthFree_lower_bound_machine_closure
   simpa [toCanonicalSearchExactnessCore, toSingletonGapRejectionInput] using
     hclosure
 
+/-- Full proof-length-free lower-search trace for a strict-scale singleton-gap
+input, with the computed natural number pinned directly to the input gap
+witness.  This removes one more witness-calibration layer from the final
+auditable `N`: the lower-search witness, the canonical-search computed `N`,
+and the original gap witness are the same number. -/
+theorem proofLengthFree_full_lower_search_collision_trace_with_gapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics)) :
+    let core := input.toCanonicalSearchExactnessCore
+    (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+      let handoff := core.toProofLengthFreeExtractorHandoff
+      let upper := handoff.upperTailOfRationality upper_provider hrat
+      let w := handoff.lowerSearchWitnessOfUpper upper
+      w.n = handoff.computedNOfRationality upper_provider hrat ∧
+        handoff.computedNOfRationality upper_provider hrat =
+          (input.gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).witness upper.upperN ∧
+        w.K =
+          input.lengthCodeAt
+            ((input.gap.gap_for_polynomial_upper
+              upper.U upper.polynomial).witness upper.upperN) ∧
+        upper.upperN ≤ w.n ∧
+        upper.U w.n < (w.K : Real) ∧
+        (∀ c : core.checkerSemantics.Code,
+          c ∈ core.finiteEnumeration.candidates w.n w.K →
+            ¬ core.checkerSemantics.checks c
+              (scale_data.powerBoundRawCode w.n)) ∧
+        (∀ c : core.checkerSemantics.Code,
+          core.checkerSemantics.checks c
+            (scale_data.powerBoundRawCode w.n) →
+            upper.U w.n < (core.checkerSemantics.size c : Real)) ∧
+        (core.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+            (scale_data.powerBoundRawCode w.n) ⟨w.n, rfl⟩ : Real) >
+          upper.U w.n ∧
+        upper.U w.n <
+          month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics w.n ∧
+        month9_month10_checkedProofCodeMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics w.n ≤
+          upper.U w.n ∧
+        False) ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  let core := input.toCanonicalSearchExactnessCore
+  let handoff := core.toProofLengthFreeExtractorHandoff
+  have htrace := core.proofLengthFree_full_lower_search_collision_trace
+    upper_provider
+  have hgap_trace := input.canonicalSearchCore_gap_trace
+  refine ⟨?_, htrace.2⟩
+  intro hrat
+  let upper := handoff.upperTailOfRationality upper_provider hrat
+  let w := handoff.lowerSearchWitnessOfUpper upper
+  rcases htrace.1 hrat with
+    ⟨hn, hK, hge, hcut, hreject, hnoSmall, hmin, hlower,
+      hupper, hfalse⟩
+  have hcomputed_gap :
+      handoff.computedNOfRationality upper_provider hrat =
+        (input.gap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN := by
+    calc
+      handoff.computedNOfRationality upper_provider hrat =
+          handoff.rejectionExtractor.witness
+            upper.U upper.polynomial upper.upperN := by
+            simpa [
+              Month9Month10ProofLengthFreeExtractorHandoff.computedNOfRationality,
+              upper, handoff] using
+              handoff.computedNOfUpper_eq_rejectionExtractorWitness upper
+      _ = (input.gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).witness upper.upperN := by
+            simpa [handoff,
+              PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff] using
+              (hgap_trace.1 upper.U upper.polynomial upper.upperN).1
+  have hK_gap :
+      w.K =
+        input.lengthCodeAt
+          ((input.gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).witness upper.upperN) := by
+    calc
+      w.K =
+          handoff.rejectionExtractor.cutoff
+            upper.U upper.polynomial upper.upperN := hK
+      _ = input.lengthCodeAt
+            ((input.gap.gap_for_polynomial_upper
+              upper.U upper.polynomial).witness upper.upperN) := by
+            simpa [handoff,
+              PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff] using
+              (hgap_trace.1 upper.U upper.polynomial upper.upperN).2.1
+  exact
+    ⟨hn, hcomputed_gap, hK_gap, hge, hcut, hreject, hnoSmall,
+      hmin, hlower, hupper, hfalse⟩
+
+/-- Project-length direct endpoint for a strict-scale singleton-gap input,
+with the endpoint collision number pinned directly to the original input gap
+witness.  This is the clean `projectLength` form needed by an explicit `bigN`
+certificate: no root `proof_length` bridge is used. -/
+theorem projectLengthDirectEndpoint_full_trace_with_gapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper_provider :
+      Month9Month10AbstractMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let core := input.toCanonicalSearchExactnessCore
+    let handoff := core.toProofLengthFreeExtractorHandoff
+    let endpoint :=
+      handoff.projectLengthDirectEndpointOfCheckedUpper
+        fallback upper_provider
+    let upper := endpoint.upperTailOfRationality hrat
+    let n := endpoint.computedCollisionNOfRationality hrat
+    n =
+        (input.gap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN ∧
+      endpoint.computedCollisionNOfRationality hrat =
+        handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ n ∧
+        upper.U n <
+          month9_month10_checkerProjectLengthMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics fallback n ∧
+          month9_month10_checkerProjectLengthMeasured
+            scale_data core.checkerSemantics.toProofCodeSemantics fallback n ≤
+            upper.U n ∧
+          False := by
+  let core := input.toCanonicalSearchExactnessCore
+  let handoff := core.toProofLengthFreeExtractorHandoff
+  let endpoint :=
+    handoff.projectLengthDirectEndpointOfCheckedUpper fallback upper_provider
+  let upper := endpoint.upperTailOfRationality hrat
+  let n := endpoint.computedCollisionNOfRationality hrat
+  rcases handoff.projectLengthDirectEndpoint_full_trace
+      fallback upper_provider hrat with
+    ⟨hn_rejection, hge, hlower, hupper, hfalse⟩
+  have hgap_trace := input.canonicalSearchCore_gap_trace
+  have hn_gap :
+      n =
+        (input.gap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN := by
+    calc
+      n =
+          handoff.rejectionExtractor.witness
+            upper.U upper.polynomial upper.upperN := hn_rejection
+      _ = (input.gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).witness upper.upperN := by
+            simpa [handoff,
+              PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff] using
+              (hgap_trace.1 upper.U upper.polynomial upper.upperN).1
+  exact ⟨hn_gap, hn_rejection, hge, hlower, hupper, hfalse⟩
+
 theorem proofLengthFree_closure_toCheckedPowerBoundLowerBound
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
