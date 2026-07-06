@@ -3274,6 +3274,116 @@ theorem projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearch
       hupper,
       hfalse⟩
 
+/-- Fallback-free explicit `bigN` generated directly from the checked
+lower-bound statement.  This is the direct handoff from theorem-5 checked
+lower strength to the no-rationality target-upper search witness. -/
+noncomputable def projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (checked_lower :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Nat :=
+  projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback
+    (timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+      left_family right_family lengthCodeAt time_bound_strict
+      exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial)
+
+/-- Direct no-fallback certificate from the checked lower-bound theorem to the
+target-upper search `bigN`.  This removes the remaining manual step between
+`InternalPudlakTheorem5CheckedPowerBoundLowerBound` and the explicit target
+upper contradiction package. -/
+theorem projectLengthExplicitTargetUpperSearchBigNCertificate_of_checkedLowerBound_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (checked_lower :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let concreteFrontier :=
+      frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+        |>.concreteLengthCodeFrontier
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback concreteFrontier
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data concreteFrontier.lower_search.checkerSemantics fallback
+    let bigN :=
+      projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    upper.upperN = 0 ∧
+      concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN ∧
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode bigN)
+          bigN ∧
+          scale_data.powerBoundRawCode bigN =
+            _root_.strengthenedPartialConsistencyCode
+              (scale_data.scale bigN) ∧
+            upper.U bigN < measured bigN ∧
+              measured bigN ≤ upper.U bigN ∧
+                False := by
+  simpa [projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback] using
+    (projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearchFrontier_noFallback
+      (timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial))
+
 /-! ## Time-bound canonical tail-gap project-length endpoint -/
 
 /-- Project-length endpoint from the time-bound canonical tail-gap frontier.
