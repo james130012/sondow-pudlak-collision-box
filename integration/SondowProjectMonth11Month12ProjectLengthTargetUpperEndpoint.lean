@@ -6250,6 +6250,154 @@ def projectLengthTimeBoundTailGapFrontier
         lengthCodeAt_eq_conj_source m)
     left_length_polynomial right_length_polynomial
 
+/-- Pointwise equality that transports the primitive `lengthCodeAt` tail-gap
+certificate to the checker `projectLength` measured object of the generated
+time-bound frontier. -/
+theorem projectLengthMeasured_eq_lengthCodeAt_of_timeBoundTailGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (m : Nat) :
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback m =
+      (lengthCodeAt m : Real) := by
+  let frontier :=
+    projectLengthTimeBoundTailGapFrontier
+      left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+      tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  have hproject :=
+    projectLengthMeasuredOfTimeBoundCanonicalTailGap_eq_familyMinChecked
+      fallback frontier m
+  have hlength :
+      (lengthCodeAt m : Real) =
+        (((left_family.conjIntro right_family)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m : Nat) : Real) := by
+    exact_mod_cast lengthCodeAt_eq_conj_source m
+  exact hproject.trans hlength.symm
+
+/-- The primitive time-bound `tail_gap` certificate transported to the generated
+checker `projectLength` measured object.  Thresholds are preserved by
+construction, so this is the reusable full-certificate version of the per-upper
+transport used by `projectLengthTailGapOfTimeBoundCanonicalTailGap`. -/
+def projectLengthMeasuredTailGapOfTimeBoundTailGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    ComputableGapCertificate
+      (checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback) :=
+  transportComputableGapCertificate
+    (fun m =>
+      (projectLengthMeasured_eq_lengthCodeAt_of_timeBoundTailGap
+        fallback left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial m).symm)
+    tail_gap
+
+theorem projectLengthMeasuredTailGapOfTimeBoundTailGap_threshold_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    ((projectLengthMeasuredTailGapOfTimeBoundTailGap
+      fallback left_family right_family lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial)
+        |>.gap_for_polynomial_upper U hU).threshold =
+      (tail_gap.gap_for_polynomial_upper U hU).threshold :=
+  rfl
+
 /-- Primitive-surface form of the explicit-endpoint tail-gap raw-code
 big-`N` certificate.  The final number is stated directly as the threshold
 computed by the supplied `tail_gap` certificate for the explicit endpoint's
