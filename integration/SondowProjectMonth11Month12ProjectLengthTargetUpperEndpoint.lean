@@ -9671,6 +9671,84 @@ theorem projectLengthPayloadFreeSearchWitness_tailGapBigNCertificate_of_timeBoun
       projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
         fallback payloadFree⟩
 
+/-- Fallback-free primitive time-bound tail-gap certificate for the
+payload-free explicit project-length endpoint.  Since this endpoint has
+`upperN = 0`, the exposed `bigN` is the original tail-gap threshold for the
+endpoint's upper polynomial, not a `max` with a positive upper cutoff. -/
+theorem projectLengthPayloadFreeExplicitEndpoint_tailGapThresholdCertificate_of_timeBoundTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let payloadFree :=
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier
+        local_interpretation frontier
+    let endpoint :=
+      projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback payloadFree
+    let upper := endpoint.upperTailOfRationality hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data payloadFree.lowerSearch.checkerSemantics fallback
+    let bigN :=
+      (tail_gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).threshold
+    upper.upperN = 0 ∧
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN ∧
+        scale_data.powerBoundRawCode bigN =
+          _root_.strengthenedPartialConsistencyCode
+            (scale_data.scale bigN) ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  simpa [
+    projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier,
+    Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier,
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier,
+    Month9Month10CanonicalConjIntroTargetSearchFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier,
+    Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier.concreteLengthCodeFrontier,
+    projectLengthTimeBoundTailGapFrontier,
+    projectLengthSingletonTailGapInputOfTimeBound] using
+    projectLengthExplicitEndpoint_tailGapRawCodeBigNCertificate_of_timeBoundTailGap
+      (fun _ => 0) left_family right_family lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial hrat
+
 /-! ## Local-Hilbert explicit project-length witness -/
 
 /-- Explicit project-length collision witness for the Local-Hilbert length-code
