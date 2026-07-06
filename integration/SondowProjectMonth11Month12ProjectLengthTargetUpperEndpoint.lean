@@ -3274,6 +3274,58 @@ theorem projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearch
       hupper,
       hfalse⟩
 
+/-- Computation-facing normal form for the fallback-free search `bigN`: because
+the explicit target upper has cutoff `0`, the final large number is exactly the
+checker rejection-extractor witness at threshold `0`. -/
+theorem projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback_eq_rejectionExtractorWitness_zero
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let concreteFrontier :=
+      frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+        |>.concreteLengthCodeFrontier
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback concreteFrontier
+    let bigN :=
+      projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback
+        frontier
+    bigN =
+      concreteFrontier.lower_search.rejectionExtractor.witness
+        upper.U upper.polynomial 0 := by
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let concreteFrontier :=
+    frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+      |>.concreteLengthCodeFrontier
+  let upper :=
+    projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback concreteFrontier
+  let bigN :=
+    projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback
+      frontier
+  have hcert :=
+    projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearchFrontier_noFallback
+      frontier
+  have hupperN : upper.upperN = 0 := by
+    simpa [fallback, concreteFrontier, upper, bigN] using hcert.1
+  have hrejection :
+      concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN := by
+    simpa [fallback, concreteFrontier, upper, bigN] using hcert.2.1
+  calc
+    bigN =
+        concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN := hrejection.symm
+    _ =
+        concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial 0 := by
+          rw [hupperN]
+
 /-- Fallback-free explicit `bigN` generated directly from the checked
 lower-bound statement.  This is the direct handoff from theorem-5 checked
 lower strength to the no-rationality target-upper search witness. -/
@@ -3379,6 +3431,64 @@ theorem projectLengthExplicitTargetUpperSearchBigNCertificate_of_checkedLowerBou
                 False := by
   simpa [projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback] using
     (projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearchFrontier_noFallback
+      (timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial))
+
+/-- Computation-facing normal form for the checked-lower route: after the
+checked lower-bound statement is converted to the canonical search frontier,
+the target `bigN` is the rejection-extractor witness at threshold `0`. -/
+theorem projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback_eq_rejectionExtractorWitness_zero
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (checked_lower :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let concreteFrontier :=
+      frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+        |>.concreteLengthCodeFrontier
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback concreteFrontier
+    let bigN :=
+      projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    bigN =
+      concreteFrontier.lower_search.rejectionExtractor.witness
+        upper.U upper.polynomial 0 := by
+  simpa [projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback] using
+    (projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback_eq_rejectionExtractorWitness_zero
       (timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
         left_family right_family lengthCodeAt time_bound_strict
         exponent_ne_zero checked_lower lengthCodeAt_eq_conj_source
