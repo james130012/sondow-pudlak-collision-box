@@ -4955,6 +4955,45 @@ theorem ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput.toCh
   · intro f hf N code hmem
     exact input.toCheckerExtractor.rejects_candidates f hf N code hmem
 
+/-- Code-bound form of the calibrated executable rejection sweep.  This is the
+lowest-level audit statement used by the finite-search route: every numeric
+code below the calibrated enumeration bound is rejected by the concrete
+powerBound checker, hence cannot satisfy the calibrated Month 9-10 checker
+semantics at the same theorem-5 target. -/
+theorem ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput.rejects_of_code_lt_codeBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (f : Nat → Real) (hf : _root_.is_polynomial_bound f) (N : Nat)
+    (code : Nat)
+    (hcode_lt :
+      code <
+        enumeration.codeBound
+          (input.witness f hf N) (input.cutoff f hf N)) :
+    (concretePAHilbertPowerBoundChecker scale_data).rejectsCode code
+        (PAHilbertFormula.ofFormulaCode
+          (scale_data.powerBoundRawCode (input.witness f hf N))) = true ∧
+      ¬
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt).checks code
+            (scale_data.powerBoundRawCode (input.witness f hf N)) := by
+  have hrejects :
+      (concretePAHilbertPowerBoundChecker scale_data).rejectsCode code
+        (PAHilbertFormula.ofFormulaCode
+          (scale_data.powerBoundRawCode (input.witness f hf N))) = true :=
+    concretePAHilbertPowerBoundRejectsBelow_sound
+      (input.rejectsBelowCodeBound f hf N) hcode_lt
+  exact
+    ⟨hrejects,
+      fun hchecks =>
+        concretePAHilbertPowerBound_rejectsCode_to_not_acceptedProofCodeForFormulaCode
+          hrejects hchecks⟩
+
 /-- Proof-length exactness for calibrated-size semantics reduced to a
 family-level equality against the calibrated minimum. -/
 structure ConcretePAHilbertPowerBoundCalibratedProofLengthInput
