@@ -880,6 +880,58 @@ def toAbstract
 
 end ProjectLengthExplicitCheckedTargetUpperProvider
 
+/-- Transport a concrete checked-target upper-tail certificate to the theorem-5
+checked source measurement through a source-to-target `+2` projection.  This is
+the certificate-level form of
+`checkedExplicitUpperProviderOfCheckedTargetProjectionAndUpper`: it exposes the
+actual upper tail without requiring a rationality witness first. -/
+def checkedUpperTailCertificateOfCheckedTargetProjection
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        scale_data sem targetMeasured)
+    (upper :
+      PolynomialUpperTailCertificate
+        (fun m : Nat => (targetMeasured m : Real))) :
+    PolynomialUpperTailCertificate
+      (month9_month10_checkedProofCodeMeasured scale_data sem) where
+  U := fun m => upper.U m + 2
+  polynomial := _root_.is_polynomial_bound_add_const
+    upper.polynomial (by norm_num)
+  upperN := upper.upperN
+  upper_after := by
+    intro m hm
+    have hsource :
+        (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
+          ⟨m, rfl⟩ : Real) ≤ (targetMeasured m : Real) + 2 := by
+      exact_mod_cast projection.source_le_target_add_two m
+    have htarget := upper.upper_after m hm
+    have hchecked :
+        (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
+          ⟨m, rfl⟩ : Real) ≤ upper.U m + 2 := by
+      nlinarith
+    simpa [month9_month10_checkedProofCodeMeasured] using hchecked
+
+theorem checkedUpperTailCertificateOfCheckedTargetProjection_upperN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {sem :
+      _root_.ProofCodeSemantics.{0}
+        (InternalPudlakTheorem5PowerBoundRelevantCode scale_data)}
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        scale_data sem targetMeasured)
+    (upper :
+      PolynomialUpperTailCertificate
+        (fun m : Nat => (targetMeasured m : Real))) :
+    (checkedUpperTailCertificateOfCheckedTargetProjection
+      projection upper).upperN = upper.upperN :=
+  rfl
+
 /-- Transport an explicit checked-target upper bound to the theorem-5 checked
 source measurement through a source-to-target `+2` projection, preserving the
 selected cutoff. -/
@@ -898,24 +950,9 @@ def checkedExplicitUpperProviderOfCheckedTargetProjectionAndUpper
       (month9_month10_checkedProofCodeMeasured scale_data sem) where
   upperTailOfRationality := by
     intro hrat
-    let upper := upper_provider.upperTailOfRationality hrat
-    exact {
-      U := fun m => upper.U m + 2
-      polynomial := _root_.is_polynomial_bound_add_const
-        upper.polynomial (by norm_num)
-      upperN := upper.upperN
-      upper_after := by
-        intro m hm
-        have hsource :
-            (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
-              ⟨m, rfl⟩ : Real) ≤ (targetMeasured m : Real) + 2 := by
-          exact_mod_cast projection.source_le_target_add_two m
-        have htarget := upper.upper_after m hm
-        have hchecked :
-            (sem.minProofCodeSize (scale_data.powerBoundRawCode m)
-              ⟨m, rfl⟩ : Real) ≤ upper.U m + 2 := by
-          nlinarith
-        simpa [month9_month10_checkedProofCodeMeasured] using hchecked }
+    exact
+      checkedUpperTailCertificateOfCheckedTargetProjection
+        projection (upper_provider.upperTailOfRationality hrat)
 
 theorem checkedExplicitUpperProviderOfCheckedTargetProjectionAndUpper_upperN
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -1003,6 +1040,55 @@ theorem projectLengthExplicitEndpointOfCheckedTargetUpper_upperN
       (upper_provider.upperTailOfRationality hrat).upperN :=
   rfl
 
+/-- Concrete-proof-family target upper-tail certificate generated from the
+family length polynomial bound.  This unconditional certificate is the object
+later used to compute the explicit `N`; the rationality-provider wrapper below
+is just the legacy endpoint interface. -/
+def projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    PolynomialUpperTailCertificate
+      (fun m : Nat =>
+        (InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured
+          target_family m : Real)) where
+  U := _root_.MiniHilbert.nat_bound_as_real target_family.length
+  polynomial := hpoly
+  upperN := 0
+  upper_after := by
+    intro m _hm
+    have hmin :
+        target_family.minCheckedCodeSize m ≤ target_family.length m := by
+      rw [_root_.MiniHilbert.ConcreteProofFamily.minCheckedCodeSize_eq_minLength]
+      exact target_family.minLength_le_length m
+    have hminReal :
+        (target_family.minCheckedCodeSize m : Real) ≤
+          (target_family.length m : Real) := by
+      exact_mod_cast hmin
+    simpa [_root_.MiniHilbert.nat_bound_as_real,
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured]
+      using hminReal
+
+theorem projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial_upperN
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    (projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial
+      (target_family := target_family) hpoly).upperN = 0 :=
+  rfl
+
 /-- Explicit concrete-proof-family target upper provider generated from the
 family length polynomial bound.  Its upper cutoff is definitionally `0`. -/
 def projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial
@@ -1018,25 +1104,9 @@ def projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial
     ProjectLengthExplicitCheckedTargetUpperProvider
       (InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured
         target_family) where
-  upperTailOfRationality := by
-    intro _hrat
-    exact {
-      U := _root_.MiniHilbert.nat_bound_as_real target_family.length
-      polynomial := hpoly
-      upperN := 0
-      upper_after := by
-        intro m _hm
-        have hmin :
-            target_family.minCheckedCodeSize m ≤ target_family.length m := by
-          rw [_root_.MiniHilbert.ConcreteProofFamily.minCheckedCodeSize_eq_minLength]
-          exact target_family.minLength_le_length m
-        have hminReal :
-            (target_family.minCheckedCodeSize m : Real) ≤
-              (target_family.length m : Real) := by
-          exact_mod_cast hmin
-        simpa [_root_.MiniHilbert.nat_bound_as_real,
-          InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection.targetMeasured]
-          using hminReal }
+  upperTailOfRationality := fun _hrat =>
+    projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial
+      (target_family := target_family) hpoly
 
 theorem projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial_upperN
     {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
@@ -1052,7 +1122,8 @@ theorem projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial_
     ((projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial
       (target_family := target_family) hpoly).upperTailOfRationality
         hrat).upperN = 0 :=
-  rfl
+  projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial_upperN
+    (target_family := target_family) hpoly
 
 /-- Explicit project-length endpoint when the concrete target proof-family
 length is polynomially bounded.  This is the computable certificate shape:
@@ -1101,6 +1172,58 @@ theorem projectLengthExplicitEndpointOfConcreteProofFamilyLengthPolynomial_upper
     ((projectLengthExplicitEndpointOfConcreteProofFamilyLengthPolynomial
       core fallback projection hpoly).upperTailOfRationality hrat).upperN =
       0 :=
+  projectLengthConcreteProofFamilyExplicitUpperProviderOfLengthPolynomial_upperN
+    (target_family := target_family) hpoly hrat
+
+/-- Unconditional project-length upper-tail certificate for a concrete
+proof-family target with polynomial length.  This is the `hrat`-free upper
+object hidden inside `projectLengthExplicitEndpointOfConcreteProofFamilyLengthPolynomial`. -/
+def projectLengthUpperTailCertificateOfConcreteProofFamilyLengthPolynomial
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    PolynomialUpperTailCertificate
+      (checkerProjectLengthMeasured
+        core.scale_data core.checkerSemantics fallback) :=
+  checkerProjectLengthUpperTailCertificateOfChecked
+    (scale_data := core.scale_data)
+    (checker := core.checkerSemantics)
+    fallback
+    (checkedUpperTailCertificateOfCheckedTargetProjection
+      projection.toCheckedTargetProjection
+      (projectLengthConcreteProofFamilyUpperTailCertificateOfLengthPolynomial
+        (target_family := target_family) hpoly))
+
+theorem projectLengthUpperTailCertificateOfConcreteProofFamilyLengthPolynomial_upperN
+    (core : PAHilbertCanonicalSearchCore)
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    (projectLengthUpperTailCertificateOfConcreteProofFamilyLengthPolynomial
+      core fallback projection hpoly).upperN = 0 :=
   rfl
 
 theorem projectLengthExplicitEndpointOfConcreteProofFamilyLengthPolynomial_computed_n_eq
@@ -1739,7 +1862,49 @@ theorem projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier_upperN
     (hrat : _root_.is_rational _root_.euler_mascheroni) :
     ((projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
       fallback frontier).upperTailOfRationality hrat).upperN = 0 :=
-  rfl
+  projectLengthExplicitEndpointOfConcreteProofFamilyLengthPolynomial_upperN
+    frontier.lower_search.toCanonicalSearchCore
+    fallback frontier.projection frontier.target_length_polynomial hrat
+
+/-- Unconditional project-length upper-tail certificate exposed at the concrete
+length-code frontier.  The cutoff is `0`, so any later tail-gap `N` is exactly
+the supplied tail-gap threshold for this explicit upper polynomial. -/
+def projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    PolynomialUpperTailCertificate
+      (checkerProjectLengthMeasured
+        scale_data frontier.lower_search.checkerSemantics fallback) :=
+  projectLengthUpperTailCertificateOfConcreteProofFamilyLengthPolynomial
+    frontier.lower_search.toCanonicalSearchCore
+    fallback frontier.projection frontier.target_length_polynomial
+
+theorem projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier_upperN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    (projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback frontier).upperN = 0 :=
+  projectLengthUpperTailCertificateOfConcreteProofFamilyLengthPolynomial_upperN
+    frontier.lower_search.toCanonicalSearchCore
+    fallback frontier.projection frontier.target_length_polynomial
 
 theorem projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier_computed_n_eq
     {scale_data : InternalPudlakTheorem5ScaleData}
@@ -9776,6 +9941,178 @@ theorem projectLengthPayloadFreeSearchWitness_tailGapBigNCertificate_of_timeBoun
       witness.contradiction,
       projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
         fallback payloadFree⟩
+
+/-- Unconditional explicit `bigN` for the time-bound tail-gap route using the
+concrete proof-family length upper certificate.  No rationality witness is
+needed to form this number: it is exactly the tail-gap threshold for the
+unconditional project-length upper polynomial extracted from the target proof
+family. -/
+def projectLengthExplicitTargetUpperTailGapBigN_of_timeBoundTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Nat :=
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let frontier :=
+    projectLengthTimeBoundTailGapFrontier
+      left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+      tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  let upper :=
+    projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  (tail_gap.gap_for_polynomial_upper upper.U upper.polynomial).threshold
+
+/-- Certificate for the unconditional explicit target-upper `bigN`.  This pins
+the number to the original tail-gap threshold and shows that, at that same
+number, the concrete theorem-5 checker accepts the raw strengthened code while
+the explicit upper and tail lower bounds collide. -/
+theorem projectLengthExplicitTargetUpperTailGapBigNCertificate_of_timeBoundTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let bigN :=
+      projectLengthExplicitTargetUpperTailGapBigN_of_timeBoundTailGap_noFallback
+        left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+        tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    upper.upperN = 0 ∧
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN ∧
+        scale_data.powerBoundRawCode bigN =
+          _root_.strengthenedPartialConsistencyCode
+            (scale_data.scale bigN) ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp [projectLengthExplicitTargetUpperTailGapBigN_of_timeBoundTailGap_noFallback]
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let frontier :=
+    projectLengthTimeBoundTailGapFrontier
+      left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+      tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  let upper :=
+    projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      fallback
+  let gap := projectLengthTailGapOfTimeBoundCanonicalTailGap fallback frontier upper
+  let bigN := (tail_gap.gap_for_polynomial_upper upper.U upper.polynomial).threshold
+  have hupperN : upper.upperN = 0 := by
+    simpa [upper] using
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier_upperN
+        fallback frontier.concreteLengthCodeFrontier
+  have hgap : gap.threshold = bigN := by
+    simpa [gap, bigN, frontier, projectLengthTailGapOfTimeBoundCanonicalTailGap,
+      projectLengthTimeBoundTailGapFrontier,
+      projectLengthSingletonTailGapInputOfTimeBound] using
+      singletonTailGapFrontier_tailGap_threshold_eq
+        left_family right_family time_bound_strict exponent_ne_zero
+        (projectLengthSingletonTailGapInputOfTimeBound
+          lengthCodeAt time_bound_strict exponent_ne_zero tail_gap)
+        (by
+          intro m
+          simpa [projectLengthSingletonTailGapInputOfTimeBound] using
+            lengthCodeAt_eq_conj_source m)
+        left_length_polynomial right_length_polynomial
+        upper.U upper.polynomial
+  have haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN :=
+    concretePAHilbertPowerBoundChecker_acceptedProofCode_at_powerBoundRawCode
+      scale_data bigN
+  have hraw :
+      scale_data.powerBoundRawCode bigN =
+        _root_.strengthenedPartialConsistencyCode
+          (scale_data.scale bigN) :=
+    InternalPudlakTheorem5ScaleData.powerBoundRawCode_eq_scaled_strengthened
+      scale_data bigN
+  have hthreshold : gap.threshold ≤ bigN := by
+    rw [hgap]
+  have hupperN_le : upper.upperN ≤ bigN := by
+    rw [hupperN]
+    exact Nat.zero_le bigN
+  have hlower : upper.U bigN < measured bigN := by
+    exact gap.strict_after bigN hthreshold
+  have hupper : measured bigN ≤ upper.U bigN := by
+    exact upper.upper_after bigN hupperN_le
+  exact
+    ⟨hupperN,
+      haccepted,
+      hraw,
+      hlower,
+      hupper,
+      (not_lt_of_ge hupper) hlower⟩
 
 /-- Fallback-free primitive time-bound tail-gap certificate for the
 payload-free explicit project-length endpoint.  Since this endpoint has
