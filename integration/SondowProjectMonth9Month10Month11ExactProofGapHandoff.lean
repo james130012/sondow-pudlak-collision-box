@@ -2975,6 +2975,96 @@ theorem transportLE_closure
 
 end Month9Month10AbstractMeasuredUpperProvider
 
+/-- Explicit upper provider for any measured box.  This is the computable
+version of `Month9Month10AbstractMeasuredUpperProvider`: under rationality it
+returns the actual polynomial upper function and its cutoff as a
+`PolynomialUpperTailCertificate`, rather than only an existential package. -/
+structure Month9Month10ExplicitMeasuredUpperProvider
+    (measured : Nat → Real) : Type where
+  upperTailOfRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      PolynomialUpperTailCertificate measured
+
+namespace Month9Month10ExplicitMeasuredUpperProvider
+
+/-- Forget the explicit upper certificate to the legacy existential upper
+provider interface.  This is a one-way compatibility bridge; the reverse
+direction is exactly where `Classical.choose` would otherwise enter. -/
+def toAbstract
+    {measured : Nat → Real}
+    (h : Month9Month10ExplicitMeasuredUpperProvider measured) :
+    Month9Month10AbstractMeasuredUpperProvider measured where
+  upper_under_rationality := by
+    intro hrat
+    let upper := h.upperTailOfRationality hrat
+    exact ⟨upper.U, upper.polynomial, upper.upperN, upper.upper_after⟩
+
+theorem toAbstract_closure
+    {measured : Nat → Real}
+    (h : Month9Month10ExplicitMeasuredUpperProvider measured) :
+    (h.toAbstract).Audit ∧
+      (_root_.is_rational _root_.euler_mascheroni →
+        ∃ U : Nat → Real, _root_.is_polynomial_bound U ∧
+          ∃ upperN : Nat,
+            ∀ n : Nat, upperN ≤ n → measured n ≤ U n) :=
+  h.toAbstract.closure
+
+/-- Transport an explicit upper provider across pointwise equality of measured
+functions, preserving the selected upper function and cutoff. -/
+def transportEq
+    {measuredA measuredB : Nat → Real}
+    (heq : ∀ n : Nat, measuredA n = measuredB n)
+    (h : Month9Month10ExplicitMeasuredUpperProvider measuredA) :
+    Month9Month10ExplicitMeasuredUpperProvider measuredB where
+  upperTailOfRationality := by
+    intro hrat
+    let upper := h.upperTailOfRationality hrat
+    exact {
+      U := upper.U
+      polynomial := upper.polynomial
+      upperN := upper.upperN
+      upper_after := by
+        intro n hn
+        rw [← heq n]
+        exact upper.upper_after n hn }
+
+/-- Transport an explicit upper provider along a pointwise domination relation.
+If `measuredB ≤ measuredA`, the same explicit upper certificate for
+`measuredA` is an upper certificate for `measuredB`. -/
+def transportLE
+    {measuredA measuredB : Nat → Real}
+    (hle : ∀ n : Nat, measuredB n ≤ measuredA n)
+    (h : Month9Month10ExplicitMeasuredUpperProvider measuredA) :
+    Month9Month10ExplicitMeasuredUpperProvider measuredB where
+  upperTailOfRationality := by
+    intro hrat
+    let upper := h.upperTailOfRationality hrat
+    exact {
+      U := upper.U
+      polynomial := upper.polynomial
+      upperN := upper.upperN
+      upper_after := by
+        intro n hn
+        exact le_trans (hle n) (upper.upper_after n hn) }
+
+theorem transportEq_toAbstract
+    {measuredA measuredB : Nat → Real}
+    (heq : ∀ n : Nat, measuredA n = measuredB n)
+    (h : Month9Month10ExplicitMeasuredUpperProvider measuredA) :
+    (transportEq heq h).toAbstract =
+      Month9Month10AbstractMeasuredUpperProvider.transportEq heq h.toAbstract :=
+  rfl
+
+theorem transportLE_toAbstract
+    {measuredA measuredB : Nat → Real}
+    (hle : ∀ n : Nat, measuredB n ≤ measuredA n)
+    (h : Month9Month10ExplicitMeasuredUpperProvider measuredA) :
+    (transportLE hle h).toAbstract =
+      Month9Month10AbstractMeasuredUpperProvider.transportLE hle h.toAbstract :=
+  rfl
+
+end Month9Month10ExplicitMeasuredUpperProvider
+
 /-- The Sondow/S²₁ collapse conclusion is exactly an abstract measured upper
 provider for the project-local Pudlak collision box.  The accepted-certificate
 side condition carried by the collapse is retained upstream; this provider only

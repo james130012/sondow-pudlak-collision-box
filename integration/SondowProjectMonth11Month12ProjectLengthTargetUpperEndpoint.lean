@@ -63,6 +63,37 @@ def transportPolynomialUpperTailCertificate
     rw [← heq m]
     exact upper.upper_after m hm
 
+/-- Local explicit upper provider for the project-length endpoint layer.  It is
+the no-`choose` version of an upper provider: rationality returns an explicit
+polynomial upper-tail certificate. -/
+structure ProjectLengthExplicitMeasuredUpperProvider
+    (measured : Nat → Real) : Type where
+  upperTailOfRationality :
+    _root_.is_rational _root_.euler_mascheroni →
+      PolynomialUpperTailCertificate measured
+
+namespace ProjectLengthExplicitMeasuredUpperProvider
+
+def transportEq
+    {measuredA measuredB : Nat → Real}
+    (heq : ∀ n : Nat, measuredA n = measuredB n)
+    (h : ProjectLengthExplicitMeasuredUpperProvider measuredA) :
+    ProjectLengthExplicitMeasuredUpperProvider measuredB where
+  upperTailOfRationality := fun hrat =>
+    transportPolynomialUpperTailCertificate heq
+      (h.upperTailOfRationality hrat)
+
+def toAbstract
+    {measured : Nat → Real}
+    (h : ProjectLengthExplicitMeasuredUpperProvider measured) :
+    Month9Month10AbstractMeasuredUpperProvider measured where
+  upper_under_rationality := by
+    intro hrat
+    let upper := h.upperTailOfRationality hrat
+    exact ⟨upper.U, upper.polynomial, upper.upperN, upper.upper_after⟩
+
+end ProjectLengthExplicitMeasuredUpperProvider
+
 /-- Build the strongest time-bound canonical tail-gap frontier from the smaller
 singleton tail-gap input plus the concrete left/right proof families.  This
 turns the remaining frontier-instantiation task into the explicit obligations:
@@ -511,6 +542,26 @@ def checkerProjectLengthUpperTailCertificateOfChecked
       (checkerProjectLengthMeasured_eq_checked
         (scale_data := scale_data) (checker := checker) fallback n).symm)
     checked_upper
+
+/-- Transport a checked-measured explicit upper provider to checker
+`projectLength`.  Unlike `checkerProjectLengthUpperProviderOfChecked`, this
+preserves the selected certificate under rationality instead of falling back to
+an existential upper-provider shape. -/
+def checkerProjectLengthExplicitUpperProviderOfChecked
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {checker : InternalPudlakTheorem5CheckerSemantics.{0} scale_data}
+    (fallback : _root_.FormulaCode → Nat)
+    (checked_upper_provider :
+      ProjectLengthExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data checker.toProofCodeSemantics)) :
+    ProjectLengthExplicitMeasuredUpperProvider
+      (checkerProjectLengthMeasured scale_data checker fallback) :=
+  ProjectLengthExplicitMeasuredUpperProvider.transportEq
+    (fun n =>
+      (checkerProjectLengthMeasured_eq_checked
+        (scale_data := scale_data) (checker := checker) fallback n).symm)
+    checked_upper_provider
 
 /-- Direct collision endpoint over checker `projectLength`, once the Sondow
 upper side has already been expressed as a checked upper provider. -/
@@ -3838,6 +3889,214 @@ theorem projectLengthCheckedUpper_tailGapRawCodeBigNCertificate
         (scale_data := scale_data)
         (checker := frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
         fallback checked_upper)
+
+/-- Explicit-upper-provider raw theorem-5 big-`N` certificate.  This route
+selects the upper certificate under rationality directly from a computable
+provider, rather than extracting it from an existential upper-provider via
+`Classical.choose`. -/
+theorem projectLengthExplicitCheckedUpperProvider_tailGapRawCodeBigNCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (checked_upper_provider :
+      ProjectLengthExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let checked_upper := checked_upper_provider.upperTailOfRationality hrat
+    let upper :=
+      checkerProjectLengthUpperTailCertificateOfChecked
+        (scale_data := scale_data)
+        (checker := frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback checked_upper
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let gap :=
+      projectLengthTailGapOfTimeBoundCanonicalTailGap
+        fallback frontier upper
+    let bigN := max upper.upperN gap.threshold
+    PAHilbertAcceptedProofCodeForFormulaCode
+      (concretePAHilbertPowerBoundChecker scale_data)
+      (scale_data.powerBoundRawCode bigN)
+      bigN ∧
+      scale_data.powerBoundRawCode bigN =
+        _root_.strengthenedPartialConsistencyCode
+          (scale_data.scale bigN) ∧
+        upper.U bigN < measured bigN ∧
+          measured bigN ≤ upper.U bigN ∧
+            False := by
+  dsimp
+  exact
+    projectLengthCheckedUpper_tailGapRawCodeBigNCertificate
+      fallback frontier
+      (checked_upper_provider.upperTailOfRationality hrat)
+
+/-- Public no-choose closure for the explicit checked upper-provider route.
+The contradiction still starts from rationality, but the upper side is now an
+explicit certificate selected by the provider, not a `Classical.choose`d witness
+from an existential upper statement. -/
+theorem projectLengthExplicitCheckedUpperProvider_tailGapRawCode_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (checked_upper_provider :
+      ProjectLengthExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  have hcert :=
+    projectLengthExplicitCheckedUpperProvider_tailGapRawCodeBigNCertificate
+      fallback frontier checked_upper_provider hrat
+  exact hcert.2.2.2.2
+
+/-- Fallback-free singleton-tail-gap entry for the explicit upper-provider raw
+theorem-5 big-`N` certificate.  This is the high-level handoff shape: the
+frontier is generated from the concrete time-bound tail input, while the upper
+side is supplied as an explicit certificate provider rather than an existential
+upper route. -/
+theorem projectLengthExplicitCheckedUpperProvider_tailGapRawCodeBigNCertificate_of_singletonTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (checked_upper_provider :
+      let frontier :=
+        timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+          left_family right_family time_bound_strict exponent_ne_zero
+          tail_input lengthCodeAt_eq_conj_source
+          left_length_polynomial right_length_polynomial
+      ProjectLengthExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero
+        tail_input lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let checked_upper := checked_upper_provider.upperTailOfRationality hrat
+    let upper :=
+      checkerProjectLengthUpperTailCertificateOfChecked
+        (scale_data := scale_data)
+        (checker := frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics)
+        fallback checked_upper
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let gap :=
+      projectLengthTailGapOfTimeBoundCanonicalTailGap
+        fallback frontier upper
+    let bigN := max upper.upperN gap.threshold
+    PAHilbertAcceptedProofCodeForFormulaCode
+      (concretePAHilbertPowerBoundChecker scale_data)
+      (scale_data.powerBoundRawCode bigN)
+      bigN ∧
+      scale_data.powerBoundRawCode bigN =
+        _root_.strengthenedPartialConsistencyCode
+          (scale_data.scale bigN) ∧
+        upper.U bigN < measured bigN ∧
+          measured bigN ≤ upper.U bigN ∧
+            False := by
+  dsimp
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let frontier :=
+    timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+      left_family right_family time_bound_strict exponent_ne_zero
+      tail_input lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  simpa [fallback, frontier] using
+    projectLengthExplicitCheckedUpperProvider_tailGapRawCodeBigNCertificate
+      fallback frontier checked_upper_provider hrat
+
+/-- Fallback-free singleton-tail-gap public closure for the explicit upper
+provider route.  The contradiction still uses rationality as the assumed
+source of the upper side, but the upper side itself is now an explicit
+certificate provider and the endpoint has no exposed fallback. -/
+theorem projectLengthExplicitCheckedUpperProvider_tailGapRawCode_not_rational_of_singletonTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (checked_upper_provider :
+      let frontier :=
+        timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+          left_family right_family time_bound_strict exponent_ne_zero
+          tail_input lengthCodeAt_eq_conj_source
+          left_length_polynomial right_length_polynomial
+      ProjectLengthExplicitMeasuredUpperProvider
+        (month9_month10_checkedProofCodeMeasured
+          scale_data
+          frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics.toProofCodeSemantics)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni := by
+  intro hrat
+  have hcert :=
+    projectLengthExplicitCheckedUpperProvider_tailGapRawCodeBigNCertificate_of_singletonTailGap_noFallback
+      left_family right_family time_bound_strict exponent_ne_zero tail_input
+      lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial checked_upper_provider hrat
+  exact hcert.2.2.2.2
 
 /-- Explicit project-length collision witness for the time-bound canonical
 tail-gap frontier.  Its index is definitionally `max upperN gapThreshold`, so
