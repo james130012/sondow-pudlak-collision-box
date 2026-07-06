@@ -10262,6 +10262,118 @@ theorem projectLengthExplicitTargetUpperTailGapBigNCertificate_of_timeBoundTailG
       hupper,
       (not_lt_of_ge hupper) hlower⟩
 
+/-- Unconditional explicit `bigN` for the time-bound route from an eventual
+strict length lower bound.  This is the next reduced residual: the endpoint no
+longer asks for a prepackaged tail-gap certificate, only for an eventual
+strict lower-bound statement for each polynomial upper function. -/
+def projectLengthExplicitTargetUpperTailGapBigN_of_eventuallyStrictLength_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (eventually_strict_length :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ m in Filter.atTop, U m < (lengthCodeAt m : Real))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Nat :=
+  projectLengthExplicitTargetUpperTailGapBigN_of_timeBoundTailGap_noFallback
+    left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+    (ComputableGapCertificate.ofEventuallyStrict eventually_strict_length)
+    lengthCodeAt_eq_conj_source
+    left_length_polynomial right_length_polynomial
+
+/-- Certificate form of
+`projectLengthExplicitTargetUpperTailGapBigN_of_eventuallyStrictLength_noFallback`.
+It reduces the final `tail_gap` residual to an eventual strict length theorem,
+while preserving the same no-fallback project-length contradiction certificate. -/
+theorem projectLengthExplicitTargetUpperTailGapBigNCertificate_of_eventuallyStrictLength_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (eventually_strict_length :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ m in Filter.atTop, U m < (lengthCodeAt m : Real))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    let tail_gap :=
+      ComputableGapCertificate.ofEventuallyStrict eventually_strict_length
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let bigN :=
+      projectLengthExplicitTargetUpperTailGapBigN_of_eventuallyStrictLength_noFallback
+        left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+        eventually_strict_length lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    upper.upperN = 0 ∧
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN ∧
+        scale_data.powerBoundRawCode bigN =
+          _root_.strengthenedPartialConsistencyCode
+            (scale_data.scale bigN) ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  simpa [
+    projectLengthExplicitTargetUpperTailGapBigN_of_eventuallyStrictLength_noFallback]
+    using
+      projectLengthExplicitTargetUpperTailGapBigNCertificate_of_timeBoundTailGap_noFallback
+        left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+        (ComputableGapCertificate.ofEventuallyStrict eventually_strict_length)
+        lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+
 /-- Fallback-free primitive time-bound tail-gap certificate for the
 payload-free explicit project-length endpoint.  Since this endpoint has
 `upperN = 0`, the exposed `bigN` is the original tail-gap threshold for the
