@@ -5833,6 +5833,82 @@ theorem publicMainClosure
 
 end Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
 
+/-! ## Payload-free Local-Hilbert adapters for canonical target frontiers -/
+
+namespace Month9Month10CanonicalConjIntroTargetSearchFrontier
+
+/-- Canonical target-search frontiers instantiate the payload-free
+Local-Hilbert target frontier once a local formula-code interpretation is
+chosen.  The target proof family, gap certificate, and polynomial length bound
+are all inherited from the canonical conj-intro frontier. -/
+def payloadFreeLocalHilbertLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (frontier :
+      Month9Month10CanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+      scale_data local_interpretation frontier.targetFamily where
+  scale_strict :=
+    frontier.scale_strict
+  gap :=
+    frontier.gap
+  target_length_polynomial :=
+    frontier.conjIntroLengthCodeFrontier.target_length_polynomial
+
+end Month9Month10CanonicalConjIntroTargetSearchFrontier
+
+namespace Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+
+/-- Time-bound canonical target-search frontiers also instantiate the
+payload-free Local-Hilbert target frontier.  The scale strictness obligation is
+discharged by the existing time-bound canonical adapter before passing to the
+payload-free local layer. -/
+def payloadFreeLocalHilbertLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+      scale_data local_interpretation frontier.canonicalFrontier.targetFamily :=
+  frontier.canonicalFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier
+    local_interpretation
+
+end Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+
+namespace Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+
+/-- Tail-gap canonical frontiers instantiate the same payload-free local target
+frontier through their search-frontier projection, retaining the stronger
+tail-gap data for big-`N` certificates while exposing the payload-free local
+shape. -/
+def payloadFreeLocalHilbertLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+      scale_data local_interpretation
+        frontier.searchFrontier.canonicalFrontier.targetFamily :=
+  frontier.searchFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier
+    local_interpretation
+
+end Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+
 /-! ## Final-three-certificate instantiation -/
 
 /-- Drop the proof-length transport field of a final three-certificate endpoint
