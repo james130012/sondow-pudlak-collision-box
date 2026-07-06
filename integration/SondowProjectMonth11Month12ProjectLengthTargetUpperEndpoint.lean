@@ -92,6 +92,43 @@ def timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
   left_length_polynomial := left_length_polynomial
   right_length_polynomial := right_length_polynomial
 
+/-- The singleton-input frontier adapter preserves the original tail-gap
+threshold exactly.  This keeps the computed large-`N` witness auditable at the
+smaller input boundary, not only after frontier construction. -/
+theorem singletonTailGapFrontier_tailGap_threshold_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) :
+    ((timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero tail_input
+        lengthCodeAt_eq_conj_source left_length_polynomial
+        right_length_polynomial).tail_gap.gap_for_polynomial_upper U hU).threshold =
+      (tail_input.tail_gap.gap_for_polynomial_upper U hU).threshold := by
+  rfl
+
 /-! ## Project-length measured object -/
 
 /-- The theorem-5 power-bound family measured by the concrete checker
@@ -3408,6 +3445,69 @@ theorem tailGapConcreteProofLengthModel_bigNCertificate_of_singletonTailGapInput
         lengthCodeAt_eq_conj_source left_length_polynomial
         right_length_polynomial)
       hrat
+
+/-- Singleton-input big-`N` certificate with the threshold stated directly at
+the original tail-gap input.  This removes the last bookkeeping ambiguity in
+the computable witness formula introduced by the frontier adapter. -/
+theorem tailGapConcreteProofLengthModel_bigNCertificate_of_singletonTailGapInput_tailInputThreshold
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero tail_input
+        lengthCodeAt_eq_conj_source left_length_polynomial
+        right_length_polynomial
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (tail_input.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfTimeBoundCanonicalTailGap
+        fallback frontier hrat
+    let measured :=
+      tailGapConcreteProofLengthMeasured fallback frontier
+    frontier.computedCollisionNOfRationality hrat = bigN ∧
+      checkedTail.upperN ≤ bigN ∧
+        (tail_input.tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  simpa [singletonTailGapFrontier_tailGap_threshold_eq] using
+    tailGapConcreteProofLengthModel_bigNCertificate_of_singletonTailGapInput
+      fallback left_family right_family time_bound_strict exponent_ne_zero
+      tail_input lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial hrat
 
 /-- Closed proof-length-axiom-free theorem-5 tail-gap conclusion from the
 smaller singleton tail-gap input.  This is the direct endpoint after the
