@@ -9511,6 +9511,166 @@ theorem projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTar
     projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
       fallback frontier⟩
 
+/-- Fallback-free primitive time-bound tail-gap certificate for the
+payload-free Local-Hilbert search witness.  The selected witness index is
+identified with both provider-computed collision indices and with the explicit
+tail-gap `max upperN threshold` number. -/
+theorem projectLengthPayloadFreeSearchWitness_tailGapBigNCertificate_of_timeBoundTailGap_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let tail_input :=
+      projectLengthSingletonTailGapInputOfTimeBound
+        lengthCodeAt time_bound_strict exponent_ne_zero tail_gap
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero
+        tail_input
+        (by
+          intro m
+          simpa [tail_input, projectLengthSingletonTailGapInputOfTimeBound] using
+            lengthCodeAt_eq_conj_source m)
+        left_length_polynomial right_length_polynomial
+    let payloadFree :=
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier
+        local_interpretation frontier
+    let checkedTail :=
+      checkedSearchUpperTail
+        frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+        frontier.concreteLengthCodeFrontier.checkedUpperProvider
+        hrat
+    let bigN :=
+      max checkedTail.upperN
+        (tail_gap.gap_for_polynomial_upper
+          checkedTail.U checkedTail.polynomial).threshold
+    let upper :=
+      projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+        fallback payloadFree.concreteLengthCodeFrontier hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data payloadFree.lowerSearch.checkerSemantics fallback
+    let witness :=
+      projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback payloadFree hrat
+    witness.n = payloadFree.computedCollisionNOfRationality hrat ∧
+      payloadFree.computedCollisionNOfRationality hrat =
+        frontier.computedCollisionNOfRationality hrat ∧
+        frontier.computedCollisionNOfRationality hrat = bigN ∧
+          checkedTail.upperN ≤ bigN ∧
+            (tail_gap.gap_for_polynomial_upper
+              checkedTail.U checkedTail.polynomial).threshold ≤ bigN ∧
+              upper.U witness.n < measured witness.n ∧
+                measured witness.n ≤ upper.U witness.n ∧
+                  False ∧
+                  ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let tail_input :=
+    projectLengthSingletonTailGapInputOfTimeBound
+      lengthCodeAt time_bound_strict exponent_ne_zero tail_gap
+  have hsource :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m) := by
+    intro m
+    simpa [tail_input, projectLengthSingletonTailGapInputOfTimeBound] using
+      lengthCodeAt_eq_conj_source m
+  let frontier :=
+    timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+      left_family right_family time_bound_strict exponent_ne_zero tail_input
+      hsource left_length_polynomial right_length_polynomial
+  let payloadFree :=
+    Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier.payloadFreeLocalHilbertLengthCodeTargetFrontier
+      local_interpretation frontier
+  let checkedTail :=
+    checkedSearchUpperTail
+      frontier.concreteLengthCodeFrontier.lower_search.toProofLengthFreeMonth12Candidate
+      frontier.concreteLengthCodeFrontier.checkedUpperProvider
+      hrat
+  let bigN :=
+    max checkedTail.upperN
+      (tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  let upper :=
+    projectLengthUpperTailOfConcreteLengthCodeTargetFrontier
+      fallback payloadFree.concreteLengthCodeFrontier hrat
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data payloadFree.lowerSearch.checkerSemantics fallback
+  let witness :=
+    projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+      fallback payloadFree hrat
+  have hwitness_provider :
+      witness.n = payloadFree.computedCollisionNOfRationality hrat := by
+    simpa [witness, payloadFree, fallback] using
+      projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_n_eq_providerComputedN
+        fallback payloadFree hrat
+  have hpayload_frontier :
+      payloadFree.computedCollisionNOfRationality hrat =
+        frontier.computedCollisionNOfRationality hrat := by
+    rfl
+  have hbig_cert :=
+    tailGapConcreteProofLengthModel_bigNCertificate_of_timeBoundTailGap_noFallback
+      left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+      tail_gap lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial hrat
+  have hfrontier_bigN :
+      frontier.computedCollisionNOfRationality hrat = bigN := by
+    simpa [fallback, tail_input, frontier, hsource, checkedTail, bigN,
+      projectLengthSingletonTailGapInputOfTimeBound] using
+      hbig_cert.1
+  have hupperN : checkedTail.upperN ≤ bigN :=
+    Nat.le_max_left checkedTail.upperN
+      (tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  have hthreshold :
+      (tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold ≤ bigN :=
+    Nat.le_max_right checkedTail.upperN
+      (tail_gap.gap_for_polynomial_upper
+        checkedTail.U checkedTail.polynomial).threshold
+  exact
+    ⟨hwitness_provider,
+      hpayload_frontier,
+      hfrontier_bigN,
+      hupperN,
+      hthreshold,
+      witness.lower_at_n,
+      witness.upper_at_n,
+      witness.contradiction,
+      projectLengthExplicitSearchWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
+        fallback payloadFree⟩
+
 /-! ## Local-Hilbert explicit project-length witness -/
 
 /-- Explicit project-length collision witness for the Local-Hilbert length-code
