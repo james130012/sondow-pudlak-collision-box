@@ -4917,6 +4917,44 @@ def ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput.toChecke
       concretePAHilbertPowerBound_rejectsCode_to_not_acceptedProofCodeForFormulaCode
         hrejects hchecks
 
+/-- Exact constructor trace for the calibrated executable rejection search.  It
+records that the internal Month 9-10 rejection extractor keeps the executable
+`witness` and `cutoff` functions unchanged, and that its candidate-rejection
+field is precisely the Boolean sweep over the calibrated finite enumeration. -/
+theorem ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput.toCheckerExtractor_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      input.toCheckerExtractor.witness f hf N =
+          input.witness f hf N ∧
+        input.toCheckerExtractor.cutoff f hf N =
+            input.cutoff f hf N ∧
+          N ≤ input.witness f hf N ∧
+            f (input.witness f hf N) < (input.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : Nat,
+          code ∈
+              enumeration.toFiniteEnumeration.candidates
+                (input.witness f hf N) (input.cutoff f hf N) →
+            ¬
+              (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+                scale_data lengthCodeAt).checks code
+                  (scale_data.powerBoundRawCode (input.witness f hf N))) := by
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl,
+        input.witness_ge f hf N,
+        input.cutoff_gt f hf N⟩
+  · intro f hf N code hmem
+    exact input.toCheckerExtractor.rejects_candidates f hf N code hmem
+
 /-- Proof-length exactness for calibrated-size semantics reduced to a
 family-level equality against the calibrated minimum. -/
 structure ConcretePAHilbertPowerBoundCalibratedProofLengthInput

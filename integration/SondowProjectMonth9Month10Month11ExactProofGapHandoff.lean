@@ -5678,6 +5678,46 @@ theorem executableRejectionSearch_proofLengthFree_lower_bound_machine_closure
             hclosure.2.2.2.2 U hU N
           _ = input.witness U hU N := rfl⟩
 
+/-- Exact finite-search-exclusion trace for the executable calibrated rejection
+search.  This is the public audit form of task B: the Month 9-10
+`ComputableFiniteSearchExclusion` generated from the executable PA/Hilbert
+Boolean sweep keeps the same `witness` and `cutoff`, and its rejection clause is
+exactly rejection of the calibrated finite enumeration at that same pair. -/
+theorem executableRejectionSearch_computableFiniteSearchExclusion_exact_trace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    {enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration) :
+    let handoff : Month9Month10ProofLengthFreeExtractorHandoff scale_data :=
+      executableRejectionSearchToProofLengthFreeExtractorHandoff input
+    let cert :=
+      handoff.rejectionExtractor.toComputableFiniteSearchExclusion
+    (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+      cert.witness f hf N = input.witness f hf N ∧
+        cert.cutoff f hf N = input.cutoff f hf N ∧
+          N ≤ input.witness f hf N ∧
+            f (input.witness f hf N) < (input.cutoff f hf N : Real)) ∧
+      (∀ f : Nat → Real, ∀ hf : _root_.is_polynomial_bound f, ∀ N : Nat,
+        ∀ code : handoff.checkerSemantics.Code,
+          code ∈
+              handoff.finiteEnumeration.candidates
+                (input.witness f hf N) (input.cutoff f hf N) →
+            ¬ handoff.checkerSemantics.checks code
+              (scale_data.powerBoundRawCode (input.witness f hf N))) := by
+  dsimp [executableRejectionSearchToProofLengthFreeExtractorHandoff]
+  refine ⟨?_, ?_⟩
+  · intro f hf N
+    exact
+      ⟨rfl, rfl,
+        input.witness_ge f hf N,
+        input.cutoff_gt f hf N⟩
+  · intro f hf N code hmem
+    exact input.toCheckerExtractor.rejects_candidates f hf N code hmem
+
 /-- Full computed lower-search trace from the executable calibrated rejection
 search.  This is the concrete proof-length-free audit form: the same `n`
 computed from the upper tail is the executable search witness, the lower-search
