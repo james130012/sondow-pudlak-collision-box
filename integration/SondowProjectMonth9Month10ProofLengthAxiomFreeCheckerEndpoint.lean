@@ -654,6 +654,68 @@ theorem theorem5ProviderOfCanonicalSearchCoreCheckedUpper_closure
       (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
         core upper_provider).not_rational⟩
 
+/-- Public main closure at the clean checked-upper boundary.  This is the
+highest theorem-5 entry point that is independent of both the historical root
+`proof_length` measurement and the currently contaminated C-line/project-upper
+certificates: the upper provider is already stated over the checker
+`minProofCodeSize` measurement, and the computed `N` is the
+rejection-extractor witness. -/
+theorem theorem5ProviderOfCanonicalSearchCoreCheckedUpper_publicMainClosure
+    (core : PAHilbertCanonicalSearchCore)
+    (upper_provider :
+      core.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    let provider :=
+      theorem5ProviderOfCanonicalSearchCoreCheckedUpper core upper_provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    (theorem5ProviderOfCanonicalSearchCoreCheckedUpper
+      core upper_provider).closure_with_lowerSearchWitnessTrace
+
 /-! ## Project-upper instantiation of the proof-length-free provider -/
 
 /-- Turn the Sondow project-box upper route into the checked
@@ -1145,6 +1207,73 @@ theorem theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper_closure
       hclosure.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2⟩
 
+/-- Public main closure for the generic checked-target route.  This is the
+clean replacement for project-box/C-line upper transport: the target upper
+bound is already stated over a checked target measurement, and the projection
+only adds the audited `+2` source-to-target overhead. -/
+theorem theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper_publicMainClosure
+    (core : PAHilbertCanonicalSearchCore)
+    {targetMeasured : Nat → Nat}
+    (projection :
+      InternalPudlakTheorem5CheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        targetMeasured)
+    (upper_provider :
+      InternalPudlakTheorem5CheckedTargetUpperProvider
+        targetMeasured) :
+    let provider :=
+      theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+        core projection upper_provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    (theorem5ProviderOfCanonicalSearchCoreCheckedTargetUpper
+      core projection upper_provider).closure_with_lowerSearchWitnessTrace
+
 /-! ## Concrete-proof-family checked target upper instantiation -/
 
 /-- Payload-free projection for a raw MiniHilbert concrete proof family.  Unlike
@@ -1441,6 +1570,79 @@ theorem theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper_clos
       hclosure.2.2.1,
       hclosure.2.2.2.1,
       hclosure.2.2.2.2⟩
+
+/-- Public main closure for the concrete proof-family checked-target route.
+This is the strongest current upper-route replacement for the contaminated
+project-box path: the target upper bound comes from the concrete family checked
+length, and the theorem-5 source is connected by the right-conjunction
+elimination projection. -/
+theorem theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper_publicMainClosure
+    (core : PAHilbertCanonicalSearchCore)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (projection :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics
+        target_family)
+    (upper_provider :
+      InternalPudlakTheorem5ConcreteProofFamilyCheckedTargetUpperProvider
+        target_family) :
+    let provider :=
+      theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+        core projection upper_provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    (theorem5ProviderOfCanonicalSearchCoreConcreteProofFamilyTargetUpper
+      core projection upper_provider).closure_with_lowerSearchWitnessTrace
 
 /-! ## Local-Hilbert checked target upper instantiation -/
 
@@ -1795,6 +1997,73 @@ theorem theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_closure
       hclosure.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2⟩
 
+/-- Audit-facing C-line main closure from a PA/Hilbert canonical search core.
+It keeps the computed large `N`, the rejection-extractor witness trace, the
+checker `minProofCodeSize` lower bound, the finite-consistency raw-code family,
+and the upper/lower collision inequalities visible.  Axiom profiling this
+declaration is intentionally useful: any residual root `proof_length`
+dependency must come from the C-line/project-upper certificate layer, not from
+the checked-search core. -/
+theorem theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_publicMainClosure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (cline : Nonempty (SondowCLineMinimalClosureCertificate bounds)) :
+    let provider :=
+      theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+        core projection cline
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    (theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure
+      core projection cline).closure_with_lowerSearchWitnessTrace
+
 /-- C-line entry point with the three explicit nonempty components.  This is
 the current narrowest public upper-route instantiation before eliminating the
 remaining payload/proof-length conventions inside those component certificates. -/
@@ -1851,6 +2120,80 @@ theorem theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_closure
       hclosure.2.1,
       hclosure.2.2.2.1,
       hclosure.2.2.2.2⟩
+
+/-- Audit-facing C-line main closure with the current three concrete C-line
+certificates split out.  This exposes exactly where the checked-search theorem
+is still fed by project-upper/C-line certificates; if its axiom profile contains
+root `proof_length`, that dependency is a residual of those certificates rather
+than of the checked-search lower machine. -/
+theorem theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength_publicMainClosure
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (core : PAHilbertCanonicalSearchCore)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        core.scale_data core.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate) :
+    let provider :=
+      theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength
+        core projection hkernel hchecker hlength
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [theorem5ProviderOfCanonicalSearchCoreCLineKernelCheckerLength] using
+    theorem5ProviderOfCanonicalSearchCoreCLineMinimalClosure_publicMainClosure
+      core projection
+      (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+        hkernel hchecker hlength)
 
 /-! ## Search-only singleton PA/Hilbert instantiation -/
 
@@ -2695,6 +3038,83 @@ theorem concreteProofFamilyLengthPolynomialProviderOfEq_closure
       (input.concreteProofFamilyProjectionOfLengthCodeAtEq hsource)
       (concreteProofFamilyCheckedTargetUpperProviderOfLengthPolynomial hpoly)
 
+/-- Public main closure for the singleton search input using only a concrete
+proof-family source equality and a polynomial bound on the target family
+length.  This is the primitive checked-target replacement for the contaminated
+C-line/project-box route: the upper side is generated directly from
+`target_family.length`, and the computed `N` remains the lower-search
+rejection-extractor witness. -/
+theorem concreteProofFamilyLengthPolynomialProviderOfEq_publicMainClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput
+        scale_data)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (hsource :
+      ∀ m : Nat,
+        input.lengthCodeAt m =
+          target_family.rightConjElim.minCheckedCodeSize m)
+    (hpoly :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real target_family.length)) :
+    let provider :=
+      input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+        hsource hpoly
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    (input.toProofLengthAxiomFreeConcreteProofFamilyLengthPolynomialProviderOfEq
+      hsource hpoly).closure_with_lowerSearchWitnessTrace
+
 theorem concreteProofFamilyLengthPolynomialProvider_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
@@ -3208,6 +3628,70 @@ theorem closure
       hclosure.2.2.2.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2.2.2.2⟩
 
+/-- Public main closure for the concrete proof-family internal theorem-5
+frontier.  This exposes the same lower-search witness trace and checked
+collision package as the canonical provider, but at the smaller concrete
+proof-family frontier boundary. -/
+theorem publicMainClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    let provider := frontier.provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact frontier.provider.closure_with_lowerSearchWitnessTrace
+
 end Month9Month10ConcreteProofFamilyTargetInternalTheorem5Frontier
 
 /-! ## Concrete length-code target frontier -/
@@ -3462,6 +3946,71 @@ theorem closure
       hclosure.2.2.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2.2.2.2⟩
+
+/-- Public main closure at the concrete length-code frontier.  At this layer
+the remaining mathematical obligations are exactly the source-code equality
+against the concrete proof family and the target-family polynomial length
+bound; the exposed collision package is still fully checked and
+proof-length-axiom-free. -/
+theorem publicMainClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
+        scale_data target_family) :
+    let provider := frontier.provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact frontier.provider.closure_with_lowerSearchWitnessTrace
 
 end Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier
 
@@ -4256,6 +4805,399 @@ theorem rootBridgeReintroducesPayloadTruth
 
 end Month9Month10PayloadRootBridgeViaDerivability
 
+/-! ## Canonical-core payload derivability bridge -/
+
+/-- Transport accepted PA/Hilbert proof codes across checker equality into the
+proof-length-free canonical search core.  This is the generic clean component
+under the payload bridge: it mentions no finite-consistency code family and no
+root accepted-certificate vocabulary. -/
+theorem canonicalSearchCore_acceptedCodeExactness_transport
+    (core : PAHilbertCanonicalSearchCore)
+    {checker : PAHilbertChecker}
+    (checker_eq : checker = core.checker)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode checker formulaCode code) :
+    PAHilbertFormulaCodeDerivable core.semantics formulaCode := by
+  have haccepted_core :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        core.checker formulaCode code := by
+    simpa [checker_eq] using haccepted
+  exact core.acceptedCodeExactness formulaCode code haccepted_core
+
+/-- Generic accepted-family derivability closure for the proof-length-free
+canonical search core.  This is the payload-free component below the
+finite-consistency specialization: any checker-accepted formula-code family can
+be transported into PA/Hilbert derivability once its checker is identified with
+the canonical core checker. -/
+theorem canonicalSearchCore_acceptedFamily_derivabilityClosure
+    (core : PAHilbertCanonicalSearchCore)
+    {checker : PAHilbertChecker}
+    (checker_eq : checker = core.checker)
+    {family : Nat → _root_.FormulaCode}
+    (accepted_family :
+      Month9Month10PayloadFreeCheckerAcceptedFamily checker family) :
+    accepted_family.Audit ∧
+      (∀ n : Nat,
+        PAHilbertFormulaCodeDerivable core.semantics (family n)) :=
+  ⟨accepted_family.audit,
+    fun n =>
+      canonicalSearchCore_acceptedCodeExactness_transport
+        core checker_eq (family n) (accepted_family.proofCode n)
+        (accepted_family.acceptedCode n)⟩
+
+/-- Two-family version of the clean canonical derivability closure.  This is
+the reusable payload-free skeleton for ordinary/strengthened finite-consistency
+before those concrete root code families are selected. -/
+theorem canonicalSearchCore_twoAcceptedFamilies_derivabilityClosure
+    (core : PAHilbertCanonicalSearchCore)
+    {checker : PAHilbertChecker}
+    (checker_eq : checker = core.checker)
+    {left_family right_family : Nat → _root_.FormulaCode}
+    (left :
+      Month9Month10PayloadFreeCheckerAcceptedFamily checker left_family)
+    (right :
+      Month9Month10PayloadFreeCheckerAcceptedFamily checker right_family) :
+    left.Audit ∧
+      right.Audit ∧
+        (∀ n : Nat,
+          PAHilbertFormulaCodeDerivable core.semantics (left_family n)) ∧
+          (∀ n : Nat,
+            PAHilbertFormulaCodeDerivable core.semantics (right_family n)) := by
+  exact
+    ⟨left.audit,
+      right.audit,
+      (canonicalSearchCore_acceptedFamily_derivabilityClosure
+        core checker_eq left).2,
+      (canonicalSearchCore_acceptedFamily_derivabilityClosure
+        core checker_eq right).2⟩
+
+/-- Finite-consistency derivability closure without the root
+`accepted_certificate` bridge.  Unlike
+`PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs`, this
+statement does not contain the two derivability-soundness fields, so it stays at
+the payload-free accepted-code layer while still specializing to the ordinary
+and strengthened finite-consistency code families. -/
+theorem canonicalSearchCore_finiteConsistencyAcceptedFamilies_derivabilityOnlyClosure
+    (core : PAHilbertCanonicalSearchCore)
+    (checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance)
+    (checker_eq : checker_acceptance.checker = core.checker) :
+    checker_acceptance.Audit ∧
+      (∀ n : Nat,
+        PAHilbertFormulaCodeDerivable
+          core.semantics (_root_.partialConsistencyCode n)) ∧
+        (∀ n : Nat,
+          PAHilbertFormulaCodeDerivable
+            core.semantics (_root_.strengthenedPartialConsistencyCode n)) := by
+  have htwo :=
+    canonicalSearchCore_twoAcceptedFamilies_derivabilityClosure
+      core checker_eq checker_acceptance.ordinary
+      checker_acceptance.strengthened
+  exact
+    ⟨checker_acceptance.audit,
+      htwo.2.2.1,
+      htwo.2.2.2⟩
+
+/-- Payload bridge factored through a proof-length-free canonical search core.
+The canonical core supplies accepted-code exactness into PA/Hilbert
+derivability.  The two soundness fields are deliberately the only root
+`accepted_certificate` obligations. -/
+structure PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+    (core : PAHilbertCanonicalSearchCore)
+    (checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance) :
+    Prop where
+  checker_eq :
+    checker_acceptance.checker = core.checker
+  ordinaryDerivableSound :
+    ∀ n : Nat,
+      PAHilbertFormulaCodeDerivable
+          core.semantics (_root_.partialConsistencyCode n) →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n)
+  strengthenedDerivableSound :
+    ∀ n : Nat,
+      PAHilbertFormulaCodeDerivable
+          core.semantics (_root_.strengthenedPartialConsistencyCode n) →
+        _root_.accepted_certificate
+          (_root_.strengthenedPartialConsistencyCode n)
+
+namespace PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+
+theorem acceptedCodeExactness
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance)
+    (formulaCode : _root_.FormulaCode) (code : Nat)
+    (haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        checker_acceptance.checker formulaCode code) :
+    PAHilbertFormulaCodeDerivable core.semantics formulaCode := by
+  exact
+    canonicalSearchCore_acceptedCodeExactness_transport
+      core bridge.checker_eq formulaCode code haccepted
+
+theorem ordinaryDerivable
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance)
+    (n : Nat) :
+    PAHilbertFormulaCodeDerivable
+      core.semantics (_root_.partialConsistencyCode n) :=
+  bridge.acceptedCodeExactness
+    (_root_.partialConsistencyCode n)
+    (checker_acceptance.ordinary.proofCode n)
+    (checker_acceptance.ordinary.acceptedCode n)
+
+theorem strengthenedDerivable
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance)
+    (n : Nat) :
+    PAHilbertFormulaCodeDerivable
+      core.semantics (_root_.strengthenedPartialConsistencyCode n) :=
+  bridge.acceptedCodeExactness
+    (_root_.strengthenedPartialConsistencyCode n)
+    (checker_acceptance.strengthened.proofCode n)
+    (checker_acceptance.strengthened.acceptedCode n)
+
+/-- Proof-length-free and payload-truth-free derivability closure for the
+canonical payload bridge.  It stops before root `accepted_certificate`, so the
+remaining payload problem is exactly the two soundness fields of the bridge. -/
+theorem derivabilityOnlyClosure
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :
+    checker_acceptance.Audit ∧
+      (∀ formulaCode : _root_.FormulaCode, ∀ code : Nat,
+        PAHilbertAcceptedProofCodeForFormulaCode
+          checker_acceptance.checker formulaCode code →
+        PAHilbertFormulaCodeDerivable core.semantics formulaCode) ∧
+        (∀ n : Nat,
+          PAHilbertFormulaCodeDerivable
+            core.semantics (_root_.partialConsistencyCode n)) ∧
+          (∀ n : Nat,
+            PAHilbertFormulaCodeDerivable
+              core.semantics
+              (_root_.strengthenedPartialConsistencyCode n)) :=
+  ⟨checker_acceptance.audit,
+    bridge.acceptedCodeExactness,
+    bridge.ordinaryDerivable,
+    bridge.strengthenedDerivable⟩
+
+def toPayloadRootBridgeViaDerivability
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :
+    Month9Month10PayloadRootBridgeViaDerivability
+      checker_acceptance core.semantics where
+  acceptedCodeExactness :=
+    bridge.acceptedCodeExactness
+  ordinaryDerivableSound :=
+    bridge.ordinaryDerivableSound
+  strengthenedDerivableSound :=
+    bridge.strengthenedDerivableSound
+
+theorem acceptedTruthClosure
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :
+    Month9Month10CheckerAcceptedRootBridge checker_acceptance ∧
+      _root_.PartialConsistencyAcceptedTruth ∧
+        _root_.StrengthenedPartialConsistencyAcceptedTruth :=
+  bridge.toPayloadRootBridgeViaDerivability.closure
+
+theorem payloadTruthClosure
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (bridge :
+      PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :
+    _root_.PartialConsistencyPayloadTruth ∧
+      _root_.StrengthenedPartialConsistencyPayloadTruth :=
+  bridge.toPayloadRootBridgeViaDerivability.payloadTruths
+
+/-- Exact residual form of the canonical payload-root bridge.  Once the
+payload-free checker acceptance has been identified with the canonical
+PA/Hilbert search core checker, the existence of the root
+`accepted_certificate` bridge is equivalent to supplying exactly the two
+finite-consistency payload-truth packages.  In particular, a library
+derivability theorem cannot remove this residual unless it also supplies those
+payload truths. -/
+theorem nonempty_iff_payloadTruths_of_checker_eq
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (checker_eq : checker_acceptance.checker = core.checker) :
+    Nonempty
+        (PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+          core checker_acceptance)
+      ↔
+      _root_.PartialConsistencyPayloadTruth ∧
+        _root_.StrengthenedPartialConsistencyPayloadTruth := by
+  constructor
+  · intro hbridge
+    rcases hbridge with ⟨bridge⟩
+    exact bridge.payloadTruthClosure
+  · intro htruths
+    refine
+      ⟨{ checker_eq := checker_eq
+         ordinaryDerivableSound := ?_
+         strengthenedDerivableSound := ?_ }⟩
+    · intro n _hderivable
+      exact
+        (_root_.PartialConsistencyPayloadTruth.toAcceptedTruth htruths.1)
+          |>.accepted_all n
+    · intro n _hderivable
+      exact
+        (_root_.StrengthenedPartialConsistencyPayloadTruth.toAcceptedTruth
+          htruths.2)
+          |>.accepted_all n
+
+/-- Certificate-level form of
+`nonempty_iff_payloadTruths_of_checker_eq`.  The ordinary branch is stated
+using the existing project-local `PartialConsistencyPayloadSpecCertificate`,
+while the strengthened branch remains the exact strengthened truth package. -/
+theorem nonempty_iff_partialPayloadSpecAndStrengthenedPayloadTruth_of_checker_eq
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (checker_eq : checker_acceptance.checker = core.checker) :
+    Nonempty
+        (PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+          core checker_acceptance)
+      ↔
+      Nonempty PartialConsistencyPayloadSpecCertificate ∧
+        _root_.StrengthenedPartialConsistencyPayloadTruth := by
+  constructor
+  · intro hbridge
+    have htruths :
+        _root_.PartialConsistencyPayloadTruth ∧
+          _root_.StrengthenedPartialConsistencyPayloadTruth :=
+      (nonempty_iff_payloadTruths_of_checker_eq checker_eq).1 hbridge
+    exact
+      ⟨⟨{ payload_spec :=
+            _root_.PartialConsistencyPayloadSpec.standard htruths.1 }⟩,
+        htruths.2⟩
+  · intro hcerts
+    rcases hcerts with ⟨hpartial, hstrengthened⟩
+    rcases hpartial with ⟨partial_cert⟩
+    exact
+      (nonempty_iff_payloadTruths_of_checker_eq checker_eq).2
+        ⟨partial_cert.toPayloadTruth, hstrengthened⟩
+
+/-- Fully structured certificate-level form of the same residual.  This uses
+the existing ordinary payload-spec certificate and the Month 9-10 strengthened
+payload-spec certificate, so the current canonical bridge is aligned with the
+older structured payload-frontier work rather than a raw ad hoc truth pair. -/
+theorem nonempty_iff_payloadSpecCertificates_of_checker_eq
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (checker_eq : checker_acceptance.checker = core.checker) :
+    Nonempty
+        (PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+          core checker_acceptance)
+      ↔
+      Nonempty PartialConsistencyPayloadSpecCertificate ∧
+        Nonempty
+          Month9Month10StrengthenedPayloadSpecCertificate := by
+  constructor
+  · intro hbridge
+    have hcerts :
+        Nonempty PartialConsistencyPayloadSpecCertificate ∧
+          _root_.StrengthenedPartialConsistencyPayloadTruth :=
+      (nonempty_iff_partialPayloadSpecAndStrengthenedPayloadTruth_of_checker_eq
+        checker_eq).1 hbridge
+    exact
+      ⟨hcerts.1,
+        (Month9Month10StrengthenedPayloadSpecCertificate.nonempty_iff_payloadTruth).2
+          hcerts.2⟩
+  · intro hcerts
+    have hstrengthened :
+        _root_.StrengthenedPartialConsistencyPayloadTruth :=
+      (Month9Month10StrengthenedPayloadSpecCertificate.nonempty_iff_payloadTruth).1
+        hcerts.2
+    exact
+      (nonempty_iff_partialPayloadSpecAndStrengthenedPayloadTruth_of_checker_eq
+        checker_eq).2
+        ⟨hcerts.1, hstrengthened⟩
+
+/-- Diagnostic conditional bridge through the existing C-line minimal closure.
+It supplies the ordinary payload-spec certificate needed by the canonical
+payload-root bridge, but it is not the final unconditional route: the C-line
+minimal closure still carries the root length-recognition/proof-length
+calibration layer.  The clean final route must instead provide the checked
+upper provider directly over the checker measurement. -/
+theorem nonempty_of_clineMinimalClosureAndStrengthenedPayloadSpec_of_checker_eq
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (checker_eq : checker_acceptance.checker = core.checker)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (cline :
+      Nonempty (SondowCLineMinimalClosureCertificate bounds))
+    (strengthened :
+      Nonempty Month9Month10StrengthenedPayloadSpecCertificate) :
+    Nonempty
+      (PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :=
+  (nonempty_iff_payloadSpecCertificates_of_checker_eq checker_eq).2
+    ⟨sondowCLinePayloadSpecCertificate_nonempty_of_minimalClosureCertificate
+        cline,
+      strengthened⟩
+
+/-- Expanded diagnostic C-line source for the ordinary payload branch.  This
+matches the older endpoint hypotheses, but remains conditional on the C-line
+length-recognition layer and should not be used as the final axiom-clean
+closure. -/
+theorem nonempty_of_kernelCheckerLengthAndStrengthenedPayloadSpec_of_checker_eq
+    {core : PAHilbertCanonicalSearchCore}
+    {checker_acceptance :
+      Month9Month10PayloadFreeFiniteConsistencyCheckerAcceptance}
+    (checker_eq : checker_acceptance.checker = core.checker)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (strengthened :
+      Nonempty Month9Month10StrengthenedPayloadSpecCertificate) :
+    Nonempty
+      (PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+        core checker_acceptance) :=
+  nonempty_of_clineMinimalClosureAndStrengthenedPayloadSpec_of_checker_eq
+    checker_eq
+    (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
+      hkernel hchecker hlength)
+    strengthened
+
+end PAHilbertCanonicalSearchCorePayloadRootBridgeViaDerivabilityInputs
+
 /-! ## Local-Hilbert length-code target frontier -/
 
 /-- Local-Hilbert instantiation of the concrete length-code frontier.  Here the
@@ -4446,6 +5388,76 @@ theorem closure
       hclosure.2.1,
       hclosure.2.2.2.2.2.2.1,
       hclosure.2.2.2.2.2.2.2⟩
+
+/-- Public closure for the Local-Hilbert length-code frontier.  This reuses
+the concrete length-code public theorem after Month 8 identifies the
+Local-Hilbert source minimum with the right-conjunction-eliminated concrete
+proof-family source.  Thus this layer no longer needs the root
+`proof_length` bridge; any remaining nonstandard axioms are localized to the
+Local-Hilbert payload acceptance interface. -/
+theorem publicMainClosure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {halign : _root_.HilbertProjectionCodeAlignment}
+    {interp :
+      _root_.MiniHilbert.FormulaCodeHilbertInterpretation Ax A B halign}
+    (frontier :
+      Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
+        scale_data interp) :
+    let provider := frontier.provider
+    provider.Audit ∧
+      provider.endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          provider.lowerSearchWitnessTraceStatement hrat) ∧
+          (∀ f : Nat → Real, ∀ _hf : _root_.is_polynomial_bound f,
+            ∃ᶠ n in atTop,
+              (provider.candidate.checkerSemantics.toProofCodeSemantics.minProofCodeSize
+                (provider.scale_data.powerBoundRawCode n) ⟨n, rfl⟩ :
+                  Real) > f n) ∧
+            (∀ n : Nat,
+              provider.scale_data.powerBoundRawCode n =
+                _root_.strengthenedPartialConsistencyCode
+                  (provider.scale_data.scale n)) ∧
+              (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                provider.computedCollisionNOfRationality hrat =
+                  provider.candidate.rejectionExtractor.witness
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).polynomial
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).upperN) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).upperN ≤
+                    provider.computedCollisionNOfRationality hrat) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  (checkedSearchUpperTail
+                    provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat) <
+                    month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+                  month9_month10_checkedProofCodeMeasured
+                      provider.scale_data
+                      provider.candidate.checkerSemantics.toProofCodeSemantics
+                      (provider.computedCollisionNOfRationality hrat) ≤
+                    (checkedSearchUpperTail
+                      provider.candidate provider.upper_provider hrat).U
+                      (provider.computedCollisionNOfRationality hrat)) ∧
+                (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+                  False) ∧
+                ¬ _root_.is_rational _root_.euler_mascheroni := by
+  simpa [
+    Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier.provider,
+    Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier.concreteLengthCodeFrontier]
+    using
+      Month9Month10ConcreteLengthCodeTargetInternalTheorem5Frontier.publicMainClosure
+        frontier.concreteLengthCodeFrontier
 
 end Month9Month10LocalHilbertLengthCodeInternalTheorem5Frontier
 

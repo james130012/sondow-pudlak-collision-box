@@ -1958,6 +1958,115 @@ theorem concretePAHilbertTheorem5AxiomRecognizerExactness_nonempty :
         concretePAHilbertTheorem5DerivabilitySemantics) :=
   ⟨concretePAHilbertTheorem5AxiomRecognizerExactness⟩
 
+/-- The concrete theorem-5 semantics derives every strengthened
+finite-consistency formula code by construction. -/
+theorem concretePAHilbertTheorem5_strengthenedPartialConsistencyCode_derivable
+    (n : Nat) :
+    concretePAHilbertTheorem5DerivabilitySemantics.Derivable
+      (PAHilbertFormula.ofFormulaCode
+        (_root_.strengthenedPartialConsistencyCode n)) := by
+  exact Or.inr (by
+    unfold ConcretePAHilbertIsStrengthenedPartialConsistency
+    simp [PAHilbertFormula.ofFormulaCode,
+      _root_.strengthenedPartialConsistencyCode])
+
+/-- Code-level form of
+`concretePAHilbertTheorem5_strengthenedPartialConsistencyCode_derivable`. -/
+theorem concretePAHilbertTheorem5_strengthenedPartialConsistencyCode_formulaCodeDerivable
+    (n : Nat) :
+    PAHilbertFormulaCodeDerivable
+      concretePAHilbertTheorem5DerivabilitySemantics
+      (_root_.strengthenedPartialConsistencyCode n) := by
+  refine
+    ⟨PAHilbertFormula.ofFormulaCode
+        (_root_.strengthenedPartialConsistencyCode n),
+      rfl, ?_⟩
+  exact
+    concretePAHilbertTheorem5_strengthenedPartialConsistencyCode_derivable n
+
+/-- Ordinary finite-consistency codes are not theorem-5 strengthened targets in
+the concrete semantics.  This keeps the ordinary payload residual separate from
+the theorem-5 strengthened target. -/
+theorem concretePAHilbertTheorem5_partialConsistencyCode_not_derivable
+    (n : Nat) :
+    ¬ concretePAHilbertTheorem5DerivabilitySemantics.Derivable
+        (PAHilbertFormula.ofFormulaCode (_root_.partialConsistencyCode n)) := by
+  intro hderivable
+  rcases hderivable with htag0 | htarget
+  · rcases htag0 with htag0 | htag1 | htag2 | htag3
+    · simp [ConcretePAHilbertIsTaggedAxiom, ConcretePAHilbertFormulaTag,
+        PAHilbertFormula.ofFormulaCode, _root_.partialConsistencyCode] at htag0
+    · simp [ConcretePAHilbertIsTaggedAxiom, ConcretePAHilbertFormulaTag,
+        PAHilbertFormula.ofFormulaCode, _root_.partialConsistencyCode] at htag1
+    · simp [ConcretePAHilbertIsTaggedAxiom, ConcretePAHilbertFormulaTag,
+        PAHilbertFormula.ofFormulaCode, _root_.partialConsistencyCode] at htag2
+    · simp [ConcretePAHilbertIsTaggedAxiom, ConcretePAHilbertFormulaTag,
+        PAHilbertFormula.ofFormulaCode, _root_.partialConsistencyCode] at htag3
+  · unfold ConcretePAHilbertIsStrengthenedPartialConsistency at htarget
+    simp [PAHilbertFormula.ofFormulaCode, _root_.partialConsistencyCode] at htarget
+
+/-- Code-level form of
+`concretePAHilbertTheorem5_partialConsistencyCode_not_derivable`: ordinary
+partial-consistency formula codes are outside the concrete theorem-5
+derivability semantics. -/
+theorem concretePAHilbertTheorem5_partialConsistencyCode_not_formulaCodeDerivable
+    (n : Nat) :
+    ¬ PAHilbertFormulaCodeDerivable
+        concretePAHilbertTheorem5DerivabilitySemantics
+        (_root_.partialConsistencyCode n) := by
+  intro hderivable
+  rcases hderivable with ⟨formula, hcode, hformula_derivable⟩
+  have hformula_eq :
+      formula =
+        PAHilbertFormula.ofFormulaCode (_root_.partialConsistencyCode n) :=
+    PAHilbertFormula.eq_of_code_eq
+      (by
+        simpa [PAHilbertFormula.ofFormulaCode] using hcode)
+  rw [hformula_eq] at hformula_derivable
+  exact
+    concretePAHilbertTheorem5_partialConsistencyCode_not_derivable n
+      hformula_derivable
+
+/-- The ordinary derivability-to-root-acceptance clause for the concrete
+theorem-5 semantics is vacuous: the ordinary partial-consistency codes are not
+derivable in this semantics. -/
+theorem concretePAHilbertTheorem5_partialConsistencyCode_derivableSound_vacuous
+    (n : Nat) :
+    PAHilbertFormulaCodeDerivable
+        concretePAHilbertTheorem5DerivabilitySemantics
+        (_root_.partialConsistencyCode n) →
+      _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+  intro hderivable
+  exact False.elim
+    (concretePAHilbertTheorem5_partialConsistencyCode_not_formulaCodeDerivable
+      n hderivable)
+
+/-- For the concrete theorem-5 semantics, strengthened derivability soundness
+into the root accepted-certificate vocabulary is exactly the strengthened
+payload-truth package.  The forward direction applies the soundness clause to
+the theorem-5 strengthened formulas, which are derivable by construction. -/
+theorem concretePAHilbertTheorem5_strengthenedDerivableSound_iff_payloadTruth :
+    (∀ n : Nat,
+      PAHilbertFormulaCodeDerivable
+          concretePAHilbertTheorem5DerivabilitySemantics
+          (_root_.strengthenedPartialConsistencyCode n) →
+        _root_.accepted_certificate
+          (_root_.strengthenedPartialConsistencyCode n))
+      ↔
+      _root_.StrengthenedPartialConsistencyPayloadTruth := by
+  constructor
+  · intro hsound
+    exact
+      { true_all := by
+          intro n
+          exact
+            _root_.strengthened_payload_of_accepted_certificate
+              (hsound n
+                (concretePAHilbertTheorem5_strengthenedPartialConsistencyCode_formulaCodeDerivable
+                  n)) }
+  · intro htruth n _hderivable
+    exact htruth.toAcceptedTruth.accepted_all n
+
 theorem concretePAHilbert_powerBoundRawCode_strengthenedPartialConsistency
     (scale_data : InternalPudlakTheorem5ScaleData) (n : Nat) :
     ConcretePAHilbertIsStrengthenedPartialConsistency
@@ -6811,6 +6920,94 @@ def ConcretePAHilbertPowerBoundCalibratedProofLengthBySizeInput.toCalibratedProo
         scale_data lengthCodeAt n input.powerBoundRawCode_injective
     simpa [hmin] using input.proof_length_eq_lengthCodeAt n
 
+/-- A calibrated proof-length input is exactly the pointwise root
+`proof_length = lengthCodeAt` equation once the theorem-5 raw-code family is
+injective.  This is the central form of the proof-length residual: the checker
+minimum has already been computed proof-length-free by
+`concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective`. -/
+theorem ConcretePAHilbertPowerBoundCalibratedProofLengthInput.rootProofLength_eq_lengthCodeAt_of_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {lengthCodeAt : Nat → Nat}
+    (input :
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    ∀ n : Nat,
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) =
+        (lengthCodeAt n : Real) := by
+  intro n
+  calc
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) =
+      (InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+        n : Real) :=
+        input.proof_length_eq_minProofCodeSizeAt n
+    _ = (lengthCodeAt n : Real) := by
+        exact_mod_cast
+          concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+            scale_data lengthCodeAt n hinjective
+
+/-- The pointwise root proof-length equation builds the calibrated checker
+proof-length input when raw codes are injective. -/
+theorem ConcretePAHilbertPowerBoundCalibratedProofLengthInput.of_rootProofLength_eq_lengthCodeAt_of_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode)
+    (hroot :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+      scale_data lengthCodeAt where
+  proof_length_eq_minProofCodeSizeAt := by
+    intro n
+    calc
+      _root_.proof_length _root_.ProofSystem.PA
+          _root_.ProofLengthMeasure.symbolSize
+          (scale_data.powerBoundRawCode n) =
+        (lengthCodeAt n : Real) :=
+          hroot n
+      _ =
+        (InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt)
+          n : Real) := by
+          exact_mod_cast
+            (concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+              scale_data lengthCodeAt n hinjective).symm
+
+/-- Central iff form of the proof-length residual for the calibrated PA/Hilbert
+checker.  It isolates the only remaining root `proof_length` content from the
+already-unconditional checker minimum computation. -/
+theorem concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_injective
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hinjective : Function.Injective scale_data.powerBoundRawCode) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) := by
+  constructor
+  · intro input
+    exact
+      input.rootProofLength_eq_lengthCodeAt_of_injective
+        hinjective
+  · intro hroot
+    exact
+      ConcretePAHilbertPowerBoundCalibratedProofLengthInput.of_rootProofLength_eq_lengthCodeAt_of_injective
+        lengthCodeAt hinjective hroot
+
 /-- Strict-scale singleton route where proof-length exactness is generated
 from the direct by-size calibration
 `proof_length (powerBoundRawCode n) = lengthCodeAt n`. -/
@@ -7068,6 +7265,187 @@ theorem concretePAHilbert_scale_strict_of_timeConstructiblePower_strict
   rw [scale_data.scale_eq a, scale_data.scale_eq b]
   exact hpower hlt
 
+/-- Strict growth of the primitive time-constructible bound plus a nonzero
+exponent gives strict growth of the theorem-5 scale.  This local version keeps
+the checker surface independent of the proof-length gap frontier. -/
+theorem concretePAHilbert_scale_strict_of_timeConstructibleBound_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0) :
+    ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b := by
+  intro a b hlt
+  rw [scale_data.scale_eq a, scale_data.scale_eq b]
+  exact
+    pow_lt_pow_left₀
+      (time_bound_strict hlt)
+      (Nat.zero_le (scale_data.time_constructible_bound a))
+      exponent_ne_zero
+
+/-- The central proof-length residual with the raw-code injectivity premise
+discharged from strict growth of the theorem-5 scale. -/
+theorem concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_scale_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (scale_strict :
+      ∀ {a b : Nat}, a < b → scale_data.scale a < scale_data.scale b) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) := by
+  have hscale_injective : Function.Injective scale_data.scale := by
+    intro a b hscale_eq
+    rcases Nat.lt_trichotomy a b with hlt | heq | hgt
+    · have hstrict :
+          scale_data.scale a < scale_data.scale b :=
+        scale_strict hlt
+      rw [hscale_eq] at hstrict
+      exact False.elim ((Nat.lt_irrefl _) hstrict)
+    · exact heq
+    · have hstrict :
+          scale_data.scale b < scale_data.scale a :=
+        scale_strict hgt
+      rw [hscale_eq] at hstrict
+      exact False.elim ((Nat.lt_irrefl _) hstrict)
+  exact
+    concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_injective
+      lengthCodeAt
+      (concretePAHilbert_powerBoundRawCode_injective_of_scale_injective
+        scale_data hscale_injective)
+
+/-- Powered time-bound strictness is enough to put the calibrated checker input
+and the root proof-length equation in exact correspondence. -/
+theorem concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructiblePower_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (hpower :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :=
+  concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_scale_strict
+    lengthCodeAt
+    (concretePAHilbert_scale_strict_of_timeConstructiblePower_strict
+      scale_data hpower)
+
+/-- Primitive time-bound strictness and nonzero exponent are enough to put the
+calibrated checker input and the root proof-length equation in exact
+correspondence.  This is the common project-scale version used by the endpoint
+residual eliminators. -/
+theorem concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+        scale_data lengthCodeAt
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) :=
+  concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_scale_strict
+    lengthCodeAt
+    (concretePAHilbert_scale_strict_of_timeConstructibleBound_strict
+      time_bound_strict exponent_ne_zero)
+
+/-- Family-level checker exactness is exactly the root proof-length equation
+under the standard time-bound strictness hypotheses. -/
+theorem concretePAHilbertPowerBoundCalibratedFamilyExactness_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0) :
+    InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) := by
+  constructor
+  · intro family
+    have input :
+        ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+          scale_data lengthCodeAt :=
+      { proof_length_eq_minProofCodeSizeAt := by
+          intro n
+          exact family.proof_length_eq_minProofCodeSizeAt n }
+    exact
+      (concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+        lengthCodeAt time_bound_strict exponent_ne_zero).mp input
+  · intro hroot
+    have input :
+        ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+          scale_data lengthCodeAt :=
+      (concretePAHilbertPowerBoundCalibratedProofLengthInput_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+        lengthCodeAt time_bound_strict exponent_ne_zero).mpr hroot
+    exact
+      { proof_length_eq_minProofCodeSizeAt :=
+          input.proof_length_eq_minProofCodeSizeAt }
+
+/-- Relevant-code checker exactness is exactly the root proof-length equation
+for the calibrated PA/Hilbert checker under the standard project scale
+strictness hypotheses. -/
+theorem concretePAHilbertPowerBoundCalibratedCheckerExactness_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0) :
+    InternalPudlakTheorem5CheckerProofLengthExactness
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data lengthCodeAt)
+      ↔
+      (∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (lengthCodeAt n : Real)) := by
+  constructor
+  · intro exactness
+    have family :
+        InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt) :=
+      InternalPudlakTheorem5CheckerProofLengthFamilyExactness.ofCheckerProofLengthExactness
+        exactness
+    exact
+      (concretePAHilbertPowerBoundCalibratedFamilyExactness_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+        lengthCodeAt time_bound_strict exponent_ne_zero).mp family
+  · intro hroot
+    have family :
+        InternalPudlakTheorem5CheckerProofLengthFamilyExactness
+          (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+            scale_data lengthCodeAt) :=
+      (concretePAHilbertPowerBoundCalibratedFamilyExactness_iff_rootProofLength_eq_lengthCodeAt_of_timeConstructibleBound_strict
+        lengthCodeAt time_bound_strict exponent_ne_zero).mpr hroot
+    exact family.toCheckerProofLengthExactness
+
 /-- Current most compressed Month 11-12 constructive checker input.  It keeps
 all PA/Hilbert checker machinery concrete and leaves only project-level data:
 the calibrated size, the actual proof-length search gap, strict growth of the
@@ -7127,6 +7505,91 @@ def toStrictScaleSingletonBySizeInput
       scale_data :=
   input.toStrictScaleSingletonExactProofLengthGapInput
     |>.toStrictScaleSingletonBySizeInput
+
+/-- The final exact checker-core input generates the calibrated proof-length
+input directly.  This is the explicit bridge from the stored root equation to
+the checker minimum-size exactness certificate. -/
+def toCalibratedProofLengthInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data) :
+    ConcretePAHilbertPowerBoundCalibratedProofLengthInput
+      scale_data input.lengthCodeAt :=
+  input.toStrictScaleSingletonBySizeInput
+    |>.toProofLengthBySizeInput
+    |>.toCalibratedProofLengthInput
+
+/-- The calibrated PA/Hilbert checker minimum at the theorem-5 raw code is the
+chosen `lengthCodeAt` from the final exact core. -/
+theorem minProofCodeSizeAt_eq_lengthCodeAt
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (n : Nat) :
+    InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+      (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data input.lengthCodeAt)
+      n =
+        input.lengthCodeAt n :=
+  concretePAHilbertPowerBoundCalibrated_minProofCodeSizeAt_eq_lengthCodeAt_of_injective
+    scale_data input.lengthCodeAt n
+    input.toStrictScaleSingletonBySizeInput.powerBoundRawCode_injective
+
+/-- Direct exactness statement: on the theorem-5 raw-code family, root
+`proof_length` equals the calibrated checker minimum. -/
+theorem rootProofLength_eq_minProofCodeSizeAt
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (n : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) =
+      (InternalPudlakTheorem5CheckerSemantics.minProofCodeSizeAt
+        (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+          scale_data input.lengthCodeAt)
+        n : Real) :=
+  input.toCalibratedProofLengthInput.proof_length_eq_minProofCodeSizeAt n
+
+/-- Direct project-length exactness statement: on the theorem-5 raw-code
+family, root `proof_length` equals the checker-defined `projectLength`. -/
+theorem rootProofLength_eq_projectLengthAt
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (fallback : _root_.FormulaCode → Nat) (n : Nat) :
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) =
+      (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data input.lengthCodeAt).toProofCodeSemantics.projectLength
+        fallback (scale_data.powerBoundRawCode n) := by
+  calc
+    _root_.proof_length _root_.ProofSystem.PA
+        _root_.ProofLengthMeasure.symbolSize
+        (scale_data.powerBoundRawCode n) =
+      (input.lengthCodeAt n : Real) :=
+        input.proof_length_eq_lengthCodeAt n
+    _ =
+      (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data input.lengthCodeAt).toProofCodeSemantics.projectLength
+        fallback (scale_data.powerBoundRawCode n) := by
+        symm
+        exact
+          concretePAHilbertPowerBoundCalibrated_projectLengthAt_eq_lengthCodeAt_of_injective
+            scale_data input.lengthCodeAt fallback n
+            input.toStrictScaleSingletonBySizeInput.powerBoundRawCode_injective
+
+/-- Relevant-code checker proof-length exactness generated by the final exact
+checker core. -/
+def toCheckerProofLengthExactness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data) :
+    InternalPudlakTheorem5CheckerProofLengthExactness
+      (concretePAHilbertPowerBoundCalibratedCheckerSemantics
+        scale_data input.lengthCodeAt) :=
+  input.toCalibratedProofLengthInput.toCheckerExactness
 
 def toCanonicalCalibratedExactnessCore
     {scale_data : InternalPudlakTheorem5ScaleData}
