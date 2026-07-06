@@ -10491,6 +10491,48 @@ theorem projectLengthPayloadFreeExplicitEndpoint_tailGapThreshold_not_rational_o
       time_bound_strict exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
       left_length_polynomial right_length_polynomial hrat).2.2.2.2.2
 
+/-- Payload-free no-fallback non-rationality endpoint from an eventual strict
+length lower bound.  This removes the explicit `tail_gap` input from the
+public theorem shape: the tail threshold is extracted internally from the
+eventual strict lower-bound statement. -/
+theorem projectLengthPayloadFreeExplicitEndpoint_tailGapThreshold_not_rational_of_eventuallyStrictLength_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (eventually_strict_length :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ m in Filter.atTop, U m < (lengthCodeAt m : Real))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  projectLengthPayloadFreeExplicitEndpoint_tailGapThreshold_not_rational_of_timeBoundTailGap_noFallback
+    left_family right_family local_interpretation lengthCodeAt
+    time_bound_strict exponent_ne_zero
+    (ComputableGapCertificate.ofEventuallyStrict eventually_strict_length)
+    lengthCodeAt_eq_conj_source
+    left_length_polynomial right_length_polynomial
+
 /-! ## Local-Hilbert explicit project-length witness -/
 
 /-- Explicit project-length collision witness for the Local-Hilbert length-code
