@@ -3364,6 +3364,75 @@ theorem tailGapComputedN_eq_executableSearchWitnessOfTimeBound
           (witness_calibration checkedTail.U checkedTail.polynomial
             checkedTail.upperN).symm
 
+/-- Singleton PA/Hilbert rejection input generated from a tail-gap certificate.
+This is the constructive non-Boolean-sweep route: the finite enumeration is the
+singleton calibrated enumeration, while the witness is inherited from the
+tail-gap search form. -/
+def singletonGapRejectionInputOfTailGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (powerBoundRawCode_injective :
+      Function.Injective scale_data.powerBoundRawCode)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real))) :
+    ConcretePAHilbertPowerBoundSingletonGapRejectionInput
+      scale_data lengthCodeAt where
+  powerBoundRawCode_injective := powerBoundRawCode_injective
+  gap := tail_gap.toComputableSearchGapCertificate
+
+theorem singletonGapRejectionInputOfTailGap_witness_eq_max
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (powerBoundRawCode_injective :
+      Function.Injective scale_data.powerBoundRawCode)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((singletonGapRejectionInputOfTailGap
+        lengthCodeAt powerBoundRawCode_injective tail_gap)
+      |>.toCheckerExtractor).witness U hU N =
+      max N (tail_gap.gap_for_polynomial_upper U hU).threshold := by
+  rfl
+
+theorem singletonGapRejectionInputOfTailGap_cutoff_eq_length_at_max
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (powerBoundRawCode_injective :
+      Function.Injective scale_data.powerBoundRawCode)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    ((singletonGapRejectionInputOfTailGap
+        lengthCodeAt powerBoundRawCode_injective tail_gap)
+      |>.toCheckerExtractor).cutoff U hU N =
+      lengthCodeAt
+        (max N (tail_gap.gap_for_polynomial_upper U hU).threshold) := by
+  rfl
+
+theorem singletonGapRejectionInputOfTailGap_candidates_at_witness_empty
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (lengthCodeAt : Nat → Nat)
+    (powerBoundRawCode_injective :
+      Function.Injective scale_data.powerBoundRawCode)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat => (lengthCodeAt n : Real)))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    let input :=
+      singletonGapRejectionInputOfTailGap
+        lengthCodeAt powerBoundRawCode_injective tail_gap;
+    input.finiteEnumeration.candidates
+        (input.toCheckerExtractor.witness U hU N)
+        (input.toCheckerExtractor.cutoff U hU N) = [] := by
+  dsimp
+  exact
+    (singletonGapRejectionInputOfTailGap
+      lengthCodeAt powerBoundRawCode_injective tail_gap)
+      |>.toCheckerExtractor_candidates_at_witness_empty U hU N
+
 /-- Concrete project-length threshold certificate calibrated to an executable
 rejection-search witness.  The remaining executable-search obligation is the
 pointwise calibration
