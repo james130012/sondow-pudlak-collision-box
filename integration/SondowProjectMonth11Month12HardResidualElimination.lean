@@ -1,5 +1,6 @@
 import integration.SondowProjectMonth9Month10Month11ExactProofGapHandoff
 import integration.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
+import integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
 import integration.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
 noncomputable section
@@ -11,6 +12,7 @@ open SondowProjectMonth9Month10InternalPudlakWitnessSurface
 open SondowProjectMonth9Month10ProofLengthGapFrontier
 open SondowProjectMonth9Month10Month11ExactProofGapHandoff
 open SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint
+open SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
 open SondowProjectMonth11PAHilbertCheckerSurface
 open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
@@ -3361,6 +3363,122 @@ theorem tailGapComputedN_eq_executableSearchWitnessOfTimeBound
     _ = search.witness checkedTail.U checkedTail.polynomial checkedTail.upperN :=
           (witness_calibration checkedTail.U checkedTail.polynomial
             checkedTail.upperN).symm
+
+/-- Concrete project-length threshold certificate calibrated to an executable
+rejection-search witness.  The remaining executable-search obligation is the
+pointwise calibration
+`search.witness U hU N = max N (tail_gap ...).threshold`; under that calibration,
+the threshold selected by the no-fallback project-length endpoint is exactly the
+executable witness at the endpoint's own upper cutoff. -/
+theorem projectLengthThresholdCertificate_eq_executableSearchWitnessOfTimeBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_gap :
+      ComputableGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (enumeration :
+      ConcretePAHilbertPowerBoundCalibratedFiniteEnumerationInput
+        scale_data lengthCodeAt)
+    (search :
+      ConcretePAHilbertPowerBoundCalibratedExecutableRejectionSearchInput
+        scale_data lengthCodeAt enumeration)
+    (witness_calibration :
+      ∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U, ∀ N : Nat,
+        search.witness U hU N =
+          max N (tail_gap.gap_for_polynomial_upper U hU).threshold)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let endpoint :=
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let upper := endpoint.upperTailOfRationality hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let bigN :=
+      (tail_gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).threshold
+    bigN = search.witness upper.U upper.polynomial upper.upperN ∧
+      upper.upperN = 0 ∧
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode bigN)
+          bigN ∧
+          scale_data.powerBoundRawCode bigN =
+            _root_.strengthenedPartialConsistencyCode
+              (scale_data.scale bigN) ∧
+            upper.U bigN < measured bigN ∧
+              measured bigN ≤ upper.U bigN ∧
+                False := by
+  dsimp
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let frontier :=
+    projectLengthTimeBoundTailGapFrontier
+      left_family right_family lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  let endpoint :=
+    projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  let upper := endpoint.upperTailOfRationality hrat
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      fallback
+  let bigN :=
+    (tail_gap.gap_for_polynomial_upper
+      upper.U upper.polynomial).threshold
+  have hcert :=
+    projectLengthExplicitEndpoint_tailGapThresholdCertificate_of_timeBoundTailGap_noFallback
+      left_family right_family lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial hrat
+  have hupperN : upper.upperN = 0 := by
+    simpa [fallback, frontier, endpoint, upper, measured, bigN] using hcert.1
+  have hbig_search :
+      bigN = search.witness upper.U upper.polynomial upper.upperN := by
+    have hsearch :=
+      witness_calibration upper.U upper.polynomial upper.upperN
+    rw [hsearch]
+    simp [bigN, hupperN]
+  exact
+    ⟨hbig_search,
+      hupperN,
+      hcert.2.1,
+      hcert.2.2.1,
+      hcert.2.2.2.1,
+      hcert.2.2.2.2.1,
+      hcert.2.2.2.2.2⟩
 
 /-- Build the strict-scale by-size singleton input from a concrete calibrated
 rejection extractor.  This removes the independent `lengthCodeAt` gap field:
