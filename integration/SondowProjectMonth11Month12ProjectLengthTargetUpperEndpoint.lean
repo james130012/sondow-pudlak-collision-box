@@ -4616,6 +4616,77 @@ theorem projectLengthExplicitUpper_tailGapRawCodeBigNCertificate
       hupper,
       (not_lt_of_ge hupper) hlower⟩
 
+/-- Tail-gap raw-code big-`N` certificate using the concrete length-code
+explicit project-length endpoint as the upper source.  Because that endpoint's
+upper threshold is definitionally `0`, the raw-code collision number is the
+tail-gap threshold itself. -/
+theorem projectLengthExplicitEndpoint_tailGapRawCodeBigNCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetTailGapFrontier
+        scale_data (Ax := Ax) (A := A) (B := B))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let upper := endpoint.upperTailOfRationality hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let gap :=
+      projectLengthTailGapOfTimeBoundCanonicalTailGap
+        fallback frontier upper
+    let bigN := max upper.upperN gap.threshold
+    upper.upperN = 0 ∧
+      bigN = gap.threshold ∧
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN ∧
+        scale_data.powerBoundRawCode bigN =
+          _root_.strengthenedPartialConsistencyCode
+            (scale_data.scale bigN) ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  let endpoint :=
+    projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  let upper := endpoint.upperTailOfRationality hrat
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      fallback
+  let gap :=
+    projectLengthTailGapOfTimeBoundCanonicalTailGap
+      fallback frontier upper
+  let bigN := max upper.upperN gap.threshold
+  have hupperN : upper.upperN = 0 := by
+    simpa [endpoint, upper] using
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier_upperN
+        fallback frontier.concreteLengthCodeFrontier hrat
+  have hbigN : bigN = gap.threshold := by
+    simp [bigN, hupperN]
+  have hcert :=
+    projectLengthExplicitUpper_tailGapRawCodeBigNCertificate
+      fallback frontier upper
+  exact
+    ⟨hupperN,
+      hbigN,
+      hcert.1,
+      hcert.2.1,
+      hcert.2.2.1,
+      hcert.2.2.2.1,
+      hcert.2.2.2.2⟩
+
 /-- Checked-side explicit upper-tail version of
 `projectLengthExplicitUpper_tailGapRawCodeBigNCertificate`.  This is the
 intended numerical handoff: a concrete checked upper-tail certificate is
