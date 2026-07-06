@@ -177,6 +177,134 @@ theorem singletonTailGapFrontier_tailGap_threshold_eq
       (tail_input.tail_gap.gap_for_polynomial_upper U hU).threshold := by
   rfl
 
+/-! ## Search-gap frontier instantiation adapters -/
+
+/-- Build the time-bound canonical search frontier from a primitive
+`lengthCodeAt` search-gap certificate.  The only transport is the audited
+pointwise equality from the primitive length code to the concrete conjunction
+target's `minCheckedCodeSize`. -/
+def timeBoundCanonicalConjIntroTargetSearchFrontierOfLengthCodeSearchGap
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (search_gap :
+      ComputableSearchGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+      scale_data (Ax := Ax) (A := A) (B := B) where
+  left_family := left_family
+  right_family := right_family
+  time_bound_strict := time_bound_strict
+  exponent_ne_zero := exponent_ne_zero
+  gap :=
+    transportComputableSearchGap
+      (by
+        intro m
+        exact_mod_cast lengthCodeAt_eq_conj_source m)
+      search_gap
+  left_length_polynomial := left_length_polynomial
+  right_length_polynomial := right_length_polynomial
+
+theorem timeBoundCanonicalConjIntroTargetSearchFrontierOfLengthCodeSearchGap_witness_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (search_gap :
+      ComputableSearchGapCertificate
+        (fun m : Nat => (lengthCodeAt m : Real)))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (U : Nat → Real) (hU : _root_.is_polynomial_bound U) (N : Nat) :
+    (((timeBoundCanonicalConjIntroTargetSearchFrontierOfLengthCodeSearchGap
+        left_family right_family lengthCodeAt time_bound_strict
+        exponent_ne_zero search_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial).gap
+      |>.gap_for_polynomial_upper U hU).witness N) =
+      (search_gap.gap_for_polynomial_upper U hU).witness N :=
+  rfl
+
+/-- Time-bound canonical search frontier generated from the checked lower-bound
+statement.  This is the proof-complexity-native input: it uses the existing
+`frequently` lower-bound strength and does not require a tail-gap threshold. -/
+noncomputable def timeBoundCanonicalConjIntroTargetSearchFrontierOfCheckedLowerBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (checked_lower :
+      InternalPudlakTheorem5CheckedPowerBoundLowerBound
+        scale_data lengthCodeAt)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+      scale_data (Ax := Ax) (A := A) (B := B) :=
+  timeBoundCanonicalConjIntroTargetSearchFrontierOfLengthCodeSearchGap
+    left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+    (computableSearchGapCertificateOfFrequentlyStrict
+      (fun U hU =>
+        (checked_lower U hU).mono (fun _ hn => by
+          simpa [gt_iff_lt] using hn)))
+    lengthCodeAt_eq_conj_source
+    left_length_polynomial right_length_polynomial
+
 /-! ## Project-length measured object -/
 
 /-- The theorem-5 power-bound family measured by the concrete checker
@@ -3012,6 +3140,139 @@ theorem projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_int
       fallback frontier hrat,
     projectLengthExplicitSearchWitnessOfTimeBoundCanonicalSearchFrontier_not_rational
       fallback frontier⟩
+
+/-- Fallback-free explicit `bigN` for the time-bound search frontier.  This is
+the proof-complexity-native large-number expression: the unconditional target
+upper certificate supplies `upperN`, and the search gap computes the witness at
+that cutoff. -/
+def projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    Nat :=
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let concreteFrontier :=
+    frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+      |>.concreteLengthCodeFrontier
+  let upper :=
+    projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback concreteFrontier
+  (frontier.gap.gap_for_polynomial_upper
+    upper.U upper.polynomial).witness upper.upperN
+
+/-- Certificate for the fallback-free search-style target upper `bigN`.  Unlike
+the tail-gap endpoint, this only needs a search gap: the witness is the
+computed search witness at the unconditional target-upper cutoff. -/
+theorem projectLengthExplicitTargetUpperSearchBigNCertificate_of_timeBoundSearchFrontier_noFallback
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (frontier :
+      Month9Month10TimeBoundCanonicalConjIntroTargetSearchFrontier
+        scale_data (Ax := Ax) (A := A) (B := B)) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let concreteFrontier :=
+      frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+        |>.concreteLengthCodeFrontier
+    let upper :=
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+        fallback concreteFrontier
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data concreteFrontier.lower_search.checkerSemantics fallback
+    let bigN :=
+      projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback
+        frontier
+    upper.upperN = 0 ∧
+      concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN ∧
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode bigN)
+          bigN ∧
+          scale_data.powerBoundRawCode bigN =
+            _root_.strengthenedPartialConsistencyCode
+              (scale_data.scale bigN) ∧
+            upper.U bigN < measured bigN ∧
+              measured bigN ≤ upper.U bigN ∧
+                False := by
+  dsimp [projectLengthExplicitTargetUpperSearchBigN_of_timeBoundSearchFrontier_noFallback]
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let concreteFrontier :=
+    frontier.canonicalFrontier.conjIntroLengthCodeFrontier
+      |>.concreteLengthCodeFrontier
+  let upper :=
+    projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier
+      fallback concreteFrontier
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data concreteFrontier.lower_search.checkerSemantics fallback
+  let bigN :=
+    (frontier.gap.gap_for_polynomial_upper
+      upper.U upper.polynomial).witness upper.upperN
+  let projectGap :=
+    projectLengthSearchGapOfConcreteLengthCodeTargetFrontier
+      fallback concreteFrontier
+  have hproject_bigN :
+      (projectGap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN = bigN := by
+    rfl
+  have hupperN : upper.upperN = 0 := by
+    simpa [upper, concreteFrontier] using
+      projectLengthUpperTailCertificateOfConcreteLengthCodeTargetFrontier_upperN
+        fallback concreteFrontier
+  have hrejection :
+      concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN := by
+    calc
+      concreteFrontier.lower_search.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN =
+          (projectGap.gap_for_polynomial_upper
+            upper.U upper.polynomial).witness upper.upperN := by
+            simpa [projectGap] using
+              (projectLengthSearchGapOfConcreteLengthCodeTargetFrontier_witness_eq_rejectionExtractor
+                fallback concreteFrontier upper.U upper.polynomial
+                upper.upperN).symm
+      _ = bigN := hproject_bigN
+  have haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN :=
+    concretePAHilbertPowerBoundChecker_acceptedProofCode_at_powerBoundRawCode
+      scale_data bigN
+  have hraw :
+      scale_data.powerBoundRawCode bigN =
+        _root_.strengthenedPartialConsistencyCode
+          (scale_data.scale bigN) :=
+    InternalPudlakTheorem5ScaleData.powerBoundRawCode_eq_scaled_strengthened
+      scale_data bigN
+  have hge : upper.upperN ≤ bigN := by
+    simpa [bigN] using
+      (frontier.gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness_ge upper.upperN
+  have hlower : upper.U bigN < measured bigN := by
+    simpa [projectGap, measured, checkerProjectLengthMeasured, bigN,
+      hproject_bigN] using
+      (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).strict_at_witness upper.upperN
+  have hupper : measured bigN ≤ upper.U bigN :=
+    upper.upper_after bigN hge
+  have hfalse : False :=
+    (not_lt_of_ge hupper) hlower
+  exact
+    ⟨hupperN,
+      hrejection,
+      haccepted,
+      hraw,
+      hlower,
+      hupper,
+      hfalse⟩
 
 /-! ## Time-bound canonical tail-gap project-length endpoint -/
 
