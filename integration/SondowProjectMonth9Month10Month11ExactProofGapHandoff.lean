@@ -6578,6 +6578,103 @@ theorem projectLengthDirectEndpoint_full_trace_with_gapWitness
               (hgap_trace.1 upper.U upper.polynomial upper.upperN).1
   exact ⟨hn_gap, hn_rejection, hge, hlower, hupper, hfalse⟩
 
+/-- Explicit-upper project-length certificate for a strict-scale singleton-gap
+input.  This is the evaluator-facing form: once a concrete polynomial upper
+tail is supplied, the collision index is exactly the original input-gap
+witness at `upper.upperN`, and the project-length lower and upper estimates
+collide at that number. -/
+theorem projectLengthExplicitUpper_gapWitnessCertificate
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonGapSearchInput
+        scale_data)
+    (fallback : _root_.FormulaCode → Nat)
+    (upper :
+      PolynomialUpperTailCertificate
+        (month9_month10_checkerProjectLengthMeasured
+          scale_data
+          input.toCanonicalSearchExactnessCore.checkerSemantics.toProofCodeSemantics
+          fallback)) :
+    let core := input.toCanonicalSearchExactnessCore
+    let handoff := core.toProofLengthFreeExtractorHandoff
+    let measured :=
+      month9_month10_checkerProjectLengthMeasured
+        scale_data core.checkerSemantics.toProofCodeSemantics fallback
+    let projectGap := handoff.projectLengthGap fallback
+    let bigN :=
+      (input.gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN
+    (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness upper.upperN = bigN ∧
+      handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN ∧
+        upper.upperN ≤ bigN ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  let core := input.toCanonicalSearchExactnessCore
+  let handoff := core.toProofLengthFreeExtractorHandoff
+  let measured :=
+    month9_month10_checkerProjectLengthMeasured
+      scale_data core.checkerSemantics.toProofCodeSemantics fallback
+  let projectGap := handoff.projectLengthGap fallback
+  let bigN :=
+    (input.gap.gap_for_polynomial_upper
+      upper.U upper.polynomial).witness upper.upperN
+  have hproject_rejection :
+      (projectGap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN =
+        handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN := by
+    simpa [projectGap] using
+      handoff.projectLengthGap_witness_eq_rejectionExtractor
+        fallback upper.U upper.polynomial upper.upperN
+  have hgap_trace := input.canonicalSearchCore_gap_trace
+  have hproject_gap :
+      (projectGap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN = bigN := by
+    calc
+      (projectGap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN =
+          handoff.rejectionExtractor.witness
+            upper.U upper.polynomial upper.upperN := hproject_rejection
+      _ = bigN := by
+          simpa [bigN, handoff,
+            PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff] using
+            (hgap_trace.1 upper.U upper.polynomial upper.upperN).1
+  have hrejection_gap :
+      handoff.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN = bigN :=
+    hproject_rejection.symm.trans hproject_gap
+  have hge : upper.upperN ≤ bigN := by
+    simpa [hproject_gap] using
+      (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).witness_ge upper.upperN
+  have hlower : upper.U bigN < measured bigN := by
+    have hstrict :=
+      (projectGap.gap_for_polynomial_upper
+        upper.U upper.polynomial).strict_at_witness upper.upperN
+    rw [hproject_gap] at hstrict
+    simpa [projectGap, handoff, core,
+      toCanonicalSearchExactnessCore,
+      singletonGapRejectionInputToCanonicalSearchExactnessCore,
+      toSingletonGapRejectionInput,
+      PAHilbertCanonicalSearchExactnessCore.toProofLengthFreeExtractorHandoff,
+      measured] using hstrict
+  have hupper : measured bigN ≤ upper.U bigN := by
+    simpa [core, toCanonicalSearchExactnessCore,
+      singletonGapRejectionInputToCanonicalSearchExactnessCore,
+      toSingletonGapRejectionInput, measured] using
+      upper.upper_after bigN hge
+  exact
+    ⟨hproject_gap,
+      hrejection_gap,
+      hge,
+      hlower,
+      hupper,
+      (not_lt_of_ge hupper) hlower⟩
+
 theorem proofLengthFree_closure_toCheckedPowerBoundLowerBound
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
