@@ -2851,6 +2851,69 @@ theorem cleanComputedWitnessAudit
         upper_provider hrat,
       input.computedCollisionN_eq_tailGapMax upper_provider hrat⟩
 
+/-- Full checked-upper closure for the singleton tail-gap input, with the
+computed witness stated as the explicit `max upperN threshold` number.  This is
+the lower-level proof-length-free endpoint used before the theorem-5
+project-length target layer adds its concrete measured model. -/
+theorem checkedUpperProvider_tailGapMax_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
+        scale_data)
+    (upper_provider :
+      input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+      upper_provider).Audit ∧
+      (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+        upper_provider).endpoint.Audit ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+            upper_provider).computedCollisionNOfRationality hrat =
+            max
+              (checkedSearchUpperTail
+                input.toSearchInput.toProofLengthFreeMonth12Candidate
+                upper_provider hrat).upperN
+              (input.tail_gap.gap_for_polynomial_upper
+                (checkedSearchUpperTail
+                  input.toSearchInput.toProofLengthFreeMonth12Candidate
+                  upper_provider hrat).U
+                (checkedSearchUpperTail
+                  input.toSearchInput.toProofLengthFreeMonth12Candidate
+                  upper_provider hrat).polynomial).threshold) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            (checkedSearchUpperTail
+              input.toSearchInput.toProofLengthFreeMonth12Candidate
+              upper_provider hrat).U
+                ((input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat) <
+              month9_month10_checkedProofCodeMeasured
+                scale_data input.toSearchInput.checkerSemantics.toProofCodeSemantics
+                ((input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+            month9_month10_checkedProofCodeMeasured
+                scale_data input.toSearchInput.checkerSemantics.toProofCodeSemantics
+                ((input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat) ≤
+              (checkedSearchUpperTail
+                input.toSearchInput.toProofLengthFreeMonth12Candidate
+                upper_provider hrat).U
+                ((input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider
+                  upper_provider).computedCollisionNOfRationality hrat)) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  rcases input.toSearchInput.checkedUpperProvider_closure upper_provider with
+    ⟨haudit, hendpoint, _hrejection, hlower, hupper, hfalse, hnot⟩
+  exact
+    ⟨haudit,
+      hendpoint,
+      input.computedCollisionN_eq_tailGapMax upper_provider,
+      hlower,
+      hupper,
+      hfalse,
+      hnot⟩
+
 end ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput
 
 /-! ## Minimal checked-upper residual frontier -/
