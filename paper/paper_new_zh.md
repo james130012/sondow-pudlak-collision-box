@@ -219,6 +219,41 @@ PAHilbertReflectionGraftMinCheckedExactness
 
 并提供从 semantic convention（语义约定）到 exact split minChecked（精确拆分最小已检查码长）的转换。因此当前碰撞盒已经可以实际调用，而不是只停留在叙述层。
 
+### 5.1 可复刻的符号对撞检查点
+
+2026 年 7 月 7 日，仓库发布了一个面向审计的 prerelease（预发布）：
+
+```text
+fcce697-symbolic-collision-checkpoint
+```
+
+该 release（发布）固定到 commit（提交）
+`fcce697c60adfe87d4d33515ff965322962fc994`。它的含义是：在不要求计算具体
+数值 `N` 的前提下，Lean 已经把 checked lower bound（检查下界）接入
+no-fallback target `bigN` certificate（无后备目标大阈值证书），并在同一个
+symbolic witness（符号见证）上形成形式化对撞。核心证书给出同一个 `bigN` 上的
+
+```lean
+upper.U bigN < measured bigN
+measured bigN <= upper.U bigN
+False
+```
+
+因此该版本适合被引用为 reproducible symbolic collision checkpoint
+（可复刻符号对撞检查点）。复刻命令为：
+
+```bash
+git clone git@github.com:james130012/sondow-pudlak-collision-box.git
+cd sondow-pudlak-collision-box
+git checkout fcce697-symbolic-collision-checkpoint
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
+
+这不是 numeric evaluation checkpoint（数值求值检查点）：它没有输出具体自然数
+`N`。它证明的是形式化对撞对象已经闭合到一个可审计的 `bigN` witness（大阈值见证），
+而后续版本再把该 witness（见证）进一步规范化为
+`rejectionExtractor.witness upper.U upper.polynomial 0`（拒绝抽取器见证）。
+
 当前 Lean 公开层已经进一步和项目实例化层分离。项目无关的公开导出路径由下面这些模块给出：
 
 ```lean
@@ -410,7 +445,9 @@ growth gap（增长间隙）、payload truth（载荷真值）和 proof-length c
 1. 一个 Lean-checked conditional collision theorem（Lean 检查的条件性对撞定理）；
 2. 一个清晰的 certificate architecture（证书架构）；
 3. 一个可复验的 axiom ledger（公理账本）；
-4. 一个把未来工作压缩到少数 witness（见证）的路线图。
+4. 一个把未来工作压缩到少数 witness（见证）的路线图；
+5. `fcce697-symbolic-collision-checkpoint` 这样的可复刻 symbolic collision
+   checkpoint（符号对撞检查点）。
 
 不适合公开的表述是：无条件证明欧拉常数无理，或已经内部证明 Pudlak theorem 5（Pudlák 定理 5）与 PA proof-length convention（PA 证明长度约定）。这些边界必须保持清楚。
 

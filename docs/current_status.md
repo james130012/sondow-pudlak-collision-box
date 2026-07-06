@@ -2,9 +2,30 @@
 
 The public repository freezes the interface-level state of the project.
 
+## Reproducible Checkpoint
+
+The release `fcce697-symbolic-collision-checkpoint` is the current public
+symbolic-collision checkpoint. It is pinned to commit
+`fcce697c60adfe87d4d33515ff965322962fc994`.
+
+What it demonstrates:
+
+- `checked_lower` is routed to the no-fallback target `bigN` certificate.
+- The same symbolic `bigN` carries `upper.U bigN < measured bigN`,
+  `measured bigN <= upper.U bigN`, and therefore `False`.
+- The checkpoint is reproducible by checking
+  `integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean`.
+
+What it does not claim:
+
+- It does not compute a concrete numeric value of `N`.
+- It is not an unconditional proof of the irrationality of Euler's constant.
+
 ## Closed Interface Work
 
 - The Sondow/Pudlak collision endpoint is callable.
+- A formal/symbolic collision checkpoint is pinned and released at
+  `fcce697-symbolic-collision-checkpoint`.
 - Exact strengthened-family lengths can be connected to project proof-length
   semantics.
 - Partial-consistency and reflection-graft minChecked exactness are split into

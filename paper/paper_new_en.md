@@ -250,6 +250,41 @@ PAHilbertReflectionGraftMinCheckedExactness
 
 It also provides a conversion from semantic proof-length conventions to the exact split-minChecked input. Thus the collision box is callable, not merely described informally.
 
+### 5.1 Reproducible Symbolic Collision Checkpoint
+
+On July 7, 2026, the repository published an audit-facing prerelease:
+
+```text
+fcce697-symbolic-collision-checkpoint
+```
+
+This release is pinned to commit
+`fcce697c60adfe87d4d33515ff965322962fc994`. Its meaning is precise: without
+requiring a concrete numeric value of `N`, Lean routes the checked lower bound
+into the no-fallback target `bigN` certificate and obtains a formal collision
+at the same symbolic witness. The certificate packages, for one `bigN`,
+
+```lean
+upper.U bigN < measured bigN
+measured bigN <= upper.U bigN
+False
+```
+
+Thus this release can be cited as a reproducible symbolic collision checkpoint.
+The reproduction commands are:
+
+```bash
+git clone git@github.com:james130012/sondow-pudlak-collision-box.git
+cd sondow-pudlak-collision-box
+git checkout fcce697-symbolic-collision-checkpoint
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
+
+This is not a numeric evaluation checkpoint: it does not print a concrete
+natural number `N`. It proves that the formal collision object is closed around
+an auditable `bigN` witness. A later commit further normalizes that witness to
+`rejectionExtractor.witness upper.U upper.polynomial 0`.
+
 The public Lean layer is now separated from the project-specific
 instantiation layer.  The project-independent export path is exposed through
 
@@ -458,7 +493,9 @@ The present manuscript is best read as the paper accompanying a public-alpha res
 1. a Lean-checked conditional collision theorem;
 2. a precise certificate architecture;
 3. a reproducible axiom ledger;
-4. a roadmap reducing future work to a small number of explicit witnesses.
+4. a roadmap reducing future work to a small number of explicit witnesses;
+5. reproducible symbolic collision checkpoints such as
+   `fcce697-symbolic-collision-checkpoint`.
 
 The inappropriate claims are: an unconditional proof of the irrationality of Euler's constant, or an internal Lean proof of Pudlak's Theorem 5 and the PA proof-length convention. These boundaries must remain explicit.
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>欧拉常数无理性的条件性证明复杂度对撞框架</title>
-  <meta name="description" content="欧拉常数无理性的条件性证明复杂度对撞框架：中文论文与英文完整论文。">
+  <meta name="description" content="欧拉常数无理性的条件性证明复杂度对撞框架：中文论文、英文完整论文与可复刻符号对撞检查点。">
   <script>
     window.MathJax = {
       tex: {
@@ -202,6 +202,43 @@
       box-shadow: 0 14px 30px rgba(23, 19, 15, 0.22);
     }
 
+    .checkpoint-panel {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      max-width: 860px;
+      margin-top: 28px;
+      padding: 18px;
+      border: 1px solid rgba(35, 90, 100, 0.24);
+      border-radius: 12px;
+      background: rgba(255, 253, 248, 0.64);
+      box-shadow: 0 14px 34px rgba(35, 90, 100, 0.1);
+    }
+
+    .checkpoint-panel strong {
+      color: var(--accent-2);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .checkpoint-panel p {
+      margin: 0;
+      max-width: none;
+      font-size: 16px;
+      line-height: 1.58;
+    }
+
+    .checkpoint-panel code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(23, 19, 15, 0.07);
+      font-family: var(--mono);
+      font-size: 0.9em;
+    }
+
     .paper-sheet {
       position: relative;
       margin: 34px auto;
@@ -389,6 +426,7 @@
       <div class="navlinks">
         <a href="#chinese-paper">中文论文</a>
         <a href="#english-paper">English paper</a>
+        <a href="current_status.md">Status</a>
         <a href="https://github.com/james130012/sondow-pudlak-collision-box">GitHub</a>
       </div>
     </nav>
@@ -400,11 +438,29 @@
         中文完整论文直接展示在首页，版式接近论文 PDF（便于阅读与审计）。英文完整论文放在中文论文之后。
         LaTeX 公式由 MathJax（数学公式渲染器）排版，避免 GitHub Markdown 对小于号等符号的误解析。
       </p>
+      <div class="checkpoint-panel">
+        <strong>Reproducible symbolic collision checkpoint</strong>
+        <p>
+          当前公开检查点为
+          <a href="https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/fcce697-symbolic-collision-checkpoint">fcce697-symbolic-collision-checkpoint</a>：
+          Lean（证明器）已在同一个 <code>bigN</code>（大阈值）上检查
+          <code>upper.U bigN &lt; measured bigN</code> 与
+          <code>measured bigN &lt;= upper.U bigN</code> 的形式化对撞。它不是具体数值
+          <code>N</code>（阈值）的求值结果，也不是无条件证明 γ 无理性的最终版本。
+        </p>
+        <p>
+          复刻命令：
+          <code>git checkout fcce697-symbolic-collision-checkpoint</code>，
+          然后运行
+          <code>lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean</code>。
+        </p>
+      </div>
       <div class="paper-actions">
         <a class="primary" href="#chinese-paper">阅读中文论文</a>
         <a href="#english-paper">Read English Paper</a>
-        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/main/paper/paper_new_zh.md">中文源文件</a>
-        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/main/paper/paper_new_en.md">English source</a>
+        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/codex/month9-10-internal-lower-machine-continuation/paper/paper_new_zh.md">中文源文件</a>
+        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/codex/month9-10-internal-lower-machine-continuation/paper/paper_new_en.md">English source</a>
+        <a href="https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/fcce697-symbolic-collision-checkpoint">Release</a>
       </div>
     </header>
 
@@ -436,7 +492,7 @@
   </main>
 
   <script>
-    const rawBase = 'https://raw.githubusercontent.com/james130012/sondow-pudlak-collision-box/main/';
+    const rawBase = 'https://raw.githubusercontent.com/james130012/sondow-pudlak-collision-box/codex/month9-10-internal-lower-machine-continuation/';
 
     function extractDisplayMath(markdown) {
       const blocks = [];
