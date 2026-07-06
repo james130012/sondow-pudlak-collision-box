@@ -4687,6 +4687,134 @@ theorem projectLengthExplicitEndpoint_tailGapRawCodeBigNCertificate
       hcert.2.2.2.1,
       hcert.2.2.2.2⟩
 
+/-- Singleton-input form of
+`projectLengthExplicitEndpoint_tailGapRawCodeBigNCertificate`.  The final
+large `N` is stated directly as the threshold of the original tail-gap input,
+not merely as the transported frontier threshold. -/
+theorem projectLengthExplicitEndpoint_tailGapRawCodeBigNCertificate_of_singletonTailGapInput
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let frontier :=
+      timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+        left_family right_family time_bound_strict exponent_ne_zero
+        tail_input lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let endpoint :=
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let upper := endpoint.upperTailOfRationality hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let gap :=
+      projectLengthTailGapOfTimeBoundCanonicalTailGap
+        fallback frontier upper
+    let bigN :=
+      (tail_input.tail_gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).threshold
+    upper.upperN = 0 ∧
+      gap.threshold = bigN ∧
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN ∧
+        scale_data.powerBoundRawCode bigN =
+          _root_.strengthenedPartialConsistencyCode
+            (scale_data.scale bigN) ∧
+          upper.U bigN < measured bigN ∧
+            measured bigN ≤ upper.U bigN ∧
+              False := by
+  dsimp
+  let frontier :=
+    timeBoundCanonicalConjIntroTargetTailGapFrontierOfSingletonTailGapInput
+      left_family right_family time_bound_strict exponent_ne_zero
+      tail_input lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  let endpoint :=
+    projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  let upper := endpoint.upperTailOfRationality hrat
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      fallback
+  let gap :=
+    projectLengthTailGapOfTimeBoundCanonicalTailGap
+      fallback frontier upper
+  let bigN :=
+    (tail_input.tail_gap.gap_for_polynomial_upper
+      upper.U upper.polynomial).threshold
+  have hgap : gap.threshold = bigN := by
+    simpa [frontier, gap, bigN,
+      projectLengthTailGapOfTimeBoundCanonicalTailGap] using
+      singletonTailGapFrontier_tailGap_threshold_eq
+        left_family right_family time_bound_strict exponent_ne_zero
+        tail_input lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+        upper.U upper.polynomial
+  have hupperN : upper.upperN = 0 := by
+    simpa [frontier, endpoint, upper] using
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier_upperN
+        fallback frontier.concreteLengthCodeFrontier hrat
+  have haccepted :
+      PAHilbertAcceptedProofCodeForFormulaCode
+        (concretePAHilbertPowerBoundChecker scale_data)
+        (scale_data.powerBoundRawCode bigN)
+        bigN :=
+    concretePAHilbertPowerBoundChecker_acceptedProofCode_at_powerBoundRawCode
+      scale_data bigN
+  have hraw :
+      scale_data.powerBoundRawCode bigN =
+        _root_.strengthenedPartialConsistencyCode
+          (scale_data.scale bigN) :=
+    InternalPudlakTheorem5ScaleData.powerBoundRawCode_eq_scaled_strengthened
+      scale_data bigN
+  have hthreshold : gap.threshold ≤ bigN := by
+    rw [hgap]
+  have hupperN_le : upper.upperN ≤ bigN := by
+    rw [hupperN]
+    exact Nat.zero_le bigN
+  have hlower : upper.U bigN < measured bigN :=
+    gap.strict_after bigN hthreshold
+  have hupper : measured bigN ≤ upper.U bigN :=
+    upper.upper_after bigN hupperN_le
+  exact
+    ⟨hupperN,
+      hgap,
+      haccepted,
+      hraw,
+      hlower,
+      hupper,
+      (not_lt_of_ge hupper) hlower⟩
+
 /-- Checked-side explicit upper-tail version of
 `projectLengthExplicitUpper_tailGapRawCodeBigNCertificate`.  This is the
 intended numerical handoff: a concrete checked upper-tail certificate is
