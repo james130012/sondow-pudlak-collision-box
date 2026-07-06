@@ -8864,6 +8864,177 @@ theorem projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFr
     projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier_closure
       fallback frontier.concreteLengthCodeFrontier
 
+/-! ## Payload-free Local-Hilbert explicit project-length witness -/
+
+/-- Computed collision witness selected by the payload-free Local-Hilbert
+explicit project-length endpoint.  This uses the endpoint's explicit upper tail,
+so the selected upper threshold is definitionally the `0` threshold certified
+above. -/
+noncomputable def projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ComputedSearchCollisionWitness
+      ((projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier).upperTailOfRationality hrat).U
+      (checkerProjectLengthMeasured
+        scale_data frontier.lowerSearch.checkerSemantics fallback) :=
+  (projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+    fallback frontier).computedWitnessOfRationality hrat
+
+theorem projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+      fallback frontier hrat).n =
+      frontier.lowerSearch.rejectionExtractor.witness
+        ((projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).U
+        ((projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+          fallback frontier).upperTailOfRationality hrat).polynomial
+        0 := by
+  simpa [
+    projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier,
+    ProjectLengthExplicitMeasuredDirectCollisionEndpoint.computedCollisionNOfRationality] using
+    projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_computed_n_eq
+      fallback frontier hrat
+
+theorem projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_upperN
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ((projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+      fallback frontier).upperTailOfRationality hrat).upperN = 0 :=
+  projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_upperN
+    fallback frontier hrat
+
+theorem projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_contradiction
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    False :=
+  (projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+    fallback frontier hrat).contradiction
+
+theorem projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat =>
+    projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_contradiction
+      fallback frontier hrat
+
+theorem projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (fallback : _root_.FormulaCode → Nat)
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    {local_interpretation :
+      _root_.MiniHilbert.LocalFormulaCodeHilbertInterpretation A B}
+    {target_family :
+      _root_.MiniHilbert.ConcreteProofFamily Ax
+        (fun m => A m ⊓ B m)}
+    (frontier :
+      Month9Month10PayloadFreeLocalHilbertLengthCodeTargetFrontier
+        scale_data local_interpretation target_family)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let endpoint :=
+      projectLengthExplicitEndpointOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier
+    let witness :=
+      projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier hrat
+    witness.n =
+      frontier.lowerSearch.rejectionExtractor.witness
+        (endpoint.upperTailOfRationality hrat).U
+        (endpoint.upperTailOfRationality hrat).polynomial
+        0 ∧
+      (endpoint.upperTailOfRationality hrat).upperN = 0 ∧
+      (endpoint.upperTailOfRationality hrat).upperN ≤ witness.n ∧
+      (endpoint.upperTailOfRationality hrat).U witness.n <
+        checkerProjectLengthMeasured
+          scale_data frontier.lowerSearch.checkerSemantics fallback
+          witness.n ∧
+      checkerProjectLengthMeasured
+          scale_data frontier.lowerSearch.checkerSemantics fallback
+          witness.n ≤
+        (endpoint.upperTailOfRationality hrat).U witness.n ∧
+      False ∧
+      ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  exact
+    ⟨projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_n_eq
+        fallback frontier hrat,
+      projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_upperN
+        fallback frontier hrat,
+      (projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier hrat).n_ge_upper,
+      (projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier hrat).lower_at_n,
+      (projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier
+        fallback frontier hrat).upper_at_n,
+      projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_contradiction
+        fallback frontier hrat,
+      projectLengthExplicitComputedWitnessOfPayloadFreeLocalHilbertLengthCodeTargetFrontier_not_rational
+        fallback frontier⟩
+
 /-! ## Local-Hilbert explicit project-length witness -/
 
 /-- Explicit project-length collision witness for the Local-Hilbert length-code
