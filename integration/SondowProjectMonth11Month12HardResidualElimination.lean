@@ -3596,6 +3596,46 @@ theorem projectLengthThreshold_not_rational_eq_singletonTailGapWitnessOfTimeBoun
       exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
       left_length_polynomial right_length_polynomial hrat).2.2.2.2.2.2
 
+/-- Closed clean project-length endpoint from an eventual strict length lower
+bound, calibrated through the singleton tail-gap witness route.  This is the
+hard-residual counterpart of the payload-free endpoint: it extracts the
+tail-gap certificate internally and keeps the final witness tied to the
+singleton rejection extractor. -/
+theorem projectLengthThreshold_not_rational_eq_singletonTailGapWitnessOfEventuallyStrictLengthTimeBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (lengthCodeAt : Nat → Nat)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (eventually_strict_length :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U →
+        ∀ᶠ m in Filter.atTop, U m < (lengthCodeAt m : Real))
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  projectLengthThreshold_not_rational_eq_singletonTailGapWitnessOfTimeBound
+    left_family right_family lengthCodeAt time_bound_strict exponent_ne_zero
+    (ComputableGapCertificate.ofEventuallyStrict eventually_strict_length)
+    lengthCodeAt_eq_conj_source
+    left_length_polynomial right_length_polynomial
+
 /-- Tail-input form of the clean singleton project-length threshold certificate.
 The caller supplies the existing strict-scale singleton tail-gap package; the
 certificate uses its own singleton extractor and pins the endpoint threshold to
