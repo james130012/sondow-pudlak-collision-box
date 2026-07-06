@@ -3596,6 +3596,162 @@ theorem projectLengthThreshold_not_rational_eq_singletonTailGapWitnessOfTimeBoun
       exponent_ne_zero tail_gap lengthCodeAt_eq_conj_source
       left_length_polynomial right_length_polynomial hrat).2.2.2.2.2.2
 
+/-- Tail-input form of the clean singleton project-length threshold certificate.
+The caller supplies the existing strict-scale singleton tail-gap package; the
+certificate uses its own singleton extractor and pins the endpoint threshold to
+that extractor's explicit witness. -/
+theorem projectLengthThresholdCertificate_eq_singletonTailGapInputWitnessOfTimeBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let fallback : _root_.FormulaCode → Nat := fun _ => 0
+    let frontier :=
+      projectLengthTimeBoundTailGapFrontier
+        left_family right_family tail_input.lengthCodeAt time_bound_strict
+        exponent_ne_zero tail_input.tail_gap lengthCodeAt_eq_conj_source
+        left_length_polynomial right_length_polynomial
+    let endpoint :=
+      projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+        fallback frontier.concreteLengthCodeFrontier
+    let upper := endpoint.upperTailOfRationality hrat
+    let measured :=
+      checkerProjectLengthMeasured
+        scale_data
+        frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+        fallback
+    let bigN :=
+      (tail_input.tail_gap.gap_for_polynomial_upper
+        upper.U upper.polynomial).threshold
+    let singleton :=
+      singletonGapRejectionInputOfTailGap
+        tail_input.lengthCodeAt
+        tail_input.toSearchInput.powerBoundRawCode_injective
+        tail_input.tail_gap
+    bigN = singleton.toCheckerExtractor.witness
+        upper.U upper.polynomial upper.upperN ∧
+      upper.upperN = 0 ∧
+        PAHilbertAcceptedProofCodeForFormulaCode
+          (concretePAHilbertPowerBoundChecker scale_data)
+          (scale_data.powerBoundRawCode bigN)
+          bigN ∧
+          scale_data.powerBoundRawCode bigN =
+            _root_.strengthenedPartialConsistencyCode
+              (scale_data.scale bigN) ∧
+            upper.U bigN < measured bigN ∧
+              measured bigN ≤ upper.U bigN ∧
+                False := by
+  dsimp
+  let fallback : _root_.FormulaCode → Nat := fun _ => 0
+  let frontier :=
+    projectLengthTimeBoundTailGapFrontier
+      left_family right_family tail_input.lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_input.tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial
+  let endpoint :=
+    projectLengthExplicitEndpointOfConcreteLengthCodeTargetFrontier
+      fallback frontier.concreteLengthCodeFrontier
+  let upper := endpoint.upperTailOfRationality hrat
+  let measured :=
+    checkerProjectLengthMeasured
+      scale_data
+      frontier.concreteLengthCodeFrontier.lower_search.checkerSemantics
+      fallback
+  let bigN :=
+    (tail_input.tail_gap.gap_for_polynomial_upper
+      upper.U upper.polynomial).threshold
+  let singleton :=
+    singletonGapRejectionInputOfTailGap
+      tail_input.lengthCodeAt
+      tail_input.toSearchInput.powerBoundRawCode_injective
+      tail_input.tail_gap
+  have hcert :=
+    projectLengthExplicitEndpoint_tailGapThresholdCertificate_of_timeBoundTailGap_noFallback
+      left_family right_family tail_input.lengthCodeAt time_bound_strict
+      exponent_ne_zero tail_input.tail_gap lengthCodeAt_eq_conj_source
+      left_length_polynomial right_length_polynomial hrat
+  have hupperN : upper.upperN = 0 := by
+    simpa [fallback, frontier, endpoint, upper, measured, bigN, singleton] using
+      hcert.1
+  have hbig_singleton :
+      bigN =
+        singleton.toCheckerExtractor.witness
+          upper.U upper.polynomial upper.upperN := by
+    have hwitness :=
+      singletonGapRejectionInputOfTailGap_witness_eq_max
+        tail_input.lengthCodeAt
+        tail_input.toSearchInput.powerBoundRawCode_injective
+        tail_input.tail_gap upper.U upper.polynomial upper.upperN
+    rw [hwitness]
+    simp [bigN, hupperN]
+  exact
+    ⟨hbig_singleton,
+      hupperN,
+      hcert.2.1,
+      hcert.2.2.1,
+      hcert.2.2.2.1,
+      hcert.2.2.2.2.1,
+      hcert.2.2.2.2.2⟩
+
+/-- Closed clean project-length endpoint from the existing strict-scale
+singleton tail-gap package.  This is the most compact current clean surface:
+time-bound theorem-5 scale data, two proof-family length bounds, source-code
+equality, and one singleton tail-gap input. -/
+theorem projectLengthThreshold_not_rational_eq_singletonTailGapInputWitnessOfTimeBound
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {L : _root_.FirstOrder.Language.{u, v}} {α : Type w} {n : Nat}
+    {Ax : L.BoundedFormula α n → Prop}
+    {A B : Nat → L.BoundedFormula α n}
+    (left_family : _root_.MiniHilbert.ConcreteProofFamily Ax A)
+    (right_family : _root_.MiniHilbert.ConcreteProofFamily Ax B)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (tail_input :
+      ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
+    (lengthCodeAt_eq_conj_source :
+      ∀ m : Nat,
+        tail_input.lengthCodeAt m =
+          ((left_family.conjIntro right_family)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))
+    (left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real left_family.length))
+    (right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real right_family.length)) :
+    ¬ _root_.is_rational _root_.euler_mascheroni :=
+  fun hrat =>
+    (projectLengthThresholdCertificate_eq_singletonTailGapInputWitnessOfTimeBound
+      left_family right_family time_bound_strict exponent_ne_zero tail_input
+      lengthCodeAt_eq_conj_source left_length_polynomial
+      right_length_polynomial hrat).2.2.2.2.2.2
+
 /-- Concrete project-length threshold certificate calibrated to an executable
 rejection-search witness.  The remaining executable-search obligation is the
 pointwise calibration
