@@ -1,48 +1,48 @@
 # Current Formal Status
 
-The public repository freezes the interface-level state of the project.
+The current public artifact is a Lean-checked Sondow-Pudlak symbolic collision
+checkpoint. It should be read as a reproducible formal certificate for the
+same-`bigN` collision core, not as a final unconditional proof of the
+irrationality of Euler's constant.
 
 ## Reproducible Checkpoint
 
-The release `fcce697-symbolic-collision-checkpoint` is the current public
-symbolic-collision checkpoint. It is pinned to commit
+The release `fcce697-symbolic-collision-checkpoint` is pinned to commit
 `fcce697c60adfe87d4d33515ff965322962fc994`.
 
-What it demonstrates:
+It demonstrates:
 
-- `checked_lower` is routed to the no-fallback target `bigN` certificate.
-- The same symbolic `bigN` carries `upper.U bigN < measured bigN`,
-  `measured bigN <= upper.U bigN`, and therefore `False`.
-- The checkpoint is reproducible by checking
-  `integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean`.
+- The checked lower-bound route reaches the fallback-free target-upper `bigN`
+  certificate.
+- The same symbolic `bigN` carries both
+  `upper.U bigN < measured bigN` and `measured bigN <= upper.U bigN`.
+- The Lean certificate therefore derives `False` at that same `bigN`.
+- The follow-up normal form identifies the computation target as the rejection
+  extractor witness at threshold `0`.
 
-What it does not claim:
+It does not claim:
 
-- It does not compute a concrete numeric value of `N`.
-- It is not an unconditional proof of the irrationality of Euler's constant.
+- a printed concrete numeric value of `N`;
+- an unconditional proof of the irrationality of Euler's constant;
+- a parameter-free internal construction of every Sondow/Pudlak input.
 
-## Closed Interface Work
+## Closed Formal Work
 
-- The Sondow/Pudlak collision endpoint is callable.
-- A formal/symbolic collision checkpoint is pinned and released at
-  `fcce697-symbolic-collision-checkpoint`.
-- Exact strengthened-family lengths can be connected to project proof-length
-  semantics.
-- Partial-consistency and reflection-graft minChecked exactness are split into
-  separate certificates.
-- Semantic proof-length convention inputs can be converted into the exact split
-  minChecked collision input.
-- The Month 7 final theorem surface separates the proof-length-free
-  `GenericRationalCollisionInputs` skeleton from the project proof-length
-  instantiation layer.
-- The Month 7 pre-merge audit certificate relates the public residual inputs,
-  the minimal theorem surface, and the Month 8 residual frontier.
+- The formal collision kernel is callable and reproducible.
+- The checked lower-bound input is connected to the no-fallback target-upper
+  route.
+- The target `bigN` is identified with
+  `rejectionExtractor.witness upper.U upper.polynomial 0`.
+- The contradiction package contains the two opposite inequalities and `False`
+  for one shared witness.
+- The project has separated the public collision kernel from the
+  project-specific checker/project-length instantiation layer.
 
-## Open Internalization Work
+## Remaining Work
 
-- Internal Pudlak theorem 5 lower bound.
-- Internal PA/Hilbert proof-length convention.
-- Internal Sondow parameter-free verifier and infrastructure package.
-- Structured replacement for payload-truth axioms.
-- Elimination or internalization of `Month8ProofLengthResidualFrontier`.
-- Elimination or internalization of `Month8PayloadLiteratureResidualFrontier`.
+- Numeric extraction of the concrete natural number `N`.
+- Parameter-free construction or exact citation of the external Sondow and
+  Pudlak mathematical inputs used by the checked-lower interface.
+- Internal or fully audited treatment of the payload semantics.
+- Publication-grade appendices for theorem names, axiom audits, release tags,
+  and reproduction commands.

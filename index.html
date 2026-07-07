@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>欧拉常数无理性的条件性证明复杂度对撞框架</title>
-  <meta name="description" content="欧拉常数无理性的条件性证明复杂度对撞框架：中文论文、英文完整论文与可复刻符号对撞检查点。">
+  <title>Lean 检查的 Sondow-Pudlak 符号对撞证书</title>
+  <meta name="description" content="Lean 检查的 Sondow-Pudlak 符号对撞证书：中文论文、英文完整论文与可复刻检查点。">
   <script>
     window.MathJax = {
       tex: {
@@ -432,11 +432,12 @@
     </nav>
 
     <header class="hero">
-      <span class="eyebrow">Paper reader with MathJax</span>
-      <h1>欧拉常数无理性的条件性证明复杂度对撞框架</h1>
+      <span class="eyebrow">Lean-checked symbolic collision certificate</span>
+      <h1>Lean 检查的 Sondow-Pudlak 符号对撞证书</h1>
       <p>
-        中文完整论文直接展示在首页，版式接近论文 PDF（便于阅读与审计）。英文完整论文放在中文论文之后。
-        LaTeX 公式由 MathJax（数学公式渲染器）排版，避免 GitHub Markdown 对小于号等符号的误解析。
+        当前稿件按专家审计口径重写：主结果是同一个 <code>bigN</code>（大阈值）上的
+        Lean（证明器）检查对撞证书，而不是施工时间线说明。中文论文直接展示在首页，
+        英文完整论文放在中文论文之后。
       </p>
       <div class="checkpoint-panel">
         <strong>Reproducible symbolic collision checkpoint</strong>
@@ -445,21 +446,20 @@
           <a href="https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/fcce697-symbolic-collision-checkpoint">fcce697-symbolic-collision-checkpoint</a>：
           Lean（证明器）已在同一个 <code>bigN</code>（大阈值）上检查
           <code>upper.U bigN &lt; measured bigN</code> 与
-          <code>measured bigN &lt;= upper.U bigN</code> 的形式化对撞。它不是具体数值
-          <code>N</code>（阈值）的求值结果，也不是无条件证明 γ 无理性的最终版本。
+          <code>measured bigN &lt;= upper.U bigN</code>，并推出 <code>False</code>。
+          后续规范形把该 <code>bigN</code>（大阈值）校准为
+          <code>rejectionExtractor.witness upper.U upper.polynomial 0</code>。
         </p>
         <p>
-          复刻命令：
-          <code>git checkout fcce697-symbolic-collision-checkpoint</code>，
-          然后运行
-          <code>lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean</code>。
+          这不是具体数值 <code>N</code>（阈值）的求值结果，也不是无条件证明 γ 无理性的最终版本。
+          精确复刻步骤见 release（发布）说明。
         </p>
       </div>
       <div class="paper-actions">
         <a class="primary" href="#chinese-paper">阅读中文论文</a>
         <a href="#english-paper">Read English Paper</a>
-        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/codex/month9-10-internal-lower-machine-continuation/paper/paper_new_zh.md">中文源文件</a>
-        <a href="https://github.com/james130012/sondow-pudlak-collision-box/blob/codex/month9-10-internal-lower-machine-continuation/paper/paper_new_en.md">English source</a>
+        <a href="paper/paper_new_zh.md">中文 Markdown</a>
+        <a href="paper/paper_new_en.md">English Markdown</a>
         <a href="https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/fcce697-symbolic-collision-checkpoint">Release</a>
       </div>
     </header>
@@ -492,7 +492,7 @@
   </main>
 
   <script>
-    const rawBase = 'https://raw.githubusercontent.com/james130012/sondow-pudlak-collision-box/codex/month9-10-internal-lower-machine-continuation/';
+    const rawBase = './';
 
     function extractDisplayMath(markdown) {
       const blocks = [];
