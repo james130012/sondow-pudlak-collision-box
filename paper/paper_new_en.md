@@ -1,18 +1,28 @@
-# A Conditional Proof-Complexity Collision Framework for the Irrationality of Euler's Constant
+# A Lean-Checked Sondow-Pudlak Symbolic Collision Certificate
 
 ## Abstract
 
-The irrationality of the Euler-Mascheroni constant γ remains open. This paper does not claim an unconditional proof of γ ∉ ℚ. Instead, it formulates a conditional proof-complexity framework in which Sondow's criterion supplies a rationality-to-short-proof collapse, while Pudlak-Friedman-Buss finite consistency lower bounds supply a long-proof obstruction. The central point is not merely to have an upper bound and a lower bound, but to place both on the same formula family, in the same proof system, and under the same proof-length measure. A Lean 4 formalization checks the interface-level composition: once the stated external mathematical inputs and proof-length calibration witnesses are supplied, the formal chain derives
+This paper reports a Lean 4 checked Sondow-Pudlak symbolic collision certificate. Given the formal interfaces for a checked lower bound, an explicit target upper bound, scale data, and checker/project-length semantics, Lean routes both sides to the same fallback-free `bigN` and proves
 
-```math
-\neg \mathrm{is\_rational}(\gamma).
+```lean
+upper.U bigN < measured bigN
+measured bigN ≤ upper.U bigN
+False
 ```
 
-The contribution is to turn a broad Gödel-speedup heuristic into a precise conditional collision theorem, with the remaining mathematical risks isolated in explicit certificates.
+This is not an informal collision described outside the proof assistant: `bigN`, `measured`, `upper.U`, and the two opposite inequalities occur in one Lean theorem. A further computation-facing normal form proves that this `bigN` is exactly
 
-Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency; proof complexity; Peano Arithmetic; Lean 4; conditional theorem.
+```lean
+rejectionExtractor.witness upper.U upper.polynomial 0
+```
 
-## 1. The Problem and the Strategy
+Thus the current result does not merely assume the existence of some large threshold. It identifies the formal witness with the checker rejection extractor at threshold zero.
+
+The paper does not claim an unconditional proof that the Euler-Mascheroni constant γ is irrational, and it does not claim to print a concrete numeric value of `N`. The precise claim is that, inside the project checked-lower interface, the formal collision core between the Sondow upper side and the Pudlak-type lower side is closed and reproducible.
+
+Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency; proof complexity; Peano Arithmetic; Lean 4; symbolic collision.
+
+## 1. Problem and Target
 
 The Euler-Mascheroni constant is
 
@@ -20,490 +30,172 @@ The Euler-Mascheroni constant is
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right).
 ```
 
-Unlike π and e, the arithmetic status of γ is unknown. Sondow's work gives integral and product criteria related to the rationality of γ. In broad terms, these criteria connect rationality of γ with eventual identities involving fractional parts of logarithmic products. If such identities can be represented by compressed certificates, then the rationality hypothesis may induce a proof-length collapse.
+Whether γ is rational remains open. Sondow's criterion relates rationality of γ to integral, product, and fractional-part conditions. The Pudlak-Friedman-Buss line of work gives proof-length lower bounds for finite consistency statements. This project studies whether these two sources can be made to collide on one formal measurement coordinate.
 
-This observation alone cannot prove irrationality. A contradiction requires a lower bound for the same formula family, in the same formal system, and under the same length measure. At present there is no standard proof-complexity lower bound for the natural Sondow certificate family itself. Therefore this paper follows a more conservative model route: the Sondow certificate is combined with a finite-consistency or reflection payload, allowing the lower-bound side to use Pudlak-Friedman-Buss finite consistency lower bounds.
+A valid collision requires three facts.
 
-This route is less natural than proving a lower bound for the native Sondow family, but it has a precise target: a collision between a short-proof upper bound and a long-proof lower bound on one common proof-complexity coordinate.
+1. The upper side must supply an eventual upper bound for a measured function.
+2. The lower side must supply a strict lower or gap statement for the same measured function.
+3. Both sides must use the same `bigN` and the same checker/project-length semantics.
 
-## 2. The Three Objects: Upper Bound, Lower Bound, and Common Box
+The first two facts are not enough in isolation. If the upper and lower bounds measure different objects, no contradiction follows. The formal contribution is to turn the phrase “the same object” into a Lean-checkable theorem.
 
-We separate three objects.
+## 2. The Common Measurement Object
 
-First, A denotes the Sondow collapse side. It is not a single formula, but a mechanism by which the assumption γ ∈ ℚ yields a family of short, checkable certificates.
+The common measurement object has three layers.
 
-Second, B denotes the Pudlak-Friedman-Buss lower-bound side. It acts on finite consistency or reflection formulas, such as statements asserting that there is no PA proof of contradiction of length at most n. This side comes from proof-length lower bounds, not from Sondow's analysis.
+The first is the formula/code layer. All formula families to be compared must enter the same local code family; otherwise the Pudlak lower side and the Sondow certificate side are not jointly measurable.
 
-Third, C is the common measurement object. It must receive both the short-proof upper bound from A and the lower bound from B. If the two sides live in different encodings, proof systems, or length measures, no contradiction follows. The core question is therefore whether both sides can be projected to the same C.
+The second is the checker layer. The project uses a local Hilbert/PA-style proof checker to connect proof objects and formula codes. The relevant quantity is not an informal text length but the minimum checked-code size or project length recognized by the checker.
 
-In the Lean model this common coordinate is represented by:
+The third is the gap/search layer. For each polynomial upper bound, the lower-side rejection extractor supplies a witness at which the strict gap holds. The current endpoint fixes the target cutoff at zero, giving a fallback-free search witness.
+
+In this coordinate, the collision has the form
+
+```math
+U(N) < M(N) \quad\text{and}\quad M(N) \le U(N).
+```
+
+Here `M` is the formal `measured` function, `U` is `upper.U`, and `N` is the same `bigN`. Together the two inequalities prove `False`.
+
+## 3. Current Main Result
+
+The current main result is summarized by the Lean theorem
 
 ```lean
-FormulaCode
-ProofSystem.PA
-ProofLengthMeasure.symbolSize
+projectLengthExplicitTargetUpperSearchBigNCertificate_of_checkedLowerBound_noFallback
 ```
 
-All formula families are encoded as `FormulaCode`; all proof lengths are interpreted as PA symbol-size proof lengths. This is the main difference between the present framework and an informal Gödel-speedup narrative.
-
-### 2.1 The Core Collision Equation
-
-The central idea can be compressed into a proof-length collision pattern. Let C_n be the final family in the common measurement box. Under the rationality assumption, the Sondow-collapse side is expected to give an upper bound
-
-```math
-\mathrm{Len}_{PA}(C_n)\le U(n),
-```
-
-where Len_PA denotes PA symbol-size proof length and U(n) is the bound produced by the short-certificate verification mechanism. On the other hand, the Pudlak-Friedman-Buss lower-bound side is expected to give
-
-```math
-L(n)\le \mathrm{Len}_{PA}(C_n).
-```
-
-If the calibrations identify the middle term as the same object, then the first two inequalities combine into
-
-```math
-L(n)\le \mathrm{Len}_{PA}(C_n)\le U(n),
-```
-
-and therefore imply
-
-```math
-L(n)\le U(n).
-```
-
-This also requires an independent gap condition, or growth-domination certificate. It does not follow automatically from the fact that the Pudlak side supplies a long-proof lower bound; the lower bound alone only says that
-`\mathrm{Len}_{PA}(C_n)` is at least `L(n)`. For a collision, one must also prove, or explicitly assume as an input, that the Sondow-side upper-bound function `U(n)` is eventually strictly smaller than the Pudlak-side lower-bound function `L(n)`. That is, if at the same time, for all sufficiently large n,
-
-```math
-U(n)\lt L(n),
-```
-
-then a contradiction follows. Thus the real content of the project is not merely to exhibit one upper bound and one lower bound, but to prove that their middle term is literally the same proof-length coordinate:
-
-```math
-\mathrm{Len}_{PA}^{Sondow}(C_n)
-=
-\mathrm{Len}_{PA}^{Pudlak}(C_n)
-=
-\mathrm{proof\_length}\; ProofSystem.PA\; ProofLengthMeasure.symbolSize\; C_n.
-```
-
-This explains why proof-length calibration is central. Without calibration, the upper and lower bounds may both be true but incomparable. With calibration, they become statements about the same object and can collide.
-
-In the Lean formalization, this reasoning is split into three audit-facing
-entry points. `EventualStrictGap` records the additional eventual strict gap
-`U(n) < L(n)`. `EventualLowerBound.toProofLengthGap` turns the Pudlak-side
-lower-bound certificate into a proof-length lower bound for the same `C_n`.
-Finally, `collisionCore_from_lower_upper_gap` combines the upper bound, the
-lower bound, and the strict gap on the same object to derive the contradiction.
-The integration layer exposes this route through `finalPudlakGapCertificate`
-and `not_rational_from_audited_upper_gap_box_collisionCore`, so an auditor can
-check directly that the lower bound, upper bound, gap, and common measurement
-all live on the same PA symbol-size proof-length coordinate.
-
-### 2.2 How B Enters C
-
-The Pudlak lower bound is naturally about finite-consistency or reflection formulas B_n, not about the native Sondow analytic formulas. The bridge used here is payload grafting and local projection. Informally, C_n is not an arbitrary conjunction of A_n and B_n. It is a checkable proxy formula carrying the information needed for the Sondow short verification while its reflection payload projects back to the finite-consistency family covered by the Pudlak lower bound.
-
-An audit of this step has to check three facts.
-
-1. Formula equality: the local `FormulaCode` family C_n must agree pointwise with the source-side finite-consistency family, or a proved projection must preserve the relevant proof-length relation.
-2. Proof-system equality: both sides must be stated in `ProofSystem.PA`.
-3. Length-measure equality: both sides must use `ProofLengthMeasure.symbolSize`; it is not acceptable for one side to use number of lines and the other to use encoded bit length.
-
-The current Lean development separates these facts into explicit certificates. This avoids the common mistake of putting “B has a lower bound” and “C has a short proof” in the same paragraph without proving that they are jointly measurable.
-
-## 3. The Conditional Main Theorem
-
-The main theorem should be read conditionally.
-
-**Theorem 1, interface-level Sondow-Pudlak collision.**
-Assume the following inputs are provided.
-
-1. A Sondow collapse input: under γ ∈ ℚ, the Sondow side produces verifiable short certificates.
-2. A Pudlak-Friedman-Buss finite consistency lower-bound input, instantiated for the selected finite-consistency or reflection family.
-3. Encoding and projection inputs, showing that the external finite-consistency family agrees with, is equivalent to, or projects to the local `FormulaCode` family.
-4. Proof-length calibration inputs, identifying the abstract `proof_length` with the relevant checked-code proof-length models on the formula families used in the collision.
-5. Payload-truth inputs, ensuring that the reflection payload expresses the intended finite-consistency content.
-
-Then the Lean composition derives
-
-```math
-\neg \mathrm{is\_rational}(\gamma).
-```
-
-This is a conditional theorem. It does not internally prove Sondow's criterion, Pudlak's Theorem 5, or the PA proof-length function from first principles. It proves that, once these inputs are supplied in the required interfaces, the subsequent encoding transfers, length calibrations, projections, and final contradiction are machine checked.
-
-### 3.1 Formal Theorem Schema
-
-More precisely, the interface-level theorem has the following logical form:
-
-```math
-\mathcal S\;\wedge\;\mathcal P\;\wedge\;\mathcal E\;\wedge\;\mathcal L\;\wedge\;\mathcal T
-\;\Longrightarrow\;
-\neg \mathrm{is\_rational}(\gamma).
-```
-
-Here:
-
-- 𝒮 is the Sondow collapse certificate;
-- 𝒫 is the Pudlak lower-bound certificate;
-- ℰ is the encoding/projection certificate;
-- ℒ is the proof-length calibration certificate;
-- 𝒯 is the payload-truth certificate.
-
-The point of this schema is that unfinished inputs are not hidden inside words such as “obvious” or “by definition.” They appear either as theorem parameters or in the axiom audit. The present scientific claim is that this implication is Lean checked, not that ¬ is_rational(γ) has been proved unconditionally.
-
-In the current public theorem index, the Month 5 gap certificate connects the
-final `U/L` statement to `ProjectComputableGapCertificate`. The Month 6
-proof-length calibration layer is exposed as
-`Month6ProofCodeCheckerCalibrationFrontierCertificate`. This is a tightening of
-the boundary, not an unconditional elimination of the abstract `proof_length`.
-
-The Month 7 layer compresses the final theorem surface.  It factors the final
-contradiction through `GenericRationalCollisionInputs`, a proof-length-free
-generic collision skeleton whose theorem depends only on a rationality-driven
-eventual polynomial upper bound and an eventual strict gap for the same measured
-function.  The project-specific PA proof-length box is introduced only in the
-instantiation layer.  Lean records this boundary through
-`Month7MinimalTheoremSurface`, `Month7CompletionChecklist`, and
-`Month7PreMergeAuditCertificate`, and splits the remaining work into
-`Month8ProofLengthResidualFrontier` and
-`Month8PayloadLiteratureResidualFrontier`.
-
-### 3.2 No Hidden Weakening of the Statement
-
-Although the theorem is conditional, the target conclusion is not weakened. The final Lean endpoint still concludes:
+It constructs the target-upper search `bigN` certificate directly from
 
 ```lean
-¬ is_rational euler_mascheroni
+InternalPudlakTheorem5CheckedPowerBoundLowerBound
 ```
 
-The conditionality is entirely on the input side. In particular, the formalization does not prove a vacuous implication unrelated to γ. Each input has a concrete role in the collision chain. If a certificate proves only a weaker family equality or uses a different proof-length convention, it cannot instantiate the current interface and the collision box cannot be called.
+The theorem consumes the following main inputs.
 
-## 4. Proof Outline
+1. `scale_data`: scaling, power-bound coding, and related monotonicity data.
+2. `left_family` and `right_family`: proof families used to build the conjunction-introduction route and the right target family.
+3. `lengthCodeAt`: the function connecting the lower-side measurement to the project minimum checked-code size.
+4. `checked_lower`: the checked interface for the Pudlak-type power-bound lower bound.
+5. Polynomial-bound certificates for the lengths of the two proof families.
+6. Strict monotonicity of the time bound and nonzero exponent data.
 
-The proof has four steps.
-
-The first step is the Sondow upper bound. Assume γ ∈ ℚ. Under the Sondow criterion and the verification bridge, rationality yields a short-proof collapse. Informally, a decision problem involving integrals, logarithmic products, and eventual fractional-part identities is replaced by the verification of a finite certificate. In the formal model the shortness is not obtained by hiding huge integers or products in one line; it is accounted for through fixed theorem references and binary indices.
-
-The second step is lower-bound standardization. Pudlak-Friedman-Buss lower bounds are usually stated for finite consistency families. To use them in the present framework, the formula family appearing in the literature must be identified with, or projected to, the local formula-code family. The formalization separates this into raw encoding certificates, rescaling data, and lower-bound certificates.
-
-The third step is common measurement. The upper and lower sides collide only if both are stated in terms of the same
-```lean
-proof_length ProofSystem.PA ProofLengthMeasure.symbolSize
-```
-coordinate. This requires two kinds of calibration. One reduces the strengthened-to-partial side to exact family equalities. The other aligns the local Hilbert checked-code model with the abstract PA proof length on the relevant formula families.
-
-The latest public Lean layer separates this step into a proof-code checker
-frontier and a checker calibration frontier, connected by equivalences. The
-public theorem `month6_project_checked_semantics_iff_checker_calibration_frontier`
-identifies project checked-code semantics with this calibration frontier, while
-`public_statement_iff_public_completion_computable_gap_checker_calibration_frontier`
-places the frontier together with the Month 5 computable gap certificate inside
-one project-level completion statement.
-
-The Month 7 final surface then separates this project-level statement from the
-pure order-theoretic contradiction.  The theorem
-`GenericRationalCollisionInputs.not_rational` contains no PA proof-length box:
-it says that an eventual upper bound `L(n) <= U(n)` and an eventual strict gap
-`U(n) < L(n)` for the same measured function cannot both follow from
-rationality.  The project instantiation, and not the generic skeleton, is where
-the remaining `proof_length` and payload assumptions enter.
-
-The fourth step is contradiction. The Sondow side supplies a short-proof upper bound for the common family, and the Pudlak side supplies a strong lower bound for the same family. Since both are now in the same code, system, and measure, they first imply `L(n) ≤ U(n)`, which contradicts the gap condition `U(n) < L(n)`. This gap condition is not automatic from the Pudlak lower bound; it enters the collision box as an independent growth-domination certificate. Hence the rationality hypothesis is impossible under the stated inputs, and
-
-```math
-\neg \mathrm{is\_rational}(\gamma)
-```
-
-follows.
-
-From an engineering viewpoint, these four steps form a compiler-correctness problem. The Sondow side, the Pudlak side, and the local Hilbert/PA checker are not written in the same language. One must prove that translation between them preserves the proof-length statement that is supposed to collide. The Lean modules split these translations into small certificates and compose them.
-
-## 5. The Role of Lean Formalization
-
-Lean plays three substantive roles in this paper.
-
-First, it forces all exits to carry their assumptions. The final endpoint is not a parameter-free theorem. The current callable theorem is:
+From these inputs the theorem returns one certificate package at the same `bigN`:
 
 ```lean
-SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSplit
+upper.upperN = 0
+concreteFrontier.lower_search.rejectionExtractor.witness
+  upper.U upper.polynomial upper.upperN = bigN
+PAHilbertAcceptedProofCodeForFormulaCode
+  (concretePAHilbertPowerBoundChecker scale_data)
+  (scale_data.powerBoundRawCode bigN)
+  bigN
+scale_data.powerBoundRawCode bigN =
+  strengthenedPartialConsistencyCode (scale_data.scale bigN)
+upper.U bigN < measured bigN
+measured bigN ≤ upper.U bigN
+False
 ```
 
-Its conclusion is:
+This shows that the checked lower bound is no longer sitting at the level of prose or an outer interface. It is connected to the explicit target-upper fallback-free contradiction package.
+
+## 4. Normal Form for `bigN`
+
+The follow-up theorem
 
 ```lean
-¬ is_rational euler_mascheroni
+projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback_eq_rejectionExtractorWitness_zero
 ```
 
-but the theorem consumes explicit Sondow-side and Pudlak-calibration-side inputs. Thus the conditional boundary is visible in the theorem type.
-
-Second, Lean checks that the bridges really compose. Recent formalization reduces the central witnesses to narrower interfaces:
+proves the computation-facing exactness statement
 
 ```lean
-StrengthenedToPartialProjectProofLengthExactFamilyLengths
-PAHilbertPartialConsistencyMinCheckedExactness
-PAHilbertReflectionGraftMinCheckedExactness
+bigN =
+  concreteFrontier.lower_search.rejectionExtractor.witness
+    upper.U upper.polynomial 0
 ```
 
-It also provides a conversion from semantic proof-length conventions to the exact split-minChecked input. Thus the collision box is callable, not merely described informally.
+This matters because it removes the residual ambiguity between an existential witness and the computation route. The current `bigN` is the lower-search rejection-extractor witness for `upper.U` and `upper.polynomial` at threshold zero.
 
-### 5.1 Reproducible Symbolic Collision Checkpoint
+Thus the remaining issue is numeric evaluation, not symbolic identification. To print an actual natural number `N`, one still has to unfold executable data for `upper.U`, `upper.polynomial`, `scale_data`, and the rejection extractor. But the formal object has already been calibrated to the unique computation entry point.
 
-On July 7, 2026, the repository published an audit-facing prerelease:
+## 5. Reproducible Checkpoint
+
+The repository published the prerelease
 
 ```text
 fcce697-symbolic-collision-checkpoint
 ```
 
-This release is pinned to commit
-`fcce697c60adfe87d4d33515ff965322962fc994`. Its meaning is precise: without
-requiring a concrete numeric value of `N`, Lean routes the checked lower bound
-into the no-fallback target `bigN` certificate and obtains a formal collision
-at the same symbolic witness. The certificate packages, for one `bigN`,
+It is pinned to commit
+
+```text
+fcce697c60adfe87d4d33515ff965322962fc994
+```
+
+This checkpoint reproduces the fact that the same `bigN` carries the two opposite inequalities and therefore `False`. It is not a numeric-`N` checkpoint, and it is not an irrationality theorem for γ. It is a symbolic collision checkpoint.
+
+An expert audit should read it as follows.
+
+1. The collision kernel is machine checked.
+2. The checked-lower route is connected to the fallback-free target-upper route.
+3. The future computation target for `bigN` is normalized to a rejection-extractor witness.
+4. A concrete natural number `N` has not yet been printed.
+
+## 6. Relation to the Irrationality Route
+
+The result should not be packaged as an unconditional proof of the irrationality of γ. The accurate relationship is the following.
+
+The Sondow side is responsible for producing a short-certificate route from a rationality assumption. The Pudlak side is responsible for lower bounds for a finite-consistency or reflection family. The checker/project-length route proves that the two sides act on the same measured function.
+
+The part that is now closed is the formal collision core most vulnerable to a logical mismatch: the same `bigN`, the same `measured` function, and the same `upper.U` are used for both inequalities. What remains is to turn all external mathematical inputs into parameter-free internal witnesses and to evaluate the final `bigN` as a concrete natural number.
+
+Thus the present result narrows the remaining program to two tasks.
+
+1. Construct or cite sufficiently strong external mathematical inputs and align them with the checked-lower interface.
+2. Unfold the rejection-extractor witness to obtain a numeric `N`.
+
+## 7. Axiom and Input Boundary
+
+The credit boundary has two parts.
+
+The first part consists of standard Lean/Mathlib logical dependencies such as `propext`, `Classical.choice`, and `Quot.sound`.
+
+The second part consists of project interface inputs: the checked lower bound, scale data, proof families, length coding, and polynomial-bound certificates. These are not hidden conclusions. They appear explicitly in the theorem type.
+
+For an expert audit, the relevant questions are:
+
+1. Do the inputs faithfully express the intended Sondow/Pudlak mathematics?
+2. Are the inputs strong enough to produce the checked lower bound required by the theorem?
+3. Can the inputs be made into parameter-free witnesses?
+4. Can the rejection-extractor witness be effectively evaluated?
+
+## 8. Remaining Work
+
+The remaining work should not be described as “whether the collision core closes.” A more accurate list is:
+
+First, numeric `N` extraction. The current `bigN` is proved equal to the rejection-extractor witness, but that witness has not yet been expanded into a concrete natural number.
+
+Second, external-to-internal calibration. The Sondow criterion, the Pudlak-type lower bound, and payload semantics must continue to be moved from literature statements or project interfaces into parameter-free Lean witnesses.
+
+Third, publication-grade audit. A formal paper should stabilize theorem names, release tags, axiom audits, and reproduction steps in an appendix, while avoiding internal construction labels as mathematical structure.
+
+These tasks are substantial, but they are distinct from the question whether the present development already contains a same-`bigN` formal collision. That fact is supported by the Lean theorem and the reproducible checkpoint above.
+
+## 9. Conclusion
+
+The current project establishes a precise formal result: a checked lower bound can directly produce a fallback-free target-upper `bigN` certificate, and at that same `bigN` Lean proves
 
 ```lean
 upper.U bigN < measured bigN
-measured bigN <= upper.U bigN
+measured bigN ≤ upper.U bigN
 False
 ```
 
-Thus this release can be cited as a reproducible symbolic collision checkpoint.
-The reproduction commands are:
+The same `bigN` is then identified with the rejection-extractor witness at threshold zero. This connects the symbolic collision core to the future numeric-evaluation entry point.
 
-```bash
-git clone git@github.com:james130012/sondow-pudlak-collision-box.git
-cd sondow-pudlak-collision-box
-git checkout fcce697-symbolic-collision-checkpoint
-lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
-```
-
-This is not a numeric evaluation checkpoint: it does not print a concrete
-natural number `N`. It proves that the formal collision object is closed around
-an auditable `bigN` witness. A later commit further normalizes that witness to
-`rejectionExtractor.witness upper.U upper.polynomial 0`.
-
-The public Lean layer is now separated from the project-specific
-instantiation layer.  The project-independent export path is exposed through
-
-```lean
-CertificateBackedCollisionKernel
-PublicCollisionAPI
-PublicCollisionExportSurface
-```
-
-These modules do not import the CnBox/Sondow/Pudlak project route.  The
-project route remains in the CnBox-Pudlak modules, where the current
-paper-facing source/assembly interface is:
-
-```lean
-CnBoxPudlakProjectConcreteFieldIndex
-CnBoxPudlakProjectSourceAssemblyReleaseSurface
-```
-
-In particular, `field_index_canonical_certificate_at` exposes the route from a
-concrete project field index and an accepted Sondow instance to
-`CanonicalProofCertificateAt bound n`, while
-`accepted_index_iff_assembly_index` records that the accepted-source compiler
-and the budgeted assembly interface are equivalent presentations of the same
-concrete project obligation.  This is a Lean-checked interface statement, not
-the final construction of the concrete certificate.
-
-The current public-facing project theorem layer is:
-
-```lean
-SondowProjectPudlakMonth1PublicBridgeClosureTheoremSurface
-Month1PublicBridgeClosureTheoremLayer
-```
-
-It packages the concrete route, the paper route, the release checkpoint, and
-the public-origin statement into equivalences.  The layer also exposes the
-CnBox target/box equation, the code roundtrip back to the target formula, the
-equivalence between the CnBox payload and the PA finite-consistency statement,
-the same-object closure, and the public gap/collision instantiations.  Thus
-the paper statement no longer relies only on an informal claim that the
-project-specific CnBox object is the same object seen by the public collision
-kernel; that identification is represented by named Lean theorem surfaces.
-
-Month 2 adds the Sondow accepted-certificate surface:
-
-```lean
-SondowProjectMonth2SondowAcceptedCertificateSurface
-SondowProjectMonth2PublicReleaseSmoke
-SondowProjectMonth2CanonicalImportSurface
-```
-
-Here the accepted predicate
-
-```lean
-Month2SondowAccepted n
-```
-
-is fixed to `accepted_certificate (sondowReflectionGraftCode n)`, with
-`month2SondowAccepted_iff_root_accepted` recording the definitional
-equivalence.  Given a `PublicInfrastructureKit` and the rationality hypothesis,
-the canonical import surface exposes two audit-facing exits:
-`accepted_eventually` and `compiler_consumption_after_threshold`.  The first
-produces eventual accepted certificates.  The second, after the audit threshold,
-simultaneously produces full certificate checks, source components, a compiled
-certificate, and component proof-object validity.  This remains a conditional
-public surface, not an unconditional concrete Sondow witness.  Its role is to
-make the Month 2 statement from rationality to accepted certificates and then to
-compiler consumption checkable through a single Lean import.
-
-Month 3 and Month 4 close the next public layer:
-
-```lean
-SondowProjectMonth3Month4FinalPublicSurface
-SondowProjectMonth3Month4CompletionAuditSurface
-```
-
-The Month 3 side turns an accepted Sondow object into the bounded-PA proof
-predicate interface. In particular, the final public surface exposes a route
-from the paper route plus an accepted witness to
-`CanonicalProofCertificateAt bound n`, `CanonicalProofCertificateAccepted bound n`,
-and `boundedPAProofPredicate bound n`, together with the equivalence
-
-```lean
-boundedPAProofPredicate bound n ↔ Nonempty (CanonicalProofCertificateAt bound n)
-```
-
-and a checker-trace conclusion equal to `finiteConsistencyFormula n`. This is
-the point at which the `C_n` box is no longer only a codable object: it is
-connected to a finite-consistency target and a bounded PA proof-predicate
-interface.
-
-The Month 4 side packages the exact external boundary for Pudlak's Theorem 5.
-It does not internalize the proof of the theorem. Instead, it makes the
-literature input, external input boundary, minimal field package, lower-bound
-source, normal form, and canonical import mutually auditable. The public
-surface exposes, for example, the equivalence between the literature audit
-statement and the full external-boundary statement, the equality between the
-lower-bound source code and the rescaled Pudlak strengthened finite-consistency
-code, and the raw/rescaled/power-bound code chain. The final completion
-certificate therefore records that the accepted upper-side object and the
-Pudlak theorem-5 lower-side object are being compared through the same public
-project interface, not through an informal identification.
-
-The mathematical roles of these names are as follows.
-
-`StrengthenedToPartialProjectProofLengthExactFamilyLengths` calibrates the strengthened family against the partial-consistency family. It answers the question: when the strengthened payload produced by the Sondow-collapse side is lowered to the partial-consistency proxy, is the required proof-length equality preserved?
-
-`PAHilbertPartialConsistencyMinCheckedExactness` calibrates the partial-consistency side. It answers the question: is the proof length seen by the Pudlak source-side lower bound the same length measured by the local checked-code checker?
-
-`PAHilbertReflectionGraftMinCheckedExactness` provides the analogous calibration for the reflection-graft side. It answers the question: after the reflection payload enters the common measurement box, is it still measured by the same PA/Hilbert proof-code semantics?
-
-Third, Lean provides an axiom audit. The current callable theorem depends essentially on:
-
-```text
-literaturePudlakTheorem5ExternalRescaledLowerBound
-literaturePudlakTheorem5ExternalScaleData
-proof_length
-partial_consistency_payload
-strengthened_partial_consistency_payload
-```
-
-In addition, it uses standard Lean/Mathlib principles such as `propext`, `Classical.choice`, and `Quot.sound`. This list is part of the scientific boundary of the result: the theorem is an interface-level conditional theorem, not a closed unconditional proof.
-
-Recent bridge lemmas also make several formerly implicit representation
-changes explicit:
-
-```lean
-audit_theorem5_certificatePresentation_iff_rescaledPresentation
-FormulaCodeHilbertInterpretation.familyExactness_iff_splitCanonicalCertificate
-FormulaCodeHilbertInterpretation.localProofCodeConventionCertificate_iff_familyExactness
-paper_route_and_accepted_iff_public_completion
-public_completion_to_month3_bounded_pa_interface
-public_completion_to_month4_full_boundary_interface
-month6_project_checked_semantics_iff_checker_calibration_frontier
-public_statement_iff_public_completion_computable_gap_checker_calibration_frontier
-```
-
-These are equivalence and transport lemmas between certificate presentations.
-They do not add new mathematical assumptions; they make the audit path shorter
-and less dependent on informal identification of equivalent formulations.
-
-## 6. Why the Conditionality Is Structured
-
-The conditionality in this paper is not a single opaque assumption. Each input has a specific mathematical responsibility.
-
-The Sondow input creates the upper bound from rationality. The Pudlak input supplies the finite-consistency lower bound. Encoding certificates ensure that the literature formula family and the local formula family are the same object or are related by a controlled projection. Proof-length calibration connects the abstract complexity coordinate with concrete checked-code models. Payload truth gives semantic content to the reflection payload.
-
-Consequently, if one of these inputs is later proved internally or matched exactly by a published theorem, it can be replaced locally without changing the entire collision chain. This modularity is the main value of the interface-level formalization.
-
-From the audit perspective, the main claim is not that every hard theorem has already been proved. The claim is that the hard points have been localized. A reviewer can now ask the following questions one certificate at a time:
-
-- Does Pudlak's Theorem 5 cover the current formula family?
-- Does the rescaling preserve a lower bound strong enough to beat the Sondow upper bound?
-- Is `proof_length` pointwise equal to checked-code minimum size on the two relevant families?
-- Does the payload-truth certificate express the intended consistency or reflection content?
-
-Once these questions are answered, the final collision argument does not need to be redesigned.
-
-## 7. Remaining Work
-
-Three major tasks remain.
-
-First, Pudlak's Theorem 5 is currently treated as an external literature certificate. Fully internalizing it would require a formal development of the proof-complexity lower-bound literature for finite consistency statements.
-
-Second, the PA/Hilbert proof-length convention is not yet internalized from first principles. The current `proof_length` is an abstract complexity function, and its relevant equalities enter through auditable witnesses. The latest formalization tightens the remaining boundary to a proof-code checker calibration frontier: the project no longer merely assumes an unnamed calibration witness, but exposes the equivalence between proof-code checker recognition and local proof-length code calibration. A full internalization still has to construct PA proof objects, encoders, checkers, and minimum proof-code size functions, and then prove their equivalence to the abstract proof length.
-
-Month 7 further clarifies this task without solving it unconditionally.  The
-final theorem can now be stated through `Month7MinimalTheoremSurface`, while the
-proof-length-specific residue is isolated as
-`Month8ProofLengthResidualFrontier`.  Thus the next proof-length task is not to
-redesign the collision core, but to replace that residual frontier by concrete
-proof-object encodings, checker exactness, and minProofCodeSize calibration.
-
-Third, the remaining task on the upper-bound side is the parameter-free instantiation of the final Sondow upper-bound witness. The analytic integral decomposition, the product-log identity, the tail estimates, and the Sondow forward package already have a Lean-closed reproof route. The project-local verifier/compiler framework is also present in the buildable interfaces `SondowProjectLocalS21Kernel` and `SondowProjectLocalReflectionGraftVerifier`. Month 2 now fixes `Month2SondowAccepted n`, the component certificates, the accepted-to-compiled compiler, and the canonical import surface. Thus it would be inaccurate to list the Sondow accepted-certificate surface, or the entire bounded-arithmetic verifier, as a remaining external gap. More precisely, what remains is to construct the final input
-
-```lean
-Nonempty SondowProjectLocalReflectionGraftVerifier
-```
-
-from lower-level checked-code S²₁ trace calibrations and a PA embedding
-witness, to derive the `PublicInfrastructureKit` used by the Month 2 surface
-from those lower-level witnesses, and to internalize the payload-truth semantics represented by
-`PartialConsistencyPayloadTruth` and `StrengthenedPartialConsistencyPayloadTruth`.
-On the CnBox/Pudlak side, the remaining concrete task is not to redesign the
-generic interface, the public bridge closure layer, the Month 3 bounded-PA
-assembly interface, or the Month 4 theorem-5 external-boundary interface. Month
-5 now organizes `Month5UpperBoundFunction`, `Month5LowerBoundFunction`, the
-threshold certificate, and the growth-domination certificate around
-`ProjectComputableGapCertificate`. The remaining task is to supply final
-concrete witnesses that make the accepted object, growth gap, payload truth, and
-proof-length convention parameter-free and strong enough for the unconditional
-target.
-
-The complementary residual package is
-`Month8PayloadLiteratureResidualFrontier`, which contains the Pudlak
-literature lower-bound input, the minimal closure package, and the strengthened
-payload-truth input.  This package marks what must be discharged on the
-payload/literature side if the Month 7 conditional endpoint is to be made
-stronger.
-
-These tasks do not undermine the present theorem. They define exactly what must be done to turn the interface-level conditional collision into a stronger mathematical result.
-
-### 7.1 Appropriate Public Status of the Current Version
-
-The present manuscript is best read as the paper accompanying a public-alpha research artifact, not as a final unconditional solution of the irrationality of γ. The appropriate public claims are:
-
-1. a Lean-checked conditional collision theorem;
-2. a precise certificate architecture;
-3. a reproducible axiom ledger;
-4. a roadmap reducing future work to a small number of explicit witnesses;
-5. reproducible symbolic collision checkpoints such as
-   `fcce697-symbolic-collision-checkpoint`.
-
-The inappropriate claims are: an unconditional proof of the irrationality of Euler's constant, or an internal Lean proof of Pudlak's Theorem 5 and the PA proof-length convention. These boundaries must remain explicit.
-
-## 8. Conclusion
-
-This paper presents a conditional proof-complexity collision framework for Euler's constant. Its core contribution is not an unconditional proof of γ ∉ ℚ, but the following precise conditional claim: if the Sondow rationality collapse, the finite-consistency lower bound, the encoding projections, and the proof-length calibrations are supplied in the specified interfaces, then they are incompatible on the same PA symbol-size proof-length coordinate, and the Lean-checked composition derives ¬ is_rational(γ).
-
-The value of the result is that it turns a broad Gödel-speedup intuition into an auditable formula-family collision problem. It also gives a clear roadmap for future work: internalize or precisely cite each external input until the conditional framework contracts into a stronger theorem.
+Accordingly, the current version is best described as a reproducible, Lean-checked Sondow-Pudlak symbolic collision checkpoint. It is not a final unconditional proof of the irrationality of γ, but it has moved the collision core from a conceptual route to a machine-checked same-object contradiction certificate.
 
 ## References
 
