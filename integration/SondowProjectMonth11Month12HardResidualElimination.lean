@@ -5299,6 +5299,118 @@ theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq
         input constant_projection)
       hkernel hchecker hs21root hpudlakPA hrat
 
+/-- Full finite-search trace for the final root endpoint.  Once the root
+S²₁/Pudlak C-line upper side and rationality hypothesis produce the upper tail,
+the endpoint's computed `N` is the rejection extractor witness, is above the
+tail threshold, has a concrete cutoff `K`, and every finite candidate at
+`(N, K)` is rejected by the checker. -/
+theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_finiteSearchTrace
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let upper :=
+      finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+        input
+        (finalExactCheckerCoreAdditiveProjectionOfConstant
+          input constant_projection)
+        hkernel hchecker hs21root hpudlakPA hrat
+    let n :=
+      (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+        input constant_projection hkernel hchecker hs21root hpudlakPA)
+        |>.computedCollisionNOfRationality hrat
+    let K :=
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.cutoff
+        upper.U upper.polynomial upper.upperN
+    n =
+        input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+          upper.U upper.polynomial upper.upperN ∧
+      upper.upperN ≤ n ∧
+        upper.U n < (K : Real) ∧
+          (∀ code :
+            input.toCanonicalCalibratedExactnessCore.checkerSemantics.Code,
+            code ∈
+              input.toCanonicalCalibratedExactnessCore.finiteEnumeration.candidates
+                n K →
+              ¬ input.toCanonicalCalibratedExactnessCore.checkerSemantics.checks
+                  code
+                  (input.toCanonicalCalibratedExactnessCore.scale_data
+                    |>.powerBoundRawCode n)) := by
+  dsimp
+  have hn :=
+    finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq_rejectionExtractorWitness
+      input constant_projection hkernel hchecker hs21root hpudlakPA hrat
+  refine ⟨hn, ?_, ?_, ?_⟩
+  · simpa [hn] using
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness_ge
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).upperN
+  · simpa [hn] using
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.cutoff_gt
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).upperN
+  · intro code hmem
+    simpa [hn] using
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.rejects_candidates
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).upperN
+        code hmem
+
 theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
