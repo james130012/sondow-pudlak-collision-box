@@ -1,48 +1,56 @@
 # Current Formal Status
 
-The current public artifact is a Lean-checked Sondow-Pudlak symbolic collision
-checkpoint. It should be read as a reproducible formal certificate for the
-same-`bigN` collision core, not as a final unconditional proof of the
-irrationality of Euler's constant.
+The current public artifact is a Lean-checked clean Sondow-Pudlak collision
+route. It should be read as a reproducible formal certificate for the
+proof-level/collision-level threshold
+
+```lean
+N = max upperN threshold
+```
+
+not as a final unconditional proof of the irrationality of Euler's constant and
+not as a decimal extraction of `N`.
 
 ## Reproducible Checkpoint
 
-The release `fcce697-symbolic-collision-checkpoint` is pinned to commit
-`fcce697c60adfe87d4d33515ff965322962fc994`.
+The audited release is `bigN-halfden-full-20260708`, pinned to commit:
+
+```text
+2a7458c253aae4050a0a3a18424abea952d26bc3
+```
+
+The clean submission theorem is:
+
+```lean
+cleanUpperProvider_submissionRoute
+```
+
+defined in:
+
+```text
+integration/SondowProjectBigNCleanSubmissionRoute.lean
+```
 
 It demonstrates:
 
-- The checked lower-bound route reaches the fallback-free target-upper `bigN`
-  certificate.
-- The same symbolic `bigN` carries both
-  `upper.U bigN < measured bigN` and `measured bigN <= upper.U bigN`.
-- The Lean certificate therefore derives `False` at that same `bigN`.
-- The follow-up normal form identifies the computation target as the rejection
-  extractor witness at threshold `0`.
+- the clean rational branch computes `N = max upperN threshold`;
+- the `upperN` and `threshold` come from the same clean checker route;
+- the route derives the contradiction on the rational branch;
+- the audited axiom profile is `[propext, Classical.choice, Quot.sound]`;
+- the theorem does not depend on `partial_consistency_payload`, `proof_length`,
+  or `strengthened_partial_consistency_payload`.
 
-It does not claim:
+## Not Claimed
 
 - a printed concrete numeric value of `N`;
 - an unconditional proof of the irrationality of Euler's constant;
-- a parameter-free internal construction of every Sondow/Pudlak input.
-
-## Closed Formal Work
-
-- The formal collision kernel is callable and reproducible.
-- The checked lower-bound input is connected to the no-fallback target-upper
-  route.
-- The target `bigN` is identified with
-  `rejectionExtractor.witness upper.U upper.polynomial 0`.
-- The contradiction package contains the two opposite inequalities and `False`
-  for one shared witness.
-- The project has separated the public collision kernel from the
-  project-specific checker/project-length instantiation layer.
+- a completed clean upstream construction of the half-denominator formula-level
+  cutoff.
 
 ## Remaining Work
 
-- Numeric extraction of the concrete natural number `N`.
-- Parameter-free construction or exact citation of the external Sondow and
-  Pudlak mathematical inputs used by the checked-lower interface.
-- Internal or fully audited treatment of the payload semantics.
-- Publication-grade appendices for theorem names, axiom audits, release tags,
-  and reproduction commands.
+- Clean upstream construction of the half-denominator upper provider.
+- Formula-level refinement to
+  `17 * (max 3 ((rat.q.den + 1) / 2)) + 8`.
+- Decimal numerical extraction after the formula-level and executable threshold
+  work is complete.

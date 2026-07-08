@@ -1,71 +1,129 @@
 # Project Status
 
-Date: 2026-07-05
+Date: 2026-07-08
 
-## Current Release Target
+## Current Main Result
 
-`v0.1.7-month7-prooflength-frontier-alpha`: interface-level conditional
-collision box with Month 7 final theorem compression and proof-length
-instantiation boundary metadata.
-
-## Completed at This Stage
-
-- A callable Lean endpoint exists:
+The current submission result is the clean checker/collision route:
 
 ```lean
-SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSplit
+cleanUpperProvider_submissionRoute
 ```
 
-- The endpoint concludes:
+defined in:
+
+```text
+integration/SondowProjectBigNCleanSubmissionRoute.lean
+```
+
+It states that, for a clean `ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput`
+and a clean checked measured upper provider, the rational branch computes
+
+```lean
+N = max upperN threshold
+```
+
+where `upperN` is the cutoff in the clean upper tail and `threshold` is the
+tail-gap threshold for the same clean measured route. The same theorem also
+proves:
 
 ```lean
 ¬ is_rational euler_mascheroni
 ```
 
-- The endpoint is conditional: it requires explicit Sondow-side, Pudlak-side,
-  proof-length calibration, and payload-truth inputs.
-- The current bridge from project proof-length semantics to exact split
-  minChecked witnesses is implemented and checked.
-- The public repository separates the Lean code, papers, audit guide, and
-  axiom ledger.
-- The Month 1 public bridge closure theorem layer exposes a single public
-  surface for the CnBox/Pudlak concrete route, paper route, release checkpoint,
-  and public-origin equivalences.
-- The public layer includes CnBox target/box equation endpoints, code
-  roundtrip, PA finite-consistency payload equivalence, same-object closure,
-  public gap instantiation, and public collision instantiation.
-- Month 3/Month 4 expose the accepted Sondow object, bounded PA proof
-  predicate interface, and Pudlak theorem-5 exact external boundary through a
-  public completion surface.
-- Month 5/Month 6 expose the computable gap certificate and proof-code checker
-  calibration frontier.
-- Month 7 separates the final contradiction into a proof-length-free
-  `GenericRationalCollisionInputs` skeleton and a project proof-length
-  instantiation layer.
-- Month 7 also exposes `Month7MinimalTheoremSurface`,
-  `Month7CompletionChecklist`, `Month7PreMergeAuditCertificate`,
-  `Month8ProofLengthResidualFrontier`, and
-  `Month8PayloadLiteratureResidualFrontier`.
+The current theorem is proof-level/collision-level. It intentionally does not
+claim a decimal value for `N`, and it does not use the older half-denominator
+formula-level project endpoint as its proof source.
 
-## Not Claimed
+## Audit Decision
 
-- No unconditional proof of \(\gamma\notin\mathbb Q\) is claimed.
-- No internal proof of Pudlak theorem 5 is claimed.
-- No complete internal construction of PA proof length is claimed.
-- No claim is made that the Month 7 project instantiation has eliminated the
-  `proof_length`, payload-truth, or Pudlak literature residuals.  It isolates
-  them into the Month 8 residual frontiers.
-- No claim is made that natural Sondow certificates themselves already have a
-  known Pudlak/Friedman/Buss lower bound.
+The older half-denominator formula route was audited and found to still depend
+on the project-level residual constants:
 
-## Next Research Targets
+```text
+partial_consistency_payload
+proof_length
+strengthened_partial_consistency_payload
+```
 
-1. Eliminate or internalize `Month8ProofLengthResidualFrontier` by replacing
-   abstract proof-length instantiation with concrete checker exactness,
-   proof-object encoding, and minProofCodeSize calibration.
-2. Replace payload-truth axioms by structured certificate inputs.
-3. Internalize or cite a precise Pudlak theorem 5 instance matching the local
-   formula family and scale.
-4. Expand the Sondow analytic and verification bridges.
-5. Instantiate the final project gap element and parameter-free Sondow verifier
-   inside the existing Month 1 public bridge closure interface.
+Therefore that old route is no longer presented as the main paper theorem.
+Keeping it as the headline result would weaken the manuscript's credibility.
+
+The clean route was checked with:
+
+```bash
+lake build integration.SondowProjectBigNCleanSubmissionRoute
+```
+
+and with:
+
+```lean
+#print axioms cleanUpperProvider_submissionRoute
+#print axioms cleanComputedBigN_eq_tailGapMax
+#print axioms cleanProvider_not_rational
+#print axioms cleanComputedBigN_eq_halfDenFormulaMax
+#print axioms cleanHalfDenUpperProvider_submissionRoute
+```
+
+The observed axiom profile for each of these clean route theorems was:
+
+```text
+[propext, Classical.choice, Quot.sound]
+```
+
+No project-level residual constant appears in the clean theorem profile.
+
+## Release Context
+
+Audited release tag:
+
+```text
+bigN-halfden-full-20260708
+```
+
+Release URL:
+
+```text
+https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/bigN-halfden-full-20260708
+```
+
+Release commit:
+
+```text
+2a7458c253aae4050a0a3a18424abea952d26bc3
+```
+
+The release contains useful old half-denominator formula work, but the clean
+submission route is now isolated in the added file
+`integration/SondowProjectBigNCleanSubmissionRoute.lean`.
+
+## Paper And Audit Materials
+
+- Clean-route audit report:
+  `docs/clean_submission_route_audit_20260708_zh.md`
+- Validation log:
+  `docs/bigN_validation_log_20260708_zh.md`
+- Submission manuscript:
+  `paper/submission_bigN_formal_manuscript_en.md`
+- English paper draft:
+  `paper/paper_new_en.md`
+- Chinese paper draft:
+  `paper/paper_new_zh.md`
+
+## Deferred Work
+
+The clean theorem already provides the correct `N = max upperN threshold`
+collision target. The formula-level half-denominator refinement
+
+```lean
+17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+```
+
+is deferred until its upstream upper-provider construction can be rebuilt on
+the same clean route. The file already contains a clean downstream interface:
+
+```lean
+cleanHalfDenUpperProvider_submissionRoute
+```
+
+but the old formula theorems are not used to instantiate it in the submission.
