@@ -1,89 +1,71 @@
 # Sondow-Pudlak Clean Collision Route
 
-This repository is a Lean 4 research artifact for a Sondow-Pudlak proof-complexity
-collision program around the Euler-Mascheroni constant `gamma`.
+This repository is a Lean 4 research artifact for a Sondow-Pudlak
+proof-complexity collision program around the Euler-Mascheroni constant
+`gamma`.
 
-**Current submission status, 2026-07-08.** The submission route has been reset to
-the clean checker/collision theorem:
+## Current Submission Theorem
+
+The current submission theorem is
 
 ```lean
 cleanUpperProvider_submissionRoute
 ```
 
-defined in:
+Public source link:
 
-```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
-```
+<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean>
 
-For a clean proof-length-free checker input and a clean measured upper provider,
-Lean proves that the rational branch computes the collision threshold
+For a clean checker input and a measured upper provider in the same coordinate,
+Lean proves that the rationality branch computes the collision threshold
 
 ```lean
 N = max upperN threshold
 ```
 
-and the same route proves:
+and that the same formal input package proves
 
 ```lean
 ¬ is_rational euler_mascheroni
 ```
 
-The audited axiom profile of this submission theorem is:
+The observed axiom output for the main theorem is the standard Lean/Mathlib
+logical profile:
 
 ```text
 [propext, Classical.choice, Quot.sound]
 ```
 
-It does **not** depend on the three project-level residual constants:
+Detailed dependency and reproducibility checks are recorded in the audit
+reports linked below.
 
-```text
-partial_consistency_payload
-proof_length
-strengthened_partial_consistency_payload
-```
+## Submission Links
 
-This is the theorem to cite for the clean version of the work. The older
-half-denominator formula-level big-`N` route remains useful as a diagnostic and
-future engineering target, but it is not the current manuscript's main theorem
-because its existing Lean endpoints still carry those three project-level
-dependencies.
-
-## Release And Audit Links
-
-- Audited release tag:
-  <https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/bigN-halfden-full-20260708>
-- Audited release commit:
-
-```text
-2a7458c253aae4050a0a3a18424abea952d26bc3
-```
-
-- Clean-route audit report, English:
-  [`docs/clean_submission_route_audit_20260708_en.md`](docs/clean_submission_route_audit_20260708_en.md)
-- Clean-route audit report, Chinese:
-  [`docs/clean_submission_route_audit_20260708_zh.md`](docs/clean_submission_route_audit_20260708_zh.md)
+- Polished submission release:
+  <https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/clean-bigN-submission-polished-20260708>
+- Chinese submission manuscript:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/paper/submission_bigN_formal_manuscript_zh.md>
+- English submission manuscript:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/paper/submission_bigN_formal_manuscript_en.md>
+- Chinese audit report:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_zh.md>
+- English audit report:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_en.md>
 - Validation log:
-  [`docs/bigN_validation_log_20260708_zh.md`](docs/bigN_validation_log_20260708_zh.md)
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/bigN_validation_log_20260708_zh.md>
 - Current status:
-  [`STATUS.md`](STATUS.md)
-- Submission manuscript, English:
-  [`paper/submission_bigN_formal_manuscript_en.md`](paper/submission_bigN_formal_manuscript_en.md)
-- Submission manuscript, Chinese:
-  [`paper/submission_bigN_formal_manuscript_zh.md`](paper/submission_bigN_formal_manuscript_zh.md)
-- English paper draft:
-  [`paper/paper_new_en.md`](paper/paper_new_en.md)
-- Chinese paper draft:
-  [`paper/paper_new_zh.md`](paper/paper_new_zh.md)
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/STATUS.md>
 
-## Main Lean Entry
+## Reproduction
+
+Build the main Lean entry:
 
 ```bash
 lake exe cache get
 lake build integration.SondowProjectBigNCleanSubmissionRoute
 ```
 
-After building, run the theorem and axiom probes:
+Check the theorem and axiom profile:
 
 ```bash
 lake env lean --stdin <<'EOF'
@@ -99,51 +81,25 @@ open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
 EOF
 ```
 
-Expected project-level audit result: none of
-`partial_consistency_payload`, `proof_length`, or
-`strengthened_partial_consistency_payload` appears in the axiom output.
+Expected main theorem axiom output:
+
+```text
+[propext, Classical.choice, Quot.sound]
+```
 
 ## What Is Proved
 
-The current clean theorem proves a conditional collision route:
+The clean theorem proves the following formal collision statement.
 
-1. A clean upper provider supplies an eventual polynomial upper tail with a
+1. A measured upper provider supplies an eventual polynomial upper tail with a
    cutoff `upperN`.
-2. The clean tail-gap certificate supplies a threshold for the same measured
-   checker route.
-3. Under the rational branch, the computed collision number is exactly
+2. The tail-gap certificate supplies a threshold for the same measured checker
+   function.
+3. Under the rationality branch, the computed collision number is exactly
    `max upperN threshold`.
-4. At that computed number the route combines the upper and lower inequalities
-   into a contradiction, yielding `¬ is_rational euler_mascheroni` relative to
-   the clean input package.
+4. At that computed number the upper and strict lower certificates contradict
+   each other, yielding `¬ is_rational euler_mascheroni` relative to the clean
+   input package.
 
-This is not a decimal extraction of `N`, and it is not a claim that every
-upstream Sondow/Pudlak witness has already been constructed without external
-mathematical input. It is the clean Lean-checked collision core that should be
-used for manuscript credit.
-
-## Deferred Work
-
-The half-denominator display
-
-```lean
-17 * (max 3 ((rat.q.den + 1) / 2)) + 8
-```
-
-has a clean downstream interface:
-
-```lean
-cleanHalfDenUpperProvider_submissionRoute
-```
-
-Its axiom profile is also clean, but it requires a clean upstream
-half-denominator upper provider. The existing old formula-level endpoints do
-not yet provide that clean upstream construction, so the formula-level and
-numeric `N` refinements are deliberately deferred.
-
-## Citation Boundary
-
-Please cite the repository, release tag, and commit above when using this
-artifact. Do not cite the old project-length half-denominator endpoint as the
-main theorem of the clean submission route. The clean theorem is
-`cleanUpperProvider_submissionRoute`.
+The current manuscript cites this clean Lean theorem as the submission result.
+Numerical extraction of the threshold is future work.

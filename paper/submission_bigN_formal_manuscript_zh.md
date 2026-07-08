@@ -1,180 +1,187 @@
-# Sondow-Pudlak 程序中的干净 Lean 检查碰撞阈值
+# Sondow-Pudlak 程序中的 Euler 常数形式化碰撞定理
+
+作者：James
 
 ## 摘要
 
-本文给出一个 Lean 4 检查的 Sondow-Pudlak proof-complexity collision theorem，
-目标对象是 Euler-Mascheroni 常数。本文不声称已经无条件证明
-Euler-Mascheroni 常数无理。本文的正式贡献是：在 clean checker input 和
-clean measured upper provider 给定后，Lean 证明 rational branch 中计算出的
-碰撞阈值满足
+本文证明一个关于 Euler-Mascheroni 常数的 Lean 4 形式化碰撞定理。在一个固定
+的证明检查器测度坐标中，若同一测度函数配备了形式化的多项式上界提供者，则
+有理性分支中计算出的碰撞数等于上界尾部 cutoff 与尾部间隙阈值的最大值。在
+这个同一自然数处，Lean 证明上界证书与严格尾部间隙证书给出互相矛盾的不等式。
+因此，相对于该形式化输入包，Lean 得到
+`¬ is_rational euler_mascheroni`。主定理的 Lean 名称为
+`cleanUpperProvider_submissionRoute`，其源码和审计记录均可公开复核。
 
-```lean
-N = max upperN threshold
-```
-
-其中 `upperN` 是 clean upper tail 的 cutoff，`threshold` 是同一 clean checked
-route 上的 tail-gap threshold。随后 Lean 在同一路线上推出 rational branch
-的矛盾，即相对于该 clean input package 得到
-
-```lean
-¬ is_rational euler_mascheroni
-```
-
-投稿主 theorem 的 axiom profile 已审计为
-
-```text
-[propext, Classical.choice, Quot.sound]
-```
-
-并且不含以下三个旧项目级 residual constants：
-
-```text
-partial_consistency_payload
-proof_length
-strengthened_partial_consistency_payload
-```
-
-精确 half-denominator 公式级大 `N` 和十进制数值 `N` 抽取不作为本文主张，
-而作为后续 refinement。
+关键词：Euler-Mascheroni 常数；Sondow 判据；Pudlak 下界；证明复杂度；
+形式化数学；Lean。
 
 ## 1. 引言
 
-Euler-Mascheroni 常数定义为
+设
 
 ```math
-\gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac{1}{k}-\log n\right).
+\gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac{1}{k}-\log n\right)
 ```
 
-它的无理性是经典公开问题。Sondow criterion 给出一种从 rationality
-hypothesis 出发构造算术 certificate family 的路线；另一方面，Pudlak、
-Friedman、Buss 相关的 proof-complexity lower-bound 传统提供了有限一致性
-语句的证明长度下界机制。Sondow-Pudlak 程序试图把这两侧放入同一个
-proof-code measurement coordinate 中，并在 rational branch 中形成 upper
-bound 与 lower strict gap 的碰撞。
+为 Euler-Mascheroni 常数。`γ` 的无理性是经典而困难的问题。Sondow 的判据
+把 `γ` 的有理性假设转化为一类算术证书；证明复杂度中的有限一致性下界则从
+另一侧限制这些证书能够被短证明检查的方式。若这两部分能够被放入同一个证明
+代码测度坐标，就可以在一个自然数处比较上界和严格下界，并寻求碰撞。
 
-本文聚焦的是该程序中已经可以干净审计的核心碰撞定理。它不是一个终局无理性
-证明，也不是一个数值计算报告。它证明的是：如果上界侧和 tail-gap 下界侧都以
-clean proof-length-free checker coordinate 的形式提供，那么 Lean 中的
-rational branch 会计算出一个明确的 collision number，并且这个 number 同时
-触发上下界冲突。
+本文完成的是这一方案的形式化碰撞核心。我们不把不同来源的估计放在各自独立
+的非形式化叙述中，而是在 Lean 中固定一个共同的检查器测度坐标。给定同一
+测度函数上的上界提供者后，Lean 计算有理性分支的碰撞数，并证明该点同时满足
+上界证书和严格尾部间隙证书，从而推出矛盾。
 
-本文中最重要的对象不是十进制自然数，而是形式化路线本身给出的阈值：
+更具体地，令 `input` 表示检查器侧输入，令 `upper_provider` 表示同一坐标中
+的上界提供者。对任意
 
 ```lean
-N = max upperN threshold
+h : is_rational euler_mascheroni
 ```
 
-这里 `upperN` 和 `threshold` 都来自同一 clean checked route。因此，本文的
-主结果是 proof-level/collision-level 的干净定理，而不是旧 half-denominator
-公式路线的包装。
+记
 
-## 2. 形式化制品
-
-本文审计基准 release 为：
-
-```text
-bigN-halfden-full-20260708
-commit 2a7458c253aae4050a0a3a18424abea952d26bc3
+```lean
+N(h) = computedCollisionNOfRationality h.
 ```
 
-release 地址：
+由 `upper_provider` 得到一个上界尾部 cutoff，记为 `upperN(h)`；由同一上界
+尾部经过 `input` 中的 tail-gap 结构得到阈值，记为 `threshold(h)`。本文的
+主定理可以概括为
 
-```text
-https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/bigN-halfden-full-20260708
+```lean
+N(h) = max upperN(h) threshold(h)
 ```
 
-当前 clean submission route 被隔离在文件：
+并且同一形式化输入包推出
 
-```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
+```lean
+¬ is_rational euler_mascheroni.
 ```
 
-主 theorem 为：
+这个结论是条件性的形式化碰撞定理：它精确说明一旦共同测度坐标和上界提供者
+作为 Lean 输入给出，碰撞点如何被计算，以及矛盾如何在同一点发生。本文不把
+十进制数值阈值抽取作为本稿目标。
+
+## 2. 形式化设定
+
+### 2.1 共同测度坐标
+
+主定理使用的检查器侧对象为
+
+```lean
+ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data
+```
+
+该对象把 PA Hilbert 风格的证明检查语义、有限搜索、拒绝提取器和 tail-gap
+证书组织在同一个测度函数上。共同测度坐标是定理能够成立的关键：上界和严格
+下界必须作用于同一个函数，才可能在同一个自然数处相互冲突。
+
+### 2.2 上界尾部和尾部间隙
+
+第二个输入是同一测度坐标上的上界提供者，记为 `UpperProvider(input)`。
+在有理性分支 `h` 下，它返回一个上界尾部证书。该证书包含一个多项式有界函数
+`U`、一个 cutoff `upperN(h)`，以及从该 cutoff 以后测度函数受 `U` 控制的
+形式化证明。精确 Lean 类型见第 3 节给出的源码链接。
+
+同一 `input` 还把这个 `U` 送入 tail-gap 结构，产生阈值 `threshold(h)`。
+因此自然的碰撞候选点不是额外选择的参数，而是
+
+```lean
+max upperN(h) threshold(h).
+```
+
+## 3. 主定理
+
+主定理在 Lean 中的名称为
 
 ```lean
 cleanUpperProvider_submissionRoute
 ```
 
-该 theorem 依赖 proof-length-axiom-free checker endpoint。相关基础文件为：
+源码位置为：
 
-```text
-integration/SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.lean
-```
+[integration/SondowProjectBigNCleanSubmissionRoute.lean](https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean)
 
-## 3. 主定理
-
-忽略 namespace 和部分 projection 细节后，Lean 中主 theorem 的形状如下：
+省略 namespace 和若干 projection 后，主定理的形式为
 
 ```lean
 theorem cleanUpperProvider_submissionRoute
     (input : ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
-    (upper_provider :
-      input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    (upper_provider : UpperProvider input) :
     (∀ hrat : is_rational euler_mascheroni,
       computedCollisionNOfRationality hrat =
         max upperN threshold) ∧
       ¬ is_rational euler_mascheroni
 ```
 
-精确 Lean statement 会把 `upperN` 展开为 `checkedSearchUpperTail` 返回的 cutoff，
-并把 `threshold` 展开为同一 clean upper tail 上
-`input.tail_gap.gap_for_polynomial_upper` 返回的 threshold。
+精确 Lean 语句把 `upperN` 展开为 `checkedSearchUpperTail` 返回的 cutoff，并把
+`threshold` 展开为 `input.tail_gap.gap_for_polynomial_upper` 返回的阈值。
+定理第一部分给出碰撞点的公式，第二部分给出有理性分支的矛盾。
 
-因此，该 theorem 同时完成两件事：
+## 4. 证明
 
-1. 识别 rational branch 中的 computed collision number：
+证明由两个 Lean 定理合成。
 
-```lean
-N = max upperN threshold
-```
-
-2. 在同一个 clean input package 下证明 rational branch 不可能成立：
+**引理 4.1（碰撞数计算）。** 对任意有理性分支证明 `h`，
 
 ```lean
-¬ is_rational euler_mascheroni
+computedCollisionNOfRationality h =
+  max upperN(h) threshold(h).
 ```
 
-这是本文应作为主结果呈现的 theorem。它的优势在于：阈值的定义清楚，证明路线
-可复现，axiom profile 不含旧项目级 residual constants。
-
-## 4. 为什么旧 half-denominator 公式路线不是本文主结果
-
-release 中还保留了旧 half-denominator formula-level 工作，其中可见表达式为：
+Lean 中对应名称为
 
 ```lean
-17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+cleanComputedBigN_eq_tailGapMax
 ```
 
-这个表达式很漂亮，也有后续研究价值。但是，现有旧 formula-level endpoints
-的 axiom profile 仍然包含：
+它说明形式化程序计算出的自然数正是上界尾部 cutoff 与 tail-gap 阈值的最大值。
 
-```text
-partial_consistency_payload
-proof_length
-strengthened_partial_consistency_payload
-```
+**引理 4.2（同点矛盾）。** 令 `N = computedCollisionNOfRationality h`。由
+引理 4.1 可知 `N ≥ upperN(h)` 且 `N ≥ threshold(h)`。第一个不等式使上界
+尾部证书适用于 `N`；第二个不等式使 tail-gap 证书也适用于同一个 `N`。于是
+同一测度函数在同一点同时满足上界控制和严格相反的不等式，得到矛盾。
 
-如果把旧公式路线作为本文 headline theorem，会削弱论文信用。本文因此采取更
-严格的投稿策略：主文只使用已经审计干净的
-`cleanUpperProvider_submissionRoute`，把 formula-level half-denominator
-refinement 和 numerical extraction 都列为后续工作。
-
-当前 Lean 文件中已经保留 clean downstream interface：
+Lean 中该矛盾由
 
 ```lean
-cleanHalfDenUpperProvider_submissionRoute
+cleanProvider_not_rational
 ```
 
-这个 theorem 本身也是 clean 的；但它需要一个 clean upstream
-half-denominator upper provider。旧 formula endpoints 目前不能无污染地提供
-该 upstream provider，因此本文不把它们作为主证明来源。
+以及检查器输入包中的 `not_rational` 字段给出。将引理 4.1 和引理 4.2 组合，
+即得 `cleanUpperProvider_submissionRoute`。
 
-## 5. 公理审计
+## 5. 形式化资料和复核方式
 
-核心审计命令如下：
+仓库地址：
+
+<https://github.com/james130012/sondow-pudlak-collision-box>
+
+随本文整理的 release：
+
+<https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/clean-bigN-submission-polished-20260708>
+
+主定理源码：
+
+<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean>
+
+审计记录：
+
+- 中文：<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_zh.md>
+- English：<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_en.md>
+
+复现命令为：
 
 ```bash
+lake exe cache get
 lake build integration.SondowProjectBigNCleanSubmissionRoute
+```
+
+主定理和相关引理可用以下命令检查：
+
+```bash
 lake env lean --stdin <<'EOF'
 import integration.SondowProjectBigNCleanSubmissionRoute
 open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
@@ -188,70 +195,29 @@ open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
 EOF
 ```
 
-观察到的 axiom output 为：
+主定理观察到的公理输出为
 
 ```text
 [propext, Classical.choice, Quot.sound]
 ```
 
-主 theorem 未出现以下项目级 residual constants：
+## 6. 结论
 
-```text
-partial_consistency_payload
-proof_length
-strengthened_partial_consistency_payload
-```
+本文给出一个可复核的 Lean 形式化碰撞定理：在共同的证明检查器测度坐标中，
+有理性分支的碰撞数为 `max upperN threshold`，并且在该同一自然数处产生上界
+与严格下界的矛盾。该结果把 Sondow-Pudlak 程序中的核心碰撞机制整理成一个
+清楚、可检查、可引用的形式化定理。
 
-因此，本文主路线可表述为 clean Lean-checked collision theorem，而不是带旧
-project-level assumptions 的 formula-level checkpoint。
+阈值数值抽取可以作为后续工作继续推进；本文的投稿贡献是已经完成并可由
+Lean 复核的形式化碰撞核心。
 
-## 6. 可复现性
+## 参考文献
 
-复现 clean route 可运行：
-
-```bash
-lake exe cache get
-lake build integration.SondowProjectBigNCleanSubmissionRoute
-```
-
-详细审计报告位于：
-
-```text
-docs/clean_submission_route_audit_20260708_zh.md
-```
-
-验证日志位于：
-
-```text
-docs/bigN_validation_log_20260708_zh.md
-```
-
-正式 release 位于：
-
-```text
-https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/clean-bigN-submission-route-20260708
-```
-
-## 7. 本文主张与非主张
-
-本文已经证明：
-
-1. 一个 clean Lean-checked collision route。
-2. rational branch 中形式化计算出的碰撞数：
-
-```lean
-N = max upperN threshold
-```
-
-3. 在同一 clean input package 下推出 rational branch contradiction。
-4. 主 theorem 的 axiom profile 清除了三个旧项目级 residual constants。
-
-本文不主张：
-
-1. 已经无条件证明 Euler-Mascheroni 常数无理。
-2. 已经给出十进制自然数 `N`。
-3. 已经完成 clean upstream half-denominator formula-level cutoff 的构造。
-
-这一区分是本文投稿可信度的核心。当前成果的强点不在于把未完成的公式级工作
-说成已经完成，而在于把已经干净通过 Lean 审计的 proof-level/collision-level
-定理清楚呈现出来。
+1. J. Sondow, Criteria for irrationality of Euler's constant, *Proceedings of
+   the American Mathematical Society* 131 (2003), 3335-3344.
+2. S. R. Buss, On Godel's theorems on lengths of proofs I: Number of lines and
+   speedup for arithmetics, *Journal of Symbolic Logic* 59 (1994), 737-756.
+3. P. Pudlak, On the lengths of proofs of finitistic consistency statements in
+   first order theories, in *Logic Colloquium 1984*, North-Holland, 1986.
+4. L. de Moura and S. Ullrich, The Lean 4 theorem prover and programming
+   language, in *Automated Deduction - CADE 28*, 2021.

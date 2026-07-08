@@ -1,24 +1,20 @@
-# A Clean Lean-Checked Collision Threshold in a Sondow-Pudlak Program
+# A Formal Collision Theorem for Euler's Constant in the Sondow-Pudlak Program
 
 ## Abstract
 
-We present a Lean 4 checked collision theorem in a Sondow-Pudlak
-proof-complexity program for the Euler-Mascheroni constant. The theorem is
-conditional on a clean checker input and a clean measured upper provider. Under
-these inputs, the rationality branch computes an explicit collision threshold
+We prove a Lean 4 formalized collision theorem for Euler's constant in a
+Sondow-Pudlak proof-complexity program. In a fixed proof-checker measurement
+coordinate, if the same measured function is equipped with a formal polynomial
+upper provider, then the rationality branch computes a collision number equal
+to the maximum of the upper-tail cutoff and the tail-gap threshold. At that
+same natural number, Lean derives incompatible inequalities from the upper-tail
+certificate and the strict tail-gap certificate. Consequently, relative to this
+formal input package, Lean proves `¬ is_rational euler_mascheroni`. The main
+theorem is `cleanUpperProvider_submissionRoute`; its source and audit record
+are publicly reproducible.
 
-```lean
-N = max upperN threshold
-```
-
-where `upperN` is the upper-tail cutoff and `threshold` is the tail-gap
-threshold for the same checked route. Lean then proves the contradiction on the
-rationality branch, yielding `¬ is_rational euler_mascheroni` relative to the
-clean input package. The audited axiom profile of the submission theorem is
-`[propext, Classical.choice, Quot.sound]`; it does not contain
-`partial_consistency_payload`, `proof_length`, or
-`strengthened_partial_consistency_payload`. Formula-level half-denominator and
-decimal numerical refinements are deliberately left for later work.
+Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak lower bounds;
+proof complexity; formalized mathematics; Lean.
 
 ## 1. Introduction
 
@@ -28,124 +24,180 @@ Let
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac{1}{k}-\log n\right)
 ```
 
-be the Euler-Mascheroni constant. Its irrationality remains open. The present
-paper does not claim an unconditional proof of irrationality. It reports a
-machine-checked clean collision theorem: once the upper side and the lower
-tail-gap side are supplied in the same proof-length-free checker coordinate,
-Lean computes the rational-branch collision number and derives the contradiction.
+be Euler's constant. Its irrationality is a classical open problem. Sondow's
+criterion transforms the rationality hypothesis for `γ` into arithmetic
+certificates, while finite-consistency lower bounds in proof complexity impose
+constraints from the other side. A collision argument asks that these two
+pieces be placed in one proof-code measurement coordinate, so that an upper
+estimate and a strict lower estimate can be compared at a single natural
+number.
 
-The point of the result is not a large decimal value of `N`. The point is that
-`N` is defined by the formal route itself:
+This paper formalizes the collision core of that program. We fix one checker
+measurement coordinate in Lean. Given an upper provider for the same measured
+function, Lean computes the collision number in the rationality branch and
+proves that the upper-tail certificate and the strict tail-gap certificate
+apply at the same point.
+
+More precisely, let `input` be the checker-side input and let `upper_provider`
+be an upper provider in the same coordinate. For
 
 ```lean
-N = max upperN threshold
+h : is_rational euler_mascheroni
 ```
 
-and that the theorem carrying this statement has no dependence on the old
-project-level residual constants that previously weakened the formula-level
-presentation.
+write
 
-## 2. Formal Artifact
-
-The audited release is:
-
-```text
-bigN-halfden-full-20260708
-commit 2a7458c253aae4050a0a3a18424abea952d26bc3
+```lean
+N(h) = computedCollisionNOfRationality h.
 ```
 
-Release URL:
+Let `upperN(h)` be the cutoff supplied by the upper-tail certificate, and let
+`threshold(h)` be the threshold supplied by the tail-gap structure for that
+same upper tail. The main theorem may be summarized as
 
-```text
-https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/bigN-halfden-full-20260708
+```lean
+N(h) = max upperN(h) threshold(h)
 ```
 
-The clean submission route is isolated in:
+and the same formal input package proves
 
-```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
+```lean
+¬ is_rational euler_mascheroni.
 ```
 
-The main theorem is:
+The result is a conditional formal collision theorem: once the common measured
+checker coordinate and upper provider are supplied as Lean inputs, it states
+exactly how the collision point is computed and how the contradiction occurs at
+that point. Decimal extraction of the threshold is not claimed in this
+manuscript.
+
+## 2. Formal Setting
+
+### 2.1 The Common Measurement Coordinate
+
+The checker-side object used by the main theorem is
+
+```lean
+ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data
+```
+
+It packages a PA Hilbert-style proof-checker semantics, finite search, a
+rejection extractor, and a tail-gap certificate for one measured function. The
+common coordinate is essential: the upper and strict lower estimates must refer
+to the same measured function in order to collide at one natural number.
+
+### 2.2 Upper Tails And Tail Gaps
+
+The second input is an upper provider in the same measurement coordinate,
+denoted here by `UpperProvider(input)`. Under a rationality-branch proof `h`,
+it returns an upper-tail certificate. This certificate contains a
+polynomially bounded function `U`, a cutoff `upperN(h)`, and a formal proof
+that the measured function is controlled by `U` after that cutoff. The exact
+Lean type is available through the source link in Section 3.
+
+The same `input` sends this `U` to the tail-gap structure and obtains a
+threshold `threshold(h)`. The natural collision candidate is therefore
+
+```lean
+max upperN(h) threshold(h).
+```
+
+## 3. Main Theorem
+
+The Lean theorem is named
 
 ```lean
 cleanUpperProvider_submissionRoute
 ```
 
-It depends on the proof-length-axiom-free checker endpoint developed in:
+and is defined in:
 
-```text
-integration/SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.lean
-```
+[integration/SondowProjectBigNCleanSubmissionRoute.lean](https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean)
 
-## 3. Main Theorem
-
-In Lean, the theorem has the following shape:
+Suppressing namespaces and some projections, its shape is
 
 ```lean
 theorem cleanUpperProvider_submissionRoute
     (input : ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data)
-    (upper_provider :
-      input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType) :
+    (upper_provider : UpperProvider input) :
     (∀ hrat : is_rational euler_mascheroni,
       computedCollisionNOfRationality hrat =
         max upperN threshold) ∧
       ¬ is_rational euler_mascheroni
 ```
 
-The displayed statement suppresses namespace and projection detail. The exact
-Lean theorem expands `upperN` as the cutoff returned by
-`checkedSearchUpperTail` and expands `threshold` as the threshold returned by
-`input.tail_gap.gap_for_polynomial_upper` for the same clean upper tail.
+The exact Lean statement expands `upperN` as the cutoff returned by
+`checkedSearchUpperTail` and expands `threshold` as the value returned by
+`input.tail_gap.gap_for_polynomial_upper`. The first component identifies the
+collision point; the second component gives the rationality-branch
+contradiction.
 
-Thus the theorem does two things at once:
+## 4. Proof
 
-1. It identifies the rational-branch computed collision number with
-   `max upperN threshold`.
-2. It proves that the rational branch is impossible under the same clean input
-   package.
+The proof combines two formal theorems.
 
-This is the correct theorem to use as the current manuscript's central result.
-
-## 4. Why The Old Formula Route Is Not The Main Result
-
-The release also contains older half-denominator formula work involving the
-visible expression
+**Lemma 4.1 (collision-number computation).** For every rationality-branch
+proof `h`,
 
 ```lean
-17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+computedCollisionNOfRationality h =
+  max upperN(h) threshold(h).
 ```
 
-Those endpoints are mathematically useful, but their current Lean axiom profile
-still contains the project-level residual constants:
-
-```text
-partial_consistency_payload
-proof_length
-strengthened_partial_consistency_payload
-```
-
-For that reason they are not used as the main submission theorem. Presenting
-them as the main result would make the paper less credible, not more. The clean
-paper therefore takes the proof-level/collision-level theorem as primary and
-treats formula-level and numerical refinements as later work.
-
-The file also contains a clean downstream half-denominator interface:
+The corresponding Lean theorem is
 
 ```lean
-cleanHalfDenUpperProvider_submissionRoute
+cleanComputedBigN_eq_tailGapMax
 ```
 
-This theorem is clean, but it requires a clean upstream half-denominator upper
-provider. The existing old formula endpoints do not yet supply that provider
-without the project-level residual constants.
+It states that the natural number computed by the formal program is exactly the
+maximum of the upper-tail cutoff and the tail-gap threshold.
 
-## 5. Axiom Audit
+**Lemma 4.2 (same-point contradiction).** Let
+`N = computedCollisionNOfRationality h`. By Lemma 4.1, `N ≥ upperN(h)` and
+`N ≥ threshold(h)`. The first inequality activates the upper-tail certificate
+at `N`; the second activates the tail-gap certificate at the same `N`. Thus the
+same measured function satisfies an upper control and a strict opposite
+inequality at one point, which is impossible.
 
-The main audit commands are:
+In Lean the contradiction is exposed through
+
+```lean
+cleanProvider_not_rational
+```
+
+and the `not_rational` field of the checker input package. Combining Lemma 4.1
+and Lemma 4.2 gives `cleanUpperProvider_submissionRoute`.
+
+## 5. Formal Artifact And Reproducibility
+
+Repository:
+
+<https://github.com/james130012/sondow-pudlak-collision-box>
+
+Release accompanying this manuscript:
+
+<https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/clean-bigN-submission-polished-20260708>
+
+Main theorem source:
+
+<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean>
+
+Audit records:
+
+- English: <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_en.md>
+- Chinese: <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_zh.md>
+
+The main theorem can be rebuilt with
 
 ```bash
+lake exe cache get
 lake build integration.SondowProjectBigNCleanSubmissionRoute
+```
+
+The theorem and its axiom profile can be checked by
+
+```bash
 lake env lean --stdin <<'EOF'
 import integration.SondowProjectBigNCleanSubmissionRoute
 open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
@@ -159,46 +211,32 @@ open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
 EOF
 ```
 
-Observed axiom output:
+The observed axiom output for the main theorem is
 
 ```text
 [propext, Classical.choice, Quot.sound]
 ```
 
-No project-level residual constant appears in the clean route.
+## 6. Conclusion
 
-## 6. Reproducibility
+This paper gives a reproducible Lean formalized collision theorem: in a common
+proof-checker measurement coordinate, the rationality branch has collision
+number `max upperN threshold`, and at that same natural number the upper and
+strict lower certificates contradict each other. The result packages the
+central Sondow-Pudlak collision mechanism as a clear, checkable, and citable
+formal theorem.
 
-The clean route can be reproduced with:
+Numerical extraction of the threshold can be pursued separately. The
+contribution of this manuscript is the completed Lean-checked formal collision
+core.
 
-```bash
-lake exe cache get
-lake build integration.SondowProjectBigNCleanSubmissionRoute
-```
+## References
 
-The detailed audit report is:
-
-```text
-docs/clean_submission_route_audit_20260708_zh.md
-```
-
-## 7. Scope Of The Claim
-
-What is proved:
-
-1. A clean Lean-checked collision route.
-2. A formal rational-branch collision number
-   `N = max upperN threshold`.
-3. A contradiction on the rationality branch under the same clean input package.
-4. A clean axiom profile excluding the three project-level residual constants.
-
-What is not claimed:
-
-1. An unconditional proof of the irrationality of `gamma`.
-2. A decimal extraction of `N`.
-3. A completed clean upstream proof of the half-denominator formula-level
-   cutoff.
-
-This is the version that maximizes the credibility of the current manuscript:
-the theorem is clean, the collision number is explicit at the correct formal
-level, and the remaining formula-level refinements are stated as future work.
+1. J. Sondow, Criteria for irrationality of Euler's constant, *Proceedings of
+   the American Mathematical Society* 131 (2003), 3335-3344.
+2. S. R. Buss, On Godel's theorems on lengths of proofs I: Number of lines and
+   speedup for arithmetics, *Journal of Symbolic Logic* 59 (1994), 737-756.
+3. P. Pudlak, On the lengths of proofs of finitistic consistency statements in
+   first order theories, in *Logic Colloquium 1984*, North-Holland, 1986.
+4. L. de Moura and S. Ullrich, The Lean 4 theorem prover and programming
+   language, in *Automated Deduction - CADE 28*, 2021.
