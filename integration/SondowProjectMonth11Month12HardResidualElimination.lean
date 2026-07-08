@@ -5510,6 +5510,97 @@ theorem finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_
               timeConstructiblePower_strict proof_length_tail_gap
               proof_length_eq_scale upper.U upper.polynomial upper.upperN
 
+/-- Same root-input endpoint, but with the tail-gap threshold exposed as an
+explicit function.  This is the numerical handoff form: once
+`thresholdOf upper.U upper.polynomial` is evaluated, the final natural number is
+exactly `max upper.upperN (thresholdOf upper.U upper.polynomial)`. -/
+theorem finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (proof_length_tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat =>
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n)))
+    (thresholdOf :
+      ∀ U : Nat → Real, _root_.is_polynomial_bound U → Nat)
+    (thresholdOf_eq :
+      ∀ U : Nat → Real, ∀ hU : _root_.is_polynomial_bound U,
+        (proof_length_tail_gap.gap_for_polynomial_upper U hU).threshold =
+          thresholdOf U hU)
+    (proof_length_eq_scale :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (scale_data.scale n : Real))
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (finalScaleSizeTailGapExactProofGapCore
+          timeConstructiblePower_strict proof_length_tail_gap
+          proof_length_eq_scale
+          |>.toCanonicalCalibratedExactnessCore
+          |>.scale_data
+          |>.powerBoundRawCode)
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let core :=
+      finalScaleSizeTailGapExactProofGapCore
+        timeConstructiblePower_strict proof_length_tail_gap
+        proof_length_eq_scale;
+    let upper :=
+      finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+        core
+        (finalExactCheckerCoreAdditiveProjectionOfConstant
+          core constant_projection)
+        hkernel hchecker hs21root hpudlakPA hrat;
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      core constant_projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      max upper.upperN
+        (thresholdOf upper.U upper.polynomial) := by
+  dsimp
+  let core :=
+    finalScaleSizeTailGapExactProofGapCore
+      timeConstructiblePower_strict proof_length_tail_gap
+      proof_length_eq_scale
+  let upper :=
+    finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+      core
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        core constant_projection)
+      hkernel hchecker hs21root hpudlakPA hrat
+  calc
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      core constant_projection hkernel hchecker
+      hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+        max upper.upperN
+          (proof_length_tail_gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).threshold := by
+          simpa [core, upper] using
+            finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max
+              timeConstructiblePower_strict proof_length_tail_gap
+              proof_length_eq_scale constant_projection hkernel hchecker
+              hs21root hpudlakPA hrat
+    _ =
+        max upper.upperN (thresholdOf upper.U upper.polynomial) := by
+          rw [thresholdOf_eq upper.U upper.polynomial]
+
 /-- C-line closure for the root-input tail-gap endpoint.  This is the point where
 the two requested roots and the old proof-length tail-gap model meet in one
 verified formula for the final computed collision index. -/

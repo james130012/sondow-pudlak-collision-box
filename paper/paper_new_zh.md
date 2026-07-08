@@ -1,193 +1,271 @@
-# Lean 检查的 Sondow-Pudlak 符号对撞证书
+# Lean 检查的 Sondow-Pudlak 存在性大 N 证书
 
 ## 摘要
 
-本文报告一个 Lean 4（证明器）检查的 Sondow-Pudlak symbolic collision certificate（符号对撞证书）。在 checked lower bound（检查下界）、explicit target upper（显式目标上界）、scale data（尺度数据）和 checker/project-length semantics（检查器/项目长度语义）按形式化接口给定时，Lean 已经把上下两侧推进到同一个 no-fallback bigN（无后备大阈值）上，并证明
+本文报告一个 Lean 4 检查的 Sondow-Pudlak 存在性大 `N` 证书。当前机器检查版本已经不只是给出外层接口或路线图，而是在 proof-length recognition package、Sondow/partial verifier trace、half-denominator Sondow tail、partial-consistency truth、source-minChecked calibration 和 Buss-Pudlak rescaling 等真实根输入下，证明最终 project-length endpoint 确实计算出某个自然数 `N`，并且该 `N` 满足所需的 source-side strict gap。
+
+核心 Lean 定理是：
 
 ```lean
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
-这不是一个只在自然语言中描述的对撞：`bigN`（大阈值）、`measured`（被测函数）、`upper.U`（上界函数）和两条不等式都出现在同一个 Lean theorem（Lean 定理）中。进一步的 computation-facing normal form（面向计算的规范形）证明该 `bigN` 正是
+其结论形如：
 
 ```lean
-rejectionExtractor.witness upper.U upper.polynomial 0
+∃ N : Nat,
+  endpointN = N ∧
+  N =
+    semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+      sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 ∧
+  (max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
 ```
 
-因此，当前成果的核心不是“假设存在某个很大的 N”，而是把同一个形式化见证压缩到 checker rejection extractor（检查器拒绝抽取器）的阈值 0 见证。
+这说明：存在性大 `N` 已经在 Lean 中闭合。当前尚未完成的是把这个 `N` 展开为一个显式十进制自然数。换言之，已完成的是 existence theorem（存在性定理），未完成的是 numeric extraction（数值抽取）。
 
-本文不声称已经给出 Euler-Mascheroni constant（欧拉-马歇罗尼常数）γ 的无条件无理性证明，也不声称已经输出 numeric N（数值阈值）。当前主张是更精确的：在项目的 checked lower bound（检查下界）接口内，Sondow 上界侧和 Pudlak 型下界侧的形式化对撞核心已经闭合，并且有可复刻的 public checkpoint（公开检查点）。
+本文还记录数值路线的最新 normal form：在旧 proof-length tail-gap 模型和 S²₁/PudlakPA root proof-length inputs 下，最终 computed collision index 可化为
 
-关键词：Euler-Mascheroni constant（欧拉-马歇罗尼常数）；Sondow criterion（Sondow 判据）；Pudlak finite consistency（Pudlak 有限一致性）；proof complexity（证明复杂度）；Peano Arithmetic（皮亚诺算术）；Lean 4（证明器）；symbolic collision（符号对撞）。
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
 
-## 1. 问题与目标
+因此后续自然数 `N` 的真实任务不是重新包装接口，而是计算或构造这个 `thresholdOf`，以及消去仍依赖 rational-parameter denominator 和 finite prefix 的残余。
 
-欧拉常数定义为
+关键词：Euler-Mascheroni constant；Sondow criterion；Pudlak finite consistency；proof length；Lean 4；existential big N；formal verification。
+
+## 1. 问题与结论边界
+
+欧拉-马歇罗尼常数定义为
 
 ```math
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right).
 ```
 
-γ 是否有理仍是公开问题。Sondow 的判据把 γ 的有理性与某些积分、乘积和小数部分条件联系起来；Pudlak-Friedman-Buss 方向的结果则给出 finite consistency statements（有限一致性陈述）的 proof-length lower bounds（证明长度下界）。本项目研究的是这两类信息能否在同一个 formal measurement coordinate（形式化测量坐标）上发生 collision（对撞）。
+γ 是否有理仍是公开问题。Sondow 的判据把 γ 的有理性与一族可验证的证书条件联系起来；Pudlak-Friedman-Buss 方向则提供有限一致性陈述的 proof-length lower bounds。项目目标是把二者放到同一个形式化测量坐标中，使上界侧和下界侧在同一个大 `N` 上相遇。
 
-一个有效对撞需要同时满足三件事。
+本文主张的边界如下。
 
-1. 上界侧必须给出某个 measured function（被测函数）的 eventual upper bound（最终上界）。
-2. 下界侧必须给出同一个 measured function（被测函数）的 strict lower/gap statement（严格下界/间隙陈述）。
-3. 两侧必须落在同一个 `bigN`（大阈值）和同一个 checker/project-length semantics（检查器/项目长度语义）上。
+1. 已证明：在当前 source-calibrated proof-length recognition route 内，存在一个自然数 `N`，最终 endpoint 正是该 `N`，并且 source-side strict inequality 在该 `N` 上成立。
+2. 已证明：该 `N` 的定义来源不是任意占位符，而是 `semanticStrongNatLowerBoundClassicalMonomialSearchWitness` 或在更显式 tail-gap 路线中化为 `max upperN thresholdOf(...)`。
+3. 未证明：一个完全展开的十进制自然数 `N = ...`。
+4. 未声称：无条件证明 γ 无理。
 
-前两点单独成立并不够。若上界和下界测量的是不同对象，就不会推出矛盾。本文的形式化重点正是把“同一对象”从直觉说法变成可检查的 Lean theorem（Lean 定理）。
+这一区分很重要。存在性大 `N` 已经是可审计的 Lean 结果；显式自然数 `N` 是下一阶段的计算/构造任务。
 
-## 2. 共同测量对象
+## 2. 形式化主定理
 
-项目中的共同测量对象由三层组成。
-
-第一层是 formula/code layer（公式/编码层）。所有要比较的公式族必须进入同一个 local code family（本地编码族），否则 Pudlak 侧下界和 Sondow 侧证书不能共同计量。
-
-第二层是 checker layer（检查器层）。项目使用本地 Hilbert/PA-style proof checker（Hilbert/PA 风格证明检查器）把 proof object（证明对象）和 formula code（公式编码）连接起来。这里的关键量不是抽象文字长度，而是 checker 可以识别的 minCheckedCodeSize（最小已检查码长）或 projectLength（项目长度）。
-
-第三层是 gap/search layer（间隙/搜索层）。对每个 polynomial upper bound（多项式上界），lower-side rejection extractor（下界侧拒绝抽取器）给出一个 witness（见证），在该见证处严格间隙成立。当前最新对接把目标阈值固定为 0，从而得到 no-fallback（无后备）的搜索见证。
-
-在这个坐标中，对撞的核心形状是：
-
-```math
-U(N) < M(N) \quad\text{and}\quad M(N) \le U(N).
-```
-
-这里 `M` 是形式化中的 `measured`（被测函数），`U` 是 `upper.U`（上界函数），`N` 是同一个 `bigN`（大阈值）。两条不等式合在一起给出 `False`（矛盾）。
-
-## 3. 当前主结果
-
-当前主结果可以用下面的 Lean theorem（Lean 定理）概括：
+当前 proof checkpoint 的主入口是：
 
 ```lean
-projectLengthExplicitTargetUpperSearchBigNCertificate_of_checkedLowerBound_noFallback
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
-它从 `InternalPudlakTheorem5CheckedPowerBoundLowerBound`（内部 Pudlak 第五定理检查幂界下界输入）直接构造 target-upper search bigN certificate（目标上界搜索大阈值证书）。该定理要求的主要输入包括：
+该定理的主要输入包括：
 
-1. `scale_data`（尺度数据）：包含缩放函数、幂界编码和相关单调性数据；
-2. `left_family` / `right_family`（左右证明族）：用于构造 conjunction/introduction route（合取引入路线）和右侧目标族；
-3. `lengthCodeAt`（长度编码函数）：把下界侧测量连接到项目中的 minCheckedCodeSize（最小已检查码长）；
-4. `checked_lower`（检查下界）：Pudlak 型幂界下界的已检查接口；
-5. polynomial bound certificates（多项式界证书）：证明左右证明族长度受多项式控制；
-6. `time_bound_strict`（时间界严格单调性）和 `exponent_ne_zero`（指数非零性）。
+1. `hrec : S21GraftProofLengthRecognitionTheorem`，给出 S²₁ proof-length recognition package；
+2. `sondowTrace` 和 `partialTrace`，给出两个 verifier trace soundness；
+3. `rat : MainSondowRationalParameter`，表示 rationality branch 中的 Sondow rational parameter；
+4. `partialTruth : PartialConsistencyAcceptedTruth`；
+5. `time_bound_strict` 与 `exponent_ne_zero`；
+6. `source_minChecked_calibration`，把 partial-consistency source proof length 校准到 `minCheckedCodeSize`；
+7. `buss_pudlak_rescaling`，把 Buss-Pudlak rescaling 输入转成 semantic strong lower bound。
 
-在这些输入下，定理返回同一个 `bigN` 上的完整 certificate package（证书包）：
+定理内部构造：
 
 ```lean
-upper.upperN = 0
-concreteFrontier.lower_search.rejectionExtractor.witness
-  upper.U upper.polynomial upper.upperN = bigN
-PAHilbertAcceptedProofCodeForFormulaCode
-  (concretePAHilbertPowerBoundChecker scale_data)
-  (scale_data.powerBoundRawCode bigN)
-  bigN
-scale_data.powerBoundRawCode bigN =
-  strengthenedPartialConsistencyCode (scale_data.scale bigN)
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
+h :=
+  hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+
+sondowThreshold :=
+  max 3 ((rat.q.den + 1) / 2)
+
+sondowPrefixCoeff :=
+  natPrefixMax h.sondow_proofs.length sondowThreshold
+
+sourceLength m :=
+  ((h.sondow_proofs.conjIntro h.partial_proofs)
+    |>.rightConjElim
+    |>.minCheckedCodeSize m)
 ```
 
-这个 theorem（定理）说明：checked lower bound（检查下界）已经不是停在外层假设或叙述接口上，而是被接到了 explicit target upper（显式目标上界）的 no-fallback（无后备）证书上。
-
-## 4. `bigN` 的规范形
-
-后续定理
+然后证明存在 `N : Nat`，使最终 endpoint 返回该 `N`，并且
 
 ```lean
-projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback_eq_rejectionExtractorWitness_zero
+(max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
 ```
 
-给出 computation-facing exactness（面向计算的精确性）：
+这个结论是实际 proof object 上的结论，不是自然语言中的“应当存在”。
+
+## 3. 两个根输入
+
+当前构造不是从空接口开始，而是从两个根输入出发。
+
+第一根是 S²₁ / Sondow proof-length side。相关桥接定理包括：
 
 ```lean
-bigN =
-  concreteFrontier.lower_search.rejectionExtractor.witness
-    upper.U upper.polynomial 0
+SondowReflectionGraftRootProofLengthConvention.ofRootS21AndPudlakPA
+
+sondowReflectionGraftRootProofLengthConvention_nonempty_of_rootS21_pudlakPA
+
+sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootS21_pudlakPA_and_rationalParameter
 ```
 
-这一步很重要。它排除了“形式上有一个存在见证，但不知道和计算路线是否一致”的残留。当前 `bigN`（大阈值）就是 lower search rejection extractor（下界搜索拒绝抽取器）对 `upper.U`（上界函数）和 `upper.polynomial`（上界多项式证书）在阈值 0 处给出的 witness（见证）。
+这些结果把 Sondow reflection-graft route 的 proof-length convention 拆成 S²₁ root calibration 和 Pudlak/PA root calibration，而不是把整块根假设隐藏成一个不透明包。
 
-换言之，当前尚未完成的是 numeric evaluation（数值求值），不是 symbolic identification（符号识别）。要输出具体自然数 `N`，还需要把 `upper.U`、`upper.polynomial`、`scale_data` 和 rejection extractor（拒绝抽取器）的可执行表示全部展开到可计算数据；但形式化对象已经被校准到唯一的计算入口。
+第二根是原有 proof-length tail-gap model。它在最终 C-line root route 中给出：
 
-## 5. 可复刻检查点
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max
+```
 
-仓库发布了 prerelease（预发布）：
+该定理把最终 computed collision index 化为：
+
+```lean
+max upper.upperN
+  (proof_length_tail_gap.gap_for_polynomial_upper
+    upper.U upper.polynomial).threshold
+```
+
+最新自然数路线进一步把这个 threshold 暴露为显式函数：
+
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+```
+
+其目标形状是：
+
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
+
+这就是后续要真正计算的自然数入口。
+
+## 4. 存在性大 N 与数值大 N
+
+存在性大 `N` 和数值大 `N` 是不同层级。
+
+存在性定理已经闭合，因为 `SemanticStrongNatLowerBound` 给出的是 `∃ᶠ n in atTop` 形式的强下界。Lean 用 classical witness 抽出满足目标多项式不等式的某个 `N`：
+
+```lean
+semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+```
+
+这足以证明：
+
+```lean
+∃ N : Nat, endpointN = N ∧ ...
+```
+
+但它不直接给出一个可打印的自然数。原因是 `SemanticStrongNatLowerBound` 是 Prop-level lower bound，而不是 executable search procedure。
+
+要得到数值大 `N`，必须走更强的可计算路线，例如：
+
+1. 给出 explicit tail-gap provider，并计算 `thresholdOf upper.U upper.polynomial`；
+2. 或给出 executable rejection extractor，并计算
+
+```lean
+extractor.witness upper.U upper.polynomial upper.upperN
+```
+
+当前 Lean 已经把最终自然数路线压缩到这些真实计算入口；剩余工作是构造这些入口，而不是再建立外层包装。
+
+## 5. Half-Denominator 路线的残余
+
+half-denominator Sondow tail 给出了更尖锐的阈值：
+
+```lean
+max 3 ((rat.q.den + 1) / 2)
+```
+
+在 one-higher-power 或 checked-prefix 条件下，相关 endpoint 可化成：
+
+```lean
+17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+```
+
+但是这个式子仍依赖 `rat.q.den`。由于 `rat : MainSondowRationalParameter` 来自 rationality branch，而最终目标正是推出 rationality branch 矛盾，不能把 `rat.q.den` 当作一个已知外部常数随意消去。
+
+项目中还证明了 prefix obstruction：
+
+```lean
+not_sondowCheckedHalfDenPrefix_of_rationalParameter
+```
+
+这说明 accepted/checked prefix premise 不能从 rational parameter 自动获得。它是一个真实的有限前缀障碍，不应被包装成“显然成立”。
+
+## 6. 可复刻版本
+
+Lean proof checkpoint 已发布为：
 
 ```text
-fcce697-symbolic-collision-checkpoint
+bigN-existence-20260708
 ```
 
-该 release（发布）固定到 commit（提交）
+对应提交：
 
 ```text
-fcce697c60adfe87d4d33515ff965322962fc994
+69f5ef28b0f1b62ff7276314423ce4f806c50d0c
 ```
 
-这个 checkpoint（检查点）可用于复刻“同一个 `bigN` 上出现两条相反不等式并推出 `False`”这一事实。它不是 numeric N checkpoint（数值阈值检查点），也不是 γ irrationality theorem（γ 无理性定理）；它是 symbolic collision checkpoint（符号对撞检查点）。
+该版本包含存在性大 `N` 的 Lean 证明，并经过以下检查：
 
-专家审计时应把这个检查点理解为：
+```bash
+git diff --check
+lake env lean integration/SondowProjectS21Kernel.lean
+lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
 
-1. collision kernel（对撞核心）已经机器检查；
-2. checked lower route（检查下界路线）已经对接到 no-fallback target upper route（无后备目标上界路线）；
-3. `bigN` 的后续计算目标已经规范化到 rejection extractor witness（拒绝抽取器见证）；
-4. 尚未输出具体自然数 `N`。
+其中 `ProjectLengthTargetUpperEndpoint.lean` 只有两个既有 `unnecessarySimpa` linter warning，没有 Lean 错误。
 
-## 6. 与 γ 无理性路线的关系
+本文修订版对应的审计发布标签为：
 
-本文不把当前结果包装成无条件的 γ 无理性证明。更准确的关系如下。
+```text
+bigN-existence-paper-20260708
+```
 
-Sondow side（Sondow 侧）负责从 rationality assumption（有理性假设）产生短证书或短验证路线。Pudlak side（Pudlak 侧）负责提供 finite-consistency/reflection family（有限一致性/反射族）的下界。项目中的 checker/project-length route（检查器/项目长度路线）负责证明二者确实作用于同一个 measured function（被测函数）。
+该标签用于下载更新后的论文源文件与 PDF/HTML 资产。它不改变上一段 Lean 证明 checkpoint 的边界，而是把论文说明和最新 `thresholdOf` 数值交接口同步到存在性大 `N` 状态。
 
-当前已经完成的是第三部分中最容易出逻辑漏洞的核心：同一个 `bigN`（大阈值）、同一个 `measured`（被测函数）、同一个 `upper.U`（上界函数）上的形式化对撞。尚未完成的是把所有外部数学输入都变成 parameter-free internal witnesses（无参数内部见证），并把最终 `bigN`（大阈值）求值成具体自然数。
+## 7. 审计清单
 
-因此，当前成果对完整 γ 路线的意义是：它把后续工作从“证明整个对撞是否能闭合”压缩为更具体的两个任务：
+专家审计时应优先检查以下点。
 
-1. 构造或引用足够强的 external mathematical inputs（外部数学输入），并在 Lean 中对齐到当前 checked lower interface（检查下界接口）；
-2. 展开 rejection extractor witness（拒绝抽取器见证）以得到 numeric N（数值阈值）。
+1. 主 theorem 是否确实返回 `∃ N : Nat`，而不是只声明外层 interface 非空。
+2. `source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling` 是否确实把 Buss-Pudlak rescaling 接到 `sourceLength`。
+3. `sondowThreshold` 和 `sondowPrefixCoeff` 是否来自真实 proof-family length，而不是人为常数。
+4. S²₁ root calibration 与 Pudlak/PA root calibration 是否通过 split-root constructor 合成。
+5. 数值路线中 `thresholdOf` 或 `extractor.witness` 是否是实际算法，而不是再次使用 `Classical.choose`。
 
-## 7. 公理和输入边界
+这些审计点能把“存在性大N”与“数值大N”严格分开，避免把已证明部分和未完成部分混在一起。
 
-当前成果的信用边界应分成两类。
+## 8. 后续自然数 N 路线
 
-第一类是 Lean/Mathlib（Lean 库）常规逻辑依赖，例如 `propext`、`Classical.choice` 和 `Quot.sound`。这类依赖来自 Lean 的标准数学基础。
+后续工作应集中在两个真实残余上。
 
-第二类是项目接口输入，包括 checked lower bound（检查下界）、scale data（尺度数据）、证明族、长度编码等。它们不是被隐藏的结论，而是在 theorem type（定理类型）中显式出现。对专家来说，关键审计问题不是“论文是否口头承诺这些输入存在”，而是：
+第一，构造 explicit tail-gap provider。若能给出
 
-1. 输入是否准确表达对应的 Sondow/Pudlak 数学内容；
-2. 输入是否足够强，能够产生当前 theorem（定理）需要的 checked lower bound（检查下界）；
-3. 输入是否能进一步构造成 parameter-free witness（无参数见证）；
-4. rejection extractor witness（拒绝抽取器见证）是否能被有效求值。
+```lean
+thresholdOf :
+  ∀ U : Nat → Real, is_polynomial_bound U → Nat
+```
 
-## 8. 剩余工作
+并证明它等于旧 proof-length tail-gap threshold，则最终自然数就是：
 
-剩余工作不应再表述为“对撞核心是否成立”。更准确的清单如下。
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
 
-第一，numeric N extraction（数值阈值抽取）。当前 `bigN` 已经被证明等于 rejection extractor witness（拒绝抽取器见证），但还没有把该见证展开成具体自然数。
+第二，构造 executable rejection extractor。若能给出真实的 `extractor.witness` 和 `extractor.cutoff`，并证明 finite candidate rejection，则最终自然数可直接由 witness 函数计算。
 
-第二，external-to-internal calibration（外部到内部校准）。Sondow 判据、Pudlak 型下界和 payload semantics（载荷语义）需要继续从文献陈述或项目接口推进到无参数、可审计的 Lean witnesses（Lean 见证）。
-
-第三，publication-grade audit（发表级审计）。正式论文需要把当前 theorem names（定理名）、release tag（发布标签）、axiom audit（公理审计）和可复刻步骤整理为稳定附录，并避免使用内部施工标签作为数学结构。
-
-这些剩余任务都很重，但它们与“当前是否已经形成同一 `bigN` 上的形式化对撞”不是同一个问题。后者已经由上述 Lean theorem（Lean 定理）和 checkpoint（检查点）支持。
+这两条路线都是从真实结构出发。它们不会通过新增接口本身解决问题；真正的工作是给出可计算 threshold 或 witness 的内容。
 
 ## 9. 结论
 
-当前项目已经取得一个明确的形式化成果：checked lower bound（检查下界）可以直接导出 no-fallback target-upper bigN certificate（无后备目标上界大阈值证书），并在同一个 `bigN` 上给出
+当前 Lean 项目已经证明存在性大 `N`：最终 project-length endpoint 返回某个自然数 `N`，该 `N` 是 source-calibrated lower-bound witness，并在该点满足严格 source-side gap。
 
-```lean
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
-```
+这已经足以作为一个独立的 formal checkpoint：存在性大 `N` 已机器检查。下一步不是重复包装该结果，而是沿 `thresholdOf` 或 executable `extractor.witness` 路线计算具体自然数 `N`。
 
-随后，`bigN` 又被证明等于 rejection extractor witness（拒绝抽取器见证）在阈值 0 处的值。这把符号对撞核心和未来的数值求值入口接到了一起。
-
-因此，当前版本适合被公开表述为：一个可复刻、Lean 检查的 Sondow-Pudlak symbolic collision checkpoint（符号对撞检查点）。它不是 γ 无理性的最终无条件证明，但它已经把对撞核心从概念路线推进到机器检查的同对象矛盾证书。
+因此，当前版本应公开表述为：一个 Lean 检查的 Sondow-Pudlak source-calibrated existential big-N certificate。它不是 γ 无理性的最终无条件证明，也不是数值 `N` 的最终输出；但它已经把“存在大N”从路线图推进到可复刻的机器检查定理。
 
 ## 参考文献
 

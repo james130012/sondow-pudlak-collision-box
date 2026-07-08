@@ -1,28 +1,39 @@
-# A Lean-Checked Sondow-Pudlak Symbolic Collision Certificate
+# A Lean-Checked Sondow-Pudlak Existential Big-N Certificate
 
 ## Abstract
 
-This paper reports a Lean 4 checked Sondow-Pudlak symbolic collision certificate. Given the formal interfaces for a checked lower bound, an explicit target upper bound, scale data, and checker/project-length semantics, Lean routes both sides to the same fallback-free `bigN` and proves
+This paper reports a Lean 4 checked existential big-`N` certificate in the Sondow-Pudlak project. The current verified development is no longer only an outer interface or a route diagram. From the proof-length recognition package, the Sondow and partial verifier traces, the half-denominator Sondow tail, partial-consistency truth, source-minChecked calibration, and Buss-Pudlak rescaling, Lean proves that the final project-length endpoint computes some natural number `N` and that the required source-side strict gap holds at that `N`.
+
+The main Lean theorem is:
 
 ```lean
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
-This is not an informal collision described outside the proof assistant: `bigN`, `measured`, `upper.U`, and the two opposite inequalities occur in one Lean theorem. A further computation-facing normal form proves that this `bigN` is exactly
+Its conclusion has the following shape:
 
 ```lean
-rejectionExtractor.witness upper.U upper.polynomial 0
+∃ N : Nat,
+  endpointN = N ∧
+  N =
+    semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+      sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 ∧
+  (max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
 ```
 
-Thus the current result does not merely assume the existence of some large threshold. It identifies the formal witness with the checker rejection extractor at threshold zero.
+Thus the existential big `N` is closed in Lean. What is not yet closed is the expansion of this `N` into a printed decimal natural number. In short, the present result is an existence theorem, not a numeric extraction theorem.
 
-The paper does not claim an unconditional proof that the Euler-Mascheroni constant γ is irrational, and it does not claim to print a concrete numeric value of `N`. The precise claim is that, inside the project checked-lower interface, the formal collision core between the Sondow upper side and the Pudlak-type lower side is closed and reproducible.
+The paper also records the current normal form for the numeric route. In the old proof-length tail-gap model, with the S²₁/PudlakPA root proof-length inputs exposed, the final computed collision index reduces to
 
-Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency; proof complexity; Peano Arithmetic; Lean 4; symbolic collision.
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
 
-## 1. Problem and Target
+The remaining numeric task is therefore concrete: compute or construct this `thresholdOf`, and remove the residual dependence on rational-parameter denominators and finite prefixes.
+
+Keywords: Euler-Mascheroni constant; Sondow criterion; Pudlak finite consistency; proof length; Lean 4; existential big N; formal verification.
+
+## 1. Problem and Boundary
 
 The Euler-Mascheroni constant is
 
@@ -30,172 +41,231 @@ The Euler-Mascheroni constant is
 \gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right).
 ```
 
-Whether γ is rational remains open. Sondow's criterion relates rationality of γ to integral, product, and fractional-part conditions. The Pudlak-Friedman-Buss line of work gives proof-length lower bounds for finite consistency statements. This project studies whether these two sources can be made to collide on one formal measurement coordinate.
+Whether γ is rational remains open. Sondow's criterion connects rationality of γ to a family of checkable certificate conditions. The Pudlak-Friedman-Buss line gives proof-length lower bounds for finite consistency statements. The project goal is to put these two sources into one formal measurement coordinate so that the upper and lower sides meet at the same large `N`.
 
-A valid collision requires three facts.
+The claim of this paper is bounded as follows.
 
-1. The upper side must supply an eventual upper bound for a measured function.
-2. The lower side must supply a strict lower or gap statement for the same measured function.
-3. Both sides must use the same `bigN` and the same checker/project-length semantics.
+1. Proved: in the current source-calibrated proof-length recognition route, there exists a natural number `N`; the final endpoint returns this `N`; and the source-side strict inequality holds at this `N`.
+2. Proved: this `N` is not an arbitrary placeholder. It is the `semanticStrongNatLowerBoundClassicalMonomialSearchWitness`, or, in the more explicit tail-gap route, it reduces to `max upperN thresholdOf(...)`.
+3. Not proved: a fully expanded decimal natural number `N = ...`.
+4. Not claimed: an unconditional proof that γ is irrational.
 
-The first two facts are not enough in isolation. If the upper and lower bounds measure different objects, no contradiction follows. The formal contribution is to turn the phrase “the same object” into a Lean-checkable theorem.
+This distinction is essential. The existential big `N` is already a Lean-checked result. The explicit natural number `N` is a later computation and construction task.
 
-## 2. The Common Measurement Object
+## 2. Main Formal Theorem
 
-The common measurement object has three layers.
-
-The first is the formula/code layer. All formula families to be compared must enter the same local code family; otherwise the Pudlak lower side and the Sondow certificate side are not jointly measurable.
-
-The second is the checker layer. The project uses a local Hilbert/PA-style proof checker to connect proof objects and formula codes. The relevant quantity is not an informal text length but the minimum checked-code size or project length recognized by the checker.
-
-The third is the gap/search layer. For each polynomial upper bound, the lower-side rejection extractor supplies a witness at which the strict gap holds. The current endpoint fixes the target cutoff at zero, giving a fallback-free search witness.
-
-In this coordinate, the collision has the form
-
-```math
-U(N) < M(N) \quad\text{and}\quad M(N) \le U(N).
-```
-
-Here `M` is the formal `measured` function, `U` is `upper.U`, and `N` is the same `bigN`. Together the two inequalities prove `False`.
-
-## 3. Current Main Result
-
-The current main result is summarized by the Lean theorem
+The main entry point of the proof checkpoint is:
 
 ```lean
-projectLengthExplicitTargetUpperSearchBigNCertificate_of_checkedLowerBound_noFallback
-```
-
-It constructs the target-upper search `bigN` certificate directly from
-
-```lean
-InternalPudlakTheorem5CheckedPowerBoundLowerBound
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
 The theorem consumes the following main inputs.
 
-1. `scale_data`: scaling, power-bound coding, and related monotonicity data.
-2. `left_family` and `right_family`: proof families used to build the conjunction-introduction route and the right target family.
-3. `lengthCodeAt`: the function connecting the lower-side measurement to the project minimum checked-code size.
-4. `checked_lower`: the checked interface for the Pudlak-type power-bound lower bound.
-5. Polynomial-bound certificates for the lengths of the two proof families.
-6. Strict monotonicity of the time bound and nonzero exponent data.
+1. `hrec : S21GraftProofLengthRecognitionTheorem`, the S²₁ proof-length recognition package.
+2. `sondowTrace` and `partialTrace`, the two verifier trace soundness inputs.
+3. `rat : MainSondowRationalParameter`, the Sondow rational parameter in the rationality branch.
+4. `partialTruth : PartialConsistencyAcceptedTruth`.
+5. `time_bound_strict` and `exponent_ne_zero`.
+6. `source_minChecked_calibration`, calibrating the partial-consistency source proof length to `minCheckedCodeSize`.
+7. `buss_pudlak_rescaling`, which turns the Buss-Pudlak rescaling input into a semantic strong lower bound.
 
-From these inputs the theorem returns one certificate package at the same `bigN`:
-
-```lean
-upper.upperN = 0
-concreteFrontier.lower_search.rejectionExtractor.witness
-  upper.U upper.polynomial upper.upperN = bigN
-PAHilbertAcceptedProofCodeForFormulaCode
-  (concretePAHilbertPowerBoundChecker scale_data)
-  (scale_data.powerBoundRawCode bigN)
-  bigN
-scale_data.powerBoundRawCode bigN =
-  strengthenedPartialConsistencyCode (scale_data.scale bigN)
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
-```
-
-This shows that the checked lower bound is no longer sitting at the level of prose or an outer interface. It is connected to the explicit target-upper fallback-free contradiction package.
-
-## 4. Normal Form for `bigN`
-
-The follow-up theorem
+Inside the theorem Lean constructs:
 
 ```lean
-projectLengthExplicitTargetUpperSearchBigN_of_checkedLowerBound_noFallback_eq_rejectionExtractorWitness_zero
+h :=
+  hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+
+sondowThreshold :=
+  max 3 ((rat.q.den + 1) / 2)
+
+sondowPrefixCoeff :=
+  natPrefixMax h.sondow_proofs.length sondowThreshold
+
+sourceLength m :=
+  ((h.sondow_proofs.conjIntro h.partial_proofs)
+    |>.rightConjElim
+    |>.minCheckedCodeSize m)
 ```
 
-proves the computation-facing exactness statement
+It then proves the existence of `N : Nat` such that the final endpoint returns `N` and
 
 ```lean
-bigN =
-  concreteFrontier.lower_search.rejectionExtractor.witness
-    upper.U upper.polynomial 0
+(max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
 ```
 
-This matters because it removes the residual ambiguity between an existential witness and the computation route. The current `bigN` is the lower-search rejection-extractor witness for `upper.U` and `upper.polynomial` at threshold zero.
+This is a conclusion about the actual formal proof objects. It is not a prose assertion that such an index ought to exist.
 
-Thus the remaining issue is numeric evaluation, not symbolic identification. To print an actual natural number `N`, one still has to unfold executable data for `upper.U`, `upper.polynomial`, `scale_data`, and the rejection extractor. But the formal object has already been calibrated to the unique computation entry point.
+## 3. The Two Root Inputs
 
-## 5. Reproducible Checkpoint
+The construction starts from two real roots.
 
-The repository published the prerelease
+The first root is the S²₁/Sondow proof-length side. The relevant bridge theorems include:
+
+```lean
+SondowReflectionGraftRootProofLengthConvention.ofRootS21AndPudlakPA
+
+sondowReflectionGraftRootProofLengthConvention_nonempty_of_rootS21_pudlakPA
+
+sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootS21_pudlakPA_and_rationalParameter
+```
+
+These results split the Sondow reflection-graft proof-length convention into S²₁ root calibration and Pudlak/PA root calibration. The root assumption is not hidden inside a single opaque package.
+
+The second root is the older proof-length tail-gap model. At the final C-line root route it gives:
+
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max
+```
+
+This theorem reduces the final computed collision index to:
+
+```lean
+max upper.upperN
+  (proof_length_tail_gap.gap_for_polynomial_upper
+    upper.U upper.polynomial).threshold
+```
+
+The current numeric route further exposes this threshold as an explicit function:
+
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+```
+
+with target shape:
+
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
+
+This is the natural-number entry point that remains to be computed.
+
+## 4. Existential Big N Versus Numeric Big N
+
+The existential big `N` and the numeric big `N` live at different levels.
+
+The existence theorem is closed because `SemanticStrongNatLowerBound` gives a strong lower bound of the form `∃ᶠ n in atTop`. Lean extracts a witness satisfying the target monomial inequality by:
+
+```lean
+semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+```
+
+This is enough to prove:
+
+```lean
+∃ N : Nat, endpointN = N ∧ ...
+```
+
+It does not print a natural number. The reason is structural: `SemanticStrongNatLowerBound` is a Prop-level lower bound, not an executable search procedure.
+
+To obtain a numeric `N`, the route must use stronger computable data, for example:
+
+1. an explicit tail-gap provider, followed by evaluation of `thresholdOf upper.U upper.polynomial`; or
+2. an executable rejection extractor, followed by evaluation of
+
+```lean
+extractor.witness upper.U upper.polynomial upper.upperN
+```
+
+The current Lean development has reduced the final natural-number task to these genuine computation entries. The remaining work is to construct their contents, not to add another outer wrapper.
+
+## 5. The Half-Denominator Residual
+
+The half-denominator Sondow tail gives the sharper threshold:
+
+```lean
+max 3 ((rat.q.den + 1) / 2)
+```
+
+Under one-higher-power or checked-prefix hypotheses, the corresponding endpoint reduces to:
+
+```lean
+17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+```
+
+This expression still depends on `rat.q.den`. Since `rat : MainSondowRationalParameter` belongs to the rationality branch, and the goal is to contradict that branch, `rat.q.den` cannot simply be treated as an external known constant.
+
+The development also proves the finite-prefix obstruction:
+
+```lean
+not_sondowCheckedHalfDenPrefix_of_rationalParameter
+```
+
+This shows that the accepted/checked prefix premise is not automatic from the rational parameter. It is a real finite-prefix obstruction and should not be packaged away as obvious.
+
+## 6. Reproducible Version
+
+The Lean proof checkpoint was released as:
 
 ```text
-fcce697-symbolic-collision-checkpoint
+bigN-existence-20260708
 ```
 
-It is pinned to commit
+at commit:
 
 ```text
-fcce697c60adfe87d4d33515ff965322962fc994
+69f5ef28b0f1b62ff7276314423ce4f806c50d0c
 ```
 
-This checkpoint reproduces the fact that the same `bigN` carries the two opposite inequalities and therefore `False`. It is not a numeric-`N` checkpoint, and it is not an irrationality theorem for γ. It is a symbolic collision checkpoint.
+That version contains the Lean proof of the existential big `N` and was checked with:
 
-An expert audit should read it as follows.
+```bash
+git diff --check
+lake env lean integration/SondowProjectS21Kernel.lean
+lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
 
-1. The collision kernel is machine checked.
-2. The checked-lower route is connected to the fallback-free target-upper route.
-3. The future computation target for `bigN` is normalized to a rejection-extractor witness.
-4. A concrete natural number `N` has not yet been printed.
+The `ProjectLengthTargetUpperEndpoint.lean` check reports two pre-existing `unnecessarySimpa` linter warnings and no Lean errors.
 
-## 6. Relation to the Irrationality Route
+The audit-paper release for this revision is:
 
-The result should not be packaged as an unconditional proof of the irrationality of γ. The accurate relationship is the following.
+```text
+bigN-existence-paper-20260708
+```
 
-The Sondow side is responsible for producing a short-certificate route from a rationality assumption. The Pudlak side is responsible for lower bounds for a finite-consistency or reflection family. The checker/project-length route proves that the two sides act on the same measured function.
+That tag is the download point for the updated paper sources and PDF/HTML assets. It does not change the Lean proof-checkpoint boundary above; it synchronizes the exposition and the latest `thresholdOf` numeric handoff theorem with the existential big-`N` state.
 
-The part that is now closed is the formal collision core most vulnerable to a logical mismatch: the same `bigN`, the same `measured` function, and the same `upper.U` are used for both inequalities. What remains is to turn all external mathematical inputs into parameter-free internal witnesses and to evaluate the final `bigN` as a concrete natural number.
+## 7. Audit Checklist
 
-Thus the present result narrows the remaining program to two tasks.
+An expert audit should focus on the following points.
 
-1. Construct or cite sufficiently strong external mathematical inputs and align them with the checked-lower interface.
-2. Unfold the rejection-extractor witness to obtain a numeric `N`.
+1. The main theorem really returns `∃ N : Nat`; it is not merely an outer nonempty interface.
+2. `source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling` really connects Buss-Pudlak rescaling to `sourceLength`.
+3. `sondowThreshold` and `sondowPrefixCoeff` come from actual proof-family lengths, not from artificial constants.
+4. The S²₁ root calibration and Pudlak/PA root calibration are combined through the split-root constructor.
+5. In the numeric route, `thresholdOf` or `extractor.witness` must be an actual algorithm, not another use of `Classical.choose`.
 
-## 7. Axiom and Input Boundary
+These points separate the proved existential statement from the still-open numeric extraction.
 
-The credit boundary has two parts.
+## 8. Remaining Natural-N Route
 
-The first part consists of standard Lean/Mathlib logical dependencies such as `propext`, `Classical.choice`, and `Quot.sound`.
+The next work should focus on two real residuals.
 
-The second part consists of project interface inputs: the checked lower bound, scale data, proof families, length coding, and polynomial-bound certificates. These are not hidden conclusions. They appear explicitly in the theorem type.
+First, construct an explicit tail-gap provider. If one supplies
 
-For an expert audit, the relevant questions are:
+```lean
+thresholdOf :
+  ∀ U : Nat → Real, is_polynomial_bound U → Nat
+```
 
-1. Do the inputs faithfully express the intended Sondow/Pudlak mathematics?
-2. Are the inputs strong enough to produce the checked lower bound required by the theorem?
-3. Can the inputs be made into parameter-free witnesses?
-4. Can the rejection-extractor witness be effectively evaluated?
+and proves that it is the old proof-length tail-gap threshold, then the final natural number is:
 
-## 8. Remaining Work
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
 
-The remaining work should not be described as “whether the collision core closes.” A more accurate list is:
+Second, construct an executable rejection extractor. If one supplies genuine `extractor.witness` and `extractor.cutoff` functions and proves finite candidate rejection, the final natural number can be computed directly from the witness function.
 
-First, numeric `N` extraction. The current `bigN` is proved equal to the rejection-extractor witness, but that witness has not yet been expanded into a concrete natural number.
-
-Second, external-to-internal calibration. The Sondow criterion, the Pudlak-type lower bound, and payload semantics must continue to be moved from literature statements or project interfaces into parameter-free Lean witnesses.
-
-Third, publication-grade audit. A formal paper should stabilize theorem names, release tags, axiom audits, and reproduction steps in an appendix, while avoiding internal construction labels as mathematical structure.
-
-These tasks are substantial, but they are distinct from the question whether the present development already contains a same-`bigN` formal collision. That fact is supported by the Lean theorem and the reproducible checkpoint above.
+Both routes start from real structure. Neither route is solved by adding interfaces alone; the substantive work is the construction of the computable threshold or witness.
 
 ## 9. Conclusion
 
-The current project establishes a precise formal result: a checked lower bound can directly produce a fallback-free target-upper `bigN` certificate, and at that same `bigN` Lean proves
+The current Lean project proves an existential big `N`: the final project-length endpoint returns a natural number `N`; this `N` is the source-calibrated lower-bound witness; and the required strict source-side gap holds at that point.
 
-```lean
-upper.U bigN < measured bigN
-measured bigN ≤ upper.U bigN
-False
-```
+This is already an independent formal checkpoint. The existential big `N` is machine checked. The next step is not to repackage the result, but to compute a concrete natural number through either the `thresholdOf` route or the executable `extractor.witness` route.
 
-The same `bigN` is then identified with the rejection-extractor witness at threshold zero. This connects the symbolic collision core to the future numeric-evaluation entry point.
-
-Accordingly, the current version is best described as a reproducible, Lean-checked Sondow-Pudlak symbolic collision checkpoint. It is not a final unconditional proof of the irrationality of γ, but it has moved the collision core from a conceptual route to a machine-checked same-object contradiction certificate.
+The current version is therefore best stated as a Lean-checked Sondow-Pudlak source-calibrated existential big-N certificate. It is not a final unconditional proof of the irrationality of γ, and it is not the final numeric `N`; but it moves the existence of big `N` from a route diagram into a reproducible machine-checked theorem.
 
 ## References
 
