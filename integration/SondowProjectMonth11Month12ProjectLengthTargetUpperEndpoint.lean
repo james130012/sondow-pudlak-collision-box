@@ -27057,6 +27057,14 @@ theorem natPrefixMax_le_of_bound_before {f : Nat → Nat}
           exact hbound n (Nat.lt_trans hn (Nat.lt_succ_self t))))
         (hbound t (Nat.lt_succ_self t))
 
+/-- The executable finite prefix maximum is monotone in the threshold. -/
+theorem natPrefixMax_mono_threshold {f : Nat → Nat}
+    {small large : Nat} (hle : small ≤ large) :
+    natPrefixMax f small ≤ natPrefixMax f large :=
+  natPrefixMax_le_of_bound_before (by
+    intro n hn
+    exact natPrefixMax_bound (Nat.lt_of_lt_of_le hn hle))
+
 /-- The finite prefix maximum is insensitive to pointwise-equal functions. -/
 theorem natPrefixMax_congr {f g : Nat → Nat} (threshold : Nat)
     (hfg : ∀ n : Nat, f n = g n) :
@@ -27134,6 +27142,44 @@ theorem S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCod
       (Or.inl ⟨n, rfl⟩)
   rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
   rfl
+
+/-- Half-denominator thresholds are monotone in the denominator bound.  This is
+the arithmetic step that turns a concrete denominator upper bound `D` into a
+fixed finite prefix range. -/
+theorem rationalParameterHalfDenThreshold_le_of_den_le
+    (rat : MainSondowRationalParameter) {D : Nat}
+    (hden : rat.q.den ≤ D) :
+    max 3 ((rat.q.den + 1) / 2) ≤ max 3 ((D + 1) / 2) := by
+  have hsucc : rat.q.den + 1 ≤ D + 1 := Nat.succ_le_succ hden
+  have hdiv : (rat.q.den + 1) / 2 ≤ (D + 1) / 2 :=
+    Nat.div_le_div_right hsucc
+  exact max_le (Nat.le_max_left 3 ((D + 1) / 2))
+    (Nat.le_trans hdiv (Nat.le_max_right 3 ((D + 1) / 2)))
+
+/-- A denominator upper bound fixes a larger MiniHilbert prefix maximum that
+dominates every remaining half-denominator prefix entry.  This is the finite
+computation target for the natural-number route once an explicit denominator
+bound `D` is available. -/
+theorem s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (rat : MainSondowRationalParameter) {D : Nat}
+    (hden : rat.q.den ≤ D) :
+    ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+      (_root_.s21GraftMiniHilbertProofCodeSemantics
+        hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+        (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+          s21SondowMiniHilbertMinProofCodeSizePrefixMax
+            hrec (max 3 ((D + 1) / 2)) := by
+  intro n hn
+  unfold s21SondowMiniHilbertMinProofCodeSizePrefixMax
+  exact
+    natPrefixMax_bound
+      (f := fun k : Nat =>
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode k) (Or.inl ⟨k, rfl⟩))
+      (Nat.lt_of_lt_of_le hn
+        (rationalParameterHalfDenThreshold_le_of_den_le rat hden))
 
 /-- Sondow component data where the finite-prefix coefficient is computed by
 `natPrefixMax` instead of supplied externally. -/
@@ -27814,6 +27860,81 @@ theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperDat
   exact
     projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound_bigN_eq_coeffFormula
       h sondowTrace partialTrace rat partialTruth sondowPrefixCoeff
+      sondowPrefixBound
+
+/-- Denominator-bound version of the MiniHilbert finite-prefix endpoint.  Once
+`rat.q.den ≤ D` is known, the remaining unknown prefix is replaced by the fixed
+finite maximum below `max 3 ((D+1)/2)`.  This is the natural-number computation
+handoff: a concrete `D` and a finite MiniHilbert prefix evaluation determine
+the displayed coefficient. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndDenBoundMiniHilbertPrefixMax_bigN_eq_coeffFormula
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (D : Nat)
+    (hden : rat.q.den ≤ D) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let fixedThreshold := max 3 ((D + 1) / 2)
+    let fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+    let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+        hrec rat hden
+    let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound
+      h sondowTrace partialTrace rat partialTruth fixedPrefixCoeff
+      sondowPrefixBound).coeff + 2 =
+        max 17 fixedPrefixCoeff + 8 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let fixedThreshold := max 3 ((D + 1) / 2)
+  let fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+  let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+      hrec rat hden
+  let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound_bigN_eq_coeffFormula
+      h sondowTrace partialTrace rat partialTruth fixedPrefixCoeff
       sondowPrefixBound
 
 /-- Half-denominator tail endpoint where the remaining finite prefix is
