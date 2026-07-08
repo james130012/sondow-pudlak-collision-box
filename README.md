@@ -59,14 +59,18 @@ dependencies.
 2a7458c253aae4050a0a3a18424abea952d26bc3
 ```
 
-- Clean-route audit report:
+- Clean-route audit report, English:
+  [`docs/clean_submission_route_audit_20260708_en.md`](docs/clean_submission_route_audit_20260708_en.md)
+- Clean-route audit report, Chinese:
   [`docs/clean_submission_route_audit_20260708_zh.md`](docs/clean_submission_route_audit_20260708_zh.md)
 - Validation log:
   [`docs/bigN_validation_log_20260708_zh.md`](docs/bigN_validation_log_20260708_zh.md)
 - Current status:
   [`STATUS.md`](STATUS.md)
-- Submission manuscript:
+- Submission manuscript, English:
   [`paper/submission_bigN_formal_manuscript_en.md`](paper/submission_bigN_formal_manuscript_en.md)
+- Submission manuscript, Chinese:
+  [`paper/submission_bigN_formal_manuscript_zh.md`](paper/submission_bigN_formal_manuscript_zh.md)
 - English paper draft:
   [`paper/paper_new_en.md`](paper/paper_new_en.md)
 - Chinese paper draft:
