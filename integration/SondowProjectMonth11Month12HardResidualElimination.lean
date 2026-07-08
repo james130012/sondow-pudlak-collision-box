@@ -2075,6 +2075,31 @@ theorem correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_
               (finalExactCheckerCoreActualUpperTail
                 input actual_upper hrat).upperN
 
+/-- The same final exact checker-core index, before rewriting through the
+transported proof-length gap: the actual computed `N` is exactly the finite
+rejection extractor witness at the upper tail produced under the rationality
+hypothesis. -/
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    (actual_upper :
+      Month9Month10AbstractMeasuredUpperProvider
+        (actualProofLengthMeasured input.toCanonicalCalibratedExactnessCore.scale_data))
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper
+      input actual_upper).computedCollisionNOfRationality hrat =
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+        (finalExactCheckerCoreActualUpperTail input actual_upper hrat).U
+        (finalExactCheckerCoreActualUpperTail
+          input actual_upper hrat).polynomial
+        (finalExactCheckerCoreActualUpperTail
+          input actual_upper hrat).upperN := by
+  simpa [correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper,
+    finalExactCheckerCoreActualUpperTail] using
+    correctedActualEndpointOfCanonicalCore_computed_n_eq
+      input.toCanonicalCalibratedExactnessCore actual_upper hrat
+
 /-- Payload-free audit package for the final exact checker-core route with an
 abstract actual upper provider.  Any remaining Sondow-side payload assumptions
 enter only when such an `actual_upper` is instantiated from the C-line route. -/
@@ -2283,6 +2308,42 @@ theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLen
                 input projection hkernel hchecker hlength hrat).polynomial
               (finalExactCheckerCoreCorrectedUpperTail
                 input projection hkernel hchecker hlength hrat).upperN
+
+/-- Split-length C-line version of the direct witness equation.  This exposes
+the old Sondow side as the same finite rejection search witness used by the
+root proof-length route. -/
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_computed_n_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      SondowProjectMonth11PAHilbertCheckerSurface.ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput
+        scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty
+        SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength
+      input projection hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).U
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTail
+          input projection hkernel hchecker hlength hrat).upperN := by
+  simpa [finalExactCheckerCoreCorrectedUpperTail] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_closure
+      input projection hkernel hchecker hlength |>.2.2.2.1 hrat
 
 /-- Terminal audit package for the corrected final exact checker-core route.
 It records that the exact-scale certificate shape is blocked, while the
@@ -4774,6 +4835,52 @@ theorem finalExactEndpointOfConstantProjectionCLine_computed_n_eq
                   input constant_projection)
                 hkernel hchecker hlength hrat).upperN
 
+/-- Constant-projection C-line endpoint, stated directly as the finite
+rejection extractor witness. -/
+theorem finalExactEndpointOfConstantProjectionCLine_computed_n_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate)
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hlength :
+      Nonempty SondowReflectionGraftSidecarSemanticLengthRecognitionSplitCertificate)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (finalExactEndpointOfConstantProjectionCLine input constant_projection
+      hkernel hchecker hlength).computedCollisionNOfRationality hrat =
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).U
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTail
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hlength hrat).upperN := by
+  simpa [finalExactEndpointOfConstantProjectionCLine] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerLength_computed_n_eq_rejectionExtractorWitness
+      input
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        input constant_projection)
+      hkernel hchecker hlength hrat
+
 theorem finalExactEndpointOfConstantProjectionCLine_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
@@ -4966,6 +5073,47 @@ theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRoo
         input projection hkernel hchecker hs21root hpudlakPA)
       hrat
 
+/-- Root S²₁/Pudlak C-line version of the direct finite-search witness
+equation.  This is the final-root route before the witness is rewritten through
+the transported proof-length gap. -/
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_computed_n_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+      input projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).upperN := by
+  simpa [
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA,
+    finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_rejectionExtractorWitness
+      input
+      (finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+        input projection hkernel hchecker hs21root hpudlakPA)
+      hrat
+
 theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_closure
     {scale_data : InternalPudlakTheorem5ScaleData}
     (input :
@@ -5098,6 +5246,54 @@ theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq
           hkernel hchecker hs21root hpudlakPA hrat).upperN := by
   simpa [finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA] using
     correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_computed_n_eq_proofLengthGapWitness
+      input
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        input constant_projection)
+      hkernel hchecker hs21root hpudlakPA hrat
+
+/-- Final constant-projection endpoint from the S²₁/Pudlak proof-length roots,
+stated directly as the finite rejection extractor witness. -/
+theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq_rejectionExtractorWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      input constant_projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      input.toCanonicalCalibratedExactnessCore.rejectionExtractor.witness
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).polynomial
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).upperN := by
+  simpa [finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_computed_n_eq_rejectionExtractorWitness
       input
       (finalExactCheckerCoreAdditiveProjectionOfConstant
         input constant_projection)
