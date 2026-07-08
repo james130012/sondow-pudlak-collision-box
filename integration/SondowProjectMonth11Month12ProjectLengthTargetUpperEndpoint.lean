@@ -27759,6 +27759,63 @@ theorem projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rational
   rw [projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_eventualAcceptedTraceAndPrefix_bigN_eq_coeffFormula]
   norm_num
 
+/-- Recognition-theorem form of the half-denominator finite-prefix endpoint
+where the prefix input is stated in the generated MiniHilbert proof-code
+semantics.  This is the finite root certificate needed for a numeric `N`: give
+a concrete upper bound for the remaining `minProofCodeSize` prefix, and the
+default target endpoint computes `max 17 C + 8`. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowMiniHilbertPrefixBound_bigN_eq_coeffFormula
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (sondowPrefixCoeff : Nat)
+    (sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            sondowPrefixCoeff) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound
+      h sondowTrace partialTrace rat partialTruth sondowPrefixCoeff
+      sondowPrefixBound).coeff + 2 = max 17 sondowPrefixCoeff + 8 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound_bigN_eq_coeffFormula
+      h sondowTrace partialTrace rat partialTruth sondowPrefixCoeff
+      sondowPrefixBound
+
 /-- Half-denominator tail endpoint where the remaining finite prefix is
 certified by accepted Sondow certificates, not by direct proof-family length
 bounds.  Trace soundness converts the accepted prefix into the required
@@ -27950,6 +28007,46 @@ theorem projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rational
   projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_prefixMax_le_17
     h sondowTrace partialTrace rat partialTruth
     (natPrefixMax_le_of_bound_before hprefix)
+
+/-- Recognition-theorem/MiniHilbert version of the half-denominator numeric
+collapse.  The remaining obligation is a finite proof-code-semantics check:
+all generated Sondow `minProofCodeSize` values below the half-denominator
+threshold are at most `17`; then the default target endpoint is exactly `25`. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_miniHilbertPrefix_le_17
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (hprefix :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤ 17) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth
+      h sondowTrace partialTrace rat partialTruth).coeff + 2 = 25 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  have hprefix_length :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ 17 := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using hprefix n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_prefix_lengths_le_17
+      h sondowTrace partialTrace rat partialTruth hprefix_length
 
 /-- Explicit natural-power upper data for the generated conj-source upper
 shape.  Since the generated real upper is `(left.conjIntro right).length + 2`,
