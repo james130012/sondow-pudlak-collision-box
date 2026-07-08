@@ -16,6 +16,8 @@ open SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
 open SondowProjectMonth11PAHilbertCheckerSurface
 open SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface
 
+universe u
+
 /-- Deliverable 1: strict growth of the scale follows from strict growth of the
 primitive time-constructible bound plus a nonzero exponent. -/
 theorem your_scale_strict_theorem
@@ -970,6 +972,157 @@ theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerLengt
       candidate residual projection
       (sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_splitLength
         hkernel hchecker hlength)
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
+/-- Local hard-residual splice from the two proof-length roots to the C-line
+minimal closure, avoiding any hidden split-length certificate in the final
+witness route. -/
+theorem cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds) :=
+  sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_rootConvention.{u}
+    hkernel hchecker
+    (by
+      rcases hs21root with ⟨s21root⟩
+      rcases hpudlakPA with ⟨pudlakPA⟩
+      exact
+        ⟨SondowReflectionGraftRootProofLengthConvention.ofSplitCalibrations
+          s21root pudlakPA.toRootPAProofLengthCalibration⟩)
+
+/-- Final corrected actual endpoint with the two proof-length roots exposed:
+the S²₁ sidecar/root calibration and the PA Buss/Pudlak sidecar/root
+calibration.  The resulting `computedCollisionNOfRationality` is the same
+lower-search rejection-extractor witness as in the split-length endpoint. -/
+def correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint scale_data :=
+  correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure
+    candidate residual projection
+    (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+      hkernel hchecker hs21root hpudlakPA)
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA
+      candidate residual projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      candidate.rejectionExtractor.witness
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+                hkernel hchecker hs21root hpudlakPA)))
+          hrat).U
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+                hkernel hchecker hs21root hpudlakPA)))
+          hrat).polynomial
+        (corrected_actual_upper_tail
+          candidate.rejectionExtractor
+          (correctedResidualOfProofLengthFreeCandidate residual)
+          (actualUpperProviderOfProofLengthFreeCandidateProjectUpper
+            candidate residual projection
+            (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+              (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+                hkernel hchecker hs21root hpudlakPA)))
+          hrat).upperN := by
+  simpa [
+    correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA,
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure] using
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure_closure
+      candidate residual projection
+      (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+        hkernel hchecker hs21root hpudlakPA)
+      |>.2.2.1 hrat
+
+theorem correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (candidate :
+      Month12ProofLengthFreeCheckerSearchCandidate scale_data)
+    (residual : Month12ProofLengthTransportResidual candidate)
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        scale_data candidate.checkerSemantics.toProofCodeSemantics)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    (correctedActualEndpointOfProofLengthFreeCandidateCLineKernelCheckerRootS21PudlakPA
+      candidate residual projection hkernel hchecker hs21root hpudlakPA).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured scale_data)) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfProofLengthFreeCandidateCLineMinimalClosure_closure
+      candidate residual projection
+      (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+        hkernel hchecker hs21root hpudlakPA)
   exact
     ⟨hclosure.1,
       hclosure.2.1,
@@ -4683,6 +4836,338 @@ theorem finalExactEndpointOfConstantProjectionCLine_closure
       hclosure.2.2.2.2.1,
       hclosure.2.2.2.2.2⟩
 
+/-! ## Final exact checker-core from the S²₁/Pudlak proof-length roots -/
+
+/-- Actual upper provider for the final exact checker core, with the Sondow side
+fed by the two proof-length roots rather than by the older split-length payload. -/
+noncomputable def finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Month9Month10AbstractMeasuredUpperProvider
+      (actualProofLengthMeasured
+        input.toCanonicalCalibratedExactnessCore.scale_data) :=
+  actualUpperProviderOfProjectUpperAndAdditiveProjection
+    projection
+    (checkedMeasuredToActualBridgeOfCanonicalCore
+      input.toCanonicalCalibratedExactnessCore)
+    (sondowCLineMinimalClosureCertificate_nonempty_to_projectCollapseConclusion
+      (cLineMinimalClosure_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+        hkernel hchecker hs21root hpudlakPA))
+
+/-- The transported C-line upper tail used by the final exact checker core when
+the C-line closure is built from the S²₁ proof-length root and the Pudlak/PA
+proof-length root. -/
+noncomputable def finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    PolynomialUpperTailCertificate
+      (actualProofLengthMeasured
+        input.toCanonicalCalibratedExactnessCore.scale_data) :=
+  finalExactCheckerCoreActualUpperTail input
+    (finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+      input projection hkernel hchecker hs21root hpudlakPA)
+    hrat
+
+/-- Final exact checker-core endpoint with the C-line upper side generated from
+the S²₁/Pudlak proof-length roots. -/
+def correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint
+      input.toCanonicalCalibratedExactnessCore.scale_data :=
+  correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper input
+    (finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+      input projection hkernel hchecker hs21root hpudlakPA)
+
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_computed_n_eq_proofLengthGapWitness
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+      input projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      (input.proof_length_gap.gap_for_polynomial_upper
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).polynomial).witness
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA hrat).upperN := by
+  simpa [
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA,
+    finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputActualUpper_computed_n_eq_proofLengthGapWitness
+      input
+      (finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+        input projection hkernel hchecker hs21root hpudlakPA)
+      hrat
+
+theorem correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (projection :
+      InternalPudlakTheorem5AdditiveProjectBoxProjection
+        input.toCanonicalCalibratedExactnessCore.scale_data
+        (input.toCanonicalCalibratedExactnessCore.checkerSemantics.toProofCodeSemantics))
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+      input projection hkernel hchecker hs21root hpudlakPA).Audit ∧
+      Nonempty
+        (Month12UnconditionalPAHilbertCheckerInternalizationCandidate
+          input.toCanonicalCalibratedExactnessCore.scale_data) ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured
+            input.toCanonicalCalibratedExactnessCore.scale_data)) ∧
+      (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+        (correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+          input projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+          (input.proof_length_gap.gap_for_polynomial_upper
+            (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+              input projection hkernel hchecker hs21root hpudlakPA hrat).U
+            (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+              input projection hkernel hchecker hs21root hpudlakPA hrat).polynomial).witness
+            (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+              input projection hkernel hchecker hs21root hpudlakPA hrat).upperN) ∧
+        (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+          False) ∧
+        ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    finalExactCheckerCoreActualUpperAudit_closure input
+      (finalExactCheckerCoreActualUpperOfCLineRootS21PudlakPA
+        input projection hkernel hchecker hs21root hpudlakPA)
+  exact
+    ⟨by
+      simpa [
+        correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA]
+        using hclosure.2.1,
+      ⟨month12CandidateOfCanonicalCore input.toCanonicalCalibratedExactnessCore⟩,
+      hclosure.2.2.1,
+      by
+        intro hrat
+        simpa [
+          correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA,
+          finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA]
+          using hclosure.2.2.2.1 hrat,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
+/-- Constant-projection endpoint whose C-line source is built from the S²₁ and
+Pudlak/PA proof-length roots. -/
+def finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Month9Month10ActualProofLengthDirectCollisionEndpoint
+      input.toCanonicalCalibratedExactnessCore.scale_data :=
+  correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA
+    input
+    (finalExactCheckerCoreAdditiveProjectionOfConstant
+      input constant_projection)
+    hkernel hchecker hs21root hpudlakPA
+
+theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      input constant_projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      (input.proof_length_gap.gap_for_polynomial_upper
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).U
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).polynomial).witness
+        (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+          input
+          (finalExactCheckerCoreAdditiveProjectionOfConstant
+            input constant_projection)
+          hkernel hchecker hs21root hpudlakPA hrat).upperN := by
+  simpa [finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA] using
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_computed_n_eq_proofLengthGapWitness
+      input
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        input constant_projection)
+      hkernel hchecker hs21root hpudlakPA hrat
+
+theorem finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (input :
+      ConcretePAHilbertPowerBoundFinalExactCheckerCoreInput scale_data)
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        input.toCanonicalCalibratedExactnessCore.scale_data.powerBoundRawCode
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      input constant_projection hkernel hchecker hs21root hpudlakPA).Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured
+            input.toCanonicalCalibratedExactnessCore.scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+            input constant_projection hkernel hchecker
+            hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+            (input.proof_length_gap.gap_for_polynomial_upper
+              (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hs21root hpudlakPA hrat).U
+              (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hs21root hpudlakPA hrat).polynomial).witness
+              (finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+                input
+                (finalExactCheckerCoreAdditiveProjectionOfConstant
+                  input constant_projection)
+                hkernel hchecker hs21root hpudlakPA hrat).upperN) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  have hclosure :=
+    correctedActualEndpointOfFinalExactCheckerCoreInputCLineKernelCheckerRootS21PudlakPA_closure
+      input
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        input constant_projection)
+      hkernel hchecker hs21root hpudlakPA
+  exact
+    ⟨by
+      simpa [finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA]
+        using hclosure.1,
+      hclosure.2.2.1,
+      finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq
+        input constant_projection hkernel hchecker hs21root hpudlakPA,
+      hclosure.2.2.2.2.1,
+      hclosure.2.2.2.2.2⟩
+
 /-! ## Tail-gap exact proof-gap C-line witness -/
 
 /-- Build the final scale-size exact proof-gap checker input from a tail-form
@@ -4931,6 +5416,186 @@ theorem finalScaleSizeTailGapExactProofGapEndpointCLine_closure
       finalScaleSizeTailGapExactProofGapEndpointCLine_computed_n_eq_max
         timeConstructiblePower_strict proof_length_tail_gap
         proof_length_eq_scale constant_projection hkernel hchecker hlength,
+      hclosure.2.2.2.1,
+      hclosure.2.2.2.2⟩
+
+/-- Root-input version of the tail-gap endpoint equation.  The Sondow upper side
+is generated from the S²₁/Pudlak proof-length roots, while the lower side is the
+old proof-length tail-gap model.  The resulting `N` is no longer an opaque
+rejection-extractor witness: it is the concrete tail-gap expression
+`max upperN threshold`. -/
+theorem finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (proof_length_tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat =>
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n)))
+    (proof_length_eq_scale :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (scale_data.scale n : Real))
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (finalScaleSizeTailGapExactProofGapCore
+          timeConstructiblePower_strict proof_length_tail_gap
+          proof_length_eq_scale
+          |>.toCanonicalCalibratedExactnessCore
+          |>.scale_data
+          |>.powerBoundRawCode)
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    let core :=
+      finalScaleSizeTailGapExactProofGapCore
+        timeConstructiblePower_strict proof_length_tail_gap
+        proof_length_eq_scale;
+    let upper :=
+      finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+        core
+        (finalExactCheckerCoreAdditiveProjectionOfConstant
+          core constant_projection)
+        hkernel hchecker hs21root hpudlakPA hrat;
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      core constant_projection hkernel hchecker hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+      max upper.upperN
+        (proof_length_tail_gap.gap_for_polynomial_upper
+          upper.U upper.polynomial).threshold := by
+  dsimp
+  let core :=
+    finalScaleSizeTailGapExactProofGapCore
+      timeConstructiblePower_strict proof_length_tail_gap
+      proof_length_eq_scale
+  let upper :=
+    finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+      core
+      (finalExactCheckerCoreAdditiveProjectionOfConstant
+        core constant_projection)
+      hkernel hchecker hs21root hpudlakPA hrat
+  calc
+    (finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      core constant_projection hkernel hchecker
+      hs21root hpudlakPA).computedCollisionNOfRationality hrat =
+        (core.proof_length_gap.gap_for_polynomial_upper
+          upper.U upper.polynomial).witness upper.upperN := by
+          simpa [core, upper] using
+            finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_computed_n_eq
+              core constant_projection hkernel hchecker
+              hs21root hpudlakPA hrat
+    _ =
+        max upper.upperN
+          (proof_length_tail_gap.gap_for_polynomial_upper
+            upper.U upper.polynomial).threshold := by
+          simpa [core, finalScaleSizeTailGapExactProofGapCore,
+            finalScaleSizeTailGapExactProofGapCheckerCoreInput] using
+            finalScaleSizeTailGapExactProofGap_witness_eq_max
+              timeConstructiblePower_strict proof_length_tail_gap
+              proof_length_eq_scale upper.U upper.polynomial upper.upperN
+
+/-- C-line closure for the root-input tail-gap endpoint.  This is the point where
+the two requested roots and the old proof-length tail-gap model meet in one
+verified formula for the final computed collision index. -/
+theorem finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_closure
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (timeConstructiblePower_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a ^ scale_data.exponent <
+          scale_data.time_constructible_bound b ^ scale_data.exponent)
+    (proof_length_tail_gap :
+      ComputableGapCertificate
+        (fun n : Nat =>
+          _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n)))
+    (proof_length_eq_scale :
+      ∀ n : Nat,
+        _root_.proof_length _root_.ProofSystem.PA
+            _root_.ProofLengthMeasure.symbolSize
+            (scale_data.powerBoundRawCode n) =
+          (scale_data.scale n : Real))
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (constant_projection :
+      _root_.ConstantProofLengthProjection
+        _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+        (finalScaleSizeTailGapExactProofGapCore
+          timeConstructiblePower_strict proof_length_tail_gap
+          proof_length_eq_scale
+          |>.toCanonicalCalibratedExactnessCore
+          |>.scale_data
+          |>.powerBoundRawCode)
+        _root_.sondowReflectionGraftCode)
+    (hkernel :
+      Nonempty SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21root :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpudlakPA :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    let core :=
+      finalScaleSizeTailGapExactProofGapCore
+        timeConstructiblePower_strict proof_length_tail_gap
+        proof_length_eq_scale;
+    let endpoint :=
+      finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+        core constant_projection hkernel hchecker hs21root hpudlakPA;
+    endpoint.Audit ∧
+      Nonempty
+        (ComputableSearchGapCertificate
+          (actualProofLengthMeasured
+            core.toCanonicalCalibratedExactnessCore.scale_data)) ∧
+        (∀ hrat : _root_.is_rational _root_.euler_mascheroni,
+          let upper :=
+            finalExactCheckerCoreCorrectedUpperTailRootS21PudlakPA
+              core
+              (finalExactCheckerCoreAdditiveProjectionOfConstant
+                core constant_projection)
+              hkernel hchecker hs21root hpudlakPA hrat;
+          endpoint.computedCollisionNOfRationality hrat =
+            max upper.upperN
+              (proof_length_tail_gap.gap_for_polynomial_upper
+                upper.U upper.polynomial).threshold) ∧
+          (∀ _hrat : _root_.is_rational _root_.euler_mascheroni,
+            False) ∧
+          ¬ _root_.is_rational _root_.euler_mascheroni := by
+  dsimp
+  let core :=
+    finalScaleSizeTailGapExactProofGapCore
+      timeConstructiblePower_strict proof_length_tail_gap
+      proof_length_eq_scale
+  let endpoint :=
+    finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA
+      core constant_projection hkernel hchecker hs21root hpudlakPA
+  have hclosure :=
+    finalExactEndpointOfConstantProjectionCLineRootS21PudlakPA_closure
+      core constant_projection hkernel hchecker hs21root hpudlakPA
+  exact
+    ⟨hclosure.1,
+      hclosure.2.1,
+      finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max
+        timeConstructiblePower_strict proof_length_tail_gap
+        proof_length_eq_scale constant_projection hkernel hchecker
+        hs21root hpudlakPA,
       hclosure.2.2.2.1,
       hclosure.2.2.2.2⟩
 

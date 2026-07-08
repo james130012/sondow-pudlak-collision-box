@@ -2184,6 +2184,98 @@ noncomputable def toSemanticNonemptyEventually
 
 end SondowReflectionGraftSidecarProofObjectSystemValidEventually
 
+namespace SondowReflectionGraftSidecarProofObjectSystemValidEventually
+
+/-- Splice an eventual sidecar proof-object construction with explicit
+small-index proof objects to obtain the all-index system-valid certificate
+needed by the concrete semantic-length route. -/
+def toSystemValidCertificateOfPrefix
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h :
+      SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds)
+    (prefix_at :
+      ∀ n : ℕ, n < h.threshold →
+        SondowReflectionGraftSidecarProofObjectSystemValidAt bounds n) :
+    SondowReflectionGraftSidecarProofObjectSystemValidCertificate
+      bounds where
+  proof_at := by
+    intro n
+    by_cases hn : h.threshold ≤ n
+    · exact h.proof_at n hn
+    · exact prefix_at n (Nat.lt_of_not_ge hn)
+
+/-- Checker-exact version of `toSystemValidCertificateOfPrefix`.  This is the
+root-level splice used when the finite prefix is already expressed in the fixed
+sidecar proof-object checkers. -/
+def toCheckerExactCertificateOfPrefix
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (h :
+      SondowReflectionGraftSidecarProofObjectSystemValidEventually
+        bounds)
+    (prefix_at :
+      ∀ n : ℕ, n < h.threshold →
+        SondowReflectionGraftSidecarProofObjectCheckerExactAt bounds n) :
+    SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+      bounds where
+  exact_at := by
+    intro n
+    by_cases hn : h.threshold ≤ n
+    · exact (h.proof_at n hn).toCheckerExactAt
+    · exact prefix_at n (Nat.lt_of_not_ge hn)
+
+end SondowReflectionGraftSidecarProofObjectSystemValidEventually
+
+/-- Concrete all-index sidecar proof-object certificate from the actual main
+eventual compiler, an explicit rational parameter, and finitely many
+small-index system-valid proof objects. -/
+def sidecarProofObjectSystemValidCertificate_of_mainEventualCompiler_rationalParameter_prefix
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (rat : MainSondowRationalParameter)
+    (prefix_at :
+      ∀ n : ℕ, n < max compiler.threshold (max 3 rat.q.den) →
+        SondowReflectionGraftSidecarProofObjectSystemValidAt bounds n) :
+    SondowReflectionGraftSidecarProofObjectSystemValidCertificate
+      bounds :=
+  (SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+      compiler rat).toSystemValidCertificateOfPrefix
+    (by
+      intro n hn
+      have hthreshold :
+          (SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+            compiler rat).threshold =
+            max compiler.threshold (max 3 rat.q.den) :=
+        SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter_threshold
+          compiler rat
+      exact prefix_at n (by simpa [hthreshold] using hn))
+
+/-- Concrete all-index checked sidecar certificate from the actual main
+eventual compiler, an explicit rational parameter, and finitely many
+small-index checker-exact proof objects. -/
+def sidecarProofObjectCheckerExactCertificate_of_mainEventualCompiler_rationalParameter_prefix
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (rat : MainSondowRationalParameter)
+    (prefix_at :
+      ∀ n : ℕ, n < max compiler.threshold (max 3 rat.q.den) →
+        SondowReflectionGraftSidecarProofObjectCheckerExactAt bounds n) :
+    SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+      bounds :=
+  (SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+      compiler rat).toCheckerExactCertificateOfPrefix
+    (by
+      intro n hn
+      have hthreshold :
+          (SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter
+            compiler rat).threshold =
+            max compiler.threshold (max 3 rat.q.den) :=
+        SondowReflectionGraftSidecarProofObjectSystemValidEventually.ofMainEventualCompilerAndRationalParameter_threshold
+          compiler rat
+      exact prefix_at n (by simpa [hthreshold] using hn))
+
 namespace SondowReflectionGraftSidecarComponentProofObjectExistsEventually
 
 noncomputable def toSystemValidEventually
@@ -3284,6 +3376,86 @@ def toRootPAProofLengthCalibration
 
 end SondowReflectionGraftRootPALengthFromPudlakCalibration
 
+namespace SondowReflectionGraftRootProofLengthConvention
+
+/-- Build the reflection-graft root convention directly from the two root
+length sources: the S²₁ sidecar/root calibration and the PA Buss/Pudlak
+sidecar/root calibration. -/
+def ofRootS21AndPudlakPA
+    (hs21 : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    SondowReflectionGraftRootProofLengthConvention :=
+  ofSplitCalibrations hs21 hpa.toRootPAProofLengthCalibration
+
+end SondowReflectionGraftRootProofLengthConvention
+
+theorem sondowReflectionGraftRootProofLengthConvention_nonempty_of_rootS21_pudlakPA
+    (hs21 :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Nonempty SondowReflectionGraftRootProofLengthConvention := by
+  rcases hs21 with ⟨s21⟩
+  rcases hpa with ⟨pa⟩
+  exact
+    ⟨SondowReflectionGraftRootProofLengthConvention.ofRootS21AndPudlakPA
+      s21 pa⟩
+
+/-- Eventual concrete semantic-length calibration from the same two root
+length sources plus the Sondow sidecar S²₁ proof objects. -/
+def SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.ofSidecarSemanticNonemptyEventuallyAndRootS21PudlakPA
+    (hside : SondowReflectionGraftSidecarS21SemanticNonemptyEventually)
+    (hs21 : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    SondowReflectionGraftConcreteSemanticLengthCalibrationEventually :=
+  SondowReflectionGraftConcreteSemanticLengthCalibrationEventually.ofSidecarSemanticNonemptyEventuallyAndSplitRootCalibrations
+    hside hs21 hpa.toRootPAProofLengthCalibration
+
+/-- Tail verification bridge with the two proof-length roots exposed rather
+than hidden behind `SondowReflectionGraftRootProofLengthConvention`. -/
+noncomputable def sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootS21_pudlakPA_and_rationalParameter
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hs21root : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (rat : MainSondowRationalParameter) :
+    EventualShortVerificationBridgeOnTail
+      _root_.ProofSystem.PA _root_.ProofLengthMeasure.symbolSize
+      _root_.sondowReflectionGraftCode :=
+  sondowReflectionGraftTailVerificationBridge_of_mainEventualCompiler_rootConvention_and_rationalParameter
+    hs21 compiler
+    (SondowReflectionGraftRootProofLengthConvention.ofRootS21AndPudlakPA
+      hs21root hpa)
+    rat
+
+theorem sondowReflectionGraftTailVerificationBridge_rationalParameter_explicit_short_proofs_after_of_rootS21_pudlakPA
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hs21 :
+      _root_.EventualShortVerificationBridge
+        _root_.ProofSystem.S21 _root_.ProofLengthMeasure.symbolSize
+        _root_.sondowReflectionGraftCode)
+    (compiler :
+      MainSondowEventualFullCertificateComponentProofCompiler bounds)
+    (hs21root : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration)
+    (rat : MainSondowRationalParameter) :
+    ∃ g : ℕ → ℝ, _root_.is_polynomial_bound g ∧
+      ∀ n : ℕ, max compiler.threshold (max 3 rat.q.den) ≤ n →
+        _root_.accepted_certificate (_root_.sondowReflectionGraftCode n) →
+          _root_.proof_length _root_.ProofSystem.PA
+              _root_.ProofLengthMeasure.symbolSize
+              (_root_.sondowReflectionGraftCode n) ≤ g n :=
+  sondowReflectionGraftTailVerificationBridge_rationalParameter_explicit_short_proofs_after
+    hs21 compiler
+    (SondowReflectionGraftRootProofLengthConvention.ofRootS21AndPudlakPA
+      hs21root hpa)
+    rat
+
 /-- Split certificate chain for the concrete semantic length calibration. -/
 structure SondowReflectionGraftConcreteSemanticLengthCalibrationCertificate where
   sidecar_s21_nonempty :
@@ -3367,6 +3539,28 @@ def ofSidecarProofObjectsAndSplitRootCalibration
   sidecar_s21_nonempty := hside.toSidecarS21SemanticNonempty
   root_s21_calibration := hs21
   root_pa_calibration := hpa
+
+def ofSidecarProofObjectsAndRootS21PudlakPA
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hside :
+      SondowReflectionGraftSidecarProofObjectSystemValidCertificate
+        bounds)
+    (hs21 : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    SondowReflectionGraftConcreteSemanticLengthCalibrationCertificate :=
+  ofSidecarProofObjectsAndSplitRootCalibration hside hs21
+    hpa.toRootPAProofLengthCalibration
+
+def ofCheckerExactAndRootS21PudlakPA
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hchecker :
+      SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+        bounds)
+    (hs21 : SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa : SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    SondowReflectionGraftConcreteSemanticLengthCalibrationCertificate :=
+  ofSidecarProofObjectsAndRootS21PudlakPA
+    hchecker.toProofObjectSystemValidCertificate hs21 hpa
 
 end SondowReflectionGraftConcreteSemanticLengthCalibrationCertificate
 
@@ -4531,6 +4725,27 @@ theorem sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_spl
     hkernel hchecker
     (sondowReflectionGraftRootProofLengthConvention_nonempty_iff_splitCalibrations_nonempty.mpr
       ⟨hs21, hpa⟩)
+
+/-- C-line closure with the two root proof-length sources exposed: the S²₁
+sidecar/root calibration and the PA Buss/Pudlak sidecar/root calibration. -/
+theorem sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_rootS21_pudlakPA
+    {bounds : BoundedArithmeticLab.SondowComponentBounds}
+    (hkernel :
+      Nonempty
+        SondowProjectLocalS21KernelCostAbsorptionCertificate.{u})
+    (hchecker :
+      Nonempty
+        (SondowReflectionGraftSidecarProofObjectCheckerExactCertificate
+          bounds))
+    (hs21 :
+      Nonempty SondowReflectionGraftRootS21ProofLengthCalibration)
+    (hpa :
+      Nonempty SondowReflectionGraftRootPALengthFromPudlakCalibration) :
+    Nonempty (SondowCLineMinimalClosureCertificate.{u} bounds) :=
+  sondowCLineMinimalClosureCertificate_nonempty_of_kernel_checkerExact_rootConvention
+    hkernel hchecker
+    (sondowReflectionGraftRootProofLengthConvention_nonempty_of_rootS21_pudlakPA
+      hs21 hpa)
 
 theorem sondowCLineMinimalClosureCertificate_nonempty_of_kernel_systemValid_splitRootCalibrations
     {bounds : BoundedArithmeticLab.SondowComponentBounds}
