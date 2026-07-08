@@ -11,41 +11,71 @@ Release commit:
 
 ## Conclusion
 
-The submission route should use the clean checker/collision theorem:
+This file records the first-stage clean checker/collision route.  The second
+stage has added the parameter-closure route:
 
 ```lean
-cleanUpperProvider_submissionRoute
+singletonMonomialLowerBound_submissionRoute
 ```
 
 defined in:
 
 ```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
+integration/SondowProjectBigNParameterClosureAudit.lean
 ```
 
-This theorem states that, for a clean input and a clean upper provider, Lean
-proves that the rational branch computes the collision number
+The new submission-facing theorem no longer exposes `upper_provider`,
+`tail_gap`, or `eventually_strict_length` on the theorem surface.  It compresses
+the remaining mathematical obligation to the monomial growth statement
 
 ```lean
-N = max upperN threshold
+thresholdOfMonomial coeff degree <= n ->
+  coeff * (n + 1)^degree < minCheckedCodeSize n
 ```
 
-and that the same route proves
+and proves the formula-level collision index
 
 ```lean
-¬ is_rational euler_mascheroni
+bigN = thresholdOfMonomial upper_data.coeff upper_data.degree
 ```
 
-This is the most credible current submission result. It keeps a concrete formal
-definition of `N` at the proof-level/collision-level and places the proof route
-on the clean checker/collision core that passed the axiom audit.
+as well as the corresponding `¬ is_rational euler_mascheroni` conclusion under
+that input.  See the detailed parameter-closure audit:
+
+```text
+docs/parameter_closure_audit_20260708_en.md
+```
+
+The `cleanUpperProvider_submissionRoute` audit below remains valid, but it is
+now an intermediate route: it eliminates the three project-level residual
+constants while still exposing the explicit `upper_provider` and `tail_gap`
+parameters.
 
 ## Project-Level Dependencies
 
 For the current submission route, the three project-level residual constants
 have been eliminated.
 
-Audit commands:
+Parameter-closure audit commands:
+
+```bash
+lake build integration.SondowProjectBigNParameterClosureAudit
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectBigNParameterClosureAudit
+open SondowMainCheckedCodeBridge.SondowProjectBigNParameterClosureAudit
+
+#check singletonMonomialLowerBound_submissionRoute
+#print axioms singletonMonomialLowerBound_submissionRoute
+EOF
+```
+
+Observed axiom profile:
+
+```text
+[propext, Classical.choice, Quot.sound]
+```
+
+First-stage clean-route audit commands:
 
 ```bash
 lake build integration.SondowProjectBigNCleanSubmissionRoute

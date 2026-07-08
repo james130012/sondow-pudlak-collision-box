@@ -11,40 +11,67 @@ Release commit：
 
 ## 结论
 
-本轮投稿主线应使用干净 checker/collision 路线：
+本文件记录第一阶段 clean checker/collision 路线。第二阶段已经新增参数闭合
+路线：
 
 ```lean
-cleanUpperProvider_submissionRoute
+singletonMonomialLowerBound_submissionRoute
 ```
 
 所在文件：
 
 ```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
+integration/SondowProjectBigNParameterClosureAudit.lean
 ```
 
-该 theorem 的作用是：在 clean input 和 clean upper provider 给定后，Lean
-证明 rational branch 中计算出的碰撞数满足
+新的投稿主线不再在 theorem surface 暴露 `upper_provider`、`tail_gap` 或
+`eventually_strict_length`。它把剩余数学义务压缩为单项式增长下界：
 
 ```lean
-N = max upperN threshold
+thresholdOfMonomial coeff degree <= n ->
+  coeff * (n + 1)^degree < minCheckedCodeSize n
 ```
 
-并且同一路线推出：
+并证明公式级碰撞指标：
 
 ```lean
-¬ is_rational euler_mascheroni
+bigN = thresholdOfMonomial upper_data.coeff upper_data.degree
 ```
 
-这是当前最可信的投稿主结果。它保留了明确的 `N` 生成公式
-`max upperN threshold`，并把证明路线放在已经通过 axiom audit 的 clean
-checker/collision core 上。
+以及同一路线下的 `¬ is_rational euler_mascheroni`。详细参数闭合审计见：
+
+```text
+docs/parameter_closure_audit_20260708_zh.md
+```
+
+下面的 `cleanUpperProvider_submissionRoute` 审计仍然有效，但现在应视为中间
+路线：它已经清除三个项目级 residual constants，却仍暴露 `upper_provider`
+和 `tail_gap` 两个显式参数。
 
 ## 三个项目级依赖是否已经清除
 
 对当前投稿主线，结论是：已经清除。
 
-实际检查命令：
+参数闭合主线的检查命令：
+
+```bash
+lake build integration.SondowProjectBigNParameterClosureAudit
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectBigNParameterClosureAudit
+open SondowMainCheckedCodeBridge.SondowProjectBigNParameterClosureAudit
+
+#check singletonMonomialLowerBound_submissionRoute
+#print axioms singletonMonomialLowerBound_submissionRoute
+EOF
+```
+
+观察到的 axiom profile 同样为：
+
+```text
+[propext, Classical.choice, Quot.sound]
+```
+
+第一阶段 clean route 的检查命令：
 
 ```bash
 lake build integration.SondowProjectBigNCleanSubmissionRoute

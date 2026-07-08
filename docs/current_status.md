@@ -1,15 +1,17 @@
 # Current Formal Status
 
-The current public artifact is a Lean-checked clean Sondow-Pudlak collision
-route. It should be read as a reproducible formal certificate for the
-proof-level/collision-level threshold
+The current public artifact is a Lean-checked Sondow-Pudlak collision route
+with the two earlier public parameters `upper_provider` and `tail_gap` pushed
+upstream.  It should be read as a reproducible formal certificate for the
+formula-level threshold
 
 ```lean
-N = max upperN threshold
+bigN = thresholdOfMonomial upper_data.coeff upper_data.degree
 ```
 
-not as a final unconditional proof of the irrationality of Euler's constant and
-not as a decimal extraction of `N`.
+under the displayed monomial growth input for `minCheckedCodeSize`, not as a
+final unconditional proof of the irrationality of Euler's constant and not as a
+decimal extraction of `N`.
 
 ## Reproducible Checkpoint
 
@@ -19,23 +21,26 @@ The audited release is `bigN-halfden-full-20260708`, pinned to commit:
 2a7458c253aae4050a0a3a18424abea952d26bc3
 ```
 
-The clean submission theorem is:
+The current submission theorem is:
 
 ```lean
-cleanUpperProvider_submissionRoute
+singletonMonomialLowerBound_submissionRoute
 ```
 
 defined in:
 
 ```text
-integration/SondowProjectBigNCleanSubmissionRoute.lean
+integration/SondowProjectBigNParameterClosureAudit.lean
 ```
 
 It demonstrates:
 
-- the clean rational branch computes `N = max upperN threshold`;
-- the `upperN` and `threshold` come from the same clean checker route;
-- the route derives the contradiction on the rational branch;
+- the public theorem surface no longer exposes `upper_provider`, `tail_gap`, or
+  `eventually_strict_length`;
+- the certified collision index is
+  `thresholdOfMonomial upper_data.coeff upper_data.degree`;
+- the route derives the formal collision contradiction from the monomial
+  growth input;
 - the audited axiom profile is `[propext, Classical.choice, Quot.sound]`;
 - the theorem does not depend on `partial_consistency_payload`, `proof_length`,
   or `strengthened_partial_consistency_payload`.
@@ -49,8 +54,10 @@ It demonstrates:
 
 ## Remaining Work
 
-- Clean upstream construction of the half-denominator upper provider.
-- Formula-level refinement to
-  `17 * (max 3 ((rat.q.den + 1) / 2)) + 8`.
+- Close the monomial growth theorem
+  `thresholdOfMonomial coeff degree <= n ->
+    coeff * (n + 1)^degree < minCheckedCodeSize n`.
+- Clean upstream construction of the old half-denominator upper provider, if
+  the half-denominator formula is needed later.
 - Decimal numerical extraction after the formula-level and executable threshold
   work is complete.

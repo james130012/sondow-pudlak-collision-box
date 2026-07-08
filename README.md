@@ -9,30 +9,39 @@ proof-complexity collision program around the Euler-Mascheroni constant
 The current submission theorem is
 
 ```lean
-cleanUpperProvider_submissionRoute
+singletonMonomialLowerBound_submissionRoute
 ```
 
 Public source link:
 
-<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNCleanSubmissionRoute.lean>
+<https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNParameterClosureAudit.lean>
 
-For a clean checker input and a measured upper provider in the same coordinate,
-Lean proves that the rationality branch computes the collision threshold
+This parameter-closed submission route removes the explicit `tail_gap`,
+`upper_provider`, and `eventually_strict_length` parameters from the public
+theorem surface.  The remaining mathematical input is the monomial growth
+certificate
 
 ```lean
-N = max upperN threshold
+thresholdOfMonomial coeff degree <= n ->
+  coeff * (n + 1)^degree < minCheckedCodeSize n
 ```
 
-and that the same formal input package proves
+Under that growth input, Lean proves the formula-level collision index
+
+```lean
+bigN = thresholdOfMonomial upper_data.coeff upper_data.degree
+```
+
+and the corresponding contradiction theorem
 
 ```lean
 ¬ is_rational euler_mascheroni
 ```
 
-The observed axiom output for the main theorem is the standard Lean/Mathlib
-logical profile:
+The observed axiom output for the submission theorem is the standard
+Lean/Mathlib logical profile:
 
-```text
+```lean
 [propext, Classical.choice, Quot.sound]
 ```
 
@@ -51,6 +60,8 @@ reports linked below.
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_zh.md>
 - English audit report:
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_en.md>
+- Parameter closure audit:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/parameter_closure_audit_20260708_en.md>
 - Validation log:
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/bigN_validation_log_20260708_zh.md>
 - Current status:
@@ -62,22 +73,20 @@ Build the main Lean entry:
 
 ```bash
 lake exe cache get
-lake build integration.SondowProjectBigNCleanSubmissionRoute
+lake build integration.SondowProjectBigNParameterClosureAudit
 ```
 
 Check the theorem and axiom profile:
 
 ```bash
 lake env lean --stdin <<'EOF'
-import integration.SondowProjectBigNCleanSubmissionRoute
-open SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute
+import integration.SondowProjectBigNParameterClosureAudit
+open SondowMainCheckedCodeBridge.SondowProjectBigNParameterClosureAudit
 
-#check cleanUpperProvider_submissionRoute
-#check cleanComputedBigN_eq_tailGapMax
-#check cleanProvider_not_rational
-#print axioms cleanUpperProvider_submissionRoute
-#print axioms cleanComputedBigN_eq_tailGapMax
-#print axioms cleanProvider_not_rational
+#check singletonMonomialLowerBound_submissionRoute
+#check cleanTailGapFrontier_submissionRoute
+#check eventuallyStrictLength_noTailGap_submissionRoute
+#print axioms singletonMonomialLowerBound_submissionRoute
 EOF
 ```
 
@@ -89,17 +98,17 @@ Expected main theorem axiom output:
 
 ## What Is Proved
 
-The clean theorem proves the following formal collision statement.
+The current theorem proves the following formal collision statement.
 
-1. A measured upper provider supplies an eventual polynomial upper tail with a
-   cutoff `upperN`.
-2. The tail-gap certificate supplies a threshold for the same measured checker
-   function.
-3. Under the rationality branch, the computed collision number is exactly
-   `max upperN threshold`.
-4. At that computed number the upper and strict lower certificates contradict
-   each other, yielding `¬ is_rational euler_mascheroni` relative to the clean
-   input package.
+1. The old `upper_provider` and `tail_gap` inputs can be absorbed into upstream
+   project-length data.
+2. The public remaining growth obligation is the monomial domination statement
+   for `minCheckedCodeSize`.
+3. The certified index is exactly
+   `thresholdOfMonomial upper_data.coeff upper_data.degree`.
+4. At that index Lean derives the same upper/lower collision contradiction.
 
-The current manuscript cites this clean Lean theorem as the submission result.
-Numerical extraction of the threshold is future work.
+The current manuscript cites this parameter-closed theorem as the submission
+result.  A completely unconditional proof still requires closing the displayed
+monomial growth theorem, and numerical extraction of the threshold is future
+work.

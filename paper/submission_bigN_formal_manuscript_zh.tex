@@ -1,0 +1,433 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+\PassOptionsToPackage{space}{xeCJK}
+%
+\documentclass[
+  a4paper,
+  12pt]{ctexart}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+    \setmainfont[]{Noto Serif}
+    \setsansfont[]{Noto Sans}
+    \setmonofont[]{DejaVu Sans Mono}
+  \ifXeTeX
+    \usepackage{xeCJK}
+    \setCJKmainfont[]{Noto Serif CJK SC}
+          \setCJKsansfont[]{Noto Sans CJK SC}
+          \fi
+  \ifLuaTeX
+    \usepackage[]{luatexja-fontspec}
+    \setmainjfont[]{Noto Serif CJK SC}
+  \fi
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=22mm]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  colorlinks=true,
+  linkcolor={black},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\section{Sondow-Pudlak
+程序中的一个参数闭合形式化碰撞定理}\label{sondow-pudlak-ux7a0bux5e8fux4e2dux7684ux4e00ux4e2aux53c2ux6570ux95edux5408ux5f62ux5f0fux5316ux78b0ux649eux5b9aux7406}
+
+作者：James
+
+\subsection{摘要}\label{ux6458ux8981}
+
+本文给出一个 Lean 4 形式化的 Sondow-Pudlak 型碰撞定理。设
+\texttt{minCheckedCodeSize\ n} 表示同一 PA-Hilbert
+检查器坐标中的最小已检查证明码 长度。本文的主定理把旧路线中显式出现的
+\texttt{upper\_provider}、\texttt{tail\_gap} 和
+\texttt{eventually\_strict\_length}
+全部从定理表面移除，剩余输入压缩为一个清楚的
+单项式增长下界：对任意自然数 \texttt{coeff,\ degree}，存在显式阈值
+\texttt{thresholdOfMonomial\ coeff\ degree}，使得阈值以后
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coeff * (n + 1)\^{}degree \textless{} minCheckedCodeSize n.}
+\end{Highlighting}
+\end{Shaded}
+
+在该输入下，Lean 证明碰撞指标具有公式
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bigN = thresholdOfMonomial upper\_data.coeff upper\_data.degree}
+\end{Highlighting}
+\end{Shaded}
+
+并在同一指标处推出上界侧与检查器侧的形式化矛盾，从而得到
+\texttt{¬\ is\_rational\ euler\_mascheroni}。主定理名称、复现命令和
+residual-constant 审计见第 4、5 节；观察到的 axiom profile 只含标准
+Lean/Mathlib 逻辑依赖。
+
+关键词：Euler-Mascheroni 常数；Sondow 判据；Pudlak 下界；证明长度；
+形式化数学；Lean。
+
+\subsection{1. 引言}\label{ux5f15ux8a00}
+
+Euler-Mascheroni 常数
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\textbackslash{}gamma=\textbackslash{}lim\_\{n\textbackslash{}to\textbackslash{}infty\}\textbackslash{}left(\textbackslash{}sum\_\{k=1\}\^{}\{n\}\textbackslash{}frac\{1\}\{k\}{-}\textbackslash{}log n\textbackslash{}right)}
+\end{Highlighting}
+\end{Shaded}
+
+的无理性是经典困难问题。Sondow
+的判据从有理性假设出发产生可计算的算术上界 结构；Pudlak
+型证明复杂度下界则从证明长度方向给出反向限制。若两侧能够在
+同一个检查器测度坐标中相遇，便可在某个自然数处形成
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{M(N)\textbackslash{}le U(N)\textless{}M(N)}
+\end{Highlighting}
+\end{Shaded}
+
+式的碰撞。
+
+本文的贡献是把这一碰撞机制整理成一个参数表面更干净的 Lean 定理。旧的
+中间路线把 \texttt{upper\_provider} 与 \texttt{tail\_gap}
+直接暴露在主定理中；本文使用
+项目长度端点，把它们上移并合并到更具体的单项式增长输入中。这样，审稿人需要
+检查的核心数学义务不再是不透明的证书对象，而是如下明确命题：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{T(c,d)\textbackslash{}le n\textbackslash{}quad\textbackslash{}Longrightarrow\textbackslash{}quad}
+\NormalTok{c(n+1)\^{}d\textless{}\textbackslash{}operatorname\{minCheckedCodeSize\}(n).}
+\end{Highlighting}
+\end{Shaded}
+
+这里 \texttt{T(c,d)} 即 Lean 中的 \texttt{thresholdOfMonomial\ c\ d}。
+
+本文不声称已经给出十进制数值 \texttt{N}，也不把旧 half-denominator
+精细公式作为 本稿主结果。本文主张的是：在上述明确增长输入下，Lean
+已经验证了公式级 碰撞指标、同点矛盾以及干净 axiom profile。
+
+\subsection{2. 形式化对象}\label{ux5f62ux5f0fux5316ux5bf9ux8c61}
+
+固定一个 PA-Hilbert 检查器坐标。对左右两个形式化证明族
+\texttt{left\_family} 和 \texttt{right\_family}，Lean
+构造合取引入后再右合取消去的证明族，并定义
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{M n =}
+\NormalTok{  ((left\_family.conjIntro right\_family)}
+\NormalTok{    |\textgreater{}.rightConjElim}
+\NormalTok{    |\textgreater{}.minCheckedCodeSize n)}
+\end{Highlighting}
+\end{Shaded}
+
+这就是本文的 \texttt{minCheckedCodeSize\ n}。
+
+Sondow 侧的上界数据被压缩为一个自然数幂上界数据
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{upper\_data =}
+\NormalTok{  projectLengthConjIntroLengthAddTwoNatPowerUpperData}
+\NormalTok{    left\_family right\_family left\_data right\_data}
+\end{Highlighting}
+\end{Shaded}
+
+其中 \texttt{upper\_data.coeff} 和 \texttt{upper\_data.degree}
+给出生成上界的自然数单项式 包络。于是本文的碰撞指标定义为
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bigN =}
+\NormalTok{  thresholdOfMonomial upper\_data.coeff upper\_data.degree.}
+\end{Highlighting}
+\end{Shaded}
+
+主输入是单项式增长证书：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monomial\_lt\_lengthCodeAt\_after :}
+\NormalTok{  ∀ coeff degree n : Nat,}
+\NormalTok{    thresholdOfMonomial coeff degree ≤ n →}
+\NormalTok{      coeff * (n + 1)\^{}degree \textless{} M n}
+\end{Highlighting}
+\end{Shaded}
+
+它是当前定理的真正数学承重部分。
+
+\subsection{3. 推导}\label{ux63a8ux5bfc}
+
+令
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{c=\textbackslash{}texttt\{upper\textbackslash{}\_data.coeff\},\textbackslash{}qquad}
+\NormalTok{d=\textbackslash{}texttt\{upper\textbackslash{}\_data.degree\},\textbackslash{}qquad}
+\NormalTok{N=T(c,d).}
+\end{Highlighting}
+\end{Shaded}
+
+由单项式增长输入，因 \texttt{T(c,d)\ ≤\ N}，得到
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{c(N+1)\^{}d\textless{}M(N).}
+\end{Highlighting}
+\end{Shaded}
+
+另一方面，Sondow 侧的形式化上界构造保证生成的上界函数在 \texttt{N}
+处被同一个 单项式包络控制。用 Lean 端点的记号写，就是
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{U(N)\textbackslash{}le c(N+1)\^{}d.}
+\end{Highlighting}
+\end{Shaded}
+
+合并二者得到
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{U(N)\textless{}M(N).}
+\end{Highlighting}
+\end{Shaded}
+
+同时，检查器端点把同一个 \texttt{N}
+放回到共同测度坐标中，得到反向的已检查上界
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{M(N)\textbackslash{}le U(N).}
+\end{Highlighting}
+\end{Shaded}
+
+于是
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{M(N)\textbackslash{}le U(N)\textless{}M(N),}
+\end{Highlighting}
+\end{Shaded}
+
+矛盾。Lean 中的主证书还记录了 \texttt{N} 的程序化公式：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bigN = thresholdOfMonomial upper\_data.coeff upper\_data.degree.}
+\end{Highlighting}
+\end{Shaded}
+
+这正是本文保留的公式级大 \texttt{N}。
+
+\subsection{4. 主定理}\label{ux4e3bux5b9aux7406}
+
+主定理 Lean 名称为
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{singletonMonomialLowerBound\_submissionRoute}
+\end{Highlighting}
+\end{Shaded}
+
+源码：
+
+\url{https://github.com/james130012/sondow-pudlak-collision-box/blob/main/integration/SondowProjectBigNParameterClosureAudit.lean}
+
+省略 namespace 后，其数学内容可写为：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{theorem singletonMonomialLowerBound\_submissionRoute}
+\NormalTok{    {-}{-} other explicit arguments are shown in the source file}
+\NormalTok{    (thresholdOfMonomial : Nat → Nat → Nat)}
+\NormalTok{    (monomial\_lt\_lengthCodeAt\_after :}
+\NormalTok{      ∀ coeff degree n : Nat,}
+\NormalTok{        thresholdOfMonomial coeff degree ≤ n →}
+\NormalTok{          coeff * (n + 1)\^{}degree \textless{} minCheckedCodeSize n) :}
+\NormalTok{    bigN = thresholdOfMonomial upper\_data.coeff upper\_data.degree ∧}
+\NormalTok{      ¬ is\_rational euler\_mascheroni}
+\end{Highlighting}
+\end{Shaded}
+
+注释行所指的显式参数包括左右证明族、严格时间界、自然数幂上界数据以及这些长度函数
+为多项式有界的 Lean 证书。它们都是显式 Lean 参数；主定理表面不再出现
+\texttt{upper\_provider}、\texttt{tail\_gap} 或
+\texttt{eventually\_strict\_length}。
+
+\subsection{5. 形式化审计}\label{ux5f62ux5f0fux5316ux5ba1ux8ba1}
+
+复现命令如下：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{lake}\NormalTok{ exe cache get}
+\ExtensionTok{lake}\NormalTok{ build integration.SondowProjectBigNParameterClosureAudit}
+\ExtensionTok{lake}\NormalTok{ env lean }\AttributeTok{{-}{-}stdin} \OperatorTok{\textless{}\textless{}\textquotesingle{}EOF\textquotesingle{}}
+\StringTok{import integration.SondowProjectBigNParameterClosureAudit}
+\StringTok{open SondowMainCheckedCodeBridge.SondowProjectBigNParameterClosureAudit}
+
+\StringTok{\#check singletonMonomialLowerBound\_submissionRoute}
+\StringTok{\#print axioms singletonMonomialLowerBound\_submissionRoute}
+\OperatorTok{EOF}
+\end{Highlighting}
+\end{Shaded}
+
+观察到的输出为：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{[propext, Classical.choice, Quot.sound]}
+\end{Highlighting}
+\end{Shaded}
+
+未出现以下项目级 residual constants：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{partial\_consistency\_payload}
+\NormalTok{proof\_length}
+\NormalTok{strengthened\_partial\_consistency\_payload}
+\end{Highlighting}
+\end{Shaded}
+
+审计报告：
+
+\begin{itemize}
+\tightlist
+\item
+  中文：\url{https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/parameter_closure_audit_20260708_zh.md}
+\item
+  English：\url{https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/parameter_closure_audit_20260708_en.md}
+\end{itemize}
+
+仓库：
+
+\url{https://github.com/james130012/sondow-pudlak-collision-box}
+
+\subsection{6. 结论}\label{ux7ed3ux8bba}
+
+本文给出一个参数表面闭合的 Lean 形式化碰撞定理。旧路线中的
+\texttt{upper\_provider}、\texttt{tail\_gap} 和
+\texttt{eventually\_strict\_length} 不再作为主定理
+表面参数出现；当前主定理只暴露一个清楚的单项式增长下界，并在该输入下证明
+公式级大 \texttt{N} 与同点矛盾。
+
+后续工作是关闭该单项式增长下界本身，并在需要时继续构造 half-denominator
+精细公式和十进制数值阈值。
+
+\subsection{参考文献}\label{ux53c2ux8003ux6587ux732e}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  J. Sondow, Criteria for irrationality of Euler's constant,
+  \emph{Proceedings of the American Mathematical Society} 131 (2003),
+  3335-3344.
+\item
+  S. R. Buss, On Godel's theorems on lengths of proofs I: Number of
+  lines and speedup for arithmetics, \emph{Journal of Symbolic Logic} 59
+  (1994), 737-756.
+\item
+  P. Pudlak, On the lengths of proofs of finitistic consistency
+  statements in first order theories, in \emph{Logic Colloquium 1984},
+  North-Holland, 1986.
+\item
+  L. de Moura and S. Ullrich, The Lean 4 theorem prover and programming
+  language, in \emph{Automated Deduction - CADE 28}, 2021.
+\end{enumerate}
+
+\end{document}
