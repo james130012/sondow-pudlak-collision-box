@@ -83,7 +83,7 @@ ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data
 第二个输入是同一测度坐标上的上界提供者，记为 `UpperProvider(input)`。
 在有理性分支 `h` 下，它返回一个上界尾部证书。该证书包含一个多项式有界函数
 `U`、一个 cutoff `upperN(h)`，以及从该 cutoff 以后测度函数受 `U` 控制的
-形式化证明。精确 Lean 类型见第 3 节给出的源码链接。
+形式化证明。精确 Lean 类型见第 4 节给出的源码链接。
 
 同一 `input` 还把这个 `U` 送入 tail-gap 结构，产生阈值 `threshold(h)`。
 因此自然的碰撞候选点不是额外选择的参数，而是
@@ -92,7 +92,137 @@ ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput scale_data
 max upperN(h) threshold(h).
 ```
 
-## 3. 主定理
+## 3. 从两侧证书到碰撞点
+
+本节把证明写成普通数学论文中的推导形式。为避免把形式化细节隐藏在 Lean
+名称后面，我们记
+
+```math
+M(n)
+```
+
+为共同测度坐标中的证明代码测度函数。在 Lean 中，这个函数对应
+`month9_month10_checkedProofCodeMeasured`。证明的两侧都作用在同一个 `M`
+上，这是产生碰撞的必要条件。
+
+### 3.1 Sondow 侧：有理性分支给出上界尾部
+
+从有理性分支
+
+```lean
+h : is_rational euler_mascheroni
+```
+
+出发，形式化的上界提供者给出一个上界尾部证书
+
+```lean
+upper(h) = checkedSearchUpperTail candidate upper_provider h.
+```
+
+该证书包含三个主要数据：
+
+```lean
+upper(h).U
+upper(h).polynomial
+upper(h).upperN
+```
+
+其中 `upper(h).U` 是一个多项式有界函数，`upper(h).upperN` 是上界开始生效的
+cutoff。它的数学内容可以写为
+
+```math
+n\geq upperN(h)\quad\Longrightarrow\quad M(n)\leq U(n).
+```
+
+这就是本文中使用的 Sondow 侧输出：在有理性分支下，同一测度函数 `M` 最终受
+一个多项式上界 `U` 控制。
+
+### 3.2 Pudlak/检查器侧：同一上界触发尾部间隙
+
+现在把同一个 `U` 送入检查器侧的 tail-gap 证书。Lean 中对应对象为
+
+```lean
+input.tail_gap.gap_for_polynomial_upper upper(h).U upper(h).polynomial
+```
+
+它给出一个阈值
+
+```lean
+threshold(h).
+```
+
+其数学内容是：一旦自然数越过该阈值，证明复杂度下界会在同一个测度函数 `M`
+上严格超过上界函数 `U`。也就是说，
+
+```math
+n\geq threshold(h)\quad\Longrightarrow\quad U(n)<M(n).
+```
+
+这一步是 Pudlak/检查器侧的贡献：它不是产生另一个测度函数，而是在同一个 `M`
+上给出严格的反向不等式。
+
+### 3.3 选择同一个自然数
+
+为了让两侧同时适用，Lean 选择的碰撞候选点是
+
+```math
+N(h)=\max\{upperN(h),threshold(h)\}.
+```
+
+于是显然有
+
+```math
+N(h)\geq upperN(h),\qquad N(h)\geq threshold(h).
+```
+
+把 `N(h)` 代入 3.1 节的上界尾部，得到
+
+```math
+M(N(h))\leq U(N(h)).
+```
+
+把 `N(h)` 代入 3.2 节的 tail-gap 证书，得到
+
+```math
+U(N(h))<M(N(h)).
+```
+
+这两个不等式发生在同一个自然数 `N(h)` 和同一个测度函数 `M` 上，因此给出
+
+```math
+M(N(h))\leq U(N(h))<M(N(h)),
+```
+
+矛盾。Lean 中的 `not_rational` 字段正是把这个同点矛盾封装为
+
+```lean
+¬ is_rational euler_mascheroni.
+```
+
+### 3.4 形式化证明流程图
+
+Lean 本身给出的对象不是自然语言证明图，而是一组可检查定义和定理。将
+`#check`、`#print` 以及主定理体展开后，本文使用的证明流可概括如下：
+
+```text
+h : is_rational euler_mascheroni
+  -> upper = checkedSearchUpperTail candidate upper_provider h
+  -> upper supplies U, polynomial, upperN,
+     and n >= upperN -> M(n) <= U(n)
+  -> gap = input.tail_gap.gap_for_polynomial_upper U polynomial
+  -> gap supplies threshold,
+     and n >= threshold -> U(n) < M(n)
+  -> N = max upperN threshold
+  -> M(N) <= U(N) and U(N) < M(N)
+  -> False
+  -> ¬ is_rational euler_mascheroni
+```
+
+在 Lean 文件中，`cleanComputedBigN_eq_tailGapMax` 证明计算出的 `N` 正是
+`max upperN threshold`；`cleanProvider_not_rational` 给出有理性分支的矛盾；
+`cleanUpperProvider_submissionRoute` 把这两个结论合并为本文的主定理。
+
+## 4. 主定理
 
 主定理在 Lean 中的名称为
 
@@ -120,11 +250,11 @@ theorem cleanUpperProvider_submissionRoute
 `threshold` 展开为 `input.tail_gap.gap_for_polynomial_upper` 返回的阈值。
 定理第一部分给出碰撞点的公式，第二部分给出有理性分支的矛盾。
 
-## 4. 证明
+## 5. 证明
 
-证明由两个 Lean 定理合成。
+证明由上一节的推导和两个 Lean 定理合成。
 
-**引理 4.1（碰撞数计算）。** 对任意有理性分支证明 `h`，
+**引理 5.1（碰撞数计算）。** 对任意有理性分支证明 `h`，
 
 ```lean
 computedCollisionNOfRationality h =
@@ -139,10 +269,11 @@ cleanComputedBigN_eq_tailGapMax
 
 它说明形式化程序计算出的自然数正是上界尾部 cutoff 与 tail-gap 阈值的最大值。
 
-**引理 4.2（同点矛盾）。** 令 `N = computedCollisionNOfRationality h`。由
-引理 4.1 可知 `N ≥ upperN(h)` 且 `N ≥ threshold(h)`。第一个不等式使上界
-尾部证书适用于 `N`；第二个不等式使 tail-gap 证书也适用于同一个 `N`。于是
-同一测度函数在同一点同时满足上界控制和严格相反的不等式，得到矛盾。
+**引理 5.2（同点矛盾）。** 令 `N = computedCollisionNOfRationality h`。由
+引理 5.1 可知 `N ≥ upperN(h)` 且 `N ≥ threshold(h)`。第一个不等式使上界
+尾部证书适用于 `N`，给出 `M(N) ≤ U(N)`；第二个不等式使 tail-gap 证书也适用
+于同一个 `N`，给出 `U(N) < M(N)`。于是同一测度函数在同一点满足
+`M(N) ≤ U(N) < M(N)`，得到矛盾。
 
 Lean 中该矛盾由
 
@@ -150,10 +281,10 @@ Lean 中该矛盾由
 cleanProvider_not_rational
 ```
 
-以及检查器输入包中的 `not_rational` 字段给出。将引理 4.1 和引理 4.2 组合，
+以及检查器输入包中的 `not_rational` 字段给出。将引理 5.1 和引理 5.2 组合，
 即得 `cleanUpperProvider_submissionRoute`。
 
-## 5. 形式化资料和复核方式
+## 6. 形式化资料和复核方式
 
 仓库地址：
 
@@ -201,7 +332,7 @@ EOF
 [propext, Classical.choice, Quot.sound]
 ```
 
-## 6. 结论
+## 7. 结论
 
 本文给出一个可复核的 Lean 形式化碰撞定理：在共同的证明检查器测度坐标中，
 有理性分支的碰撞数为 `max upperN threshold`，并且在该同一自然数处产生上界

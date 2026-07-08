@@ -93,7 +93,7 @@ denoted here by `UpperProvider(input)`. Under a rationality-branch proof `h`,
 it returns an upper-tail certificate. This certificate contains a
 polynomially bounded function `U`, a cutoff `upperN(h)`, and a formal proof
 that the measured function is controlled by `U` after that cutoff. The exact
-Lean type is available through the source link in Section 3.
+Lean type is available through the source link in Section 4.
 
 The same `input` sends this `U` to the tail-gap structure and obtains a
 threshold `threshold(h)`. The natural collision candidate is therefore
@@ -102,7 +102,143 @@ threshold `threshold(h)`. The natural collision candidate is therefore
 max upperN(h) threshold(h).
 ```
 
-## 3. Main Theorem
+## 3. From The Two Certificates To The Collision Point
+
+This section records the proof in the style of a mathematical derivation. Let
+
+```math
+M(n)
+```
+
+denote the proof-code measurement function in the common coordinate. In Lean
+this is `month9_month10_checkedProofCodeMeasured`. Both sides of the argument
+refer to this same function `M`; this single-coordinate condition is what makes
+the final collision meaningful.
+
+### 3.1 The Sondow Side: The Rationality Branch Gives An Upper Tail
+
+Starting from a rationality-branch proof
+
+```lean
+h : is_rational euler_mascheroni
+```
+
+the formal upper provider returns an upper-tail certificate
+
+```lean
+upper(h) = checkedSearchUpperTail candidate upper_provider h.
+```
+
+This certificate contains the data
+
+```lean
+upper(h).U
+upper(h).polynomial
+upper(h).upperN
+```
+
+where `upper(h).U` is a polynomially bounded function and `upper(h).upperN` is
+the cutoff after which the upper estimate holds. Mathematically, it gives
+
+```math
+n\geq upperN(h)\quad\Longrightarrow\quad M(n)\leq U(n).
+```
+
+This is the Sondow-side output used in the present theorem: under the
+rationality branch, the measured checker function `M` is eventually controlled
+by the polynomial upper function `U`.
+
+### 3.2 The Pudlak/Checker Side: The Same Upper Function Triggers A Tail Gap
+
+The same function `U` is then sent to the checker-side tail-gap certificate:
+
+```lean
+input.tail_gap.gap_for_polynomial_upper upper(h).U upper(h).polynomial
+```
+
+It returns a threshold
+
+```lean
+threshold(h).
+```
+
+The mathematical content is that, past this threshold, the proof-complexity
+lower side strictly exceeds the same upper function on the same measured
+function `M`:
+
+```math
+n\geq threshold(h)\quad\Longrightarrow\quad U(n)<M(n).
+```
+
+Thus the Pudlak/checker side does not introduce a second measurement function;
+it supplies the strict reverse inequality for the same `M`.
+
+### 3.3 Choosing One Natural Number
+
+To make both certificates apply at once, Lean chooses
+
+```math
+N(h)=\max\{upperN(h),threshold(h)\}.
+```
+
+Then
+
+```math
+N(h)\geq upperN(h),\qquad N(h)\geq threshold(h).
+```
+
+Substituting `N(h)` into the upper-tail certificate gives
+
+```math
+M(N(h))\leq U(N(h)).
+```
+
+Substituting the same `N(h)` into the tail-gap certificate gives
+
+```math
+U(N(h))<M(N(h)).
+```
+
+The two inequalities occur at the same natural number and for the same
+measured function, hence
+
+```math
+M(N(h))\leq U(N(h))<M(N(h)),
+```
+
+which is impossible. In Lean this same-point contradiction is packaged by the
+`not_rational` field as
+
+```lean
+¬ is_rational euler_mascheroni.
+```
+
+### 3.4 Formal Proof Flow
+
+Lean does not export a human proof diagram as the theorem itself; it supplies
+definitions and checked theorem bodies. Expanding `#check`, `#print`, and the
+main theorem gives the following proof flow:
+
+```text
+h : is_rational euler_mascheroni
+  -> upper = checkedSearchUpperTail candidate upper_provider h
+  -> upper supplies U, polynomial, upperN,
+     and n >= upperN -> M(n) <= U(n)
+  -> gap = input.tail_gap.gap_for_polynomial_upper U polynomial
+  -> gap supplies threshold,
+     and n >= threshold -> U(n) < M(n)
+  -> N = max upperN threshold
+  -> M(N) <= U(N) and U(N) < M(N)
+  -> False
+  -> ¬ is_rational euler_mascheroni
+```
+
+In the Lean file, `cleanComputedBigN_eq_tailGapMax` proves that the computed
+number is exactly `max upperN threshold`; `cleanProvider_not_rational` exposes
+the rationality-branch contradiction; and `cleanUpperProvider_submissionRoute`
+packages the two outputs as the main theorem.
+
+## 4. Main Theorem
 
 The Lean theorem is named
 
@@ -132,11 +268,11 @@ The exact Lean statement expands `upperN` as the cutoff returned by
 collision point; the second component gives the rationality-branch
 contradiction.
 
-## 4. Proof
+## 5. Proof
 
-The proof combines two formal theorems.
+The proof combines the derivation above with two formal theorems.
 
-**Lemma 4.1 (collision-number computation).** For every rationality-branch
+**Lemma 5.1 (collision-number computation).** For every rationality-branch
 proof `h`,
 
 ```lean
@@ -153,12 +289,12 @@ cleanComputedBigN_eq_tailGapMax
 It states that the natural number computed by the formal program is exactly the
 maximum of the upper-tail cutoff and the tail-gap threshold.
 
-**Lemma 4.2 (same-point contradiction).** Let
-`N = computedCollisionNOfRationality h`. By Lemma 4.1, `N ≥ upperN(h)` and
+**Lemma 5.2 (same-point contradiction).** Let
+`N = computedCollisionNOfRationality h`. By Lemma 5.1, `N ≥ upperN(h)` and
 `N ≥ threshold(h)`. The first inequality activates the upper-tail certificate
-at `N`; the second activates the tail-gap certificate at the same `N`. Thus the
-same measured function satisfies an upper control and a strict opposite
-inequality at one point, which is impossible.
+at `N`, giving `M(N) ≤ U(N)`. The second activates the tail-gap certificate at
+the same `N`, giving `U(N) < M(N)`. Thus the same measured function satisfies
+`M(N) ≤ U(N) < M(N)`, which is impossible.
 
 In Lean the contradiction is exposed through
 
@@ -166,10 +302,10 @@ In Lean the contradiction is exposed through
 cleanProvider_not_rational
 ```
 
-and the `not_rational` field of the checker input package. Combining Lemma 4.1
-and Lemma 4.2 gives `cleanUpperProvider_submissionRoute`.
+and the `not_rational` field of the checker input package. Combining Lemma 5.1
+and Lemma 5.2 gives `cleanUpperProvider_submissionRoute`.
 
-## 5. Formal Artifact And Reproducibility
+## 6. Formal Artifact And Reproducibility
 
 Repository:
 
@@ -217,7 +353,7 @@ The observed axiom output for the main theorem is
 [propext, Classical.choice, Quot.sound]
 ```
 
-## 6. Conclusion
+## 7. Conclusion
 
 This paper gives a reproducible Lean formalized collision theorem: in a common
 proof-checker measurement coordinate, the rationality branch has collision
