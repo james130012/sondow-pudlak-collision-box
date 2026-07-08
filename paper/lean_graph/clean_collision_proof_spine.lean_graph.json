@@ -1,0 +1,102 @@
+[
+  {
+    "name": "h : is_rational euler_mascheroni",
+    "constCategory": "Other",
+    "constType": "",
+    "references": []
+  },
+  {
+    "name": "checkedSearchUpperTail",
+    "constCategory": "Definition",
+    "constType": "",
+    "references": [
+      "h"
+    ]
+  },
+  {
+    "name": "U, polynomial, upperN\nn >= upperN -> M(n) <= U(n)",
+    "constCategory": "Other",
+    "constType": "",
+    "references": [
+      "upper"
+    ]
+  },
+  {
+    "name": "gap_for_polynomial_upper",
+    "constCategory": "Definition",
+    "constType": "",
+    "references": [
+      "upper_tail"
+    ]
+  },
+  {
+    "name": "threshold\nn >= threshold -> U(n) < M(n)",
+    "constCategory": "Other",
+    "constType": "",
+    "references": [
+      "gap"
+    ]
+  },
+  {
+    "name": "N = max upperN threshold",
+    "constCategory": "Definition",
+    "constType": "",
+    "references": [
+      "upper_tail",
+      "gap_tail"
+    ]
+  },
+  {
+    "name": "M(N) <= U(N)\nand U(N) < M(N)",
+    "constCategory": "Other",
+    "constType": "",
+    "references": [
+      "max"
+    ]
+  },
+  {
+    "name": "False",
+    "constCategory": "Other",
+    "constType": "",
+    "references": [
+      "ineq"
+    ]
+  },
+  {
+    "name": "not is_rational\neuler_mascheroni",
+    "constCategory": "Theorem",
+    "constType": "",
+    "references": [
+      "false"
+    ]
+  },
+  {
+    "name": "cleanComputedBigN\n_eq_tailGapMax",
+    "constCategory": "Theorem",
+    "constType": "",
+    "references": [
+      "upper_tail",
+      "gap_tail",
+      "max"
+    ]
+  },
+  {
+    "name": "cleanProvider\n_not_rational",
+    "constCategory": "Theorem",
+    "constType": "",
+    "references": [
+      "ineq",
+      "false",
+      "notrat"
+    ]
+  },
+  {
+    "name": "cleanUpperProvider\n_submissionRoute",
+    "constCategory": "Theorem",
+    "constType": "",
+    "references": [
+      "eqmax",
+      "provider"
+    ]
+  }
+]

@@ -1,0 +1,611 @@
+[{"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.upperN",
+  "constType":
+  "{measured : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate\n      measured →\n    ℕ",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.scale_data",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.mk",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.theorem5ProviderOfCanonicalSearchCoreCheckedUpper",
+  "constType":
+  "(core :\n    SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore) →\n  core.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.toLiteratureScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.powerBoundRawCode",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  ℕ → FormulaCode",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate.threshold",
+  "constType":
+  "{U L : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate U L → ℕ",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.theorem5ProviderOfCanonicalSearchCoreCheckedUpper",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toProofLengthFreeMonth12Candidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toProofLengthAxiomFreeCheckedUpperProvider",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (input :\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput\n        scale_data) →\n    input.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType →\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.powerBoundRawCode",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured._proof_1",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+  "constType":
+  "(scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData) →\n  ProofCodeSemantics\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n        scale_data) →\n    ℕ → ℝ",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics._proof_1",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.size",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.Code",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.checks",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics\n      scale_data →\n    ProofCodeSemantics\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n        scale_data)",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate",
+   "Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.scale",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.mk",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (lengthCodeAt : ℕ → ℕ) →\n    (∀ {a b : ℕ}, a < b → scale_data.scale a < scale_data.scale b) →\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate\n          fun n => ↑(lengthCodeAt n)) →\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput\n          scale_data",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  Type 2",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.powerBoundRawCode",
+   "Eq"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured._proof_1",
+  "constType":
+  "∀\n  (scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData)\n  (n : ℕ), ∃ n_1, scale_data.powerBoundRawCode n = scale_data.powerBoundRawCode n_1",
+  "constCategory": "Theorem"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.sem",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.upper_provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.gap",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.mk"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n      scale_data →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint\n      scale_data",
+  "constCategory": "Definition"},
+ {"references": ["Nat", "Real"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate",
+  "constType": "(ℕ → ℝ) → (ℕ → ℝ) → Type",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.lengthCodeAt",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput\n      scale_data →\n    ℕ → ℕ",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "euler_mascheroni",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.computedCollisionNOfRationality",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "is_rational"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.computedCollisionNOfRationality",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n      scale_data →\n    is_rational euler_mascheroni → ℕ",
+  "constCategory": "Definition"},
+ {"references": [],
+  "name": "Real",
+  "constType": "Type",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.scale",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.scale_strict",
+  "constType":
+  "∀\n  {scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData}\n  (self :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput\n      scale_data)\n  {a b : ℕ}, a < b → scale_data.scale a < scale_data.scale b",
+  "constCategory": "Theorem"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toProofLengthFreeMonth12Candidate",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput\n      scale_data →\n    SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n      scale_data",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.scale_data",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.candidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.toCheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.scale_data",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.upper_provider"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.endpoint",
+  "constType":
+  "(h :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider) →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n    h.scale_data",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.sem",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedMeasuredGapOfComputableFiniteSearchExclusion",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.cert",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.search"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.gap",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (h :\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n        scale_data h.sem)",
+  "constCategory": "Definition"},
+ {"references": ["Nat", "Real"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate",
+  "constType": "(ℕ → ℝ) → Type",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.mk",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (sem :\n      ProofCodeSemantics\n        (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n          scale_data)) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate\n        (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n          scale_data sem) →\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider\n          (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n            scale_data sem) →\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint\n          scale_data",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  Type",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "euler_mascheroni",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint.gap",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint.toGenericCollisionInputs._proof_1",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate.upperTailCertificateOfRationality",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate",
+   "is_rational",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint.upperTailOfRationality",
+  "constType":
+  "{measured : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint\n      measured →\n    is_rational euler_mascheroni →\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate\n        measured",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate",
+   "Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate.mk",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate.gap_for_polynomial_upper",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate.toSearchStrictGapCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate.toComputableSearchGapCertificate",
+  "constType":
+  "{measured : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate measured →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableSearchGapCertificate\n      measured",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.checkerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.rejectionExtractor",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate._proof_1",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.acceptedCodeExactness",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertFormula.code",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertProofObject.conclusion",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.checker",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.canonicalInterface",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertProofObject",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.semantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.finiteEnumeration",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertInferenceRule",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.scale_data",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertFormula",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertProofObject.code",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.recognizerExactness",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.PAHilbertChecker.recognizer",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.mk"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.toProofLengthFreeMonth12Candidate",
+  "constType":
+  "(core :\n    SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore) →\n  SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n    core.scale_data",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.U"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.polynomial",
+  "constType":
+  "∀ {measured : ℕ → ℝ}\n  (self :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate\n      measured),\n  is_polynomial_bound self.U",
+  "constCategory": "Theorem"},
+ {"references": [],
+  "name": "Nat",
+  "constType": "Type",
+  "constCategory": "Other"},
+ {"references": [],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+  "constType": "Type 2",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.computedCollisionNOfRationality",
+   "euler_mascheroni",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.endpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.scale_data",
+   "is_rational"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.computedCollisionNOfRationality",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider →\n  is_rational euler_mascheroni → ℕ",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.lengthCodeAt",
+   "Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.tail_gap",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (self :\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate fun n =>\n      ↑(self.lengthCodeAt n)",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.sem",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint\n      scale_data →\n    ProofCodeSemantics\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n        scale_data)",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkerSemantics",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n      scale_data →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics\n      scale_data",
+  "constCategory": "Definition"},
+ {"references": [],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+  "constType": "Type",
+  "constCategory": "Other"},
+ {"references": ["Nat", "Real"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider",
+  "constType": "(ℕ → ℝ) → Type",
+  "constCategory": "Other"},
+ {"references": ["Real"],
+  "name": "euler_mascheroni",
+  "constType": "ℝ",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate.gap_for_polynomial_upper",
+  "constType":
+  "{measured : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate measured →\n    (U : ℕ → ℝ) →\n      is_polynomial_bound U →\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate U\n          measured",
+  "constCategory": "Definition"},
+ {"references":
+  ["euler_mascheroni",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.toCheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate",
+   "is_rational",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.sem",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint.upperTailOfRationality",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.toAbstractMeasuredEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.checkedSearchUpperTail",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (candidate :\n      SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n        scale_data) →\n    (upper_provider : candidate.checkedMeasuredUpperProviderType) →\n      is_rational euler_mascheroni →\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate\n          (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n            scale_data (candidate.toCheckedSearchCollisionEndpoint upper_provider).toDirectEndpoint.sem)",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  Type 2",
+  "constCategory": "Other"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.lengthCodeAt",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.mk",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.scale_strict",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.tail_gap",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate.toComputableSearchGapCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.toSearchInput",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput\n      scale_data →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput\n      scale_data",
+  "constCategory": "Definition"},
+ {"references": [],
+  "name": "Eq",
+  "constType": "{α : Sort u_1} → α → α → Prop",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.finiteEnumeration",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.checkerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore.mk",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.concretePAHilbertPowerBoundChecker",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.rejectionExtractor",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.concretePAHilbertPowerBoundCanonicalCheckerInterface",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.concretePAHilbertTheorem5AxiomRecognizerExactness",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth11PAHilbertCheckerSurface.concretePAHilbertTheorem5DerivabilitySemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore._proof_1"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toCanonicalSearchCore",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput\n      scale_data →\n    SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.PAHilbertCanonicalSearchCore",
+  "constCategory": "Definition"},
+ {"references": ["Nat", "Real"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate",
+  "constType": "(ℕ → ℝ) → Type",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.computableSearchExclusion",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.smallCodeSearch",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.mk",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.toCheckedSearchCollisionEndpoint",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (candidate :\n      SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n        scale_data) →\n    candidate.checkedMeasuredUpperProviderType →\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n        scale_data",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.sem",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.upper_provider",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (self :\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n        scale_data self.sem)",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData.powerBoundRawCode",
+   "Eq"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  FormulaCode → Prop",
+  "constCategory": "Definition"},
+ {"references": ["Real", "Eq"],
+  "name": "is_rational",
+  "constType": "ℝ → Prop",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  Type",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.upper_provider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.sem",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.gap",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint.mk",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.toAbstractMeasuredEndpoint",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (h :\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredDirectCollisionEndpoint\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n        scale_data h.sem)",
+  "constCategory": "Definition"},
+ {"references":
+  ["Nat",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.U",
+  "constType":
+  "{measured : ℕ → ℝ} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate\n      measured →\n    ℕ → ℝ",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkerSemantics"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n      scale_data →\n    Type",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.sem",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n      scale_data →\n    ProofCodeSemantics\n      (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n        scale_data)",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.finiteEnumeration",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.rejectionExtractor",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerComputableRejectionExtractor.toComputableFiniteSearchExclusion",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.smallCodeSearch",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkerSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ComputableFiniteSearchExclusion"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.computableSearchExclusion",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (candidate :\n      SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ComputableFiniteSearchExclusion\n      scale_data candidate.checkerSemantics.toProofCodeSemantics candidate.smallCodeSearch",
+  "constCategory": "Definition"},
+ {"references": [],
+  "name": "Max.max",
+  "constType": "{α : Type u} → [self : Max α] → α → α → α",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+  "constType":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData →\n  Type 2",
+  "constCategory": "Other"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.upperN",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.TailStrictGapCertificate.threshold",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toProofLengthAxiomFreeCheckedUpperProvider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "euler_mascheroni",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.ComputableGapCertificate.gap_for_polynomial_upper",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.checkedSearchUpperTail",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.toSearchInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.toDirectEndpoint",
+   "Eq",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.lengthCodeAt",
+   "Real",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.toCheckedSearchCollisionEndpoint",
+   "is_rational",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonSearchInput.toProofLengthFreeMonth12Candidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkedMeasuredUpperProviderType",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.U",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.PolynomialUpperTailCertificate.polynomial",
+   "Max.max",
+   "Nat",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ProofLengthAxiomFreeInternalTheorem5Provider.computedCollisionNOfRationality",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput.tail_gap",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedMeasuredDirectCollisionEndpoint.sem"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectBigNCleanSubmissionRoute.cleanComputedBigN_eq_tailGapMax",
+  "constType":
+  "∀\n  {scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData}\n  (input :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10ProofLengthAxiomFreeCheckerEndpoint.ConcretePAHilbertPowerBoundStrictScaleSingletonTailGapInput\n      scale_data)\n  (upper_provider : input.toSearchInput.toProofLengthFreeMonth12Candidate.checkedMeasuredUpperProviderType)\n  (hrat : is_rational euler_mascheroni),\n  (input.toSearchInput.toProofLengthAxiomFreeCheckedUpperProvider upper_provider).computedCollisionNOfRationality hrat =\n    max\n      (SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.checkedSearchUpperTail\n          input.toSearchInput.toProofLengthFreeMonth12Candidate upper_provider hrat).upperN\n      (input.tail_gap.gap_for_polynomial_upper\n          (SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.checkedSearchUpperTail\n              input.toSearchInput.toProofLengthFreeMonth12Candidate upper_provider hrat).U\n          ⋯).threshold",
+  "constCategory": "Theorem"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.finiteEnumeration",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerSemantics.toProofCodeSemantics",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5SmallCodeSearch",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5CheckerFiniteEnumeration.toSmallCodeSearch",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.checkerSemantics"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate.smallCodeSearch",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (candidate :\n      SondowMainCheckedCodeBridge.SondowProjectMonth12UnconditionalPAHilbertInternalizationSurface.Month12ProofLengthFreeCheckerSearchCandidate\n        scale_data) →\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5SmallCodeSearch\n      scale_data candidate.checkerSemantics.toProofCodeSemantics",
+  "constCategory": "Definition"},
+ {"references":
+  ["SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5SmallCodeSearch",
+   "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ComputableFiniteSearchExclusion"],
+  "name":
+  "SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint.mk",
+  "constType":
+  "{scale_data :\n    SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ScaleData} →\n  (sem :\n      ProofCodeSemantics\n        (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5PowerBoundRelevantCode\n          scale_data)) →\n    (search :\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5SmallCodeSearch\n          scale_data sem) →\n      SondowMainCheckedCodeBridge.SondowProjectMonth9Month10InternalPudlakWitnessSurface.InternalPudlakTheorem5ComputableFiniteSearchExclusion\n          scale_data sem search →\n        SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10AbstractMeasuredUpperProvider\n            (SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.month9_month10_checkedProofCodeMeasured\n              scale_data sem) →\n          SondowMainCheckedCodeBridge.SondowProjectMonth9Month10Month11ExactProofGapHandoff.Month9Month10CheckedSearchCollisionEndpoint\n            scale_data",
+  "constCategory": "Other"}]

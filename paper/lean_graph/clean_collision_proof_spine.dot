@@ -1,0 +1,34 @@
+digraph G {
+  graph [rankdir=TB, bgcolor=white, splines=ortho, nodesep=0.45, ranksep=0.7];
+  node [shape=box, style="rounded,filled", color="#6aa6a6", fillcolor="#e9f7f7", fontname="Noto Sans"];
+  edge [color="#999999", arrowsize=0.7];
+  "h" [label="h : is_rational euler_mascheroni", fillcolor="#e9f7f7"];
+  "upper" [label="checkedSearchUpperTail", fillcolor="#e9f7f7"];
+  "upper_tail" [label="U, polynomial, upperN\nn >= upperN -> M(n) <= U(n)", fillcolor="#e9f7f7"];
+  "gap" [label="gap_for_polynomial_upper", fillcolor="#e9f7f7"];
+  "gap_tail" [label="threshold\nn >= threshold -> U(n) < M(n)", fillcolor="#e9f7f7"];
+  "max" [label="N = max upperN threshold", fillcolor="#e9f7f7"];
+  "ineq" [label="M(N) <= U(N)\nand U(N) < M(N)", fillcolor="#e9f7f7"];
+  "false" [label="False", fillcolor="#e9f7f7"];
+  "notrat" [label="not is_rational\neuler_mascheroni", fillcolor="#fff4df"];
+  "eqmax" [label="cleanComputedBigN\n_eq_tailGapMax", fillcolor="#fff4df"];
+  "provider" [label="cleanProvider\n_not_rational", fillcolor="#fff4df"];
+  "main" [label="cleanUpperProvider\n_submissionRoute", fillcolor="#fff4df"];
+  "h" -> "upper";
+  "upper" -> "upper_tail";
+  "upper_tail" -> "gap";
+  "gap" -> "gap_tail";
+  "upper_tail" -> "max";
+  "gap_tail" -> "max";
+  "max" -> "ineq";
+  "ineq" -> "false";
+  "false" -> "notrat";
+  "upper_tail" -> "eqmax";
+  "gap_tail" -> "eqmax";
+  "max" -> "eqmax";
+  "ineq" -> "provider";
+  "false" -> "provider";
+  "notrat" -> "provider";
+  "eqmax" -> "main";
+  "provider" -> "main";
+}
