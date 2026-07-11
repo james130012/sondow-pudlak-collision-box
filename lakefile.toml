@@ -18,6 +18,11 @@ rev = "v4.31.0"
 name = "bounded_arithmetic_lab"
 path = "bounded_arithmetic_lab"
 
+[[require]]
+name = "Foundation"
+git = "https://github.com/FormalizedFormalLogic/Foundation.git"
+rev = "b62b3bac1bbd44ca8a7f7159340a0b0193d12b3e"
+
 [[lean_lib]]
 name = "EulerLimit"
 

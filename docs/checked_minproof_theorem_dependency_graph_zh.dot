@@ -1,0 +1,445 @@
+digraph CheckedMinProofDependencies {
+  graph [
+    rankdir=LR,
+    bgcolor="white",
+    compound=true,
+    newrank=true,
+    pad="0.35",
+    nodesep="0.30",
+    ranksep="0.62",
+    fontname="Noto Sans CJK SC",
+    fontsize=24,
+    label="Checked min-proof growth（已检查最短证明增长）定理依赖图",
+    labelloc="t",
+    labeljust="c"
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Noto Sans CJK SC",
+    fontsize=10.5,
+    color="#526d75",
+    fillcolor="#eef3f4",
+    margin="0.14,0.09",
+    penwidth=1.2
+  ];
+  edge [
+    fontname="Noto Sans CJK SC",
+    fontsize=8.5,
+    color="#65777d",
+    arrowsize=0.68,
+    penwidth=1.05
+  ];
+
+  subgraph cluster_legend {
+    label="图例（status / 状态）";
+    color="#c8d1d4";
+    style="rounded";
+    done [label="Lean kernel checked\nLean 内核已检查", fillcolor="#dff2e8", color="#3f7c66"];
+    active [label="Active proof obligation\n当前证明义务", fillcolor="#fff0c9", color="#b37a12", penwidth=2.2];
+    pending [label="Pending root theorem\n待闭合根定理", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    audit [label="Axiom/dependency audit\n公理/依赖审计", fillcolor="#e9e3f5", color="#76639a"];
+    rejected [label="Rejected route\n经审计弃用的路线", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+  }
+
+  subgraph cluster_coordinate {
+    label="A. Honest proof coordinate（诚实证明坐标）";
+    color="#8fb7aa";
+    style="rounded";
+
+    natcode [label="binaryNatCode / decodeBinaryNat\n自然数前缀码 / 自然数前缀解码\nescaped-bit prefix serialization（转义位前缀序列化）", fillcolor="#dff2e8"];
+    syntaxcode [label="binaryTermCode + binaryFormulaCode\n项二进制码 + 公式二进制码\ntyped syntax serialization（类型化语法序列化）", fillcolor="#dff2e8"];
+    sequentcode [label="binarySequentCode\n序列二进制码\nfinite sequent payload（有限序列载荷）", fillcolor="#dff2e8"];
+    prooftree [label="CheckedPAProofTree.binaryCode\n已检查 PA 证明树二进制码\n10 sequent-calculus rules（十条相继式规则）", fillcolor="#dff2e8"];
+    axiomcert [label="PAAxiomCertificate\nPA 公理证书\n23 constructors incl. induction（含归纳的 23 个构造）", fillcolor="#dff2e8"];
+    structcert [label="StructuralValidityCertificate\n结构有效性证书\nall local witnesses counted（全部局部见证计长）", fillcolor="#dff2e8"];
+    certifiedcode [label="binaryCertifiedPAProofCode\n带证书 PA 证明二进制码\nproof + certificate（证明 + 证书）", fillcolor="#dff2e8"];
+    packedcode [label="packBinaryString / packedPayloadLength\n位串打包 / 有效载荷长度\nNat.size = payload + 1（自然数位长等式）", fillcolor="#dff2e8"];
+
+    natcode -> syntaxcode [label="labels / 标签"];
+    syntaxcode -> sequentcode;
+    sequentcode -> prooftree;
+    axiomcert -> structcert;
+    prooftree -> certifiedcode;
+    structcert -> certifiedcode;
+    certifiedcode -> packedcode;
+  }
+
+  subgraph cluster_decoder {
+    label="B. Decoder integrity（解码完整性）";
+    color="#8fb7aa";
+    style="rounded";
+
+    typeddecoder [label="decodeCompactTerm / Formula / Sequent\n紧凑项 / 公式 / 序列解码器\nFoundationCompactPAProofVerifier.lean", fillcolor="#dff2e8"];
+    proofdecoder [label="decodeCompactProof\n紧凑证明树解码器\nall 10 constructors（全部十个构造）", fillcolor="#dff2e8"];
+    certdecoder [label="decodePAAxiomCertificate\ndecodeStructuralValidityCertificate\nPA 公理证书 / 结构证书解码器", fillcolor="#dff2e8"];
+    packeddecoder [label="decodeCompactPackedCertifiedPAProof\n打包带证书证明解码器\nno hidden auxiliary witness（无隐藏辅助见证）", fillcolor="#dff2e8"];
+
+    typeddecoder -> proofdecoder;
+    certdecoder -> packeddecoder;
+    proofdecoder -> packeddecoder;
+  }
+
+  subgraph cluster_size {
+    label="C. Non-inflation and canonical length（不膨胀与规范长度）";
+    color="#8fb7aa";
+    style="rounded";
+
+    structural [label="decodeCompactProof_parseWeight_le\n证明解码结构量界\nstructural non-inflation（结构不膨胀）\nFoundationCompactProofDecoderStructuralBound.lean", fillcolor="#dff2e8"];
+    syntaxcanonical [label="decodeCompactTerm/Formula/Sequent_canonical_length_le\n项/公式/序列规范重编码长度界\nFoundationCompactCanonicalDecodeLength.lean", fillcolor="#dff2e8"];
+    proofcanonical [label="decodeCompactProof_binaryLength_le\n完整证明树规范重编码长度界\nFoundationCompactProofCanonicalDecodeLengthComplete.lean", fillcolor="#dff2e8"];
+    certcanonical [label="decodeStructuralValidityCertificate_binaryLength_le\n结构证书规范重编码长度界\nFoundationCompactCertificateCanonicalDecodeLength.lean", fillcolor="#dff2e8"];
+    totalcanonical [label="compactCertifiedPAProofVerifier_canonical_length_bound\n公开验证器规范载荷总界\naccepted output <= honest input（接受输出不长于诚实输入）", fillcolor="#dff2e8"];
+    transformsize [label="shift/free/neg/substitution size bounds\n移位/自由变量嵌入/否定/代入大小界\nsubstitution <= formula × term（代入至多公式乘项）", fillcolor="#dff2e8"];
+
+    typeddecoder -> syntaxcanonical;
+    proofdecoder -> structural;
+    syntaxcanonical -> proofcanonical;
+    certdecoder -> certcanonical;
+    proofcanonical -> totalcanonical;
+    certcanonical -> totalcanonical;
+    syntaxcode -> transformsize;
+  }
+
+  subgraph cluster_explicit_local {
+    label="D. Explicit local costed verifier（显式带成本局部验证器）";
+    color="#8fb7aa";
+    style="rounded";
+
+    biteq [label="bitStringEqTrace / natEqTrace\n位串相等轨迹 / 自然数相等轨迹\nresult correctness + explicit cost（结果正确 + 显式成本）", fillcolor="#dff2e8"];
+    bitset [label="bitStringMemTrace / SubsetTrace / SetEqTrace\n位串成员 / 包含 / 集合等价轨迹\nquadratic-style explicit bounds（二次型显式界）", fillcolor="#dff2e8"];
+    formulalist [label="formulaEq/Mem/Subset/SetEqTrace\n公式相等/成员/包含/集合等价轨迹\ncode emission charged（公式码生成已计费）", fillcolor="#dff2e8"];
+    listedtree [label="ListedCheckedPAProofTree\n列表序列 PA 证明树\npreserves decoded lists（保留解码列表）", fillcolor="#dff2e8"];
+    listedcert [label="listedCertificateValidTrace\n列表证书有效性成本轨迹\nno Finset decide black box（无有限集判定黑箱）", fillcolor="#dff2e8"];
+
+    biteq -> bitset;
+    bitset -> formulalist;
+    listedtree -> listedcert;
+    formulalist -> listedcert;
+    transformsize -> listedcert [label="local transforms\n局部变换"];
+  }
+
+  subgraph cluster_same_system {
+    label="E. Same-system soundness and completeness（同系统可靠性与完备性）";
+    color="#8fb7aa";
+    style="rounded";
+
+    listdecoder [label="decodeCompactListedProof\n列表保持证明解码器\nFoundationCompactListedProofDecoder.lean", fillcolor="#dff2e8"];
+    projection [label="decodeCompactListedProof_toChecked\n列表解码投影到原检查器\n10-rule fuel induction（十规则燃料归纳）", fillcolor="#dff2e8"];
+    localiff [label="listedCertificateValidTrace_toChecked_iff\n新局部轨迹 <-> 原 certificateValid\n语义精确等价", fillcolor="#dff2e8"];
+    publiciff [label="listedCompactCertifiedPAProofVerifier_eq_true_iff\n新公开验证器接受 <-> 精确检查关系\nFoundationCompactListedCertifiedVerifier.lean", fillcolor="#dff2e8"];
+    soundness [label="listedCompactCertifiedPAProofVerifier_toDerivation\nsoundness（可靠性）\naccepted code -> real PA Derivation2\n接受码 -> 真实 PA 推导", fillcolor="#dff2e8"];
+    listencoder [label="decodeCompactListedProof_canonicalBinaryCode_append\n列表证明规范编码往返\nFoundationCompactListedProofEncoder.lean", fillcolor="#dff2e8"];
+    completeness [label="derivation_to_listedCompactCertifiedPAProofVerifier\ncompleteness（完备性）\nreal PA derivation -> accepted canonical code\n真实 PA 推导 -> 规范接受码", fillcolor="#dff2e8"];
+    predicate [label="Concrete P(x,y) / ListedCompactCertifiedPAProofChecks\n具体证明谓词 P(x,y) / 列表带证书检查关系\nsame formula + same checker + honest length\n同一公式 + 同一检查器 + 诚实长度", fillcolor="#dff2e8", penwidth=2.0];
+    minmeasure [
+      label="minListedCertifiedPAProofPayloadLength(formula)\n具体检查器诱导的最短完整载荷长度\n真实 PA 推导 -> 最小值由某个接受码实现\n任意接受码 -> minimum <= packedPayloadLength(code)\n接受码 -> 同公式真实 Derivation2（推导树）\n无项目级 proof_length；无 sorryAx\nFoundationCompactListedMinProofLength.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    canonicalnormalize [
+      label="P_canon(code, formulaCode) + canonical Bool verifier\n纯数值规范证明关系 + 规范布尔验证器\nBool verifier = true <-> P_canon，由 Lean 精确证明\n任意公开接受码 -> 同公式码规范码，完整载荷不增长\n最短完整载荷必由真实规范 proof + certificate 码实现\n全体码有限一致性 <-> 同 cutoff 的纯数值规范码有限一致性\n非规范/冗余编码不能人为压低 minimum（最小值）\nFoundationCompactListedCanonicalNormalization.lean\n无 sorryAx；仅三个 Lean 标准公理",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+
+    typeddecoder -> listdecoder;
+    listdecoder -> projection;
+    proofdecoder -> projection;
+    listedcert -> localiff;
+    projection -> publiciff;
+    localiff -> publiciff;
+    packeddecoder -> publiciff;
+    publiciff -> soundness;
+    prooftree -> listencoder;
+    listdecoder -> listencoder;
+    listencoder -> completeness;
+    listedcert -> completeness;
+    soundness -> predicate;
+    completeness -> predicate;
+    predicate -> minmeasure [label="minimum over accepted codes\n对接受码取最小值"];
+    completeness -> minmeasure [label="nonempty accepted set\n接受集合非空"];
+    publiciff -> canonicalnormalize [label="decode every accepted code\n解码任意接受码"];
+    listencoder -> canonicalnormalize [label="canonical re-encoding\n规范重编码"];
+    totalcanonical -> canonicalnormalize [label="no payload growth\n载荷不增长"];
+    minmeasure -> canonicalnormalize [label="minimum realized canonically\n最小值由规范码实现"];
+  }
+
+  subgraph cluster_cost_active {
+    label="F. Active total bit-cost proof（当前总位成本证明）";
+    color="#c18a27";
+    style="rounded,bold";
+
+    nattrace [label="decodeBinaryNatTrace_result\ndecodeBinaryNatTrace_cost_le\n自然数解码轨迹结果等价 + 二次位成本界\nNat.bit charged by Nat.size（按自然数位长收费）", fillcolor="#dff2e8", color="#3f7c66"];
+    tracebind [label="OptionTrace + traceBind\n可选结果成本轨迹 + 轨迹绑定\nevery bind/failure charged（每次绑定/失败均计费）", fillcolor="#dff2e8", color="#3f7c66"];
+    vectortrace [label="decodeManyVectorTrace_result\n向量解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    termtrace [label="decodeCompactTermTrace_result\n项解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    formulatrace [label="decodeCompactFormulaTrace_result\n公式解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    prooftrace [label="decodeCompactListedProofTrace_result\n列表证明解码轨迹结果等价\nall 10 rules（全部十条规则）", fillcolor="#dff2e8", color="#3f7c66"];
+    certtrace [label="PA/structural certificate decoder traces\nPA / 结构证书解码轨迹\n23 axiom tags + 4 recursive nodes\n23 个公理标签 + 4 种递归节点", fillcolor="#dff2e8", color="#3f7c66"];
+    publictrace [label="listedCompactCertifiedPAProofVerifierTrace_result\n公开验证器轨迹结果等价\npacked envelope + formula + local checks\n打包外壳 + 公式 + 局部检查", fillcolor="#dff2e8", color="#3f7c66"];
+    natpotential [label="decodeBinaryNatTrace_success/failure_potential\n自然数解码成功/失败势能界\nquartic consumed-prefix invariant\n四次已消费前缀不变量", fillcolor="#dff2e8", color="#3f7c66"];
+    vectorpotential [label="decodeManyVectorTrace_potential\n任意长度向量解码摊还势能定理\ndisjoint consumed prefixes（互不重叠的已消费前缀）", fillcolor="#dff2e8", color="#3f7c66"];
+    symbolcharge [label="arithmeticFunc/Rel_decode_charge_le\n算术函数/关系符号解码收费界\nfinite ORing language（有限有序环语言）", fillcolor="#dff2e8", color="#3f7c66"];
+    termpotential [label="decodeCompactTermTrace_parserCostBound\n紧凑项解码器全路径摊还成本界\nsuccess + every failure path\n成功路径 + 全部失败路径", fillcolor="#dff2e8", color="#3f7c66"];
+    formulapotential [label="decodeCompactFormulaTrace_parserCostBound\n紧凑公式解码器全路径摊还成本界\natoms / connectives / quantifiers\n原子式 / 联结词 / 量词", fillcolor="#dff2e8", color="#3f7c66"];
+    proofpotential [
+      label="decodeCompactListedProofTrace_parserCostBound\n列表证明树全路径四次势能成本界\n十条 PA 相继式规则全部通过\nand/cut 二叉子证明势能已望远镜相消\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#3f7c66"
+    ];
+    certpotential [
+      label="decodePAAxiomCertificateTrace_parserCostBound\ndecodeStructuralValidityCertificateTrace_parserCostBound\n23 种 PA 公理标签 + 4 种递归证书节点全路径四次势能界\n归纳公理体和二元证书树已摊还闭合\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#3f7c66", penwidth=2.2
+    ];
+    packedcost [
+      label="packed proof/formula decoder cost bounds\n打包证明/公式解码器成本界\n证明+证书串联、末位哨兵、dropLast、空后缀全部闭合\n两个公开打包解码器均不超过 2 × decoderPotential(Nat.size code)\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    transformcode [
+      label="transformation binary-code length bounds\n语法变换完整二进制码长界\nshift/free/neg 均至多线性膨胀\nsubstitution：|phi[t]| <= 3(F+1)(W+1)F\n含 qpow 量词深度预算；无隐藏参数；无 sorryAx\nFoundationCompactSyntaxTransformationCodeBounds.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    negtrace [
+      label="binaryFormulaNegTrace_result / _cost_le\n否定变换真实递归轨迹\n结果精确等于 ∼formula\n每个公式构造收费一步；原子项向量不重复遍历\n执行成本 <= formulaSymbolCount <= |binaryFormulaCode(formula)|\n单文件探针已通过；无 sorryAx\nFoundationCompactSyntaxNegationTrace.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    axmjoint [
+      label="axm comparator input <= 2 * jointWeight + 1\n公理比较器输入联合坐标界\n上下文、候选句子、完整 PA 公理证书均落在同一诚实位权\ncertificateBits + sentenceBits + 1 <= 2 * jointWeight + 1\n四个坐标引理已通过；无 sorryAx\nFoundationCompactListedAxiomJointWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    honestproof [
+      label="decodeCompactListedProof_honestWeight_le\n列表保持证明树诚实位权界\nweight(tree) + 8|suffix| <= 8|input|\n十条 PA 规则全部闭合；重复公式逐个计费\n覆盖任意成功解码，不只是规范编码\n公理画像仅 propext / Classical.choice / Quot.sound\nFoundationCompactListedProofHonestWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    honestcert [
+      label="decodeCompactPackedListedCertifiedPAProof_honestWeight_le\n证明树+完整结构证书联合诚实位权界\njointWeight(tree,cert) <= 8 * packedPayloadLength(code)\nPA 公理证书 23 标签及递归证书全部由实际输入位计费\n无辅助见证和隐藏长度参数；无 sorryAx\nFoundationCompactListedCertifiedHonestWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localprimitives [
+      label="formulaEq/Mem/Subset/SetEqTrace_cost_le_polynomial\n公式相等/成员/包含/集合等价统一位成本界\nP(w) = 4 + 2(w+3)^2 + w\nw 是全部输入公式码位权，包含列表重复项\n四个端点全部通过；无 sorryAx\nFoundationCompactListedLocalCostPrimitives.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localbranches9 [
+      label="10/10 listedCertificateValidTrace cost branches\n十条证明规则局部成本分支全部闭合\nclosed / verum / and / or / all / exs / wk / shift / cut：\n由 P(G(w)) 及生成语法界统一计费\naxm：由 A(w)=K*(2w+1)^12 的真实 guarded comparator 计费\n最终每节点固定多项式包络已由 Lean 检查；无 haxm、无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localinduction [
+      label="联合坐标内部归纳骨架 + 具体实例\nlistedCertificateValidTrace_jointCost_le_polynomial_of_axm\nguardedListedCertificateValidTrace_jointCost_le\n十规则证明树/证书同步统一归纳已通过\nb = proofWeight + certificateWeight（证明+证书联合位权）\n抽象 haxm 已由真实 guarded axm 成本定理具体消除\n公开实例无 haxm；公理画像仅标准 Lean 公理；无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    publicskeleton [
+      label="公开总成本内部骨架 + 具体实例\nlistedCompactCertifiedPAProofVerifierTrace_cost_le_of_certificateTrace\ns = Nat.size(code) + Nat.size(formulaCode)\n合并：两个打包解码、局部证书检查、结论集合比较、公式码比较\nQ(s)=4*decoderPotential(s)+L(s)+1，L(s) 是显式固定多项式\n原先唯一内部证书成本义务现已由 guarded 联合成本定理消除\n公理画像仅标准 Lean 公理；无 sorryAx\nFoundationCompactListedPublicCostSkeleton.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    publiccost [
+      label="【主终端完成：具体带守卫检查器最终汇合】\nguardedListedCertificateValidTrace_jointCost_le\nguardedListedCompactCertifiedPAProofVerifierTrace_result\nguardedListedCompactCertifiedPAProofVerifierTrace_cost_le\n\n已由 Lean 内核检查：\n1. axm 的 23 标签、接受/拒绝路径和候选长度 guard 全部统一；\n2. axm 局部成本进入与证明树、结构证书相同的诚实联合位权；\n3. 十规则整树成本不再带 haxm；\n4. 公开轨迹结果精确等于公开验证器结果；\n5. 总位成本 <= listedPublicVerifierCostPolynomial(\n   Nat.size code + Nat.size formulaCode)。\n\n定向构建退出码 0；五个关键端点公理画像仅\npropext / Classical.choice / Quot.sound。\n无 haxm、无输入包、无项目公设、无 sorryAx。\nFoundationCompactListedGuardedAxiomCost.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    amortized [label="Success/failure total potential bound\n成功/失败全路径总势能界\n两个打包解码器、语法变换、十规则局部检查和最终比较均已计费\n公开轨迹的所有输入对均满足同一固定多项式位成本界\n不是只分析接受路径；无隐藏辅助见证长度", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+    costnote [shape=note, label="关键注释：result equivalence（结果等价）\n只证明轨迹没有改掉验证结果；\n必须再证明成功/失败全路径的固定多项式界，\n才能声称 polynomial time（多项式时间）。", fillcolor="#e8f1f8", color="#4e7892"];
+    transformtrace [label="【共享终端完成：guarded axiom trace】\n移位 / 代入 / 带守卫公理比较轨迹\n\nLean 内核已检查：\n1. shift/free/substitution/list/fixitr 的真实 QTrace；\n2. fixitr 输出码长 <= 4*(L+1)^2；成本 <= 128*(m+L+1)^2*L；\n3. succInd 四次代入、三次否定、三个析取、两个全称量词全部真实执行；\n4. succInd 输出码长 <= 10^7*(L+1)^4；成本 <= 10^11*(L+1)^12；\n5. guard 完备：合法相等候选不会被提前拒绝；\n6. 接受分支 fixitr/allClosure/formulaEq 与拒绝分支总成本均闭合；\n7. 全部 23 标签统一：true iff certificate.sentence = candidate；\n8. 总成本 <= K*(certificateBits+sentenceBits+1)^12，\n   K=10^30+(3B+4)，B 为显式 26 句固定预算。\n\n两条验收命令退出码 0；关键公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx、无项目公设。\n\n边界：certificate-only 直接生成完整归纳句在稀疏变量编号下不可能多项式；\n本节点完成的是保持接受关系的 candidate-length guarded comparator。", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+    polytime [label="VerifierBitCost(x,y) <= p(|x|+|y|)\n公开验证器总位成本不超过一个显式固定多项式\nguardedListedCompactCertifiedPAProofVerifierTrace_cost_le\n对全部 code/formulaCode 成立，成功与失败路径均覆盖\n这里是项目 QTrace 位成本模型；PA 内短证明仍由下一簇单独完成", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+
+    natcode -> nattrace;
+    nattrace -> tracebind;
+    tracebind -> vectortrace;
+    vectortrace -> termtrace;
+    termtrace -> formulatrace;
+    formulatrace -> prooftrace;
+    certdecoder -> certtrace;
+    formulatrace -> certtrace;
+    prooftrace -> publictrace;
+    certtrace -> publictrace;
+    publictrace -> amortized [label="exact behavior first\n先固定精确行为"];
+    nattrace -> natpotential;
+    natpotential -> vectorpotential;
+    vectorpotential -> termpotential [label="argument vectors\n参数向量"];
+    symbolcharge -> termpotential [label="finite symbol decoding\n有限符号解码"];
+    termpotential -> formulapotential [label="terms inside atoms\n原子式中的项"];
+    formulapotential -> proofpotential [label="formulas inside sequents\n序列中的公式"];
+    proofpotential -> certpotential [label="proof/certificate alignment\n证明树/证书树对齐"];
+    formulapotential -> certpotential [label="induction body\n归纳公理体"];
+    certpotential -> packedcost [label="proof + certificate stream\n证明 + 证书串"];
+    publictrace -> packedcost [label="same executable result\n同一可执行结果"];
+    packedcost -> publiccost [label="decoded objects\n已解码对象"];
+    transformsize -> transformcode [label="from symbol count to full bits\n从符号数提升到完整位长"];
+    transformcode -> negtrace [label="input bit-length control\n输入位长控制"];
+    negtrace -> publiccost [label="closed/cut negation charge\n闭合/切规则否定计费"];
+    transformcode -> publiccost [label="generated-code bounds\n生成公式码长界"];
+    listdecoder -> honestproof [label="all successful parses\n全部成功解码"];
+    honestproof -> honestcert [label="proof-tree charge\n证明树计费"];
+    certcanonical -> honestcert [label="full certificate bits\n完整证书位"];
+    honestcert -> publiccost [label="joint decoded-data bound\n联合解码数据界"];
+    honestcert -> axmjoint [label="proof + certificate coordinate\n证明 + 证书坐标"];
+    axmjoint -> publiccost [label="guarded comparator input bound\n带守卫比较器输入界"];
+    listedcert -> localprimitives [label="exact trace costs\n精确轨迹成本"];
+    honestproof -> localprimitives [label="duplicate-preserving weights\n保留重复项位权"];
+    localprimitives -> publiccost [label="uniform quadratic bound\n统一二次界"];
+    localprimitives -> localbranches9 [label="per-rule instantiation\n逐规则实例化"];
+    transformcode -> localbranches9 [label="generated syntax bounds\n生成语法界"];
+    localbranches9 -> publiccost [label="nine checked branches\n九条已检查分支"];
+    localbranches9 -> localinduction [label="structural aggregation\n结构汇总"];
+    localinduction -> publiccost [label="haxm concretely discharged\nhaxm 已由具体定理消除"];
+    localinduction -> publicskeleton [label="local certificate polynomial\n局部证书多项式"];
+    packedcost -> publicskeleton [label="two packed decoder bounds\n两个打包解码界"];
+    honestcert -> publicskeleton [label="decoded joint weight\n解码联合位权"];
+    publicskeleton -> publiccost [label="concrete discharge checked\n具体消义务已检查"];
+    listedcert -> publiccost [label="explicit local checks\n显式局部检查"];
+    publiccost -> amortized;
+    totalcanonical -> amortized [label="consumed-length control\n消费长度控制"];
+    costnote -> amortized [style=dotted, arrowhead=none, constraint=false];
+    transformcode -> transformtrace;
+    transformtrace -> publiccost [label="guarded axm + shift/free/substitution costs\n带守卫公理 + 移位/自由化/代入成本"];
+    amortized -> polytime;
+    transformtrace -> polytime;
+    totalcanonical -> polytime [label="input/output length control\n输入输出长度控制"];
+    listedcert -> polytime [label="local cost bounds\n局部成本界"];
+    predicate -> polytime [label="exact executable relation\n精确可执行关系"];
+  }
+
+  subgraph cluster_internalization {
+    label="G. Arithmetic internalization（算术内部化）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    listedconmeta [label="ListedCertifiedFiniteConsistencyAt(k)\n同一列表保持验证器的有限一致性元层语义\n无长度 <= k 的完整载荷码被接受为 ⊥\n普通及 2^(A*n) 放大版本无条件为真\n接受反向恢复同公式真实 PA 推导；无 sorryAx\nFoundationCompactListedFiniteConsistencyTarget.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    arithinput [label="Primitive-recursive packed input layer\n公开验证器打包输入的原始递归算术层\n\nLean 内核已检查：\n1. Nat.bits（小端二进制展开）为 primitive recursive；\n2. getLast?/dropLast 与 sentinel payload peel 均为 primitive recursive；\n3. 剥离成功 iff 输入精确等于 packBinaryString(payload)；\n4. 新剥离器结果精确等于现有 packedPayloadTrace 结果；\n5. decodeBinaryNat 已由 right-fold state machine 重建；\n6. 新状态机逐输入精确等于原前缀解码器，二者均为 primitive recursive。\n\n无 typed syntax 假设、无输入包、无项目公设、无 sorryAx；\n公理画像仅 propext / Classical.choice / Quot.sound 或其子集。\nFoundationCompactListedVerifierArithmeticInput.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    tokenstream [label="Primitive-recursive binary-Nat token stream machine\n原始递归二进制自然数记号流机器\n\n具体 bounded iterator 已由 Lean 检查：\n1. 状态明确区分 running / failed / accepted；\n2. 每步调用同一个 decodeBinaryNat 并保留真实剩余位串；\n3. 总步数由 inputBits+1 明确限制；\n4. 最终结果逐位串等于 repeated-prefix reference parser；\n5. binaryNatCode token stream 的规范往返成立；\n6. step、run、output 和 reference parser 全部 primitive recursive。\n\n覆盖畸形和非规范输入；无 rawCode、无 sorryAx、无项目公设。\nFoundationCompactBinaryNatStreamMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    syntaxparser [label="Primitive-recursive arithmetic term/formula parser\n原始递归算术项 / 公式解析器\n\nLean 内核已检查：\n1. 纯 Nat token 状态机覆盖 bvar/fvar/func 与全部公式构造；\n2. 有序环函数、关系符号码与 typed decoder 的 decode₂ 条件精确一致；\n3. repeat frame 逐项处理参数，不按稀疏 arity 一次展开巨型任务表；\n4. 每个真实项 / 公式都有精确执行步数定理；\n5. 执行步数不超过真实 token 长度，固定二次 fuel 必然足够；\n6. 公开 parser 对规范编码精确返回同一 suffix。\n\n定向 Lean 探针与目标构建退出码 0；公理画像仅\npropext / Classical.choice / Quot.sound；静态禁用项扫描为空。\nFoundationCompactSyntaxTokenMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericparser [label="【主终端当前：证明树 / 证书纯数值解析】\nNumeric compact proof/certificate parser\n紧凑证明树与完整证书的纯自然数解析器\n\n绿色前置层已经闭合 packed payload、Nat 前缀记号流、\n有序环符号检查以及 arithmetic term/formula parser。\n\n当前证明任务：\n1. 扩展任务栈，解析 list-preserving 十规则证明树；\n2. 解析 23 类 PA 公理证书及结构证书；\n3. 对任意输入证明数值接受 iff 现有 typed decoder 接受，\n   并恢复同一对象、消费同一后缀；\n4. 组合为完整公开 verifier 的 primitive-recursive graph。\n\n完成标准：覆盖成功、失败与畸形输入；不借旧 rawCode，\n不增加隐藏见证长度，不把 typed syntax 当外部输入。", fillcolor="#fff0c9", color="#b37a12", penwidth=2.8];
+    compactformula [label="CompactProof(x,y) + Con_PA^compact(k)\n紧凑证明谓词算术公式 + 紧凑有限一致性句\n绿色 ListedCertifiedFiniteConsistencyAt 已给出正确 Lean Prop 元层语义\n旧 succinctFiniteConsistencySentence 仍指 raw-code checker（原始码检查器）\n待证明：算术句标准模型精确等价于同一 guarded compact verifier\n以及短二进制数词实例的公式大小界", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
+    patrace [label="PA computation-trace theorem\nPA 计算轨迹定理\naccepted run -> short PA proof of CompactProof(x,y)\n接受运行 -> CompactProof(x,y) 的短 PA 证明", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    suitable [label="suitable numeration（合适枚举）\nbit graph representability（位图可表示性）\npolynomial proof construction（多项式证明构造）", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond0 [label="Pudlak condition (0)（普德拉克条件 0）\nPA 内证明 proof-bound monotonicity（证明长度界单调性）\nP 的较紧/较松 cutoff 可在同一公式中转换", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond1 [label="Pudlak condition (1)（普德拉克条件 1）\nexternal short proof -> internal P(n, code(phi))\n外部短证明以多项式开销内部化为 P 实例", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond2 [label="Pudlak condition (2)（普德拉克条件 2）\nP(n,m) -> P(q1(n), code(P(n,m)))\n证明谓词实例自身的定量内部化", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond3 [label="Pudlak condition (3)（普德拉克条件 3）\nbounded modus ponens composition（有界肯定前件合成）\nP(n,phi) 与 P(n,phi->psi) -> P(q2(n),psi)", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    mpcompiler [label="Accepted-code bounded modus ponens compiler\n接受码有界肯定前件编译器（外部语义层已闭合）\n\n同一公开列表保持验证器：\naccept(codeImp, A->B) + accept(codeA, A)\n  -> exists codeB, accept(codeB, B)\n完整载荷界：\n|codeB| <= |codeImp| + |codeA| + 240 + 34*S(A,B)\n两份输入 proof tree + certificate 原样复用\n树级、证书级、规范码级及任意接受码端点均已通过\n无隐藏长度参数；无 sorryAx\nFoundationCompactCertifiedModusPonens.lean\n\n注意：这里只关闭外部码合成；\nPA 内部 condition (3) 仍须由 arithmetic trace 内化。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    conjcompiler [label="Accepted-code bounded conjunction compiler\n接受码有界合取编译器（外部语义层已闭合）\n\naccept(codeA,A) + accept(codeB,B)\n  -> exists codeAnd, accept(codeAnd,A and B)\n完整载荷界：\n|codeAnd| <= |codeA| + |codeB| + 144 + 11*S(A,B)\n两棵输入树与两份完整证书原样复用\n任意接受码端点及 axiom profile 已通过\n无 sorryAx\nFoundationCompactCertifiedConjunction.lean\n\n注意：固定重言式与原文拼接步骤 (i)-(v)\n以及 PA 内部化仍未闭合。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    qdiagonal [label="Quantitative parameterized diagonalization\n定量参数化对角化（同一完整载荷坐标已闭合）\nFoundation parameterized_diagonal₁：固定 P 的全称证明为常数\n真实 Derivation2 实例化：cut + wk + exs + closed\n显式结构证书：binary(unary(baseCert), unary(leaf))\n公开列表保持验证器接受完整 proof+certificate 打包码\n短二进制数码项：2*previous+bit\n码长 O(Nat.size m)，标准模型值严格为 m\n最终完整载荷界：baseProof+baseCert+192\n + 2048*(formulaConstant+stepConstant*|m|+1)^3\n同一公式实例的精确最短载荷也不超过该界\n具体 CompactProof 谓词仍由灰色算术化节点提供\nFoundationCompactDerivationSpecialization.lean\nFoundationCompactCertifiedDerivationSpecialization.lean\nFoundationCompactBinaryNumeralTerm.lean\nFoundationCompactParameterizedDiagonalSpecialization.lean\n端点无 sorryAx", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    proofassembly [label="Bounded proof-calculus assembly (i)-(v)\n有界证明演算拼接（原文步骤 i-v）\n固定命题重言式 + (0)-(3) + MP/conjunction composition\n逐步得到 not P(q5(m), bottom) -> D(m)\n每次拼接与公式实例化均须显式多项式长度", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    paconsistency [label="PA consistency in the standard model\nPA 在标准模型中的一致性\naccepted falsum proof -> real Derivation2 -> contradiction\n项目已有 noListedCertifiedPAProofOfFalsum；无 sorryAx", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.4];
+    exponentextract [label="Consistency contradiction + exponent extraction\n一致性反证 + 指数提取\n短 D(m) 证明与一致性冲突\nq5(m) 的多项式重标定 -> 存在 epsilon > 0\n推出 Con_A(n) 无 n^epsilon 长度证明", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    diagonal [label="Pudlak 1986 Theorem 3.1\n普德拉克 1986 定理 3.1\ndiagonal proof-length lower bound\n对角证明长度下界", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
+    internalnote [shape=note, label="关键注释：外部运行时间界不能自动变成 PA 内部短证明。\n必须构造 accepted computation trace（接受计算轨迹），\n并在同一算术编码中逐步验证。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    predicate -> compactformula [label="exact standard-model relation\n精确标准模型关系"];
+    minmeasure -> compactformula [label="same honest payload length\n同一诚实载荷长度"];
+    canonicalnormalize -> compactformula [style=dotted, label="normalization audit only; public guarded verifier remains the target\n仅作规范化审计；目标仍是公开带守卫验证器"];
+    predicate -> listedconmeta [label="same accepted-code relation\n同一接受码关系"];
+    minmeasure -> listedconmeta [label="same payload coordinate\n同一载荷坐标"];
+    listedconmeta -> compactformula [label="arithmetize this exact semantics\n算术化这一精确语义"];
+    canonicalnormalize -> listedconmeta [label="pointwise same-cutoff equivalence\n逐点同截断值等价"];
+    polytime -> arithinput [label="same packed inputs and bit-cost coordinate\n同一打包输入与位成本坐标"];
+    arithinput -> tokenstream [label="primitive-recursive payload and Nat-prefix base\n原始递归载荷与自然数前缀基础"];
+    tokenstream -> syntaxparser [label="bounded exact tokenization\n有界精确记号化"];
+    syntaxparser -> numericparser [label="checked syntax-task machine\n已检查语法任务机"];
+    numericparser -> compactformula [label="same numeric machine graph\n同一纯数值机器图"];
+    compactformula -> patrace [label="fixed formula and binary numerals\n固定公式与二进制数词"];
+    internalnote -> patrace [style=dotted, arrowhead=none, constraint=false];
+    patrace -> suitable;
+    suitable -> cond0;
+    suitable -> cond1;
+    suitable -> cond2;
+    suitable -> cond3;
+    predicate -> mpcompiler [label="same public verifier\n同一公开验证器"];
+    canonicalnormalize -> mpcompiler [label="decoded payload never grows\n解码规范化不增长"];
+    mpcompiler -> cond3 [style=dotted, label="external compiler closed; PA internal proof remains\n外部编译已闭合；仍需 PA 内部短证明"];
+    predicate -> conjcompiler [label="same public verifier\n同一公开验证器"];
+    canonicalnormalize -> conjcompiler [label="decoded payload never grows\n解码规范化不增长"];
+    conjcompiler -> proofassembly [style=dotted, label="external conjunction primitive closed\n外部合取原语已闭合"];
+    compactformula -> qdiagonal [style=dotted, arrowhead=none, constraint=false, label="later instantiate the closed generic compiler at concrete P\n后续把已闭合通用编译器实例化到具体 P"];
+    suitable -> qdiagonal [style=dotted, arrowhead=none, constraint=false, label="concrete P conditions belong to later assembly\n具体 P 条件属于后续拼接"];
+    transformcode -> qdiagonal [label="formula-instance size bound already checked\n公式实例大小界已检查"];
+    cond0 -> proofassembly;
+    cond1 -> proofassembly;
+    cond2 -> proofassembly;
+    cond3 -> proofassembly;
+    qdiagonal -> proofassembly;
+    proofassembly -> exponentextract;
+    paconsistency -> exponentextract;
+    exponentextract -> diagonal;
+  }
+
+  subgraph cluster_buss {
+    label="H. Buss-Pudlak lower bound（布斯-普德拉克下界）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    family [label="F_n = Con_T((f(n))^c)\n有限一致性公式族\nsame T / proof system / symbol length\n同一理论 / 证明系统 / 符号长度", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    rescale [label="Buss 1994 Theorem 5\n布斯 1994 第 5 定理\ntime-constructible rescaling\n时间可构造重标定", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
+    lower [label="minProofLength(F_n) > U(n) eventually\n最短证明长度最终大于 U(n)\nsuper-polynomial lower bound（超多项式下界）", fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed", penwidth=2.0];
+    lowernote [shape=note, label="关键注释：文献下界只能用于原文满足条件的\nformula family（公式族）、proof system（证明系统）\n和 symbol length（符号长度）；名字相似不能替代对象恒等。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    compactformula -> family [label="same CompactProof predicate\n同一紧凑证明谓词"];
+    minmeasure -> family [label="exact minimum length coordinate\n精确最短长度坐标"];
+    diagonal -> rescale [label="power lower-bound seed\n幂下界种子"];
+    family -> rescale;
+    rescale -> lower [label="explicit time-constructible f\n显式时间可构造函数 f"];
+    lowernote -> rescale [style=dotted, arrowhead=none, constraint=false];
+  }
+
+  subgraph cluster_collision {
+    label="I. Same-object upper bound and collision（同对象上界与碰撞）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    sondowcert [label="Sondow checked certificates\n索多已检查证书\nassume gamma rational（假设欧拉常数有理）\n本节点只表示证书已检查，不等于同对象上界已完成", fillcolor="#dff2e8", color="#3f7c66"];
+    samecompiler [label="Sondow same-object compiler\n索多同对象编译器\ncertificate -> real proof of the same F_n\n证书 -> 同一 F_n 的真实证明", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    upper [label="minProofLength(F_n) <= U(n)\n最短证明长度不超过多项式 U(n)\npolynomial upper bound（多项式上界）\n等待 same-object compiler（同对象编译器）", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    collision [label="U(N) < minProofLength(F_N) <= U(N)\n同一 N、同一公式、同一检查器、同一长度的矛盾\ncollision theorem（碰撞定理）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed", penwidth=2.5];
+    final [label="not is_rational euler_mascheroni\n欧拉-马歇罗尼常数非有理\n仅在全部上游根定理闭合后成立", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed", penwidth=2.5];
+    samenote [shape=note, label="关键注释：碰撞必须是同一 N、同一 F_N、\n同一 checker（检查器）和同一 length measure（长度度量）。\n只证明两个抽象接口各自存在不能形成碰撞。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    sondowcert -> samecompiler;
+    family -> samecompiler [label="formula identity\n公式恒等"];
+    predicate -> samecompiler [label="same checker/length\n同一检查器/长度"];
+    minmeasure -> samecompiler [label="same minimum payload measure\n同一最短载荷度量"];
+    samecompiler -> upper [label="canonical accepted proof code\n规范且被接受的证明码"];
+    upper -> collision [label="same F_N / same length\n同一 F_N / 同一长度"];
+    lower -> collision [label="same F_N / same length\n同一 F_N / 同一长度"];
+    samenote -> collision [style=dotted, arrowhead=none, constraint=false];
+    collision -> final;
+  }
+
+  subgraph cluster_audit {
+    label="J. Submission-grade audit gates（投稿级审计门）";
+    color="#76639a";
+    style="rounded";
+
+    axioms [label="#print axioms audit（公理画像审计）\n已完成节点仅依赖：\npropext（命题外延）\nClassical.choice（经典选择）\nQuot.sound（商类型可靠性）", fillcolor="#e9e3f5", color="#76639a"];
+    forbidden [label="Forbidden project assumptions（禁止项目级假设）\nno tail_gap（无尾部间隙参数）\nno upper_provider（无上界提供者参数）\nno project proof_length（无项目证明长度公设）\nno sorryAx（无未完成证明公设）", fillcolor="#e9e3f5", color="#76639a"];
+    gate [label="Final dependency audit（最终依赖审计）\nsame formula / parameter / checker / measure\n同一公式 / 参数 / 检查器 / 度量", fillcolor="#e9e3f5", color="#76639a", penwidth=2.0];
+
+    totalcanonical -> axioms [style=dotted];
+    publiciff -> axioms [style=dotted];
+    completeness -> axioms [style=dotted];
+    nattrace -> axioms [style=dotted];
+    polytime -> forbidden [style=dashed];
+    diagonal -> forbidden [style=dashed];
+    samecompiler -> forbidden [style=dashed];
+    lower -> gate;
+    upper -> gate;
+    axioms -> gate;
+    forbidden -> gate;
+    gate -> collision [style=dashed, label="audit pass\n审计通过"];
+  }
+
+  subgraph cluster_rejected_routes {
+    label="K. Rejected historical routes（经审计弃用的历史路线；不通向主结论）";
+    color="#a8443d";
+    style="rounded,dashed";
+
+    rawgodel [label="Nat.size(rawProofCode) lower bound\n原始哥德尔证明码位长下界\nunary-numeral encoding artifact（一元数词编码伪影）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    postfixraw [label="Postfix checker rebuilding rawCode\n重建 rawCode 的后缀检查器\nprimitive recursive != polynomial time\n原始递归不等于多项式时间", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    abstractgap [label="tail_gap / computable_gap input\n尾部间隙 / 可计算间隙输入\nassumes the lower bound（预设下界）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    abstractupper [label="upper_provider input\n上界提供者输入\nassumes the Sondow bridge（预设索多桥）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    unsimulated [label="Unproved Hilbert-system simulation\n未证明的 Hilbert 系统模拟\nwrong/uncalibrated proof measure\n错误或未校准的证明度量", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    graft [label="strengthened_to_partial / transfer_to_graft\n加强到部分 / 嫁接转移接口\ninterface packaging without source theorem\n只有接口包装、没有源定理", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    rejectednote [shape=note, label="弃用判据：编码伪影、循环输入、对象错位，\n或只给接口而没有根定理。\n本区域没有任何边连接最终碰撞定理。", fillcolor="#fff1f0", color="#a8443d"];
+
+    rawgodel -> postfixraw [style=dotted, color="#a8443d"];
+    abstractgap -> graft [style=dotted, color="#a8443d"];
+    abstractupper -> graft [style=dotted, color="#a8443d"];
+    unsimulated -> graft [style=dotted, color="#a8443d"];
+    rejectednote -> graft [style=dotted, arrowhead=none, color="#a8443d"];
+  }
+}

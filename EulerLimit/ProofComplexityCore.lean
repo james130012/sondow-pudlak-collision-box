@@ -72,13 +72,6 @@ def strengthenedPartialConsistencyCode (n : ℕ) : FormulaCode :=
 def sondowReflectionGraftCode (n : ℕ) : FormulaCode :=
   { family := FormulaFamily.sondowReflectionGraft, index := n }
 
--- Abstract proof-length symbol for the model layer.  This declaration does not
--- assert any lower bound, upper bound, soundness theorem, or existence of a
--- concrete PA proof calculus.  Concrete routes must supply calibration fields
--- such as `proof_length_eq_minProofCodeSize`, `proof_length_exact`, or explicit
--- lower-bound packages before conclusions can use it.
-axiom proof_length : ProofSystem → ProofLengthMeasure → FormulaCode → ℝ
-
 -- A concrete proof-code semantics for a chosen formula-code fragment.  It
 -- separates the proof code carrier, the checker relation, and the size measure.
 universe q
@@ -174,6 +167,122 @@ theorem ProofCodeSemantics.projectLength_eq_fallback
   rw [ProofCodeSemantics.projectLength,
     sem.semanticProofLength_eq_fallback fallback hcode]
 
+def ProofSystem.rootWeight : ProofSystem → Nat
+  | ProofSystem.S21 => 1
+  | ProofSystem.PA => 2
+  | ProofSystem.Z2 => 3
+
+def ProofLengthMeasure.rootWeight : ProofLengthMeasure → Nat
+  | ProofLengthMeasure.symbolSize => 1
+  | ProofLengthMeasure.lineCount => 2
+  | ProofLengthMeasure.bitSize => 3
+
+def FormulaFamily.rootWeight : FormulaFamily → Nat
+  | FormulaFamily.sondowIdentity => 1
+  | FormulaFamily.sondowExplicitIdentity => 2
+  | FormulaFamily.sondowCertificateValid => 3
+  | FormulaFamily.sondowTailBoundCertificate => 4
+  | FormulaFamily.sondowDenominatorCertificate => 5
+  | FormulaFamily.sondowProductLogCertificate => 6
+  | FormulaFamily.partialConsistency => 7
+  | FormulaFamily.strengthenedPartialConsistency => 8
+  | FormulaFamily.sondowReflectionGraft => 9
+
+def rootFormulaCodeSize
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) : Nat :=
+  match T, measure, code.family with
+  | ProofSystem.S21, ProofLengthMeasure.symbolSize,
+      FormulaFamily.sondowCertificateValid => 1
+  | _, _, _ =>
+      code.index + code.family.rootWeight + T.rootWeight + measure.rootWeight + 1
+
+def rootRelevantFormulaCode (_code : FormulaCode) : Prop :=
+  True
+
+/--
+Root proof-code semantics for the project-level `proof_length`.
+
+This removes the former free proof-length axiom.  On
+`S21 / symbolSize / sondowCertificateValidCode` it reserves the canonical
+Sondow sidecar slot of length `1`; on all other families it uses the structural
+fallback code-size convention above.  The sidecar slot is calibrated in the
+Sondow integration layer, where the corresponding proof-code checker is
+available without creating an import cycle.
+
+Submission-level theorems should not cite this as the PA/Hilbert proof-length
+model outside the calibrated family.  A literature-calibrated route for other
+families must instead fix a concrete `FormulaCode -> PA formula`
+interpretation and use the corresponding MiniHilbert / checked-code semantics.
+-/
+def rootProofCodeSemantics
+    (T : ProofSystem) (measure : ProofLengthMeasure) :
+    ProofCodeSemantics.{0} rootRelevantFormulaCode where
+  Code := FormulaCode
+  checks := fun c code => c = code
+  size := rootFormulaCodeSize T measure
+  complete := by
+    intro code _hcode
+    exact ⟨code, rfl⟩
+
+noncomputable def rootSemanticProofLength
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) : Nat :=
+  (rootProofCodeSemantics T measure).minProofCodeSize code trivial
+
+theorem rootSemanticProofLength_eq_rootFormulaCodeSize
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) :
+    rootSemanticProofLength T measure code =
+      rootFormulaCodeSize T measure code := by
+  let sem := rootProofCodeSemantics T measure
+  apply Nat.le_antisymm
+  · exact sem.minProofCodeSize_le_of_hasProofCodeOfSize trivial
+      ⟨code, rfl, le_rfl⟩
+  · rcases sem.hasProofCodeOfSize_minProofCodeSize
+        (code := code) trivial with ⟨c, hchecks, hsize⟩
+    subst hchecks
+    exact hsize
+
+/--
+Project-level root proof length.
+
+This is a definition induced by `rootProofCodeSemantics`, not an axiom.
+-/
+noncomputable def proof_length
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) : ℝ :=
+  rootSemanticProofLength T measure code
+
+theorem proof_length_eq_rootFormulaCodeSize
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) :
+    proof_length T measure code =
+      (rootFormulaCodeSize T measure code : ℝ) := by
+  rw [proof_length, rootSemanticProofLength_eq_rootFormulaCodeSize]
+
+/-- Root length of the Sondow certificate-valid family after sidecar-slot calibration. -/
+theorem rootProofLength_sondowCertificateValidCode_eq_one
+    (n : Nat) :
+    proof_length ProofSystem.S21 ProofLengthMeasure.symbolSize
+        (sondowCertificateValidCode n) = (1 : Real) := by
+  rw [proof_length_eq_rootFormulaCodeSize]
+  simp [rootFormulaCodeSize, sondowCertificateValidCode]
+
+/--
+Structural fallback value that would have been assigned without the calibrated
+Sondow sidecar slot.
+-/
+theorem structuralFallbackFormulaSize_sondowCertificateValidCode_eq_add_six
+    (n : Nat) :
+    (sondowCertificateValidCode n).index +
+        (sondowCertificateValidCode n).family.rootWeight +
+        ProofSystem.S21.rootWeight +
+        ProofLengthMeasure.symbolSize.rootWeight + 1 =
+      n + 6 := by
+  simp [sondowCertificateValidCode, FormulaFamily.rootWeight,
+    ProofSystem.rootWeight, ProofLengthMeasure.rootWeight]
+
 -- A semantic source for the abstract `proof_length`: a concrete Nat-valued
 -- code-length model whose values agree with the project-level real-valued
 -- `proof_length` on a specified family of formula codes.
@@ -212,6 +321,113 @@ theorem ProofLengthCodeSemantics.Calibration.toProjectProofLengthSemantics
     (hcal : model.Calibration) :
     ProjectProofLengthSemantics T measure model.length relevant where
   proof_length_eq := hcal.proof_length_eq_length
+
+theorem ProofLengthCodeSemantics.Calibration.proof_length_eq_minProofCodeSize
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    {model : ProofLengthCodeSemantics T measure relevant}
+    (hcal : model.Calibration)
+    {code : FormulaCode} (hcode : relevant code) :
+    proof_length T measure code =
+      model.proof_code_semantics.minProofCodeSize code hcode := by
+  rw [hcal.proof_length_eq_length code hcode]
+  rw [ProofLengthCodeSemantics.length]
+  rw [ProofCodeSemantics.semanticProofLength_eq_minProofCodeSize]
+
+theorem ProofLengthCodeSemantics.Calibration.proof_length_le_of_hasProofCodeOfSize
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    {model : ProofLengthCodeSemantics T measure relevant}
+    (hcal : model.Calibration)
+    {code : FormulaCode} (hcode : relevant code) {k : Nat}
+    (hk : model.proof_code_semantics.HasProofCodeOfSize code k) :
+    proof_length T measure code ≤ (k : Real) := by
+  rw [hcal.proof_length_eq_minProofCodeSize hcode]
+  exact_mod_cast
+    model.proof_code_semantics.minProofCodeSize_le_of_hasProofCodeOfSize
+      hcode hk
+
+structure RootProofLengthCodeConvention
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (relevant : FormulaCode → Prop) where
+  model : ProofLengthCodeSemantics T measure relevant
+  calibration : model.Calibration
+
+namespace RootProofLengthCodeConvention
+
+def ofCalibration
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (model : ProofLengthCodeSemantics T measure relevant)
+    (calibration : model.Calibration) :
+    RootProofLengthCodeConvention T measure relevant where
+  model := model
+  calibration := calibration
+
+noncomputable def length
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (conv : RootProofLengthCodeConvention T measure relevant) :
+    FormulaCode → Nat :=
+  conv.model.length
+
+theorem proof_length_eq_minProofCodeSize
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (conv : RootProofLengthCodeConvention T measure relevant)
+    {code : FormulaCode} (hcode : relevant code) :
+    proof_length T measure code =
+      conv.model.proof_code_semantics.minProofCodeSize code hcode :=
+  conv.calibration.proof_length_eq_minProofCodeSize hcode
+
+theorem proof_length_le_of_hasProofCodeOfSize
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (conv : RootProofLengthCodeConvention T measure relevant)
+    {code : FormulaCode} (hcode : relevant code) {k : Nat}
+    (hk : conv.model.proof_code_semantics.HasProofCodeOfSize code k) :
+    proof_length T measure code ≤ (k : Real) :=
+  conv.calibration.proof_length_le_of_hasProofCodeOfSize hcode hk
+
+theorem toProjectProofLengthSemantics
+    {T : ProofSystem} {measure : ProofLengthMeasure}
+    {relevant : FormulaCode → Prop}
+    (conv : RootProofLengthCodeConvention T measure relevant) :
+    ProjectProofLengthSemantics T measure conv.length relevant :=
+  conv.calibration.toProjectProofLengthSemantics
+
+end RootProofLengthCodeConvention
+
+noncomputable def rootProofLengthCodeSemantics
+    (T : ProofSystem) (measure : ProofLengthMeasure) :
+    ProofLengthCodeSemantics T measure rootRelevantFormulaCode where
+  proof_code_semantics := rootProofCodeSemantics T measure
+  fallback_length := fun _ => 0
+
+theorem rootProofLengthCodeSemantics_calibration
+    (T : ProofSystem) (measure : ProofLengthMeasure) :
+    (rootProofLengthCodeSemantics T measure).Calibration where
+  proof_length_eq_length := by
+    intro code _hcode
+    simp [rootProofLengthCodeSemantics, ProofLengthCodeSemantics.length,
+      ProofCodeSemantics.semanticProofLength, rootRelevantFormulaCode,
+      proof_length, rootSemanticProofLength]
+
+noncomputable def rootStructuralProofLengthCodeConvention
+    (T : ProofSystem) (measure : ProofLengthMeasure) :
+    RootProofLengthCodeConvention T measure rootRelevantFormulaCode :=
+  RootProofLengthCodeConvention.ofCalibration
+    (rootProofLengthCodeSemantics T measure)
+    (rootProofLengthCodeSemantics_calibration T measure)
+
+theorem rootStructuralProofLength_eq_minProofCodeSize
+    (T : ProofSystem) (measure : ProofLengthMeasure)
+    (code : FormulaCode) :
+    proof_length T measure code =
+      (rootProofCodeSemantics T measure).minProofCodeSize code trivial := by
+  exact
+    RootProofLengthCodeConvention.proof_length_eq_minProofCodeSize
+      (rootStructuralProofLengthCodeConvention T measure) trivial
 
 def ProofCodeSemantics.toProjectProofLengthSemantics
     {relevant : FormulaCode → Prop} (sem : ProofCodeSemantics relevant)

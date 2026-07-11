@@ -62,6 +62,12 @@ reports linked below.
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/clean_submission_route_audit_20260708_en.md>
 - Parameter closure audit:
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/parameter_closure_audit_20260708_en.md>
+- Live checked-minproof dependency graph (`.dot` source):
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/checked_minproof_theorem_dependency_graph_zh.dot>
+- Checked-minproof arithmetic-internalization release:
+  <https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/checked-minproof-internalization-20260711>
+- Release scope and validation ledger:
+  <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/release_checked_minproof_internalization_20260711.md>
 - Validation log:
   <https://github.com/james130012/sondow-pudlak-collision-box/blob/main/docs/bigN_validation_log_20260708_zh.md>
 - Current status:
