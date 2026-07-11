@@ -492,8 +492,18 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     以 `compactPackedTokenStream = some ...` 作为黑箱结果条件。新子模块目标构建及总见证探针均退出 0，
     公理画像仍只有三个 Lean 标准项。
 
-    当前组件边界继续缩小到 proof/certificate/formula parser（证明/证书/公式解析器）和局部语法变换；
-    这些组件仍待内部子轨迹、总见证组合、显式自然数序列化和多项式位长界。
+62. [FoundationCompactParserDirectTrace.lean](../integration/FoundationCompactParserDirectTrace.lean)
+    已打开 proof/certificate/formula parser（证明/证书/公式解析器）的三个外层有界迭代。三者共用同一
+    local initial/step/final tableau（局部初态/单步/终态计算表）：轨迹长度精确为 `fuel+1`，第 0 行为
+    真实初态，每个后继行由对应 `parserStep` 产生，末行输出为指定 suffix。规范轨迹满足局部表，任意合法
+    局部表又恢复同一规范运行；Lean 对三个公开解析器分别证明“返回 `some suffix` 当且仅当存在合法局部
+    轨迹”。三个有效性谓词均为 `PrimrecPred`。
+
+    三份解析器轨迹已进一步接入第 59 项总公开见证；总见证的双向接受等价和原始递归性再次通过单文件
+    探针。新模块目标构建、单模块探针和总见证探针均退出 0，全部审计端点公理画像仍只有
+    `propext`、`Classical.choice`、`Quot.sound`。本检查点关闭的是三个 outer iterator（外层迭代器）；
+    各 `parserStep/verifierStep` 内部调用的原子字段解析、`certified parts/formula value` 数值提取及局部
+    语法变换仍是下一段黄色义务，尚未被误标为绿色。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -518,9 +528,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 61 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表和两个公开 packed 输入子轨迹。
-   当前黄色工作面是继续补齐解析器组件子轨迹
-   并把整套见证显式编码成局部可核验算术公式：
+   第 59 至 62 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹，
+   以及 proof/certificate/formula 三类解析器的外层局部计算表。当前黄色工作面是打开解析器与验证器
+   单步函数内的原子调用，并把整套见证显式编码成局部可核验算术公式：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -528,9 +538,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
      exists trace, DirectVerifierTrace(proofCode,y,trace).
    ```
 
-   精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查和 packed token stream
-   局部检查已闭合。下一步必须为 proof/certificate/formula parser 和局部语法变换补齐内部子轨迹；
-   随后给所有状态与子轨迹显式自然数编码，证明
+   精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
+   局部检查和三个 outer parser tableau 已闭合。下一步必须打开 `parserStep/verifierStep` 内的原子字段解析、
+   `certified parts/formula value` 数值提取和局部语法变换；随后给所有状态与子轨迹显式自然数编码，证明
    编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
@@ -641,4 +651,7 @@ lake env lean integration/FoundationCompactNumericListedNodeFields.lean
 lake env lean integration/FoundationCompactNumericListedTaskMachine.lean
 lake env lean integration/FoundationCompactNumericListedPublicVerifier.lean
 lake env lean integration/FoundationCompactNumericListedProofPredicate.lean
+lake env lean integration/FoundationCompactPackedTokenStreamDirectTrace.lean
+lake env lean integration/FoundationCompactParserDirectTrace.lean
+lake env lean integration/FoundationCompactNumericListedDirectTrace.lean
 ```
