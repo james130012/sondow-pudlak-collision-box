@@ -629,6 +629,13 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `Σ₀/Δ₀`；正式探针退出码 0，公理画像只有三个 Lean 标准项。下一义务是用有界
     `offsets/tokens` 序列把全部段拼成完整 token-stream tableau（记号流计算表），并证明首 offset 为 0、
     末 offset 等于 payload length。
+77. 同一模块已关闭 fixed-width packed tableau（定宽打包计算表）原语。条目公式直接检查
+    `Nat.size(value) <= width` 以及每个 `bit < width` 上
+    `table[index*width+bit] = value[bit]`，标准模型语义逐点精确。规范 row-major（行优先）构造器
+    又被证明能在每个合法索引恢复原列表值，并满足
+    `Nat.size(tableCode) <= values.length*width`。因此 token/offset 序列表不会借 HFS 编码膨胀；正式探针
+    退出码 0，公理画像仅三个 Lean 标准项。下一义务是用两份定宽表逐行拼接第 76 项的 token 段，并强制
+    首 offset 为 0、末 offset 为 payload length。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。

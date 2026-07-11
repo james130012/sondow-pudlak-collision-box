@@ -259,6 +259,167 @@ theorem compactBinaryNatTokenSegmentDef_sigmaZero :
       compactBinaryNatTokenSegmentDef.val := by
   simp [compactBinaryNatTokenSegmentDef]
 
+/-- A value occupies one `width`-bit row of a flat binary tableau. -/
+def CompactFixedWidthEntry
+    (table width index value : Nat) : Prop :=
+  Nat.size value ≤ width ∧
+    ∀ bitIndex < width,
+      table.testBit (index * width + bitIndex) =
+        value.testBit bitIndex
+
+/-- Direct bounded graph for random access to one row of a flat fixed-width
+tableau. -/
+def compactFixedWidthEntryDef : 𝚺₀.Semisentence 4 := .mkSigma
+  “table width index value.
+    ∃ size <⁺ value,
+      !(compactNatSizeDef) size value ∧
+      size ≤ width ∧
+      ∀ bitIndex < width,
+        ((index * width + bitIndex) ∈ table ↔ bitIndex ∈ value)”
+
+@[simp] theorem compactFixedWidthEntryDef_spec
+    (table width index value : Nat) :
+    compactFixedWidthEntryDef.val.Evalb
+        ![table, width, index, value] ↔
+      CompactFixedWidthEntry table width index value := by
+  have hsize :
+      @LE.le Nat LO.FirstOrder.Arithmetic.instLE_foundation
+        (Nat.size value) value := by
+    have hlength := LO.FirstOrder.Arithmetic.length_le (V := Nat) value
+    have hlength_eq : (‖value‖ : Nat) =
+        LO.FirstOrder.Arithmetic.binaryLength value := rfl
+    rw [hlength_eq, binaryLength_nat_eq_size] at hlength
+    exact hlength
+  simp [compactFixedWidthEntryDef, CompactFixedWidthEntry,
+    arithmeticMem_nat_iff_testBit, hsize]
+
+theorem compactFixedWidthEntryDef_sigmaZero :
+    LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
+      compactFixedWidthEntryDef.val := by
+  simp [compactFixedWidthEntryDef]
+
+theorem natOfBitsList_testBit_eq_getI
+    (bits : List Bool) (index : Nat) :
+    (FoundationCompactVerifierBitCostPrimitives.natOfBitsList bits).testBit
+        index = bits.getI index := by
+  induction bits generalizing index with
+  | nil => simp [FoundationCompactVerifierBitCostPrimitives.natOfBitsList]
+  | cons bit bits ih =>
+      cases index with
+      | zero =>
+          simp [FoundationCompactVerifierBitCostPrimitives.natOfBitsList]
+      | succ index =>
+          simp only [FoundationCompactVerifierBitCostPrimitives.natOfBitsList]
+          rw [Nat.testBit_bit_succ]
+          simpa using ih index
+
+def compactFixedWidthBits (width value : Nat) : List Bool :=
+  (List.range width).map value.testBit
+
+def compactFixedWidthTableBits
+    (width : Nat) (values : List Nat) : List Bool :=
+  values.flatMap (compactFixedWidthBits width)
+
+/-- Canonical row-major tableau code.  It has no terminal sentinel because its
+row count and width are carried separately by the surrounding formula. -/
+def compactFixedWidthTableCode
+    (width : Nat) (values : List Nat) : Nat :=
+  FoundationCompactVerifierBitCostPrimitives.natOfBitsList
+    (compactFixedWidthTableBits width values)
+
+@[simp] theorem compactFixedWidthBits_length (width value : Nat) :
+    (compactFixedWidthBits width value).length = width := by
+  simp [compactFixedWidthBits]
+
+@[simp] theorem compactFixedWidthBits_getI
+    (width value bitIndex : Nat) (hbitIndex : bitIndex < width) :
+    (compactFixedWidthBits width value).getI bitIndex =
+      value.testBit bitIndex := by
+  rw [List.getI_eq_getElem _ (by simpa using hbitIndex)]
+  simp [compactFixedWidthBits]
+
+theorem compactFixedWidthTableBits_getI
+    (width : Nat) (values : List Nat)
+    (index bitIndex : Nat)
+    (hindex : index < values.length)
+    (hbitIndex : bitIndex < width) :
+    (compactFixedWidthTableBits width values).getI
+        (index * width + bitIndex) =
+      (values.getI index).testBit bitIndex := by
+  induction values generalizing index with
+  | nil => simp at hindex
+  | cons value values ih =>
+      cases index with
+      | zero =>
+          simp only [Nat.zero_mul, Nat.zero_add]
+          rw [show compactFixedWidthTableBits width (value :: values) =
+              compactFixedWidthBits width value ++
+                compactFixedWidthTableBits width values by
+            rfl]
+          rw [List.getI_append _ _ _ (by simpa using hbitIndex)]
+          simp [compactFixedWidthBits_getI, hbitIndex]
+      | succ index =>
+          have hindex' : index < values.length := by
+            simpa using hindex
+          rw [show compactFixedWidthTableBits width (value :: values) =
+              compactFixedWidthBits width value ++
+                compactFixedWidthTableBits width values by
+            rfl]
+          have hposition :
+              (index + 1) * width + bitIndex =
+                width + (index * width + bitIndex) := by
+            simp [Nat.add_mul, Nat.add_comm, Nat.add_left_comm]
+          rw [hposition]
+          rw [List.getI_append_right]
+          · simpa using ih index hindex'
+          · simp
+
+theorem compactFixedWidthTableCode_testBit
+    (width : Nat) (values : List Nat)
+    (index bitIndex : Nat)
+    (hindex : index < values.length)
+    (hbitIndex : bitIndex < width) :
+    (compactFixedWidthTableCode width values).testBit
+        (index * width + bitIndex) =
+      (values.getI index).testBit bitIndex := by
+  rw [compactFixedWidthTableCode, natOfBitsList_testBit_eq_getI]
+  exact compactFixedWidthTableBits_getI
+    width values index bitIndex hindex hbitIndex
+
+@[simp] theorem compactFixedWidthTableBits_length
+    (width : Nat) (values : List Nat) :
+    (compactFixedWidthTableBits width values).length =
+      values.length * width := by
+  induction values with
+  | nil => simp [compactFixedWidthTableBits]
+  | cons value values ih =>
+      simp [compactFixedWidthTableBits, Nat.add_mul]
+      omega
+
+theorem compactFixedWidthTableCode_entry
+    (width : Nat) (values : List Nat) (index : Nat)
+    (hindex : index < values.length)
+    (hvalues : ∀ value ∈ values, Nat.size value ≤ width) :
+    CompactFixedWidthEntry
+      (compactFixedWidthTableCode width values)
+      width index (values.getI index) := by
+  refine ⟨?_, ?_⟩
+  · apply hvalues
+    rw [List.getI_eq_getElem _ hindex]
+    exact List.getElem_mem hindex
+  · intro bitIndex hbitIndex
+    exact compactFixedWidthTableCode_testBit
+      width values index bitIndex hindex hbitIndex
+
+theorem compactFixedWidthTableCode_size_le
+    (width : Nat) (values : List Nat) :
+    Nat.size (compactFixedWidthTableCode width values) ≤
+      values.length * width := by
+  rw [Nat.size_le]
+  simpa [compactFixedWidthTableCode] using
+    natOfBitsList_lt_two_pow_length
+      (compactFixedWidthTableBits width values)
+
 #print axioms binaryLength_nat_eq_size
 #print axioms compactNatSizeDef_spec
 #print axioms compactNatSizeDef_sigmaZero
@@ -271,5 +432,10 @@ theorem compactBinaryNatTokenSegmentDef_sigmaZero :
 #print axioms arithmeticBit_nat_iff_testBit
 #print axioms compactBinaryNatTokenSegmentDef_spec
 #print axioms compactBinaryNatTokenSegmentDef_sigmaZero
+#print axioms compactFixedWidthEntryDef_spec
+#print axioms compactFixedWidthEntryDef_sigmaZero
+#print axioms compactFixedWidthTableCode_testBit
+#print axioms compactFixedWidthTableCode_entry
+#print axioms compactFixedWidthTableCode_size_le
 
 end FoundationCompactNumericListedDirectArithmeticPrimitives
