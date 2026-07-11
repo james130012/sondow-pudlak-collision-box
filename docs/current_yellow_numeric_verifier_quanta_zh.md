@@ -26,7 +26,7 @@ $$
 
 ## 一个很小的编号，如何展开成很长的公式
 
-黄色节点的关键链条由 `fvSup`（自由变量上界）、`allClosure`（全称闭包）和 candidate-length guard（候选长度守卫）组成。现在三者以及标签 `22` 的完整归纳句比较均已转绿；黄色工作面已经缩到 23 个公理标签的合并和十条证明规则的纯数值复现。理解这次变绿，仍要先看它们共同面对的复杂度陷阱。
+黄色节点的关键链条由 `fvSup`（自由变量上界）、`allClosure`（全称闭包）和 candidate-length guard（候选长度守卫）组成。现在三者、标签 `22` 的完整归纳句比较以及全部 23 个公理标签的合并均已转绿；黄色工作面已经缩到证明树与结构证书的十条规则同步。理解这次变绿，仍要先看它们共同面对的复杂度陷阱。
 
 设公式中出现自由变量 `&k`。二进制编码只需大约 $\log k$ 个比特写下编号 $k$，但把公式闭合时，朴素算法可能要添加 $k+1$ 个全称量词。于是，一个很短的输入可以要求机器吐出一个按 $k$ 而不是按 $\log k$ 增长的输出。若 $k=2^m$，输入只多出约 $m$ 位，闭包却可能多出约 $2^m$ 层。这不是常数估计不够精细，而是从输入位长到执行长度的指数裂缝。
 
@@ -46,7 +46,7 @@ $$
 
 ## 黄色方框将怎样变绿
 
-接下来的闭合顺序已经缩窄。纯数值 `fvSup`、真实候选位长、带守卫 `fixitr/allClosure` 和动态归纳标签 `22` 都已通过探针。当前要把它与固定标签 `0..21` 合成一个覆盖全部证书标签的公理判定器，并借助任意输入反演定理处理畸形 token 和全部拒绝分支。随后逐条复现 `listedCertificateValidTrace`（列表证书有效性轨迹），让十条证明规则、证明树证书和公式比较共同汇入公开 verifier（验证器），得到完整原始递归图与逐点结果等式。
+接下来的闭合顺序已经缩窄。纯数值 `fvSup`、真实候选位长、带守卫 `fixitr/allClosure`、动态归纳标签 `22` 以及固定标签 `0..21` 的合并器都已通过探针。合并器先要求证书解析精确消费到空后缀，因此非法符号、畸形归纳体和垃圾尾部不能蒙混过关。当前任务是同步遍历 proof tree（证明树）与 structural certificate（结构证书），逐条复现 `listedCertificateValidTrace`（列表证书有效性轨迹），再让十条规则和公式比较共同汇入公开 verifier（验证器），得到完整原始递归图与逐点结果等式。
 
 这会关闭黄色节点，但不会自动关闭整个下界定理。其后仍须把同一数值图写成算术公式 `CompactProof(x,y)`，证明标准模型语义完全一致；再为被接受的计算构造 PA 内部短证明，验证 Pudlak conditions（普德拉克条件），并在同一公式族、证明系统和长度度量上完成 Buss-Pudlak theorem 5（Buss-Pudlak 第五定理）的形式化。
 
@@ -62,6 +62,7 @@ $$
 - [`fixitr` 纯数值变量捕获](../integration/FoundationCompactNumericFormulaFixitr.lean)
 - [候选公式真实 token 位长](../integration/FoundationCompactNumericTokenBitLength.lean)
 - [带守卫归纳句构造与比较](../integration/FoundationCompactNumericGuardedInductionSentence.lean)
+- [全部 23 标签 PA 公理比较器](../integration/FoundationCompactNumericPAAxiomComparator.lean)
 - [带候选长度守卫的既有成本证明](../integration/FoundationCompactListedGuardedAxiomCost.lean)
 
 本文是 2026 年 7 月 11 日的工程状态说明。它描述已经由当前 Lean 探针核验的局部结果与仍待证明的边界，不把黄色节点或后续灰色节点表述为既成定理。
