@@ -528,6 +528,17 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     结果等式。新模块目标构建、分解模块探针和总见证探针均通过；等价端点只需 `propext`，原始递归端点
     仍只有三个 Lean 标准依赖。当前边界继续下沉到所选标签分支内部的 sequent/formula/closed-formula/term
     value parser，下一步先打开 sequent value repeat（序列值重复迭代）及每个公式子运行。
+65. [FoundationCompactSequentValueDirectTrace.lean](../integration/FoundationCompactSequentValueDirectTrace.lean)
+    已打开 sequent value parser 的外层 counted repeat（按数目重复迭代）。输入首 token 严格作为公式数目，
+    空输入拒绝；局部状态表长度精确为 `count+1`，第 0 行为 `some([], tokenTail)`，每个后继行严格等于
+    `compactFormulaTokenValuesStep` 作用于前一行，末行严格为 `some(values,suffix)`。Lean 已证明规范表满足
+    局部关系、任意合法表逐行等于同一规范运行，并得到公开 sequent value parser 返回目标结果当且仅当
+    存在该局部表。状态表有效性及公开 trace relation（轨迹关系）均为 `PrimrecPred`。
+
+    单模块探针和目标构建均通过，六个审计端点公理画像只有三个 Lean 标准项。本检查点只关闭外层
+    `count` 次迭代；每个 `compactFormulaTokenValuesStep` 内仍调用一次 formula value parser，尚未携带第 62 项
+    的公式 parser 局部轨迹。因此该节点已标绿，但还没有冒充为完整 root 分支闭合；下一步为每行加入对应
+    公式子轨迹，再组合进第 64 项的标签分支。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -552,10 +563,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 64 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 65 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
-   包装层和根节点十标签总分派。当前黄色工作面是打开各标签分支内的值解析器及验证器单步函数中的原子调用，
-   并把整套见证显式编码成局部可核验算术公式：
+   包装层、根节点十标签总分派和 sequent value 外层 counted repeat。当前黄色工作面是给 repeat 每一步加入
+   公式 parser 子轨迹，再打开其余标签分支值解析器及验证器单步函数中的原子调用，并把整套见证显式编码成
+   局部可核验算术公式：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -565,7 +577,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 
    精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
    局部检查、三个 outer parser tableau 及两个结果包装层已闭合。下一步必须打开
-   sequent/formula/closed-formula/term value parser，首先打开 sequent value repeat 及其中每个公式子运行，
+   sequent repeat 中每个公式子运行以及 formula/closed-formula/term value parser，
    并继续展开 `parserStep/verifierStep` 内的原子字段解析和局部语法变换；随后给所有状态与子轨迹显式自然数编码，证明
    编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
@@ -681,5 +693,6 @@ lake env lean integration/FoundationCompactPackedTokenStreamDirectTrace.lean
 lake env lean integration/FoundationCompactParserDirectTrace.lean
 lake env lean integration/FoundationCompactNumericListedParseDecomposition.lean
 lake env lean integration/FoundationCompactNumericListedRootFieldsDecomposition.lean
+lake env lean integration/FoundationCompactSequentValueDirectTrace.lean
 lake env lean integration/FoundationCompactNumericListedDirectTrace.lean
 ```
