@@ -1,4 +1,5 @@
 import integration.FoundationCompactSyntaxTokenMachine
+import integration.FoundationCompactClosedFormulaTokenMachine
 import integration.FoundationCompactListedProofDecoder
 
 /-!
@@ -14,6 +15,7 @@ open LO FirstOrder LO.FirstOrder.Arithmetic
 namespace FoundationCompactProofTokenMachine
 
 open FoundationCompactSyntaxTokenMachine
+open FoundationCompactClosedFormulaTokenMachine
 open FoundationCompactListedProofDecoder
 
 abbrev CompactProofParserTask := Nat × Nat × Nat
@@ -28,6 +30,10 @@ def compactProofTask : CompactProofParserTask :=
 def compactProofFormulaTask (binderArity : Nat) :
     CompactProofParserTask :=
   (4, binderArity, 0)
+
+def compactProofClosedFormulaTask (binderArity : Nat) :
+    CompactProofParserTask :=
+  (8, binderArity, 0)
 
 def compactProofTermTask (binderArity : Nat) :
     CompactProofParserTask :=
@@ -132,6 +138,16 @@ def compactProofFormulaTokenStep
   | none => compactSyntaxFailure tokens tasks
   | some suffix => compactSyntaxContinue suffix tasks
 
+def compactProofClosedFormulaTokenStep
+    (input : Nat × List Nat × List CompactProofParserTask) :
+    CompactProofParserState :=
+  let binderArity := input.1
+  let tokens := input.2.1
+  let tasks := input.2.2
+  match compactClosedFormulaTokenParser binderArity tokens with
+  | none => compactSyntaxFailure tokens tasks
+  | some suffix => compactSyntaxContinue suffix tasks
+
 def compactProofTermTokenStep
     (input : Nat × List Nat × List CompactProofParserTask) :
     CompactProofParserState :=
@@ -175,7 +191,8 @@ def compactProofNodeTokenStep
           (compactProofSequentTask :: compactProofFormulaTask 0 :: tasks)
       else if tag = 1 then
         compactSyntaxContinue suffix
-          (compactProofSequentTask :: compactProofFormulaTask 0 :: tasks)
+          (compactProofSequentTask ::
+            compactProofClosedFormulaTask 0 :: tasks)
       else if tag = 2 then
         compactSyntaxContinue suffix (compactProofSequentTask :: tasks)
       else if tag = 3 then
@@ -225,6 +242,8 @@ def compactProofParserTaskTokenStep
     compactProofRepeatFormulaTokenStep input
   else if kind = 7 then
     compactProofSequentTokenStep tokens tasks
+  else if kind = 8 then
+    compactProofClosedFormulaTokenStep (binderArity, tokens, tasks)
   else compactSyntaxFailure tokens tasks
 
 def compactProofParserRunningStep
@@ -263,6 +282,16 @@ def compactProofTokenParser
   simp [compactProofParserStep, compactProofParserRunningStep,
     compactProofParserTaskTokenStep, compactProofFormulaTask]
 
+@[simp] theorem compactProofParserStep_closedFormula
+    (binderArity : Nat) (tokens : List Nat)
+    (tasks : List CompactProofParserTask) :
+    compactProofParserStep
+        (tokens, compactProofClosedFormulaTask binderArity :: tasks, none) =
+      compactProofClosedFormulaTokenStep
+        (binderArity, tokens, tasks) := by
+  simp [compactProofParserStep, compactProofParserRunningStep,
+    compactProofParserTaskTokenStep, compactProofClosedFormulaTask]
+
 @[simp] theorem compactProofParserStep_term
     (binderArity : Nat) (tokens : List Nat)
     (tasks : List CompactProofParserTask) :
@@ -290,6 +319,19 @@ def compactProofTokenParser
       (suffix, tasks, none) := by
   simp [compactProofFormulaTokenStep,
     compactFormulaTokenParser_canonical_append, compactSyntaxContinue]
+
+@[simp] theorem compactProofParserStep_closedFormula_canonical
+    {binderArity : Nat}
+    (formula : LO.FirstOrder.ArithmeticSemiformula Nat binderArity)
+    (hclosed : formula.freeVariables = ∅)
+    (suffix : List Nat) (tasks : List CompactProofParserTask) :
+    compactProofParserStep
+        (compactArithmeticFormulaTokens formula ++ suffix,
+          compactProofClosedFormulaTask binderArity :: tasks, none) =
+      (suffix, tasks, none) := by
+  simp [compactProofClosedFormulaTokenStep,
+    compactClosedFormulaTokenParser_canonical_append formula hclosed,
+    compactSyntaxContinue]
 
 @[simp] theorem compactProofParserStep_term_canonical
     {binderArity : Nat}
@@ -447,7 +489,7 @@ theorem compactListedProofTask_execute
           (compactProofParserStep^[1])
               (compactListedProofTokens (.closed Gamma formula) ++ suffix,
                 compactProofTask :: tasks, none) =
-            (compactSequentListTokens Gamma ++
+              (compactSequentListTokens Gamma ++
                 (compactArithmeticFormulaTokens formula ++ suffix),
               compactProofSequentTask ::
                 compactProofFormulaTask 0 :: tasks,
@@ -477,24 +519,25 @@ theorem compactListedProofTask_execute
           (compactProofParserStep^[1])
               (compactListedProofTokens (.axm Gamma sentence) ++ suffix,
                 compactProofTask :: tasks, none) =
-            (compactSequentListTokens Gamma ++
+              (compactSequentListTokens Gamma ++
                 (compactArithmeticFormulaTokens formula ++ suffix),
               compactProofSequentTask ::
-                compactProofFormulaTask 0 :: tasks,
+                compactProofClosedFormulaTask 0 :: tasks,
               none) := by
         simp [Function.iterate_one, compactListedProofTokens,
           compactProofNodeTokenStep, compactSyntaxContinue,
           formula, List.append_assoc]
       have hsequent := compactProofSequentTask_execute Gamma
         (compactArithmeticFormulaTokens formula ++ suffix)
-        (compactProofFormulaTask 0 :: tasks)
+        (compactProofClosedFormulaTask 0 :: tasks)
       have hformula :
           (compactProofParserStep^[1])
               (compactArithmeticFormulaTokens formula ++ suffix,
-                compactProofFormulaTask 0 :: tasks, none) =
+                compactProofClosedFormulaTask 0 :: tasks, none) =
             (suffix, tasks, none) := by
         simpa only [Function.iterate_one] using
-          (compactProofParserStep_formula_canonical formula suffix tasks)
+          (compactProofParserStep_closedFormula_canonical formula
+            (by simp [formula]) suffix tasks)
       have hfirst := compactProofParser_iterate_trans hnode hsequent
       have hrun := compactProofParser_iterate_trans hfirst hformula
       simpa [compactListedProofTaskSteps,
@@ -961,6 +1004,13 @@ theorem compactProofFormulaTask_primrec :
       (Primrec.pair Primrec.id (Primrec.const 0))).of_eq
       fun binderArity => by rfl
 
+theorem compactProofClosedFormulaTask_primrec :
+    Primrec compactProofClosedFormulaTask := by
+  exact
+    (Primrec.pair (Primrec.const 8)
+      (Primrec.pair Primrec.id (Primrec.const 0))).of_eq
+      fun binderArity => by rfl
+
 theorem compactProofTermTask_primrec :
     Primrec compactProofTermTask := by
   exact
@@ -1008,6 +1058,41 @@ theorem compactProofFormulaTokenStep_primrec :
       fun input => by
         cases hresult : compactFormulaTokenParser input.1 input.2.1 <;>
           simp [compactProofFormulaTokenStep, hresult]
+
+theorem compactProofClosedFormulaTokenStep_primrec :
+    Primrec compactProofClosedFormulaTokenStep := by
+  have harity : Primrec
+      (fun input : Nat × List Nat × List CompactProofParserTask =>
+        input.1) :=
+    Primrec.fst
+  have htokens : Primrec
+      (fun input : Nat × List Nat × List CompactProofParserTask =>
+        input.2.1) :=
+    Primrec.fst.comp Primrec.snd
+  have htasks : Primrec
+      (fun input : Nat × List Nat × List CompactProofParserTask =>
+        input.2.2) :=
+    Primrec.snd.comp Primrec.snd
+  have hparse : Primrec
+      (fun input : Nat × List Nat × List CompactProofParserTask =>
+        compactClosedFormulaTokenParser input.1 input.2.1) :=
+    compactClosedFormulaTokenParser_primrec.comp harity htokens
+  have hfailure : Primrec
+      (fun input : Nat × List Nat × List CompactProofParserTask =>
+        compactSyntaxFailure input.2.1 input.2.2) :=
+    compactSyntaxFailure_primrec.comp htokens htasks
+  have hsuccess : Primrec₂
+      (fun (input : Nat × List Nat × List CompactProofParserTask)
+          (suffix : List Nat) =>
+        compactSyntaxContinue suffix input.2.2) :=
+    compactSyntaxContinue_primrec.comp₂ Primrec₂.right
+      ((htasks.comp Primrec.fst).to₂)
+  exact
+    (Primrec.option_casesOn hparse hfailure hsuccess).of_eq
+      fun input => by
+        cases hresult :
+            compactClosedFormulaTokenParser input.1 input.2.1 <;>
+          simp [compactProofClosedFormulaTokenStep, hresult]
 
 theorem compactProofTermTokenStep_primrec :
     Primrec compactProofTermTokenStep := by
@@ -1191,7 +1276,7 @@ theorem compactProofNodeTokenStep_primrec :
   have h0 := hcontinue
     [compactProofSequentTask, compactProofFormulaTask 0]
   have h1 := hcontinue
-    [compactProofSequentTask, compactProofFormulaTask 0]
+    [compactProofSequentTask, compactProofClosedFormulaTask 0]
   have h2 := hcontinue [compactProofSequentTask]
   have h3 := hcontinue
     [compactProofSequentTask, compactProofFormulaTask 0,
@@ -1217,7 +1302,8 @@ theorem compactProofNodeTokenStep_primrec :
             ([compactProofSequentTask, compactProofFormulaTask 0] ++ input.2)
         else if input.1.head?.getD 0 = 1 then
           compactSyntaxContinue input.1.tail
-            ([compactProofSequentTask, compactProofFormulaTask 0] ++ input.2)
+            ([compactProofSequentTask,
+              compactProofClosedFormulaTask 0] ++ input.2)
         else if input.1.head?.getD 0 = 2 then
           compactSyntaxContinue input.1.tail
             ([compactProofSequentTask] ++ input.2)
@@ -1306,6 +1392,12 @@ theorem compactProofParserTaskTokenStep_primrec :
         compactProofFormulaTokenStep
           (input.1.2.1, input.2.1, input.2.2)) :=
     compactProofFormulaTokenStep_primrec.comp hsyntaxInput
+  have hclosedFormula : Primrec
+      (fun input : CompactProofParserTask × List Nat ×
+          List CompactProofParserTask =>
+        compactProofClosedFormulaTokenStep
+          (input.1.2.1, input.2.1, input.2.2)) :=
+    compactProofClosedFormulaTokenStep_primrec.comp hsyntaxInput
   have hterm : Primrec
       (fun input : CompactProofParserTask × List Nat ×
           List CompactProofParserTask =>
@@ -1328,7 +1420,8 @@ theorem compactProofParserTaskTokenStep_primrec :
         (Primrec.ite (hkindEq 5) hterm
           (Primrec.ite (hkindEq 6)
             compactProofRepeatFormulaTokenStep_primrec
-            (Primrec.ite (hkindEq 7) hsequent hfailure))))).of_eq
+            (Primrec.ite (hkindEq 7) hsequent
+              (Primrec.ite (hkindEq 8) hclosedFormula hfailure)))))).of_eq
       fun input => by
         simp only [compactProofParserTaskTokenStep]
 
