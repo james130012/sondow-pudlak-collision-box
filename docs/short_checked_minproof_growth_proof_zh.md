@@ -367,6 +367,15 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `outputPayload <= leftPayload + rightPayload + 144 + 11*S(A,B)`。两棵输入证明树与两份完整证书
     均原样进入输出，无外部长度参数。它关闭 bounded proof assembly（有界证明拼接）的第二个外部原语；
     固定重言式实例化、PA 内部化及原文步骤 (i)-(v) 的整体链仍待完成。
+45. [FoundationCompactListedGuardedAxiomCost.lean](../integration/FoundationCompactListedGuardedAxiomCost.lean)
+    已以 candidate-length guard（候选句长度守卫）修复稀疏大自由变量编号导致的
+    `univCl` 指数执行漏洞，闭合 23 个公理标签、十规则整树及公开打包验证器的固定多项式
+    总位成本界。最终端点已无 `haxm`，结果逐点等于同一带守卫验证器。
+46. 纯数值图已闭合 packed token stream（打包记号流）、项/公式/序列值解析、公式列表检查、
+    六种直接公式构造以及否定、移位、自由化和单变量代入记号机。其中
+    [FoundationCompactNumericFormulaSubstitution.lean](../integration/FoundationCompactNumericFormulaSubstitution.lean)
+    证明了纯 `Nat`/`List Nat` 运行图的代入结果逐 token 等于
+    `((Rew.subst ![w]).qpow d)`；规范端点保留同一 suffix，公理画像只有三个 Lean 标准公理。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -377,22 +386,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    再内部化为 suitable `P(x,y)`。解码结构及规范编码长度不膨胀已经由第 19 至 23 项闭合；
    第 24 至 26 项已打开公式比较、成员/包含、集合等价及全部 decoder（解码器）的结果路径和
    全路径摊还界，第 27 项已闭合所有局部语法变换的完整输出码长，第 28、29 项已闭合保留重复项的证明树
-   及完整证书 honest decoded weight（解码对象诚实位权），第 30 至 33 项已给四种公式列表检查统一二次界、闭合
-   九条非公理规则分支，并完成只暴露唯一 `haxm` 义务的十规则统一归纳骨架和公开总成本骨架。当前主终端等带守卫公理比较器一次性消掉两层的 `haxm`；
-   独立并行终端给
-   shift（移位）、substitution（代入）等变换补齐真实执行轨迹，最终汇总为公开验证器关于两个
-   输入载荷的一个固定多项式运行界。输出码长界本身尚不等同于运行时间界。随后构造 PA 内部接受计算证明，
-   证明其长度为总输入位长的固定多项式。`Decidable`（可判定）、可执行本身或普通
-   `codeOfREPred` 均不够。
+   及完整证书 honest decoded weight（解码对象诚实位权）。第 30 至 33 项的归纳骨架现已由第 45 项
+   具体带守卫公理比较器闭合：`haxm` 已消失，十规则公开轨迹在所有成功/失败输入上都有同一固定
+   多项式位成本界，稀疏 `fvSup` 漏洞和六次/八次界错位均已修复。
 
-   并行审计已发现一个必须修复的总时间漏洞：旧 `certificate.sentence` 对归纳公理直接调用
-   `univCl`（全称闭包），而 `univCl` 按最大自由变量编号 `fvSup` 生成量词。因自由变量编号以二进制计长，
-   稀疏大编号可使短证书触发指数长候选公式。因此旧无守卫 `axm` 路线不是总多项式时间；必须先用输入候选句子码长
-   限制 `fvSup`，守卫通过后才允许生成闭包，并证明此修改不损结果等价和完备性。
-
-   汇合时还必须重新校准统一 per-node polynomial（每节点多项式）：第 31、32 项使用的旧 `C(w)` 最高约六次，
-   而当前带守卫公理比较端点为了覆盖固定公理常数和归纳生成采用八次宽界。八次界不能被六次界全局支配，
-   因此最终具体检查器要把每节点界显式提升到至少八次，再重做无参数结构归纳；不得把该差异包装成新的 `haxm`。
+   第 46 项又将公开输入转成同一纯数值 token graph（记号图），并闭合否定、移位、自由化与代入。
+   当前唯一工作面是用这些已闭合原语纯数值构造 23 类 PA 公理候选句，然后逐规则复现
+   `listedCertificateValidTrace`，闭合完整公开 verifier 的 `Primrec`（原始递归）图与逐点结果等式。
+   随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
 
    第 38 项已证明限制到 canonical accepted codes（规范接受码）不改变精确最短长度，消除了畸形码风险。
    总成本闭合后仍必须新增真正的二变量算术公式 `CompactProof(x,y)`，其标准模型语义逐点精确等价于
@@ -485,6 +486,11 @@ lake env lean integration/FoundationCompactBinaryNumeralTerm.lean
 lake env lean integration/FoundationCompactParameterizedDiagonalSpecialization.lean
 lake env lean integration/FoundationCompactCertifiedModusPonens.lean
 lake env lean integration/FoundationCompactCertifiedConjunction.lean
+lake env lean integration/FoundationCompactListedGuardedAxiomCost.lean
+lake env lean integration/FoundationCompactNumericFormulaNegation.lean
+lake env lean integration/FoundationCompactNumericFormulaShift.lean
+lake env lean integration/FoundationCompactNumericFormulaFree.lean
+lake env lean integration/FoundationCompactNumericFormulaSubstitution.lean
 lake env lean integration/FoundationCompactListedProofHonestWeight.lean
 lake env lean integration/FoundationCompactListedCertifiedHonestWeight.lean
 lake env lean integration/FoundationCompactListedLocalCostPrimitives.lean
