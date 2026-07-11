@@ -1,6 +1,6 @@
 # 最短证明增长下界：当前指导书
 
-更新时间：2026-07-11。
+更新时间：2026-07-12。
 
 ## 主控方式
 
@@ -621,6 +621,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `expDef`、有界存在、加法和小于关系，层级严格为 `Σ₀/Δ₀`；其标准模型语义逐点等价于真实编码。
     全部新增端点仅依赖三个 Lean 标准项，无 `sorryAx`、`projection` 或 `rfind`。下一原子是按
     `binaryNatCode` 的 `1-bit pairs + 00 terminator` 对 payload 做自定界 token 分段图。
+76. 同一模块已关闭单个 `binaryNatCode` token 段的直接图。Lean 先证明 Foundation 的
+    `Bit(index,value)` 逐点等价于标准 `Nat.testBit value index`；随后
+    `compactBinaryNatTokenSegmentDef(payload,offset,token,next)` 直接约束每个真实
+    `(1,dataBit)` 二位组、末尾 `00` 终止符及
+    `next = offset + 2*Nat.size(token)+2`。该公式标准模型语义逐点等价于真实段关系，层级严格为
+    `Σ₀/Δ₀`；正式探针退出码 0，公理画像只有三个 Lean 标准项。下一义务是用有界
+    `offsets/tokens` 序列把全部段拼成完整 token-stream tableau（记号流计算表），并证明首 offset 为 0、
+    末 offset 等于 payload length。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。

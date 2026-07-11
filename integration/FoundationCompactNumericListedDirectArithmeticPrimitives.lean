@@ -131,6 +131,134 @@ theorem compactPackedPayloadDef_sigmaZero :
       compactPackedPayloadDef.val := by
   simp [compactPackedPayloadDef]
 
+private def foundationNatMul (left right : Nat) : Nat :=
+  @Mul.mul Nat LO.ORingStructure.toMul left right
+
+private def foundationNatAdd (left right : Nat) : Nat :=
+  @Add.add Nat LO.ORingStructure.toAdd left right
+
+@[simp] private theorem foundationNatMul_eq (left right : Nat) :
+    foundationNatMul left right = left * right := by
+  rfl
+
+@[simp] private theorem foundationNatAdd_eq (left right : Nat) :
+    foundationNatAdd left right = left + right := by
+  rfl
+
+/-- Foundation's arithmetic bit relation is exactly Lean's standard natural
+number bit test. -/
+theorem arithmeticBit_nat_iff_testBit (index value : Nat) :
+    LO.FirstOrder.Arithmetic.Bit index value ↔
+      value.testBit index = true := by
+  induction value using Nat.binaryRec' generalizing index with
+  | zero =>
+      have hzero := LO.FirstOrder.Arithmetic.not_mem_zero
+        (V := Nat) index
+      change ¬ LO.FirstOrder.Arithmetic.Bit index 0 at hzero
+      simp [hzero]
+  | bit bit value hn ih =>
+      cases index with
+      | zero =>
+          cases bit with
+          | false =>
+              have hzero := LO.FirstOrder.Arithmetic.zero_not_mem
+                (V := Nat) value
+              change ¬ LO.FirstOrder.Arithmetic.Bit 0
+                (foundationNatMul 2 value) at hzero
+              simp only [foundationNatMul_eq] at hzero
+              change LO.FirstOrder.Arithmetic.Bit 0 (2 * value) ↔
+                (Nat.bit false value).testBit 0 = true
+              rw [Nat.testBit_bit_zero]
+              simpa using hzero
+          | true =>
+              have hone := LO.FirstOrder.Arithmetic.zero_mem_double_add_one
+                (V := Nat) value
+              change LO.FirstOrder.Arithmetic.Bit 0
+                (foundationNatAdd (foundationNatMul 2 value) 1) at hone
+              simp only [foundationNatMul_eq, foundationNatAdd_eq] at hone
+              change LO.FirstOrder.Arithmetic.Bit 0 (2 * value + 1) ↔
+                (Nat.bit true value).testBit 0 = true
+              rw [Nat.testBit_bit_zero]
+              simpa using hone
+      | succ index =>
+          cases bit with
+          | false =>
+              have hsucc := LO.FirstOrder.Arithmetic.succ_mem_two_mul_iff
+                (V := Nat) (i := index) (a := value)
+              change LO.FirstOrder.Arithmetic.Bit (index + 1)
+                  (foundationNatMul 2 value) ↔
+                LO.FirstOrder.Arithmetic.Bit index value at hsucc
+              simp only [foundationNatMul_eq] at hsucc
+              change LO.FirstOrder.Arithmetic.Bit (index + 1) (2 * value) ↔
+                (Nat.bit false value).testBit (index + 1) = true
+              rw [hsucc, ih, Nat.testBit_bit_succ]
+          | true =>
+              have hsucc :=
+                LO.FirstOrder.Arithmetic.succ_mem_two_mul_succ_iff
+                  (V := Nat) (i := index) (a := value)
+              change LO.FirstOrder.Arithmetic.Bit (index + 1)
+                  (foundationNatAdd (foundationNatMul 2 value) 1) ↔
+                LO.FirstOrder.Arithmetic.Bit index value at hsucc
+              simp only [foundationNatMul_eq, foundationNatAdd_eq] at hsucc
+              change LO.FirstOrder.Arithmetic.Bit (index + 1)
+                  (2 * value + 1) ↔
+                (Nat.bit true value).testBit (index + 1) = true
+              rw [hsucc, ih, Nat.testBit_bit_succ]
+
+theorem arithmeticMem_nat_iff_testBit (index value : Nat) :
+    index ∈ value ↔ value.testBit index = true := by
+  rw [LO.FirstOrder.Arithmetic.mem_iff_bit,
+    arithmeticBit_nat_iff_testBit]
+
+/-- One self-delimiting `binaryNatCode` segment starts at `offset`, contains
+one `(marker,data)` pair for every token bit, and ends at `next` after `00`. -/
+def CompactBinaryNatTokenSegment
+    (payload offset token next : Nat) : Prop :=
+  let size := Nat.size token
+  next = offset + 2 * size + 2 ∧
+    (∀ index < size,
+      payload.testBit (offset + 2 * index) = true ∧
+      payload.testBit (offset + 2 * index + 1) =
+        token.testBit index) ∧
+    payload.testBit (offset + 2 * size) = false ∧
+    payload.testBit (offset + 2 * size + 1) = false
+
+/-- Direct bounded arithmetic graph of one self-delimiting natural-number
+token inside a packed payload. -/
+def compactBinaryNatTokenSegmentDef : 𝚺₀.Semisentence 4 := .mkSigma
+  “payload offset token next.
+    ∃ size <⁺ token,
+      !(compactNatSizeDef) size token ∧
+      next = offset + 2 * size + 2 ∧
+      (∀ index < size,
+        (offset + 2 * index) ∈ payload ∧
+        ((offset + 2 * index + 1) ∈ payload ↔ index ∈ token)) ∧
+      (offset + 2 * size) ∉ payload ∧
+      (offset + 2 * size + 1) ∉ payload”
+
+@[simp] theorem compactBinaryNatTokenSegmentDef_spec
+    (payload offset token next : Nat) :
+    compactBinaryNatTokenSegmentDef.val.Evalb
+        ![payload, offset, token, next] ↔
+      CompactBinaryNatTokenSegment payload offset token next := by
+  have hsize :
+      @LE.le Nat LO.FirstOrder.Arithmetic.instLE_foundation
+        (Nat.size token) token := by
+    have hlength := LO.FirstOrder.Arithmetic.length_le (V := Nat) token
+    have hlength_eq : (‖token‖ : Nat) =
+        LO.FirstOrder.Arithmetic.binaryLength token := rfl
+    rw [hlength_eq, binaryLength_nat_eq_size] at hlength
+    exact hlength
+  simp [compactBinaryNatTokenSegmentDef,
+    CompactBinaryNatTokenSegment, arithmeticMem_nat_iff_testBit,
+    hsize]
+  rfl
+
+theorem compactBinaryNatTokenSegmentDef_sigmaZero :
+    LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
+      compactBinaryNatTokenSegmentDef.val := by
+  simp [compactBinaryNatTokenSegmentDef]
+
 #print axioms binaryLength_nat_eq_size
 #print axioms compactNatSizeDef_spec
 #print axioms compactNatSizeDef_sigmaZero
@@ -140,5 +268,8 @@ theorem compactPackedPayloadDef_sigmaZero :
 #print axioms compactPackedPayloadDef_spec
 #print axioms compactPackedPayloadDef_pack_iff
 #print axioms compactPackedPayloadDef_sigmaZero
+#print axioms arithmeticBit_nat_iff_testBit
+#print axioms compactBinaryNatTokenSegmentDef_spec
+#print axioms compactBinaryNatTokenSegmentDef_sigmaZero
 
 end FoundationCompactNumericListedDirectArithmeticPrimitives
