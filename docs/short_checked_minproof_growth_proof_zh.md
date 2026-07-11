@@ -397,6 +397,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     收集自由变量编号，结果逐点等于 `formula.fvarList`；`listFvSup` 的 `max(index+1)` 折叠也已独立
     证明为 `Primrec`（原始递归）。公开端点在任意规范公式上精确返回 `formula.fvSup` 与同一 suffix。
     定向探针退出码为 0，关键端点只依赖三个 Lean 标准公理。
+51. [FoundationCompactNumericAllClosure.lean](../integration/FoundationCompactNumericAllClosure.lean)
+    已将 `∀⁰* formula`（迭代全称闭包）落实为纯数值 token 迭代：每一步真实前置一个全称量词
+    token，整体已证 `Primrec`（原始递归），并对任意 `arity = depth` 的规范公式逐 token 等于
+    原依赖类型闭包。该节点不单独声称按二进制 `depth` 多项式时间；下一步必须在调用前闭合
+    `depth <= candidate bit length`（深度不超过候选句位长）的纯数值守卫。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -413,9 +418,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 
    第 46 项又将公开输入转成同一纯数值 token graph（记号图），并闭合否定、移位、自由化与代入；
    第 48 项进一步闭合 `fixitr`（变量捕获转换），第 49 项已经由这些原语闭合 `succInd(body)`，
-   第 50 项又闭合其纯数值 `fvSup`（自由变量上确界）。第 47 项已闭合标签 `0..21`；当前唯一
-   工作面是实现受 candidate-length guard（候选句长度守卫）约束的 `allClosure`（全称闭包），
-   由已完成的 `succInd(body)` 与 `fvSup` 构造标签 `22` 的完整句。
+   第 50 项又闭合其纯数值 `fvSup`（自由变量上确界），第 51 项闭合 `allClosure`（全称闭包）
+   本体。第 47 项已闭合标签 `0..21`；当前唯一工作面是在调用闭包前实现 candidate bit-length
+   guard（候选句位长守卫），再由已完成的 `succInd(body)`、`fvSup`、`fixitr` 与 `allClosure`
+   构造标签 `22` 的完整句。
    随后合并 23 标签并逐规则复现 `listedCertificateValidTrace`，闭合完整公开 verifier 的
    `Primrec`（原始递归）图与逐点结果等式。
    随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
