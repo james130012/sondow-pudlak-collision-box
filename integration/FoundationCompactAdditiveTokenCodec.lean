@@ -427,6 +427,30 @@ instance compactOptionAdditiveTokenCodec
       2 + compactAdditiveTokenWeight (compactAdditiveEncode value) := by
   simp
 
+@[simp] theorem compactAdditiveValueWeight_option_none
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α] :
+    compactAdditiveValueWeight (none : Option α) = 1 := by
+  simpa [compactAdditiveValueWeight] using
+    (compactAdditiveTokenWeight_encode_option_none (α := α))
+
+@[simp] theorem compactAdditiveValueWeight_option_some
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (value : α) :
+    compactAdditiveValueWeight (some value) =
+      2 + compactAdditiveValueWeight value := by
+  simpa [compactAdditiveValueWeight] using
+    compactAdditiveTokenWeight_encode_option_some value
+
+theorem compactAdditiveValueWeight_option_bool_le
+    (value : Option Bool) :
+    compactAdditiveValueWeight value <= 4 := by
+  cases value with
+  | none => simp
+  | some value =>
+      rw [compactAdditiveValueWeight_option_some]
+      have hvalue := compactAdditiveValueWeight_bool_le value
+      omega
+
 def compactProdAdditiveEncode
     {α β : Type*} [Primcodable α] [Primcodable β]
     [CompactAdditiveTokenCodec α] [CompactAdditiveTokenCodec β]
@@ -813,6 +837,56 @@ theorem compactAdditiveValueWeight_list_le
   exact Nat.add_le_add_left
     (compactAdditiveValueWeight_sum_le values bound hbound) _
 
+theorem compactAdditiveValueWeight_suffix_le
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    {values suffix : List α} (hsuffix : suffix <:+ values) :
+    compactAdditiveValueWeight suffix <=
+      compactAdditiveValueWeight values := by
+  rcases hsuffix with ⟨front, hfront⟩
+  subst values
+  simp only [compactAdditiveValueWeight_list, List.length_append,
+    List.map_append, List.sum_append]
+  have hlength : suffix.length <= front.length + suffix.length := by
+    omega
+  have hsize := Nat.size_le_size hlength
+  omega
+
+theorem compactAdditiveValueWeight_infix_le
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    {values part : List α} (hinfix : part <:+: values) :
+    compactAdditiveValueWeight part <=
+      compactAdditiveValueWeight values := by
+  rcases hinfix with ⟨front, back, hwhole⟩
+  subst values
+  simp only [compactAdditiveValueWeight_list, List.length_append,
+    List.map_append, List.sum_append]
+  have hlength : part.length <=
+      front.length + part.length + back.length := by
+    omega
+  have hsize := Nat.size_le_size hlength
+  omega
+
+theorem compactAdditiveValueWeight_natList_length_le
+    (values : List Nat) :
+    values.length <= compactAdditiveValueWeight values := by
+  have hsum : values.length <=
+      (values.map compactAdditiveValueWeight).sum := by
+    induction values with
+    | nil => simp
+    | cons value values ih =>
+        simp only [List.length_cons, List.map_cons, List.sum_cons,
+          compactAdditiveValueWeight_nat]
+        omega
+  rw [compactAdditiveValueWeight_list]
+  omega
+
+theorem compactAdditiveValueWeight_list_pos
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) :
+    1 <= compactAdditiveValueWeight values := by
+  rw [compactAdditiveValueWeight_list]
+  omega
+
 def compactAdditivePackedBits (tokens : List Nat) : List Bool :=
   tokens.flatMap binaryNatCode
 
@@ -907,6 +981,10 @@ theorem compactPackedTokenStream_additivePackedCode
 #print axioms compactAdditiveTokenWeight_encode_list
 #print axioms compactAdditiveValueWeight_sum_le
 #print axioms compactAdditiveValueWeight_list_le
+#print axioms compactAdditiveValueWeight_suffix_le
+#print axioms compactAdditiveValueWeight_infix_le
+#print axioms compactAdditiveValueWeight_natList_length_le
+#print axioms compactAdditiveValueWeight_list_pos
 #print axioms binaryNatCode_primrec
 #print axioms packBinaryString_primrec
 #print axioms compactAdditivePackedCode_primrec

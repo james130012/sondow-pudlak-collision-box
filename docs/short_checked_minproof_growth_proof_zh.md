@@ -578,6 +578,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `Nat.size(length)+1+length*B`。完整 `DirectTrace` 位权又被精确拆成十二个语义分量：两份 token、
     两份解包轨迹、三份 parser 轨迹、解析结果包、root、root-field 轨迹、公式值和中央状态表。
     全部探针无 `sorryAx`，公理画像仅三个 Lean 标准项。当前先证明最大分量中央状态表的逐行位权不变量。
+70. [FoundationCompactNumericListedStateBounds.lean](../integration/FoundationCompactNumericListedStateBounds.lean)
+    已闭合中央状态表的全部位权义务。节点 parser 成功时的 formula/term/Gamma 值均由
+    原输入真实前缀或中缀控制；五种字段形状及十标签分派统一满足
+    `fieldsWeight <= Nat.size(W)+1+W*W+4*W`。Lean 又逐分支证明 task/child 来源界被
+    `nodeTransition`、`combineTransition`、`verifierStep` 及任意迭代保持；两栈数量不超过
+    `1+2*fuel`。因此每行及 `fuel+1` 行整表均得到显式多项式位权界。所有总端点
+    公理画像仅三个 Lean 标准项，无项目公设、无 `sorryAx`。十二分量中最大的第 12 项已闭合；
+    下一步只对其余十一分量提取现有轨迹长度界并汇总总码长。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -602,12 +610,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 69 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 70 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
-   列表汇总界及十二分量分解。当前黄色工作面
-   是证明该打包见证位长关于公开输入的固定多项式界，并打开验证器单步函数中的剩余原子调用：
+   列表汇总界、十二分量分解，以及第 12 项中央状态表的显式多项式位权界。当前黄色工作面
+   是对其余十一分量汇总公开输入界，并打开验证器单步函数中的剩余原子调用：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -617,8 +625,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 
    精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
    局部检查、全部 outer parser tableau、逐公式子运行、两个结果包装层、完整 root-field 子轨迹及无损
-   自定界自然数编码均已闭合。下一步为各状态与子轨迹建立结构位权，结合 fuel、消费前缀和状态不变量
-   证明编码位长与局部核验具有统一多项式界；同时展开 `verifierStep` 内的原子字段解析和局部语法变换，
+   自定界自然数编码均已闭合；中央状态表的 fuel、消费前缀、栈数量和逐项位权不变量也已全部闭合。
+   下一步汇总其余十一分量的统一多项式界；同时展开 `verifierStep` 内的原子字段解析和局部语法变换，
    再直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
@@ -738,4 +746,5 @@ lake env lean integration/FoundationCompactNumericListedRootFieldsDirectTrace.le
 lake env lean integration/FoundationCompactNumericListedDirectTrace.lean
 lake env lean integration/FoundationCompactAdditiveTokenCodec.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceCode.lean
+lake env lean integration/FoundationCompactNumericListedStateBounds.lean
 ```
