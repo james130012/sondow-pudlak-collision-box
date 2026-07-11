@@ -25,6 +25,7 @@ open FoundationCompactAdditiveTokenCodec
 open FoundationCompactNumericListedDirectTrace
 open FoundationCompactNumericListedDirectTraceCode
 open FoundationCompactNumericListedStateBounds
+open FoundationCompactNumericListedTaskMachine
 open FoundationCompactNumericListedParseDecomposition
 open FoundationCompactArithmeticSymbolCode
 open FoundationCompactParserDirectTrace
@@ -4155,6 +4156,205 @@ theorem compactNumericListedDirectTrace_rootBranchTrace_weight_le
     compactNumericListedDirectTrace_certifiedTokens_weight_le hvalid
   exact (hcomponents.mono (hproof.trans hcertified)).weight_le
 
+theorem compactNumericChildResultWeightBound_mono
+    {left right : Nat} (h : left <= right) :
+    compactNumericChildResultWeightBound left <=
+      compactNumericChildResultWeightBound right := by
+  have hnested := compactNumericNestedListWeightBound_mono h
+  unfold compactNumericChildResultWeightBound
+  omega
+
+theorem compactNumericVerifierStateBudget_mono
+    {streamLeft streamRight itemLeft itemRight
+      taskLeft taskRight childLeft childRight : Nat}
+    (hstream : streamLeft <= streamRight)
+    (hitem : itemLeft <= itemRight)
+    (htask : taskLeft <= taskRight)
+    (hchild : childLeft <= childRight) :
+    compactNumericVerifierStateBudget
+        streamLeft itemLeft taskLeft childLeft <=
+      compactNumericVerifierStateBudget
+        streamRight itemRight taskRight childRight := by
+  have hitemSize := Nat.size_le_size hitem
+  have htaskProduct := Nat.mul_le_mul hitem htask
+  have hchildProduct := Nat.mul_le_mul hitem hchild
+  unfold compactNumericVerifierStateBudget
+  omega
+
+def compactNumericVerifierPublicFuelWeightBound
+    (streamWeight : Nat) : Nat :=
+  4 * (streamWeight + streamWeight + 1) + 8
+
+theorem compactNumericVerifierFuelBound_le_weightBound
+    {proofTokens certificateTokens : List Nat} {streamWeight : Nat}
+    (hproof : compactAdditiveValueWeight proofTokens <= streamWeight)
+    (hcertificate :
+      compactAdditiveValueWeight certificateTokens <= streamWeight) :
+    compactNumericVerifierFuelBound proofTokens certificateTokens <=
+      compactNumericVerifierPublicFuelWeightBound streamWeight := by
+  have hproofLength :=
+    compactAdditiveValueWeight_natList_length_le proofTokens
+  have hcertificateLength :=
+    compactAdditiveValueWeight_natList_length_le certificateTokens
+  unfold compactNumericVerifierFuelBound
+    compactNumericVerifierPublicFuelWeightBound
+  omega
+
+def compactNumericVerifierPublicRowWeightBound
+    (streamWeight : Nat) : Nat :=
+  let fuel := compactNumericVerifierPublicFuelWeightBound streamWeight
+  compactNumericVerifierStateBudget
+    (streamWeight + streamWeight)
+    (1 + 2 * fuel)
+    (compactNumericVerifierTaskWeightBound streamWeight)
+    (compactNumericChildResultWeightBound streamWeight)
+
+theorem compactNumericVerifierLocalRowBound_le_public
+    {proofTokens certificateTokens : List Nat} {fuel streamWeight : Nat}
+    (hproof : compactAdditiveValueWeight proofTokens <= streamWeight)
+    (hcertificate :
+      compactAdditiveValueWeight certificateTokens <= streamWeight)
+    (hfuel : fuel <=
+      compactNumericVerifierPublicFuelWeightBound streamWeight) :
+    compactNumericVerifierLocalRowBound
+        proofTokens certificateTokens fuel <=
+      compactNumericVerifierPublicRowWeightBound streamWeight := by
+  have hstream : compactNumericVerifierUnifiedStreamBound
+      proofTokens certificateTokens <= streamWeight + streamWeight := by
+    unfold compactNumericVerifierUnifiedStreamBound
+    omega
+  have hitem : 1 + 2 * fuel <=
+      1 + 2 * compactNumericVerifierPublicFuelWeightBound streamWeight := by
+    omega
+  have htask := compactNumericVerifierTaskWeightBound_mono hproof
+  have hchild := compactNumericChildResultWeightBound_mono hproof
+  unfold compactNumericVerifierLocalRowBound
+    compactNumericVerifierPublicRowWeightBound
+  exact compactNumericVerifierStateBudget_mono
+    hstream hitem htask hchild
+
+def compactNumericVerifierPublicTableWeightBound
+    (streamWeight : Nat) : Nat :=
+  let fuel := compactNumericVerifierPublicFuelWeightBound streamWeight
+  Nat.size (fuel + 1) + 1 +
+    (fuel + 1) *
+      compactNumericVerifierPublicRowWeightBound streamWeight
+
+theorem compactNumericListedDirectTrace_states_weight_le
+    {code formulaCode : Nat} {trace : CompactNumericListedDirectTrace}
+    (hvalid : CompactNumericListedDirectTraceValid code formulaCode trace) :
+    compactAdditiveValueWeight (compactNumericDirectTraceStates trace) <=
+      compactNumericVerifierPublicTableWeightBound
+        (compactNumericDecodedTokenListWeightBound (Nat.size code)) := by
+  let W := compactNumericDecodedTokenListWeightBound (Nat.size code)
+  let proofTokens := (compactNumericDirectTraceParts trace).1
+  let certificateTokens := (compactNumericDirectTraceParts trace).2.1
+  let fuel := compactNumericVerifierFuelBound proofTokens certificateTokens
+  have hparts :=
+    compactNumericListedDirectTrace_parts_components_weight_le hvalid
+  have hcertified :=
+    compactNumericListedDirectTrace_certifiedTokens_weight_le hvalid
+  have hproof : compactAdditiveValueWeight proofTokens <= W := by
+    exact hparts.1.trans hcertified
+  have hcertificate : compactAdditiveValueWeight certificateTokens <= W := by
+    exact hparts.2.1.trans hcertified
+  have hfuel : fuel <= compactNumericVerifierPublicFuelWeightBound W :=
+    compactNumericVerifierFuelBound_le_weightBound hproof hcertificate
+  have hfull := hvalid
+  unfold CompactNumericListedDirectTraceValid at hfull
+  have hstates : CompactNumericVerifierLocalTraceValid fuel
+      (compactNumericVerifierInitialState proofTokens certificateTokens)
+      (compactNumericDirectTraceStates trace) :=
+    hfull.2.2.2.2.2.2.2.1
+  have hraw :=
+    compactNumericVerifierLocalTrace_tableWeight_explicit_le hstates
+  have hrow := compactNumericVerifierLocalRowBound_le_public
+    hproof hcertificate hfuel
+  have hfuelAdd : fuel + 1 <=
+      compactNumericVerifierPublicFuelWeightBound W + 1 := by omega
+  have hfuelSize := Nat.size_le_size hfuelAdd
+  have htable := Nat.mul_le_mul hfuelAdd hrow
+  unfold compactNumericVerifierStateTableWeight at hraw
+  unfold compactNumericVerifierPublicTableWeightBound
+  have hbudget : Nat.size (fuel + 1) + 1 +
+        (fuel + 1) *
+          compactNumericVerifierLocalRowBound
+            proofTokens certificateTokens fuel <=
+      Nat.size (compactNumericVerifierPublicFuelWeightBound W + 1) + 1 +
+        (compactNumericVerifierPublicFuelWeightBound W + 1) *
+          compactNumericVerifierPublicRowWeightBound W := by
+    omega
+  have hbound := hraw.trans hbudget
+  simpa [W] using hbound
+
+def compactNumericListedDirectTracePublicWeightBound
+    (codeSize formulaCodeSize : Nat) : Nat :=
+  let proofWeight := compactNumericDecodedTokenListWeightBound codeSize
+  let formulaWeight :=
+    compactNumericDecodedTokenListWeightBound formulaCodeSize
+  (proofWeight +
+    compactNumericPackedTokenStreamTraceWeightBound codeSize) +
+  ((formulaWeight +
+    compactNumericPackedTokenStreamTraceWeightBound formulaCodeSize) +
+  ((compactNumericProofParserPublicTraceWeightBound codeSize +
+    (compactNumericCertificateParserPublicTraceWeightBound codeSize +
+      compactNumericFormulaParserPublicTraceWeightBound formulaCodeSize)) +
+  (compactNumericCertifiedPartsWeightBound proofWeight +
+  (compactNumericVerifierTaskWeightBound proofWeight +
+  (compactNumericRootFieldBranchTraceWeightBound proofWeight +
+  (formulaWeight +
+    compactNumericVerifierPublicTableWeightBound proofWeight))))))
+
+theorem compactNumericListedDirectTrace_weight_le
+    {code formulaCode : Nat} {trace : CompactNumericListedDirectTrace}
+    (hvalid : CompactNumericListedDirectTraceValid code formulaCode trace) :
+    compactNumericListedDirectTraceWeight trace <=
+      compactNumericListedDirectTracePublicWeightBound
+        (Nat.size code) (Nat.size formulaCode) := by
+  have hcertifiedTokens :=
+    compactNumericListedDirectTrace_certifiedTokens_weight_le hvalid
+  have hcertifiedStream :=
+    compactNumericListedDirectTrace_certifiedStreamTrace_weight_le hvalid
+  have hformulaTokens :=
+    compactNumericListedDirectTrace_formulaTokens_weight_le hvalid
+  have hformulaStream :=
+    compactNumericListedDirectTrace_formulaStreamTrace_weight_le hvalid
+  have hproofParser :=
+    compactNumericListedDirectTrace_proofParserTrace_weight_le hvalid
+  have hcertificateParser :=
+    compactNumericListedDirectTrace_certificateParserTrace_weight_le hvalid
+  have hformulaParser :=
+    compactNumericListedDirectTrace_formulaParserTrace_weight_le hvalid
+  have hparts := compactNumericListedDirectTrace_parts_weight_le hvalid
+  have hroot := compactNumericListedDirectTrace_root_weight_le hvalid
+  have hrootTrace :=
+    compactNumericListedDirectTrace_rootBranchTrace_weight_le hvalid
+  have hformulaValue :=
+    compactNumericListedDirectTrace_formulaValue_weight_le hvalid
+  have hstates := compactNumericListedDirectTrace_states_weight_le hvalid
+  rw [compactNumericListedDirectTraceWeight_eq_components]
+  unfold compactNumericListedDirectTraceComponentWeight
+    compactNumericListedDirectTracePublicWeightBound
+  dsimp only
+  omega
+
+def compactNumericListedDirectTracePublicCodeSizeBound
+    (codeSize formulaCodeSize : Nat) : Nat :=
+  2 * compactNumericListedDirectTracePublicWeightBound
+    codeSize formulaCodeSize + 1
+
+theorem compactNumericListedDirectTraceCode_size_le
+    {code formulaCode : Nat} {trace : CompactNumericListedDirectTrace}
+    (hvalid : CompactNumericListedDirectTraceValid code formulaCode trace) :
+    Nat.size (compactNumericListedDirectTraceCode trace) <=
+      compactNumericListedDirectTracePublicCodeSizeBound
+        (Nat.size code) (Nat.size formulaCode) := by
+  rw [compactNumericListedDirectTraceCode_size_eq_weight]
+  have hweight := compactNumericListedDirectTrace_weight_le hvalid
+  have hscaled := Nat.mul_le_mul_left 2 hweight
+  unfold compactNumericListedDirectTracePublicCodeSizeBound
+  omega
+
 #print axioms compactAdditiveValueWeight_natList_le_of_decodeBinaryNatStream
 #print axioms compactPackedTokenStreamDirectTraceValid_token_weight_le
 #print axioms compactNumericListedDirectTrace_certifiedTokens_weight_le
@@ -4184,5 +4384,8 @@ theorem compactNumericListedDirectTrace_rootBranchTrace_weight_le
 #print axioms compactSequentTokenValueDirectTraceValid_weight_le
 #print axioms compactNumericProofRootDirectTraceValid_componentsWithin
 #print axioms compactNumericListedDirectTrace_rootBranchTrace_weight_le
+#print axioms compactNumericListedDirectTrace_states_weight_le
+#print axioms compactNumericListedDirectTrace_weight_le
+#print axioms compactNumericListedDirectTraceCode_size_le
 
 end FoundationCompactNumericListedDirectTraceBounds

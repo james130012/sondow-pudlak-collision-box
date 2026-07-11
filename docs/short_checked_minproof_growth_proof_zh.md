@@ -597,6 +597,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `count <= token weight`，排除了二进制 count 的指数表长风险。全部公开端点仅依赖三个 Lean 标准项，
     无项目公设、无 `sorryAx`。第 1..11 项与第 12 项中央状态表均已具备公开界；下一步按精确十二分量
     等式汇总完整 `traceWeight`，再用打包码长精确等式得到 `traceCode` 界。
+72. 同一模块已完成上述汇总。中央状态表的实际 proof/certificate 流与线性 fuel 已提升到公开
+    `Nat.size(code)` 预算；十二分量精确等式逐项实例化后得到完整 `traceWeight` 关于
+    `Nat.size(code), Nat.size(formulaCode)` 的显式界，并由
+    `Nat.size(traceCode)=2*traceWeight+1` 得到打包轨迹码长界。三个总端点公理画像仅三个 Lean 标准项。
+    当前边界已转到 `verifierStep` 及各子轨迹有效性谓词中的剩余整体函数调用：需把它们展开成可局部核验
+    的有界算术图，再直接构造二变量 `Σ₁` 公式；不得退回 `projection/rfind` 表示。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
