@@ -431,6 +431,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     同样只消费根标签，公理叶额外精确截取完整 PA 公理证书 token。两个 dispatcher（分派器）均已证
     `Primrec`，且对任意真实树/证书与任意 suffix 返回规范字段及同一后缀。关键公理画像仍只有三个
     Lean 标准公理，无类型化语法运行时输入。
+57. [FoundationCompactNumericListedTaskMachine.lean](../integration/FoundationCompactNumericListedTaskMachine.lean) 与
+    [FoundationCompactNumericListedPublicVerifier.lean](../integration/FoundationCompactNumericListedPublicVerifier.lean)
+    已闭合完整公开局部检查纯数值图。有限任务栈同步消费证明/证书 token，核对递归形状，并把子结论与
+    子布尔结果交给十条真实局部合并器；显式 fuel（燃料）覆盖完整规范树，其他路径统一拒绝。公开层对
+    两个 sentinel-packed Nat（哨兵位打包自然数）做任意输入反演，并由
+    `compactNumericListedPublicVerifier_pointwise` 证明新数值验证器与原公开验证器在每个
+    `code/formulaCode` 上结果相等。两个模块的定向探针和目标构建均通过，禁用项扫描为空，端点公理画像
+    只有 `propext`、`Classical.choice`、`Quot.sound`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -451,12 +459,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    本体，第 52 项将守卫长度精确校准到候选公式公开二进制码，第 53 项闭合守卫、标签 `22`
    完整句及规范输入上的相等判定，第 54 项已合并全部 23 标签，并利用任意证书输入反演定理
    排除畸形 token 与垃圾尾部，第 55 项已闭合十条规则的全部纯数值局部合并器，第 56 项已闭合
-   两侧根节点字段解析并精确保留子流。当前唯一工作面是建立有限任务栈，调用第 56 项同步消费
-   proof tree（证明树）与 structural certificate（结构证书）token，再把子结论与子布尔结果
-   自底向上交给第 55 项；还须证明显式燃料界，并覆盖形状错配、燃料耗尽与全部拒绝分支，最终
-   闭合完整公开 verifier 的
-   `Primrec`（原始递归）图与逐点结果等式。
-   随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
+   两侧根节点字段解析并精确保留子流，第 57 项现已闭合有限任务栈、显式燃料、全部拒绝路径和完整
+   公开验证器逐点结果等式。当前工作面因此前移到同一数值机器图的算术化：构造二变量
+   `CompactProof(x,y)`，证明其标准模型语义逐点等价于第 57 项验证器，并用同一 payload cutoff
+   （载荷截断）定义 `Con_PA^compact(k)`。随后还须构造 PA 内部接受计算短证明；
+   `Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
 
    第 38 项已证明限制到 canonical accepted codes（规范接受码）不改变精确最短长度，消除了畸形码风险。
    总成本闭合后仍必须新增真正的二变量算术公式 `CompactProof(x,y)`，其标准模型语义逐点精确等价于
@@ -564,4 +571,6 @@ lake env lean integration/FoundationCompactNumericGuardedInductionSentence.lean
 lake env lean integration/FoundationCompactNumericPAAxiomComparator.lean
 lake env lean integration/FoundationCompactNumericListedRuleChecks.lean
 lake env lean integration/FoundationCompactNumericListedNodeFields.lean
+lake env lean integration/FoundationCompactNumericListedTaskMachine.lean
+lake env lean integration/FoundationCompactNumericListedPublicVerifier.lean
 ```
