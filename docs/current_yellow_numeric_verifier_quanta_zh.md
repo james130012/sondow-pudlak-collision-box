@@ -26,7 +26,7 @@ $$
 
 ## 一个很小的编号，如何展开成很长的公式
 
-当前黄色核心集中在 `fvSup`（自由变量上界）、`allClosure`（全称闭包）和 candidate-length guard（候选长度守卫）。它们共同面对一个隐蔽的复杂度陷阱。
+黄色节点的关键链条由 `fvSup`（自由变量上界）、`allClosure`（全称闭包）和 candidate-length guard（候选长度守卫）组成。当前 `fvSup` 已经转绿，后两项仍在处理；三者共同面对一个隐蔽的复杂度陷阱。
 
 设公式中出现自由变量 `&k`。二进制编码只需大约 $\log k$ 个比特写下编号 $k$，但把公式闭合时，朴素算法可能要添加 $k+1$ 个全称量词。于是，一个很短的输入可以要求机器吐出一个按 $k$ 而不是按 $\log k$ 增长的输出。若 $k=2^m$，输入只多出约 $m$ 位，闭包却可能多出约 $2^m$ 层。这不是常数估计不够精细，而是从输入位长到执行长度的指数裂缝。
 
@@ -46,7 +46,7 @@ $$
 
 ## 黄色方框将怎样变绿
 
-接下来的闭合顺序已经缩窄。首先构造纯数值 `fvSup`，并证明它对规范公式精确返回类型化自由变量上界。随后实现受候选长度约束的 `allClosure`，复用已经转绿的 `fixitr`，证明守卫不会改变任何合法接受结果。然后把动态归纳标签 `22` 与已经完成的固定标签 `0..21` 合并，逐条复现 `listedCertificateValidTrace`（列表证书有效性轨迹）。最后，十条证明规则、证明树证书和公式比较共同汇入公开 verifier（验证器），得到完整的原始递归图与逐点结果等式。
+接下来的闭合顺序已经缩窄。纯数值 `fvSup` 现已证明对规范公式精确返回类型化自由变量上界。下一步是实现受候选长度约束的 `allClosure`，复用已经转绿的 `fixitr`，并证明守卫不会改变任何合法接受结果。然后把动态归纳标签 `22` 与已经完成的固定标签 `0..21` 合并，逐条复现 `listedCertificateValidTrace`（列表证书有效性轨迹）。最后，十条证明规则、证明树证书和公式比较共同汇入公开 verifier（验证器），得到完整的原始递归图与逐点结果等式。
 
 这会关闭黄色节点，但不会自动关闭整个下界定理。其后仍须把同一数值图写成算术公式 `CompactProof(x,y)`，证明标准模型语义完全一致；再为被接受的计算构造 PA 内部短证明，验证 Pudlak conditions（普德拉克条件），并在同一公式族、证明系统和长度度量上完成 Buss-Pudlak theorem 5（Buss-Pudlak 第五定理）的形式化。
 
@@ -57,6 +57,7 @@ $$
 - [实时下界定理依赖图（DOT）](checked_minproof_theorem_dependency_graph_zh.dot)
 - [精炼证明指导书](short_checked_minproof_growth_proof_zh.md)
 - [`succInd(body)` 纯数值构造](../integration/FoundationCompactNumericSuccIndSentence.lean)
+- [`fvSup` 纯数值自由变量上确界](../integration/FoundationCompactNumericFormulaFvSup.lean)
 - [`fixitr` 纯数值变量捕获](../integration/FoundationCompactNumericFormulaFixitr.lean)
 - [带候选长度守卫的既有成本证明](../integration/FoundationCompactListedGuardedAxiomCost.lean)
 

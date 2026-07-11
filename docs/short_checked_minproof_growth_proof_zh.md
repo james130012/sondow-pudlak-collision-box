@@ -392,6 +392,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     输入公式 token，四条代入执行、三次否定、三个析取和两个全称量词在同一失败语义下组合；
     整体已证 `Primrec`（原始递归），并对任意规范 `body` 逐 token 精确等于原 `succInd body`。
     定向探针退出码为 0，关键端点只依赖三个 Lean 标准公理，无旧原始码或隐藏长度参数。
+50. [FoundationCompactNumericFormulaFvSup.lean](../integration/FoundationCompactNumericFormulaFvSup.lean)
+    已用同一纯数值语法任务栈闭合 `fvSup`（自由变量上确界）。机器只在真实 term（项）位置
+    收集自由变量编号，结果逐点等于 `formula.fvarList`；`listFvSup` 的 `max(index+1)` 折叠也已独立
+    证明为 `Primrec`（原始递归）。公开端点在任意规范公式上精确返回 `formula.fvSup` 与同一 suffix。
+    定向探针退出码为 0，关键端点只依赖三个 Lean 标准公理。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -407,9 +412,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    多项式位成本界，稀疏 `fvSup` 漏洞和六次/八次界错位均已修复。
 
    第 46 项又将公开输入转成同一纯数值 token graph（记号图），并闭合否定、移位、自由化与代入；
-   第 48 项进一步闭合 `fixitr`（变量捕获转换），第 49 项已经由这些原语闭合 `succInd(body)`。
-   第 47 项已闭合标签 `0..21`；当前唯一工作面是实现 `fvSup / allClosure` 及
-   candidate-length guard（候选句长度守卫），由已完成的 `succInd(body)` 构造标签 `22` 的完整句。
+   第 48 项进一步闭合 `fixitr`（变量捕获转换），第 49 项已经由这些原语闭合 `succInd(body)`，
+   第 50 项又闭合其纯数值 `fvSup`（自由变量上确界）。第 47 项已闭合标签 `0..21`；当前唯一
+   工作面是实现受 candidate-length guard（候选句长度守卫）约束的 `allClosure`（全称闭包），
+   由已完成的 `succInd(body)` 与 `fvSup` 构造标签 `22` 的完整句。
    随后合并 23 标签并逐规则复现 `listedCertificateValidTrace`，闭合完整公开 verifier 的
    `Primrec`（原始递归）图与逐点结果等式。
    随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
