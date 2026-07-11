@@ -376,6 +376,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     [FoundationCompactNumericFormulaSubstitution.lean](../integration/FoundationCompactNumericFormulaSubstitution.lean)
     证明了纯 `Nat`/`List Nat` 运行图的代入结果逐 token 等于
     `((Rew.subst ![w]).qpow d)`；规范端点保留同一 suffix，公理画像只有三个 Lean 标准公理。
+47. [FoundationCompactNumericFixedPAAxiomSentence.lean](../integration/FoundationCompactNumericFixedPAAxiomSentence.lean)
+    已将证书标签 `0..21` 的 22 个非归纳 PA 公理分支做成纯数值句 token 表。
+    函数外延的四个合法 `(arity, symbolCode)` 和关系外延的两个合法对均显式分派；
+    查表函数已证 `Primrec`（原始递归），每个规范固定证书逐 token 等于同一
+    `certificate.sentence`。标签 `22` 的归纳句是当前唯一剩余公理构造分支。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -391,8 +396,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    多项式位成本界，稀疏 `fvSup` 漏洞和六次/八次界错位均已修复。
 
    第 46 项又将公开输入转成同一纯数值 token graph（记号图），并闭合否定、移位、自由化与代入。
-   当前唯一工作面是用这些已闭合原语纯数值构造 23 类 PA 公理候选句，然后逐规则复现
-   `listedCertificateValidTrace`，闭合完整公开 verifier 的 `Primrec`（原始递归）图与逐点结果等式。
+   第 47 项已闭合标签 `0..21`；当前唯一工作面是用这些原语纯数值构造标签 `22`
+   的 `succInd(body)`，再实现 `fvSup / fixitr / allClosure` 及 candidate-length guard（候选句长度守卫）。
+   随后合并 23 标签并逐规则复现 `listedCertificateValidTrace`，闭合完整公开 verifier 的
+   `Primrec`（原始递归）图与逐点结果等式。
    随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
 
    第 38 项已证明限制到 canonical accepted codes（规范接受码）不改变精确最短长度，消除了畸形码风险。
@@ -491,6 +498,7 @@ lake env lean integration/FoundationCompactNumericFormulaNegation.lean
 lake env lean integration/FoundationCompactNumericFormulaShift.lean
 lake env lean integration/FoundationCompactNumericFormulaFree.lean
 lake env lean integration/FoundationCompactNumericFormulaSubstitution.lean
+lake env lean integration/FoundationCompactNumericFixedPAAxiomSentence.lean
 lake env lean integration/FoundationCompactListedProofHonestWeight.lean
 lake env lean integration/FoundationCompactListedCertifiedHonestWeight.lean
 lake env lean integration/FoundationCompactListedLocalCostPrimitives.lean
