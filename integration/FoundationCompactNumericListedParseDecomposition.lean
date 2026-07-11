@@ -1,5 +1,5 @@
 import integration.FoundationCompactNumericListedPublicVerifier
-import integration.FoundationCompactNumericListedRootFieldsDecomposition
+import integration.FoundationCompactNumericListedRootFieldsDirectTrace
 
 /-!
 # Exact decomposition of compact numeric parse results
@@ -23,50 +23,70 @@ open FoundationCompactCertificateTokenMachine
 open FoundationCompactNumericSyntaxValueParser
 open FoundationCompactNumericListedNodeFields
 open FoundationCompactNumericListedRootFieldsDecomposition
+open FoundationCompactNumericListedRootFieldsDirectTrace
 open FoundationCompactNumericListedPublicVerifier
+
+local instance compactNumericRootFieldBranchDirectTracePrimcodable :
+    Primcodable CompactNumericRootFieldBranchDirectTrace :=
+  inferInstance
+
+abbrev CompactNumericCertifiedPartsRootData :=
+  (List Nat × CompactNumericCertifiedParts) × CompactNumericProofRoot
+
+local instance compactNumericCertifiedPartsRootDataPrimcodable :
+    Primcodable CompactNumericCertifiedPartsRootData :=
+  inferInstance
 
 /-- The residual data relation after the proof and certificate parser results
 have been exposed separately. -/
 def CompactNumericCertifiedPartsResidualValid
     (tokens : List Nat) (parts : CompactNumericCertifiedParts)
-    (root : CompactNumericProofRoot) : Prop :=
+    (root : CompactNumericProofRoot)
+    (rootTrace : CompactNumericRootFieldBranchDirectTrace) : Prop :=
   parts.1 = consumedTokenPrefix tokens parts.2.1 ∧
-    CompactNumericProofRootBranchValid parts.1 root ∧
+    CompactNumericProofRootDirectTraceValid parts.1 root rootTrace ∧
     parts.2.2 = root.2.1
 
 theorem compactNumericCertifiedPartsResidualValid_primrec :
     PrimrecPred (fun input :
-        (List Nat × CompactNumericCertifiedParts) × CompactNumericProofRoot =>
+        ((List Nat × CompactNumericCertifiedParts) × CompactNumericProofRoot) ×
+          CompactNumericRootFieldBranchDirectTrace =>
       CompactNumericCertifiedPartsResidualValid
-        input.1.1 input.1.2 input.2) := by
+        input.1.1.1 input.1.1.2 input.1.2 input.2) := by
   let Input :=
-    (List Nat × CompactNumericCertifiedParts) × CompactNumericProofRoot
-  have htokens : Primrec (fun input : Input => input.1.1) :=
-    Primrec.fst.comp Primrec.fst
-  have hparts : Primrec (fun input : Input => input.1.2) :=
+    CompactNumericCertifiedPartsRootData ×
+      CompactNumericRootFieldBranchDirectTrace
+  have htokens : Primrec (fun input : Input => input.1.1.1) :=
+    Primrec.fst.comp (Primrec.fst.comp Primrec.fst)
+  have hparts : Primrec (fun input : Input => input.1.1.2) :=
+    Primrec.snd.comp (Primrec.fst.comp Primrec.fst)
+  have hroot : Primrec (fun input : Input => input.1.2) :=
     Primrec.snd.comp Primrec.fst
-  have hroot : Primrec (fun input : Input => input.2) :=
+  have hrootTrace : Primrec (fun input : Input => input.2) :=
     Primrec.snd
-  have hproofTokens : Primrec (fun input : Input => input.1.2.1) :=
+  have hproofTokens : Primrec (fun input : Input => input.1.1.2.1) :=
     Primrec.fst.comp hparts
-  have hcertificateTokens : Primrec (fun input : Input => input.1.2.2.1) :=
+  have hcertificateTokens : Primrec (fun input : Input =>
+      input.1.1.2.2.1) :=
     Primrec.fst.comp (Primrec.snd.comp hparts)
-  have hconclusion : Primrec (fun input : Input => input.1.2.2.2) :=
+  have hconclusion : Primrec (fun input : Input => input.1.1.2.2.2) :=
     Primrec.snd.comp (Primrec.snd.comp hparts)
   have hconsumed : Primrec (fun input : Input =>
-      consumedTokenPrefix input.1.1 input.1.2.2.1) :=
+      consumedTokenPrefix input.1.1.1 input.1.1.2.2.1) :=
     consumedTokenPrefix_primrec.comp htokens hcertificateTokens
   have hprefix : PrimrecPred (fun input : Input =>
-      input.1.2.1 = consumedTokenPrefix input.1.1 input.1.2.2.1) :=
+      input.1.1.2.1 =
+        consumedTokenPrefix input.1.1.1 input.1.1.2.2.1) :=
     Primrec.eq.comp hproofTokens hconsumed
   have hrootBranch : PrimrecPred (fun input : Input =>
-      CompactNumericProofRootBranchValid input.1.2.1 input.2) :=
-    compactNumericProofRootBranchValid_primrec.comp <|
-      Primrec.pair hproofTokens hroot
-  have hrootConclusion : Primrec (fun input : Input => input.2.2.1) :=
+      CompactNumericProofRootDirectTraceValid
+        input.1.1.2.1 input.1.2 input.2) :=
+    compactNumericProofRootDirectTraceValid_primrec.comp <|
+      Primrec.pair (Primrec.pair hproofTokens hroot) hrootTrace
+  have hrootConclusion : Primrec (fun input : Input => input.1.2.2.1) :=
     Primrec.fst.comp (Primrec.snd.comp hroot)
   have hconclusionEq : PrimrecPred (fun input : Input =>
-      input.1.2.2.2 = input.2.2.1) :=
+      input.1.1.2.2.2 = input.1.2.2.1) :=
     Primrec.eq.comp hconclusion hrootConclusion
   exact
     (hprefix.and (hrootBranch.and hconclusionEq)).of_eq fun input => by
@@ -76,9 +96,11 @@ theorem compactNumericCertifiedPartsParser_eq_some_iff_exists_root
     (tokens : List Nat) (parts : CompactNumericCertifiedParts) :
     compactNumericCertifiedPartsParser tokens = some parts ↔
       ∃ root : CompactNumericProofRoot,
+        ∃ rootTrace : CompactNumericRootFieldBranchDirectTrace,
         compactProofTokenParser tokens = some parts.2.1 ∧
           compactStructuralCertificateTokenParser parts.2.1 = some [] ∧
-          CompactNumericCertifiedPartsResidualValid tokens parts root := by
+          CompactNumericCertifiedPartsResidualValid
+            tokens parts root rootTrace := by
   constructor
   · intro hparts
     unfold compactNumericCertifiedPartsParser at hparts
@@ -102,17 +124,18 @@ theorem compactNumericCertifiedPartsParser_eq_some_iff_exists_root
                 simpa [compactNumericCertifiedPartsAfter,
                   hcertificate, hroot] using hparts
               subst parts
-              have hrootBranch :=
-                (compactListedProofNodeFieldsParser_eq_some_iff_branchValid
+              obtain ⟨rootTrace, hrootTrace⟩ :=
+                (compactListedProofNodeFieldsParser_eq_some_iff_exists_directTrace
                   (consumedTokenPrefix tokens certificateTokens) root).mp hroot
-              exact ⟨root, rfl, hcertificate, rfl, hrootBranch, rfl⟩
+              exact ⟨root, rootTrace, rfl, hcertificate,
+                rfl, hrootTrace, rfl⟩
         · simp [compactNumericCertifiedPartsAfter,
             hcertificate] at hparts
-  · rintro ⟨root, hproof, hcertificate,
-      hprefix, hrootBranch, hconclusion⟩
+  · rintro ⟨root, rootTrace, hproof, hcertificate,
+      hprefix, hrootTraceValid, hconclusion⟩
     have hroot :=
-      (compactListedProofNodeFieldsParser_eq_some_iff_branchValid
-        parts.1 root).mpr hrootBranch
+      (compactListedProofNodeFieldsParser_eq_some_iff_exists_directTrace
+        parts.1 root).mpr ⟨rootTrace, hrootTraceValid⟩
     unfold compactNumericCertifiedPartsParser
     rw [hproof]
     change compactNumericCertifiedPartsAfter tokens parts.2.1 = some parts

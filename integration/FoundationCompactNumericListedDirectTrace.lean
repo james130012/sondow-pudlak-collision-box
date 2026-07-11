@@ -33,6 +33,7 @@ open FoundationCompactPackedTokenStreamDirectTrace
 open FoundationCompactParserDirectTrace
 open FoundationCompactNumericListedParseDecomposition
 open FoundationCompactNumericListedRootFieldsDecomposition
+open FoundationCompactNumericListedRootFieldsDirectTrace
 open FoundationCompactSyntaxTokenMachine
 open FoundationCompactProofTokenMachine
 open FoundationCompactCertificateTokenMachine
@@ -330,10 +331,15 @@ local instance compactNumericParserDirectTracesPrimcodable :
     Primcodable CompactNumericParserDirectTraces :=
   inferInstance
 
+local instance compactNumericRootFieldBranchDirectTracePrimcodable :
+    Primcodable CompactNumericRootFieldBranchDirectTrace :=
+  inferInstance
+
 abbrev CompactNumericParsedDirectTraceData :=
   CompactNumericCertifiedParts ×
     (CompactNumericProofRoot ×
-      (List Nat × List CompactNumericVerifierState))
+      (CompactNumericRootFieldBranchDirectTrace ×
+        (List Nat × List CompactNumericVerifierState)))
 
 local instance compactNumericParsedDirectTraceDataPrimcodable :
     Primcodable CompactNumericParsedDirectTraceData :=
@@ -394,14 +400,19 @@ def compactNumericDirectTraceRoot
     CompactNumericProofRoot :=
   trace.2.2.2.2.1
 
+def compactNumericDirectTraceRootBranchTrace
+    (trace : CompactNumericListedDirectTrace) :
+    CompactNumericRootFieldBranchDirectTrace :=
+  trace.2.2.2.2.2.1
+
 def compactNumericDirectTraceFormulaValue
     (trace : CompactNumericListedDirectTrace) : List Nat :=
-  trace.2.2.2.2.2.1
+  trace.2.2.2.2.2.2.1
 
 def compactNumericDirectTraceStates
     (trace : CompactNumericListedDirectTrace) :
     List CompactNumericVerifierState :=
-  trace.2.2.2.2.2.2
+  trace.2.2.2.2.2.2.2
 
 def compactNumericVerifierStateResult
     (state : CompactNumericVerifierState) : Bool :=
@@ -442,6 +453,7 @@ def CompactNumericListedDirectTraceValid
     compactNumericDirectTraceFormulaParserTrace trace
   let parts := compactNumericDirectTraceParts trace
   let root := compactNumericDirectTraceRoot trace
+  let rootTrace := compactNumericDirectTraceRootBranchTrace trace
   let formulaValue := compactNumericDirectTraceFormulaValue trace
   let states := compactNumericDirectTraceStates trace
   let fuel := compactNumericVerifierFuelBound parts.1 parts.2.1
@@ -456,7 +468,8 @@ def CompactNumericListedDirectTraceValid
       parts.2.1 [] certificateParserTrace ∧
     CompactFormulaTokenParserDirectTraceValid
       0 formulaTokens [] formulaParserTrace ∧
-    CompactNumericCertifiedPartsResidualValid certifiedTokens parts root ∧
+    CompactNumericCertifiedPartsResidualValid
+      certifiedTokens parts root rootTrace ∧
     CompactNumericWholeFormulaResidualValid formulaTokens formulaValue ∧
     CompactNumericVerifierLocalTraceValid fuel start states ∧
     (compactNumericTraceState? states fuel).map
@@ -513,14 +526,20 @@ theorem compactNumericListedDirectTraceValid_primrec :
   have hroot : Primrec (fun input : Input =>
       compactNumericDirectTraceRoot input.2) :=
     Primrec.fst.comp (Primrec.snd.comp hparsedGroup)
+  have hrootBranchTrace : Primrec (fun input : Input =>
+      compactNumericDirectTraceRootBranchTrace input.2) :=
+    Primrec.fst.comp
+      (Primrec.snd.comp (Primrec.snd.comp hparsedGroup))
   have hformulaValue : Primrec (fun input : Input =>
       compactNumericDirectTraceFormulaValue input.2) :=
     Primrec.fst.comp
-      (Primrec.snd.comp (Primrec.snd.comp hparsedGroup))
+      (Primrec.snd.comp
+        (Primrec.snd.comp (Primrec.snd.comp hparsedGroup)))
   have hstates : Primrec (fun input : Input =>
       compactNumericDirectTraceStates input.2) :=
     Primrec.snd.comp
-      (Primrec.snd.comp (Primrec.snd.comp hparsedGroup))
+      (Primrec.snd.comp
+        (Primrec.snd.comp (Primrec.snd.comp hparsedGroup)))
   have hproofTokens : Primrec (fun input : Input =>
       (compactNumericDirectTraceParts input.2).1) :=
     Primrec.fst.comp hparts
@@ -589,9 +608,13 @@ theorem compactNumericListedDirectTraceValid_primrec :
       CompactNumericCertifiedPartsResidualValid
         (compactNumericDirectTraceCertifiedTokens input.2)
         (compactNumericDirectTraceParts input.2)
-        (compactNumericDirectTraceRoot input.2)) :=
+        (compactNumericDirectTraceRoot input.2)
+        (compactNumericDirectTraceRootBranchTrace input.2)) :=
     compactNumericCertifiedPartsResidualValid_primrec.comp <|
-      Primrec.pair (Primrec.pair hcertifiedTokens hparts) hroot
+      Primrec.pair
+        (Primrec.pair
+          (Primrec.pair hcertifiedTokens hparts) hroot)
+        hrootBranchTrace
   have hformulaResidual : PrimrecPred (fun input : Input =>
       CompactNumericWholeFormulaResidualValid
         (compactNumericDirectTraceFormulaTokens input.2)
@@ -704,7 +727,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                         hformulaStreamTrace⟩ :=
                       (compactPackedTokenStream_eq_some_iff_exists_directTrace
                         formulaCode formulaTokens).mp hformula
-                    obtain ⟨root, hproofParserResult,
+                    obtain ⟨root, rootTrace, hproofParserResult,
                         hcertificateParserResult, hpartsResidual⟩ :=
                       (compactNumericCertifiedPartsParser_eq_some_iff_exists_root
                         certifiedTokens parts).mp hparts
@@ -756,7 +779,9 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                       ((formulaTokens, formulaStreamTrace),
                         ((proofParserTrace,
                             (certificateParserTrace, formulaParserTrace)),
-                          (parts, (root, (formulaValue, states)))))), ?_⟩
+                          (parts,
+                            (root, (rootTrace,
+                              (formulaValue, states))))))), ?_⟩
                     simp only [CompactNumericListedDirectTraceValid,
                       compactNumericDirectTraceCertifiedTokens,
                       compactNumericDirectTraceCertifiedStreamTrace,
@@ -767,6 +792,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                       compactNumericDirectTraceFormulaParserTrace,
                       compactNumericDirectTraceParts,
                       compactNumericDirectTraceRoot,
+                      compactNumericDirectTraceRootBranchTrace,
                       compactNumericDirectTraceFormulaValue,
                       compactNumericDirectTraceStates]
                     refine ⟨hcertifiedStreamTrace, hformulaStreamTrace,
@@ -798,6 +824,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
       compactNumericDirectTraceFormulaParserTrace trace
     let parts := compactNumericDirectTraceParts trace
     let root := compactNumericDirectTraceRoot trace
+    let rootTrace := compactNumericDirectTraceRootBranchTrace trace
     let formulaValue := compactNumericDirectTraceFormulaValue trace
     let states := compactNumericDirectTraceStates trace
     let fuel := compactNumericVerifierFuelBound parts.1 parts.2.1
@@ -814,7 +841,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
         CompactFormulaTokenParserDirectTraceValid
           0 formulaTokens [] formulaParserTrace ∧
         CompactNumericCertifiedPartsResidualValid
-          certifiedTokens parts root ∧
+          certifiedTokens parts root rootTrace ∧
         CompactNumericWholeFormulaResidualValid
           formulaTokens formulaValue ∧
         CompactNumericVerifierLocalTraceValid fuel start states ∧
@@ -855,7 +882,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
         compactNumericCertifiedPartsParser certifiedTokens = some parts :=
       (compactNumericCertifiedPartsParser_eq_some_iff_exists_root
         certifiedTokens parts).mpr
-          ⟨root, hproofParserResult, hcertificateParserResult,
+          ⟨root, rootTrace, hproofParserResult, hcertificateParserResult,
             hpartsResidual⟩
     have hformulaValue :
         compactNumericWholeFormulaValue formulaTokens = some formulaValue :=
