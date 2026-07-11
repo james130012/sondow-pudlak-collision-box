@@ -500,7 +500,9 @@ digraph CheckedMinProofDependencies {
     stackcountbound -> itemsourceinvariant [label="same two runtime stacks\n同两条运行栈"];
     itemsourceinvariant -> stateexplicitbound [label="discharge every per-item premise in the row budget\n消去单行预算的全部逐项前提"];
     statetableaggregation -> stateexplicitbound [label="instantiate the generic row/table aggregation\n实例化通用行/表汇总引理"];
-    stateexplicitbound -> compactformula [label="largest of twelve trace components closed\n十二轨迹分量中最大一项已闭合"];
+    remainingtracebounds [label="【主终端当前】 Bounds for trace components 1..11\n直接轨迹前十一个分量的位权界\n\n第 12 项 central state tableau 已由前绿色节点闭合。\n\n已完成 7/11：\n1/3/8/9/11 五个数据值分量已闭合；\n2/4 两份 packed-stream trace 已闭合。\n其状态不变量精确记录：真实已解码 token 前缀、\n同一 bit suffix 与只能报告该前缀的 status；\npayload.length+2 行整表位权已显式汇总到 Nat.size(code)。\n所有新端点公理画像仅标准三项或其子集。\n\n当前剩余 4 项：\n5/6/7. proof/certificate/formula 三份共享 parser state trace；\n10. root-field nested direct trace。\n先对共享 parser state 建立 token suffix、task stack 和 status 位权界，\n再一次性实例化三类 fuel 表。\n\n尚未全部闭合，因此本框保持黄色。\nFoundationCompactNumericListedDirectTraceBounds.lean", fillcolor="#fff0c9", color="#b37a12", penwidth=3.2];
+    stateexplicitbound -> remainingtracebounds [label="continue with components 1..11\n继续关闭前十一个分量"];
+    remainingtracebounds -> compactformula [label="sum all twelve honest component bounds\n汇总十二个诚实分量界"];
     predicate -> compactformula [label="same accepted-code target\n同一接受码目标"];
     minmeasure -> compactformula [label="same honest payload cutoff\n同一诚实载荷截断"];
     listedconmeta -> compactformula [label="same finite-consistency target\n同一有限一致性目标"];
