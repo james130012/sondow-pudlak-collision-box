@@ -90,6 +90,45 @@ theorem decodeManyVector_tokens_complete
           hsingle item (by simp [hitem]) hitemTokens) htail
       simp [decodeManyVector, hheadDecode, htailDecode]
 
+theorem decodeManyVector_tokens_complete_of_input_length
+    {alpha : Type*}
+    (decode : List Bool -> Option (alpha × List Bool))
+    (tokensOf : alpha -> List Nat) (fuel : Nat) :
+    forall {count} (items : List.Vector alpha count) {bits suffix},
+      (forall {itemBits itemSuffix} (item : alpha),
+        item ∈ items.toList -> itemBits.length < fuel ->
+          BinaryNatTokensDecode
+              (tokensOf item) itemBits itemSuffix ->
+            decode itemBits = some (item, itemSuffix)) ->
+      bits.length < fuel ->
+      BinaryNatTokensDecode
+          (items.toList.flatMap tokensOf) bits suffix ->
+        decodeManyVector decode count bits = some (items, suffix) := by
+  intro count
+  induction count with
+  | zero =>
+      intro items bits suffix hsingle hbits htokens
+      have hitems : items = List.Vector.nil := Subsingleton.elim _ _
+      subst items
+      simp only [List.Vector.toList_nil, List.flatMap_nil] at htokens
+      cases htokens
+      rfl
+  | succ count ih =>
+      intro items bits suffix hsingle hbits htokens
+      obtain ⟨head, tail, rfl⟩ := List.Vector.exists_eq_cons items
+      simp only [List.Vector.toList_cons, List.flatMap_cons] at htokens
+      obtain ⟨middle, hhead, htail⟩ :=
+        binaryNatTokensDecode_split_append
+          (tokensOf head) (tail.toList.flatMap tokensOf) htokens
+      have hmiddleLength := binaryNatTokensDecode_length hhead
+      have hmiddle : middle.length < fuel := by omega
+      have hheadDecode := hsingle head (by simp) hbits hhead
+      have htailDecode := ih tail
+        (fun item hitem hitemBits hitemTokens =>
+          hsingle item (by simp [hitem]) hitemBits hitemTokens)
+        hmiddle htail
+      simp [decodeManyVector, hheadDecode, htailDecode]
+
 theorem decodeCompactTerm_tokens_sound :
     forall {arity fuel bits suffix term},
       decodeCompactTerm arity fuel bits = some (term, suffix) ->
@@ -305,6 +344,20 @@ theorem decodeCompactTerm_success_iff_tokens
   constructor
   · exact decodeCompactTerm_tokens_sound
   · exact decodeCompactTerm_tokens_complete term fuel hfuel
+
+theorem decodeCompactTerm_tokens_complete_of_input_length
+    {arity fuel : Nat}
+    (term : LO.FirstOrder.ArithmeticSemiterm Nat arity)
+    {bits suffix : List Bool}
+    (hbits : bits.length < fuel)
+    (htokens : BinaryNatTokensDecode
+      (compactArithmeticTermTokens term) bits suffix) :
+    decodeCompactTerm arity fuel bits = some (term, suffix) := by
+  have hcanonical :=
+    binaryNatTokensDecode_canonical_bit_length htokens
+  rw [← binaryTermCode_eq_tokenStream] at hcanonical
+  have hsymbols := termSymbolCount_le_binaryTermCode_length term
+  exact decodeCompactTerm_tokens_complete term fuel (by omega) htokens
 
 theorem decodeCompactFormula_tokens_sound :
     forall {arity fuel bits suffix formula},
@@ -741,11 +794,27 @@ theorem decodeCompactFormula_success_iff_tokens
   · exact decodeCompactFormula_tokens_sound
   · exact decodeCompactFormula_tokens_complete formula fuel hfuel
 
+theorem decodeCompactFormula_tokens_complete_of_input_length
+    {arity fuel : Nat}
+    (formula : LO.FirstOrder.ArithmeticSemiformula Nat arity)
+    {bits suffix : List Bool}
+    (hbits : bits.length < fuel)
+    (htokens : BinaryNatTokensDecode
+      (compactArithmeticFormulaTokens formula) bits suffix) :
+    decodeCompactFormula arity fuel bits = some (formula, suffix) := by
+  have hcanonical :=
+    binaryNatTokensDecode_canonical_bit_length htokens
+  rw [← binaryFormulaCode_eq_tokenStream] at hcanonical
+  have hsymbols := formulaSymbolCount_le_binaryFormulaCode_length formula
+  exact decodeCompactFormula_tokens_complete formula fuel (by omega) htokens
+
 #print axioms decodeCompactTerm_tokens_sound
 #print axioms decodeCompactTerm_tokens_complete
 #print axioms decodeCompactTerm_success_iff_tokens
+#print axioms decodeCompactTerm_tokens_complete_of_input_length
 #print axioms decodeCompactFormula_tokens_sound
 #print axioms decodeCompactFormula_tokens_complete
 #print axioms decodeCompactFormula_success_iff_tokens
+#print axioms decodeCompactFormula_tokens_complete_of_input_length
 
 end FoundationCompactSyntaxBitTokenSynchronization

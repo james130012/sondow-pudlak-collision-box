@@ -1,5 +1,5 @@
 import integration.FoundationCompactBinaryNatStreamMachine
-import integration.FoundationCompactVerifierStructuralBound
+import integration.FoundationCompactCanonicalDecodeLength
 
 /-!
 # Exact synchronization of binary-natural bits and natural tokens
@@ -17,6 +17,7 @@ namespace FoundationCompactBinaryNatStreamSynchronization
 open FoundationSuccinctFiniteConsistencyTarget
 open FoundationCompactBinaryNatStreamMachine
 open FoundationCompactVerifierStructuralBound
+open FoundationCompactCanonicalDecodeLength
 
 /-- `BinaryNatTokensDecode tokens bits suffix` says that repeated uses of the
 actual project decoder read exactly `tokens` from `bits` and leave exactly
@@ -92,6 +93,17 @@ theorem binaryNatTokensDecode_length
   | cons hhead _ ih =>
       have hconsumed := decodeBinaryNat_consumes_two hhead
       simp only [List.length_cons]
+      omega
+
+theorem binaryNatTokensDecode_canonical_bit_length
+    {tokens : List Nat} {bits suffix : List Bool}
+    (hdecode : BinaryNatTokensDecode tokens bits suffix) :
+    (tokens.flatMap binaryNatCode).length + suffix.length <= bits.length := by
+  induction hdecode with
+  | nil => simp
+  | cons hhead _ ih =>
+      have hcanonical := decodeBinaryNat_canonical_length_le hhead
+      simp only [List.flatMap_cons, List.length_append]
       omega
 
 theorem binaryNatTokensDecode_canonical_append
@@ -189,6 +201,7 @@ theorem decodeBinaryNatStream_split_append
 
 #print axioms binaryNatTokensDecode_append_iff
 #print axioms binaryNatTokensDecode_deterministic
+#print axioms binaryNatTokensDecode_canonical_bit_length
 #print axioms decodeBinaryNatStream_success_iff
 #print axioms decodeBinaryNatStream_split_append
 
