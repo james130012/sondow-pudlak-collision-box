@@ -572,6 +572,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     解码器原始递归、`decode(code(trace))=some trace`、编码单射及精确 `Nat.size` 等式全部通过；关键端点
     公理画像仍只有三个 Lean 标准项。尚未闭合的是合法总轨迹位长关于两项公开输入位长的固定多项式界，
     以及 `verifierStep` 内部原子关系的直接算术图。
+69. 同一两模块现已定义诚实结构位权
+    `weight(tokens)=sum (Nat.size(token)+1)`，并证明打包码长精确为 `2*weight+1`。积类型位权严格相加；
+    列表位权严格等于长度头成本加逐元素位权和，且“每项不超过 `B`”可推出总位权不超过
+    `Nat.size(length)+1+length*B`。完整 `DirectTrace` 位权又被精确拆成十二个语义分量：两份 token、
+    两份解包轨迹、三份 parser 轨迹、解析结果包、root、root-field 轨迹、公式值和中央状态表。
+    全部探针无 `sorryAx`，公理画像仅三个 Lean 标准项。当前先证明最大分量中央状态表的逐行位权不变量。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -596,10 +602,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 68 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 69 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
-   直接分派、`rootTrace` 的公开总见证接入，以及整套见证的加法型 token/Nat 无损编码。当前黄色工作面
+   直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
+   列表汇总界及十二分量分解。当前黄色工作面
    是证明该打包见证位长关于公开输入的固定多项式界，并打开验证器单步函数中的剩余原子调用：
 
    ```text

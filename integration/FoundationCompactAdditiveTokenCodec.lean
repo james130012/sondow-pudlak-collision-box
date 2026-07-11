@@ -63,6 +63,33 @@ theorem compactAdditiveDecode_primrec
 def compactAdditiveTokenBitLength (tokens : List Nat) : Nat :=
   (tokens.flatMap binaryNatCode).length
 
+/-- Honest additive weight of a flat token stream.  Each token pays for its
+binary payload and one structural unit. -/
+def compactAdditiveTokenWeight (tokens : List Nat) : Nat :=
+  (tokens.map fun token => Nat.size token + 1).sum
+
+/-- Structural weight of a typed value after flat additive serialization. -/
+def compactAdditiveValueWeight
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (value : α) : Nat :=
+  compactAdditiveTokenWeight (compactAdditiveEncode value)
+
+@[simp] theorem compactAdditiveTokenWeight_nil :
+    compactAdditiveTokenWeight [] = 0 := by
+  rfl
+
+@[simp] theorem compactAdditiveTokenWeight_cons
+    (token : Nat) (tokens : List Nat) :
+    compactAdditiveTokenWeight (token :: tokens) =
+      Nat.size token + 1 + compactAdditiveTokenWeight tokens := by
+  simp [compactAdditiveTokenWeight]
+
+@[simp] theorem compactAdditiveTokenWeight_append
+    (left right : List Nat) :
+    compactAdditiveTokenWeight (left ++ right) =
+      compactAdditiveTokenWeight left + compactAdditiveTokenWeight right := by
+  simp [compactAdditiveTokenWeight, List.map_append]
+
 @[simp] theorem compactAdditiveTokenBitLength_nil :
     compactAdditiveTokenBitLength [] = 0 := by
   simp [compactAdditiveTokenBitLength]
@@ -79,6 +106,17 @@ def compactAdditiveTokenBitLength (tokens : List Nat) : Nat :=
       compactAdditiveTokenBitLength left +
         compactAdditiveTokenBitLength right := by
   simp [compactAdditiveTokenBitLength, List.flatMap_append]
+
+theorem compactAdditiveTokenBitLength_eq_two_mul_weight
+    (tokens : List Nat) :
+    compactAdditiveTokenBitLength tokens =
+      2 * compactAdditiveTokenWeight tokens := by
+  induction tokens with
+  | nil => simp
+  | cons token tokens ih =>
+      simp only [compactAdditiveTokenBitLength_cons,
+        compactAdditiveTokenWeight_cons, ih]
+      omega
 
 def compactNatAdditiveEncode (value : Nat) : List Nat :=
   [value]
@@ -134,6 +172,16 @@ instance compactNatAdditiveTokenCodec : CompactAdditiveTokenCodec Nat where
     compactAdditiveTokenBitLength (compactAdditiveEncode value) =
       2 * Nat.size value + 2 := by
   simp
+
+@[simp] theorem compactAdditiveTokenWeight_encode_nat (value : Nat) :
+    compactAdditiveTokenWeight (compactAdditiveEncode value) =
+      Nat.size value + 1 := by
+  simp
+
+@[simp] theorem compactAdditiveValueWeight_nat (value : Nat) :
+    compactAdditiveValueWeight value = Nat.size value + 1 := by
+  simpa [compactAdditiveValueWeight] using
+    compactAdditiveTokenWeight_encode_nat value
 
 def compactBoolAdditiveEncode (value : Bool) : List Nat :=
   [if value then 1 else 0]
@@ -223,6 +271,15 @@ instance compactBoolAdditiveTokenCodec : CompactAdditiveTokenCodec Bool where
 theorem compactAdditiveTokenBitLength_encode_bool_le (value : Bool) :
     compactAdditiveTokenBitLength (compactAdditiveEncode value) <= 4 := by
   cases value <;> decide
+
+theorem compactAdditiveTokenWeight_encode_bool_le (value : Bool) :
+    compactAdditiveTokenWeight (compactAdditiveEncode value) <= 2 := by
+  cases value <;> decide
+
+theorem compactAdditiveValueWeight_bool_le (value : Bool) :
+    compactAdditiveValueWeight value <= 2 := by
+  simpa [compactAdditiveValueWeight] using
+    compactAdditiveTokenWeight_encode_bool_le value
 
 def compactOptionAdditiveEncode
     {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α] :
@@ -357,6 +414,19 @@ instance compactOptionAdditiveTokenCodec
       4 + compactAdditiveTokenBitLength (compactAdditiveEncode value) := by
   simp
 
+@[simp] theorem compactAdditiveTokenWeight_encode_option_none
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α] :
+    compactAdditiveTokenWeight
+        (compactAdditiveEncode (none : Option α)) = 1 := by
+  simp
+
+@[simp] theorem compactAdditiveTokenWeight_encode_option_some
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (value : α) :
+    compactAdditiveTokenWeight (compactAdditiveEncode (some value)) =
+      2 + compactAdditiveTokenWeight (compactAdditiveEncode value) := by
+  simp
+
 def compactProdAdditiveEncode
     {α β : Type*} [Primcodable α] [Primcodable β]
     [CompactAdditiveTokenCodec α] [CompactAdditiveTokenCodec β]
@@ -458,6 +528,25 @@ instance compactProdAdditiveTokenCodec
       compactAdditiveTokenBitLength (compactAdditiveEncode value.1) +
         compactAdditiveTokenBitLength (compactAdditiveEncode value.2) := by
   simp
+
+@[simp] theorem compactAdditiveTokenWeight_encode_prod
+    {α β : Type*} [Primcodable α] [Primcodable β]
+    [CompactAdditiveTokenCodec α] [CompactAdditiveTokenCodec β]
+    (value : α × β) :
+    compactAdditiveTokenWeight (compactAdditiveEncode value) =
+      compactAdditiveTokenWeight (compactAdditiveEncode value.1) +
+        compactAdditiveTokenWeight (compactAdditiveEncode value.2) := by
+  simp
+
+@[simp] theorem compactAdditiveValueWeight_prod
+    {α β : Type*} [Primcodable α] [Primcodable β]
+    [CompactAdditiveTokenCodec α] [CompactAdditiveTokenCodec β]
+    (value : α × β) :
+    compactAdditiveValueWeight value =
+      compactAdditiveValueWeight value.1 +
+        compactAdditiveValueWeight value.2 := by
+  simpa [compactAdditiveValueWeight] using
+    compactAdditiveTokenWeight_encode_prod value
 
 abbrev CompactAdditiveDecodeManyState (α : Type*) :=
   Option (List α × List Nat)
@@ -649,6 +738,19 @@ theorem compactAdditiveTokenBitLength_flatMap_encode
   | cons value values ih =>
       simp [ih]
 
+theorem compactAdditiveTokenWeight_flatMap_encode
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) :
+    compactAdditiveTokenWeight
+        (values.flatMap compactAdditiveEncode) =
+      (values.map fun value =>
+        compactAdditiveTokenWeight
+          (compactAdditiveEncode value)).sum := by
+  induction values with
+  | nil => simp
+  | cons value values ih =>
+      simp [ih]
+
 @[simp] theorem compactAdditiveTokenBitLength_encode_list
     {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
     (values : List α) :
@@ -658,6 +760,58 @@ theorem compactAdditiveTokenBitLength_flatMap_encode
           compactAdditiveTokenBitLength
             (compactAdditiveEncode value)).sum := by
   simp [compactAdditiveTokenBitLength_flatMap_encode]
+
+@[simp] theorem compactAdditiveTokenWeight_encode_list
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) :
+    compactAdditiveTokenWeight (compactAdditiveEncode values) =
+      Nat.size values.length + 1 +
+        (values.map fun value =>
+          compactAdditiveTokenWeight
+            (compactAdditiveEncode value)).sum := by
+  simp [compactAdditiveTokenWeight_flatMap_encode]
+
+@[simp] theorem compactAdditiveValueWeight_list
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) :
+    compactAdditiveValueWeight values =
+      Nat.size values.length + 1 +
+        (values.map compactAdditiveValueWeight).sum := by
+  change compactAdditiveTokenWeight (compactAdditiveEncode values) = _
+  rw [compactAdditiveTokenWeight_encode_list]
+  rfl
+
+theorem compactAdditiveValueWeight_sum_le
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) (bound : Nat)
+    (hbound : ∀ value ∈ values,
+      compactAdditiveValueWeight value <= bound) :
+    (values.map compactAdditiveValueWeight).sum <=
+      values.length * bound := by
+  induction values with
+  | nil => simp
+  | cons value values ih =>
+      have hvalue : compactAdditiveValueWeight value <= bound :=
+        hbound value (by simp)
+      have htail : ∀ tailValue ∈ values,
+          compactAdditiveValueWeight tailValue <= bound := by
+        intro tailValue hmember
+        exact hbound tailValue (by simp [hmember])
+      have hrest := ih htail
+      simp only [List.map_cons, List.sum_cons, List.length_cons]
+      rw [Nat.succ_mul]
+      omega
+
+theorem compactAdditiveValueWeight_list_le
+    {α : Type*} [Primcodable α] [CompactAdditiveTokenCodec α]
+    (values : List α) (bound : Nat)
+    (hbound : ∀ value ∈ values,
+      compactAdditiveValueWeight value <= bound) :
+    compactAdditiveValueWeight values <=
+      Nat.size values.length + 1 + values.length * bound := by
+  rw [compactAdditiveValueWeight_list]
+  exact Nat.add_le_add_left
+    (compactAdditiveValueWeight_sum_le values bound hbound) _
 
 def compactAdditivePackedBits (tokens : List Nat) : List Bool :=
   tokens.flatMap binaryNatCode
@@ -711,6 +865,12 @@ theorem compactAdditivePackedCode_primrec :
   simp [compactAdditivePackedCode, compactAdditivePackedBits,
     compactAdditiveTokenBitLength]
 
+theorem compactAdditivePackedCode_size_eq_weight (tokens : List Nat) :
+    Nat.size (compactAdditivePackedCode tokens) =
+      2 * compactAdditiveTokenWeight tokens + 1 := by
+  rw [compactAdditivePackedCode_size,
+    compactAdditiveTokenBitLength_eq_two_mul_weight]
+
 theorem compactPackedTokenStream_additivePackedCode
     (tokens : List Nat) :
     compactPackedTokenStream (compactAdditivePackedCode tokens) =
@@ -724,6 +884,8 @@ theorem compactPackedTokenStream_additivePackedCode
 #print axioms compactNatAdditiveEncode_primrec
 #print axioms compactNatAdditiveDecode_primrec
 #print axioms compactAdditiveTokenBitLength_encode_nat
+#print axioms compactAdditiveTokenBitLength_eq_two_mul_weight
+#print axioms compactAdditiveTokenWeight_encode_nat
 #print axioms compactBoolAdditiveDecode_encode_append
 #print axioms compactBoolAdditiveEncode_primrec
 #print axioms compactBoolAdditiveDecode_primrec
@@ -742,10 +904,14 @@ theorem compactPackedTokenStream_additivePackedCode
 #print axioms compactListAdditiveEncode_primrec
 #print axioms compactListAdditiveDecode_primrec
 #print axioms compactAdditiveTokenBitLength_encode_list
+#print axioms compactAdditiveTokenWeight_encode_list
+#print axioms compactAdditiveValueWeight_sum_le
+#print axioms compactAdditiveValueWeight_list_le
 #print axioms binaryNatCode_primrec
 #print axioms packBinaryString_primrec
 #print axioms compactAdditivePackedCode_primrec
 #print axioms compactAdditivePackedCode_size
+#print axioms compactAdditivePackedCode_size_eq_weight
 #print axioms compactPackedTokenStream_additivePackedCode
 
 end FoundationCompactAdditiveTokenCodec

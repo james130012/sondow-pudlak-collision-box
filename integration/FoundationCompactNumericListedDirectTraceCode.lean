@@ -123,6 +123,58 @@ def compactNumericListedDirectTraceTokens
     (trace : CompactNumericListedDirectTrace) : List Nat :=
   compactAdditiveEncode trace
 
+/-- Honest structural weight of the complete direct trace token stream. -/
+def compactNumericListedDirectTraceWeight
+    (trace : CompactNumericListedDirectTrace) : Nat :=
+  compactAdditiveTokenWeight
+    (compactNumericListedDirectTraceTokens trace)
+
+/-- Audit-facing decomposition of the total trace weight into the twelve
+semantic components carried by the public witness. -/
+def compactNumericListedDirectTraceComponentWeight
+    (trace : CompactNumericListedDirectTrace) : Nat :=
+  (compactAdditiveValueWeight
+      (compactNumericDirectTraceCertifiedTokens trace) +
+    compactAdditiveValueWeight
+      (compactNumericDirectTraceCertifiedStreamTrace trace)) +
+  ((compactAdditiveValueWeight
+      (compactNumericDirectTraceFormulaTokens trace) +
+    compactAdditiveValueWeight
+      (compactNumericDirectTraceFormulaStreamTrace trace)) +
+  ((compactAdditiveValueWeight
+      (compactNumericDirectTraceProofParserTrace trace) +
+    (compactAdditiveValueWeight
+      (compactNumericDirectTraceCertificateParserTrace trace) +
+    compactAdditiveValueWeight
+      (compactNumericDirectTraceFormulaParserTrace trace))) +
+  (compactAdditiveValueWeight (compactNumericDirectTraceParts trace) +
+  (compactAdditiveValueWeight (compactNumericDirectTraceRoot trace) +
+  (compactAdditiveValueWeight
+      (compactNumericDirectTraceRootBranchTrace trace) +
+  (compactAdditiveValueWeight
+      (compactNumericDirectTraceFormulaValue trace) +
+    compactAdditiveValueWeight
+      (compactNumericDirectTraceStates trace)))))))
+
+theorem compactNumericListedDirectTraceWeight_eq_components
+    (trace : CompactNumericListedDirectTrace) :
+    compactNumericListedDirectTraceWeight trace =
+      compactNumericListedDirectTraceComponentWeight trace := by
+  change compactAdditiveValueWeight trace = _
+  rw [compactAdditiveValueWeight_prod trace]
+  rw [compactAdditiveValueWeight_prod trace.1]
+  rw [compactAdditiveValueWeight_prod trace.2]
+  rw [compactAdditiveValueWeight_prod trace.2.1]
+  rw [compactAdditiveValueWeight_prod trace.2.2]
+  rw [compactAdditiveValueWeight_prod trace.2.2.1]
+  rw [compactAdditiveValueWeight_prod trace.2.2.1.2]
+  rw [compactAdditiveValueWeight_prod trace.2.2.2]
+  rw [compactAdditiveValueWeight_prod trace.2.2.2.2]
+  rw [compactAdditiveValueWeight_prod trace.2.2.2.2.2]
+  rw [compactAdditiveValueWeight_prod trace.2.2.2.2.2.2]
+  unfold compactNumericListedDirectTraceComponentWeight
+  rfl
+
 def compactNumericListedDirectTraceTokenDecode
     (tokens : List Nat) :
     Option (CompactNumericListedDirectTrace × List Nat) :=
@@ -228,6 +280,14 @@ theorem compactNumericListedDirectTraceCode_size
           (compactNumericListedDirectTraceTokens trace) + 1 := by
   simp [compactNumericListedDirectTraceCode]
 
+theorem compactNumericListedDirectTraceCode_size_eq_weight
+    (trace : CompactNumericListedDirectTrace) :
+    Nat.size (compactNumericListedDirectTraceCode trace) =
+      2 * compactNumericListedDirectTraceWeight trace + 1 := by
+  rw [compactNumericListedDirectTraceCode_size]
+  rw [compactAdditiveTokenBitLength_eq_two_mul_weight]
+  rfl
+
 #print axioms compactNumericListedDirectTraceTokenDecode_encode_append
 #print axioms compactNumericListedDirectTraceTokens_primrec
 #print axioms compactNumericListedDirectTraceTokenDecode_primrec
@@ -236,5 +296,7 @@ theorem compactNumericListedDirectTraceCode_size
 #print axioms compactNumericListedDirectTraceCodeDecode_code
 #print axioms compactNumericListedDirectTraceCode_injective
 #print axioms compactNumericListedDirectTraceCode_size
+#print axioms compactNumericListedDirectTraceWeight_eq_components
+#print axioms compactNumericListedDirectTraceCode_size_eq_weight
 
 end FoundationCompactNumericListedDirectTraceCode
