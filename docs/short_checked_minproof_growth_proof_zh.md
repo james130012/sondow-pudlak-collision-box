@@ -636,6 +636,13 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `Nat.size(tableCode) <= values.length*width`。因此 token/offset 序列表不会借 HFS 编码膨胀；正式探针
     退出码 0，公理画像仅三个 Lean 标准项。下一义务是用两份定宽表逐行拼接第 76 项的 token 段，并强制
     首 offset 为 0、末 offset 为 payload length。
+78. [FoundationCompactNumericListedDirectTokenStreamTableau.lean](../integration/FoundationCompactNumericListedDirectTokenStreamTableau.lean)
+    已关闭 token-stream tableau（记号流计算表）的规范正向构造。手写 `Σ₀/Δ₀` 公式用 token 表和累计
+    offset 表逐行调用第 76 项关系，强制首 offset 为 0、末 offset 为完整 payload length。Lean 对任意真实
+    token 列表逐位证明所有 marker/data/`00` 终止位，并构造两张规范表；其码长分别不超过
+    `count*payloadLength` 与 `(count+1)*payloadLength`。五个正式端点探针退出码 0，公理画像仅三个标准项。
+    当前边界明确保留为反向义务：从任意合法表唯一恢复同一 token 列表，并证明与
+    `compactPackedTokenStream` 对同一 payload 的结果逐点 `iff`；完成前不得把完整 token 流节点标绿。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -804,4 +811,5 @@ lake env lean integration/FoundationCompactNumericListedStateBounds.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceBounds.lean
 lake env lean integration/FoundationCompactNumericListedBoundedTraceCode.lean
 lake env lean integration/FoundationCompactNumericListedDirectArithmeticPrimitives.lean
+lake env lean integration/FoundationCompactNumericListedDirectTokenStreamTableau.lean
 ```
