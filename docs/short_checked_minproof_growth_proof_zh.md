@@ -601,8 +601,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `Nat.size(code)` 预算；十二分量精确等式逐项实例化后得到完整 `traceWeight` 关于
     `Nat.size(code), Nat.size(formulaCode)` 的显式界，并由
     `Nat.size(traceCode)=2*traceWeight+1` 得到打包轨迹码长界。三个总端点公理画像仅三个 Lean 标准项。
-    当前边界已转到 `verifierStep` 及各子轨迹有效性谓词中的剩余整体函数调用：需把它们展开成可局部核验
-    的有界算术图，再直接构造二变量 `Σ₁` 公式；不得退回 `projection/rfind` 表示。
+73. [FoundationCompactNumericListedBoundedTraceCode.lean](../integration/FoundationCompactNumericListedBoundedTraceCode.lean)
+    已把完整 typed trace（类型化轨迹）压成一个确定性 `traceCode : Nat` 证书。解码后直接调用已证明的
+    `DirectTraceValid` 判定器，`CodeValid(code,formulaCode,traceCode)` 已证明为 primitive recursive
+    （原始递归）；并精确证明 `publicVerifier=true` 当且仅当存在满足第 72 项显式 `Nat.size` 界的合法
+    `traceCode`。同一模块又把全部分量界逐层组合，证明 `publicCodeSizeBound` 为二元原始递归函数，进而
+    证明“`Nat.size(traceCode)` 不超过公开界且 `CodeValid`”这一完整 bounded witness（有界见证）为
+    原始递归谓词。该链不使用搜索、`projection` 或 `rfind`，六个关键端点公理画像仅三个 Lean 标准项。
+    当前入口已前移到 `verifierStep` 与各子关系的直接有界算术图和二变量 `Σ₁` 公式。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -627,25 +633,27 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 70 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 73 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
-   列表汇总界、十二分量分解，以及第 12 项中央状态表的显式多项式位权界。当前黄色工作面
-   是对其余十一分量汇总公开输入界，并打开验证器单步函数中的剩余原子调用：
+   列表汇总界、十二分量分解、全部十二分量公开界、总轨迹码长界，以及确定性有界 `traceCode`
+   证书关系；公开码长界函数和完整 size-guard witness（码长守卫见证）的原始递归性也已闭合。
+   当前黄色工作面是打开验证器单步函数中的剩余原子调用并构造直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
      payloadLength(proofCode) <= bound and
-     exists trace, DirectVerifierTrace(proofCode,y,trace).
+     exists traceCode,
+       Nat.size(traceCode) <= publicTraceCodeBound(proofCode,y) and
+       DirectVerifierTraceCode(proofCode,y,traceCode).
    ```
 
-   精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
+   精确 `verifier=true iff exists bounded traceCode.Valid`、中央 `initial/step/final` 检查、packed token stream
    局部检查、全部 outer parser tableau、逐公式子运行、两个结果包装层、完整 root-field 子轨迹及无损
-   自定界自然数编码均已闭合；中央状态表的 fuel、消费前缀、栈数量和逐项位权不变量也已全部闭合。
-   下一步汇总其余十一分量的统一多项式界；同时展开 `verifierStep` 内的原子字段解析和局部语法变换，
-   再直接构造
-   该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
+   自定界自然数编码、全部十二分量界和有界轨迹码双向等价均已闭合。下一步展开 `verifierStep` 内的
+   原子字段解析和局部语法变换，直接构造该关系的二变量 Σ₁ 公式。
+   只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
    且完整证明载荷长度为输入位长的固定多项式。`Decidable`（可判定）、普通 `codeOfREPred` 或逐实例
    `sigma_one_completeness`（Σ₁ 完备性）均不能替代上述两个定量证明。
@@ -765,4 +773,5 @@ lake env lean integration/FoundationCompactAdditiveTokenCodec.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceCode.lean
 lake env lean integration/FoundationCompactNumericListedStateBounds.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceBounds.lean
+lake env lean integration/FoundationCompactNumericListedBoundedTraceCode.lean
 ```
