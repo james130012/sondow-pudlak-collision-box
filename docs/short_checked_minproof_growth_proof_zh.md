@@ -587,12 +587,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     公理画像仅三个 Lean 标准项，无项目公设、无 `sorryAx`。十二分量中最大的第 12 项已闭合；
     下一步只对其余十一分量提取现有轨迹长度界并汇总总码长。
 71. [FoundationCompactNumericListedDirectTraceBounds.lean](../integration/FoundationCompactNumericListedDirectTraceBounds.lean)
-    前十一分量已闭合七项。`certifiedTokens`、`formulaTokens`及与后者相等的
+    前十一分量已闭合八项。`certifiedTokens`、`formulaTokens`及与后者相等的
     `formulaValue` 均由公开码 `Nat.size` 显式控制；`parts/root` 由同一 proof prefix、
     certificate suffix、Gamma 及十标签分派控制。两份 packed-stream trace 又已通过
     “真实已解码 token 前缀 + 同一 bit suffix + 对应 status”全程不变量得到显式整表界。
-    全部总端点公理画像仅三个 Lean 标准项。剩余四项是 proof/certificate/formula 三份
-    parser state trace 及 root-field nested trace；DOT 保持黄色，未提前宣称总位权界闭合。
+    certificate parser trace 已进一步证明每行流为同一输入后缀、任务仅来自真实结构/PA 公理任务，
+    并把任务栈、status、逐行重量及整表 fuel 提升为只依赖 `Nat.size(code)` 的公开界。
+    全部总端点公理画像仅三个 Lean 标准项。剩余三项是 proof/formula 两份 parser state trace
+    及 root-field nested trace；DOT 保持黄色，未提前宣称总位权界闭合。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。

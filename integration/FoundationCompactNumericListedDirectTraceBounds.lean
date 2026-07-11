@@ -33,6 +33,9 @@ open FoundationCompactNumericListedNodeFields
 open FoundationCompactNumericListedRootFieldsDecomposition
 open FoundationCompactNumericListedRootFieldsDirectTrace
 open FoundationCompactNumericSyntaxValueParser
+open FoundationCompactSyntaxTokenMachine
+open FoundationCompactCertificateTokenMachine
+open FoundationCompactCertificateTokenMachineInversion
 
 /-- Honest typed-list weight budget for tokens decoded from a bit stream of
 length at most `bitLength`. -/
@@ -668,6 +671,480 @@ theorem compactNumericListedDirectTrace_formulaStreamTrace_weight_le
   unfold CompactNumericListedDirectTraceValid at hvalid
   exact compactPackedTokenStreamDirectTraceValid_trace_weight_le hvalid.2.1
 
+/-! ## Structural-certificate parser trace -/
+
+def CompactCertificateParserTaskSource
+    (task : CompactCertificateTask) : Prop :=
+  task = compactStructuralCertificateTask ∨
+    task = compactPAAxiomCertificateTask
+
+def CompactCertificateParserStateSourceOf
+    (initialTokens : List Nat) (state : CompactCertificateParserState) : Prop :=
+  state.1 <:+ initialTokens ∧
+    (∀ task ∈ state.2.1, CompactCertificateParserTaskSource task) ∧
+    (state.2.2 = none ∨ state.2.2 = some none ∨
+      state.2.2 = some (some state.1))
+
+theorem compactPAAxiomCertificateTokenParser_suffix
+    {tokens suffix : List Nat}
+    (hparser : compactPAAxiomCertificateTokenParser tokens = some suffix) :
+    suffix <:+ tokens := by
+  obtain ⟨certificate, htokens⟩ :=
+    (FoundationCompactCertificateTokenMachineInversion.compactPAAxiomCertificateTokenParser_success_iff
+      tokens suffix).mp hparser
+  exact ⟨compactPAAxiomCertificateTokens certificate, htokens.symm⟩
+
+theorem compactCertificateParserStateSource_continue
+    {initialTokens tokens : List Nat} {tasks : List CompactCertificateTask}
+    (hstream : tokens <:+ initialTokens)
+    (htasks : ∀ task ∈ tasks, CompactCertificateParserTaskSource task) :
+    CompactCertificateParserStateSourceOf initialTokens
+      (compactSyntaxContinue tokens tasks) := by
+  exact ⟨hstream, htasks, by simp [compactSyntaxContinue]⟩
+
+theorem compactCertificateParserStateSource_failure
+    {initialTokens tokens : List Nat} {tasks : List CompactCertificateTask}
+    (hstream : tokens <:+ initialTokens)
+    (htasks : ∀ task ∈ tasks, CompactCertificateParserTaskSource task) :
+    CompactCertificateParserStateSourceOf initialTokens
+      (compactSyntaxFailure tokens tasks) := by
+  exact ⟨hstream, htasks, by simp [compactSyntaxFailure]⟩
+
+theorem compactStructuralCertificateNodeTokenStep_preserves_source
+    {initialTokens tokens : List Nat} {tasks : List CompactCertificateTask}
+    (hstream : tokens <:+ initialTokens)
+    (htasks : ∀ task ∈ tasks, CompactCertificateParserTaskSource task) :
+    CompactCertificateParserStateSourceOf initialTokens
+      (compactStructuralCertificateNodeTokenStep tokens tasks) := by
+  cases tokens with
+  | nil =>
+      simpa [compactStructuralCertificateNodeTokenStep] using
+        compactCertificateParserStateSource_failure hstream htasks
+  | cons tag suffix =>
+      have hsuffix : suffix <:+ initialTokens :=
+        (List.suffix_cons tag suffix).trans hstream
+      by_cases h0 : tag = 0
+      · simpa [compactStructuralCertificateNodeTokenStep, h0] using
+          compactCertificateParserStateSource_continue hsuffix htasks
+      by_cases h1 : tag = 1
+      · have hnewTasks : ∀ task ∈
+            compactPAAxiomCertificateTask :: tasks,
+            CompactCertificateParserTaskSource task := by
+          intro task htask
+          simp only [List.mem_cons] at htask
+          rcases htask with rfl | htask
+          · exact Or.inr rfl
+          · exact htasks task htask
+        simpa [compactStructuralCertificateNodeTokenStep, h0, h1] using
+          compactCertificateParserStateSource_continue hsuffix hnewTasks
+      by_cases h2 : tag = 2
+      · have hnewTasks : ∀ task ∈
+            compactStructuralCertificateTask :: tasks,
+            CompactCertificateParserTaskSource task := by
+          intro task htask
+          simp only [List.mem_cons] at htask
+          rcases htask with rfl | htask
+          · exact Or.inl rfl
+          · exact htasks task htask
+        simpa [compactStructuralCertificateNodeTokenStep, h0, h1, h2] using
+          compactCertificateParserStateSource_continue hsuffix hnewTasks
+      by_cases h3 : tag = 3
+      · have hnewTasks : ∀ task ∈
+            compactStructuralCertificateTask ::
+              compactStructuralCertificateTask :: tasks,
+            CompactCertificateParserTaskSource task := by
+          intro task htask
+          simp only [List.mem_cons] at htask
+          rcases htask with rfl | htask
+          · exact Or.inl rfl
+          rcases htask with rfl | htask
+          · exact Or.inl rfl
+          · exact htasks task htask
+        simpa [compactStructuralCertificateNodeTokenStep, h0, h1, h2, h3]
+          using compactCertificateParserStateSource_continue hsuffix hnewTasks
+      simpa [compactStructuralCertificateNodeTokenStep, h0, h1, h2, h3]
+        using compactCertificateParserStateSource_failure hstream htasks
+
+theorem compactCertificateAxiomTokenStep_preserves_source
+    {initialTokens tokens : List Nat} {tasks : List CompactCertificateTask}
+    (hstream : tokens <:+ initialTokens)
+    (htasks : ∀ task ∈ tasks, CompactCertificateParserTaskSource task) :
+    CompactCertificateParserStateSourceOf initialTokens
+      (compactCertificateAxiomTokenStep tokens tasks) := by
+  cases hparser : compactPAAxiomCertificateTokenParser tokens with
+  | none =>
+      rw [compactCertificateAxiomTokenStep, hparser]
+      exact compactCertificateParserStateSource_failure hstream htasks
+  | some suffix =>
+      have hsuffix : suffix <:+ initialTokens :=
+        (compactPAAxiomCertificateTokenParser_suffix hparser).trans hstream
+      rw [compactCertificateAxiomTokenStep, hparser]
+      exact compactCertificateParserStateSource_continue hsuffix htasks
+
+theorem compactCertificateParserInitialState_source
+    (tokens : List Nat) :
+    CompactCertificateParserStateSourceOf tokens
+      (compactCertificateParserInitialState tokens) := by
+  refine ⟨List.suffix_refl tokens, ?_, by simp [
+    compactCertificateParserInitialState]⟩
+  intro task htask
+  simp only [compactCertificateParserInitialState, List.mem_cons,
+    List.not_mem_nil, or_false] at htask
+  subst task
+  exact Or.inl rfl
+
+theorem compactCertificateParserStep_preserves_source
+    (initialTokens : List Nat) (state : CompactCertificateParserState)
+    (hsource : CompactCertificateParserStateSourceOf initialTokens state) :
+    CompactCertificateParserStateSourceOf initialTokens
+      (compactCertificateParserStep state) := by
+  rcases state with ⟨tokens, tasks, status⟩
+  rcases hsource with ⟨hstream, htasks, hstatus⟩
+  cases status with
+  | some result =>
+      simpa [compactCertificateParserStep] using
+        (show CompactCertificateParserStateSourceOf initialTokens
+          (tokens, tasks, some result) from ⟨hstream, htasks, hstatus⟩)
+  | none =>
+      cases tasks with
+      | nil =>
+          exact ⟨hstream, by simp,
+            by simp [compactCertificateParserStep,
+              compactCertificateParserRunningStep]⟩
+      | cons task restTasks =>
+          have htask := htasks task (by simp)
+          have hrest : ∀ nextTask ∈ restTasks,
+              CompactCertificateParserTaskSource nextTask := by
+            intro nextTask hnextTask
+            exact htasks nextTask (List.mem_cons_of_mem task hnextTask)
+          rcases htask with hstructural | haxiom
+          · subst task
+            simpa using
+              compactStructuralCertificateNodeTokenStep_preserves_source
+                hstream hrest
+          · subst task
+            simpa using
+              compactCertificateAxiomTokenStep_preserves_source hstream hrest
+
+theorem compactCertificateParser_iterate_preserves_source
+    (initialTokens : List Nat) (stepCount : Nat)
+    (state : CompactCertificateParserState)
+    (hsource : CompactCertificateParserStateSourceOf initialTokens state) :
+    CompactCertificateParserStateSourceOf initialTokens
+      ((compactCertificateParserStep^[stepCount]) state) := by
+  induction stepCount generalizing state with
+  | zero => simpa
+  | succ stepCount ih =>
+      rw [Function.iterate_succ_apply]
+      exact ih _
+        (compactCertificateParserStep_preserves_source
+          initialTokens state hsource)
+
+theorem compactStructuralCertificateNodeTokenStep_task_length_le
+    (tokens : List Nat) (tasks : List CompactCertificateTask) :
+    (compactStructuralCertificateNodeTokenStep tokens tasks).2.1.length <=
+      tasks.length + 2 := by
+  cases tokens with
+  | nil => simp [compactStructuralCertificateNodeTokenStep,
+      compactSyntaxFailure]
+  | cons tag suffix =>
+      by_cases h0 : tag = 0
+      · simp [compactStructuralCertificateNodeTokenStep, h0,
+          compactSyntaxContinue]
+      by_cases h1 : tag = 1
+      · simp [compactStructuralCertificateNodeTokenStep, h0, h1,
+          compactSyntaxContinue]
+      by_cases h2 : tag = 2
+      · simp [compactStructuralCertificateNodeTokenStep, h0, h1, h2,
+          compactSyntaxContinue]
+      by_cases h3 : tag = 3
+      · simp [compactStructuralCertificateNodeTokenStep, h0, h1, h2, h3,
+          compactSyntaxContinue]
+      simp [compactStructuralCertificateNodeTokenStep, h0, h1, h2, h3,
+        compactSyntaxFailure]
+
+theorem compactCertificateParserStep_task_length_le
+    (initialTokens : List Nat) (state : CompactCertificateParserState)
+    (hsource : CompactCertificateParserStateSourceOf initialTokens state) :
+    (compactCertificateParserStep state).2.1.length <=
+      state.2.1.length + 1 := by
+  rcases state with ⟨tokens, tasks, status⟩
+  rcases hsource with ⟨_hstream, htasks, _hstatus⟩
+  cases status with
+  | some result => simp [compactCertificateParserStep]
+  | none =>
+      cases tasks with
+      | nil => simp [compactCertificateParserStep,
+          compactCertificateParserRunningStep]
+      | cons task restTasks =>
+          have htask := htasks task (by simp)
+          rcases htask with hstructural | haxiom
+          · subst task
+            have hnode :=
+              compactStructuralCertificateNodeTokenStep_task_length_le
+                tokens restTasks
+            simpa using hnode
+          · subst task
+            cases hparser : compactPAAxiomCertificateTokenParser tokens <;>
+              simp [compactCertificateParserStep,
+                compactCertificateParserRunningStep,
+                compactCertificateTaskTokenStep,
+                compactPAAxiomCertificateTask,
+                compactCertificateAxiomTokenStep,
+                compactSyntaxFailure, compactSyntaxContinue, hparser] <;>
+              omega
+
+theorem compactCertificateParser_iterate_task_length_le
+    (initialTokens : List Nat) (stepCount : Nat)
+    (state : CompactCertificateParserState)
+    (hsource : CompactCertificateParserStateSourceOf initialTokens state) :
+    ((compactCertificateParserStep^[stepCount]) state).2.1.length <=
+      state.2.1.length + stepCount := by
+  induction stepCount generalizing state with
+  | zero => simp
+  | succ stepCount ih =>
+      rw [Function.iterate_succ_apply]
+      have hstepSource := compactCertificateParserStep_preserves_source
+        initialTokens state hsource
+      have hstepLength := compactCertificateParserStep_task_length_le
+        initialTokens state hsource
+      have htail := ih _ hstepSource
+      omega
+
+theorem compactCertificateParserStateAt_source
+    (tokens : List Nat) (stepIndex : Nat) :
+    CompactCertificateParserStateSourceOf tokens
+      (compactParserStateAt compactCertificateParserStep
+        (compactCertificateParserInitialState tokens) stepIndex) := by
+  unfold compactParserStateAt
+  exact compactCertificateParser_iterate_preserves_source tokens stepIndex _
+    (compactCertificateParserInitialState_source tokens)
+
+theorem compactCertificateParserStateAt_task_length_le
+    (tokens : List Nat) (stepIndex : Nat) :
+    (compactParserStateAt compactCertificateParserStep
+      (compactCertificateParserInitialState tokens) stepIndex).2.1.length <=
+      1 + stepIndex := by
+  unfold compactParserStateAt
+  have hraw := compactCertificateParser_iterate_task_length_le
+    tokens stepIndex (compactCertificateParserInitialState tokens)
+      (compactCertificateParserInitialState_source tokens)
+  simpa [compactCertificateParserInitialState] using hraw
+
+theorem compactCertificateParserLocalTrace_member_source
+    {tokens : List Nat} {fuel : Nat}
+    {states : List CompactUnifiedParserState}
+    (hvalid : CompactParserLocalTraceValid compactCertificateParserStep fuel
+      (compactCertificateParserInitialState tokens) states)
+    {state : CompactUnifiedParserState} (hstate : state ∈ states) :
+    CompactCertificateParserStateSourceOf tokens state := by
+  obtain ⟨stepIndex, hstateAt⟩ := List.mem_iff_getElem?.mp hstate
+  obtain ⟨hstepIndex, _hget⟩ :=
+    List.getElem?_eq_some_iff.mp hstateAt
+  have hle : stepIndex <= fuel := by
+    rw [hvalid.1] at hstepIndex
+    omega
+  have hcanonical := compactParserLocalTraceValid_stateAt hvalid hle
+  unfold compactParserTraceState? at hcanonical
+  rw [hstateAt] at hcanonical
+  have heq : state = compactParserStateAt compactCertificateParserStep
+      (compactCertificateParserInitialState tokens) stepIndex :=
+    Option.some.inj hcanonical
+  rw [heq]
+  exact compactCertificateParserStateAt_source tokens stepIndex
+
+theorem compactCertificateParserLocalTrace_member_task_length_le
+    {tokens : List Nat} {fuel : Nat}
+    {states : List CompactUnifiedParserState}
+    (hvalid : CompactParserLocalTraceValid compactCertificateParserStep fuel
+      (compactCertificateParserInitialState tokens) states)
+    {state : CompactUnifiedParserState} (hstate : state ∈ states) :
+    state.2.1.length <= 1 + fuel := by
+  obtain ⟨stepIndex, hstateAt⟩ := List.mem_iff_getElem?.mp hstate
+  obtain ⟨hstepIndex, _hget⟩ :=
+    List.getElem?_eq_some_iff.mp hstateAt
+  have hle : stepIndex <= fuel := by
+    rw [hvalid.1] at hstepIndex
+    omega
+  have hcanonical := compactParserLocalTraceValid_stateAt hvalid hle
+  unfold compactParserTraceState? at hcanonical
+  rw [hstateAt] at hcanonical
+  have heq : state = compactParserStateAt compactCertificateParserStep
+      (compactCertificateParserInitialState tokens) stepIndex :=
+    Option.some.inj hcanonical
+  rw [heq]
+  have hraw := compactCertificateParserStateAt_task_length_le tokens stepIndex
+  omega
+
+theorem CompactCertificateParserTaskSource.weight_le
+    {task : CompactCertificateTask}
+    (htask : CompactCertificateParserTaskSource task) :
+    compactAdditiveValueWeight task <= 16 := by
+  rcases htask with rfl | rfl <;>
+    norm_num [compactStructuralCertificateTask,
+      compactPAAxiomCertificateTask,
+      compactAdditiveValueWeight_prod,
+      compactAdditiveValueWeight_nat] <;>
+    decide
+
+theorem CompactCertificateParserStateSourceOf.status_weight_le
+    {initialTokens : List Nat} {state : CompactCertificateParserState}
+    (hsource : CompactCertificateParserStateSourceOf initialTokens state) :
+    compactAdditiveValueWeight state.2.2 <=
+      4 + compactAdditiveValueWeight initialTokens := by
+  have hstream := compactAdditiveValueWeight_suffix_le hsource.1
+  rcases hsource.2.2 with hnone | hstatus
+  · rw [hnone]
+    simp
+    omega
+  rcases hstatus with hfailed | hsucceeded
+  · rw [hfailed]
+    simp
+    omega
+  · rw [hsucceeded]
+    simp only [compactAdditiveValueWeight_option_some]
+    omega
+
+def compactNumericCertificateParserStateWeightBound
+    (streamWeight fuel : Nat) : Nat :=
+  streamWeight +
+    (Nat.size (1 + fuel) + 1 + (1 + fuel) * 16) +
+    (4 + streamWeight)
+
+theorem compactNumericCertificateParserStateWeightBound_mono
+    {streamLeft streamRight fuelLeft fuelRight : Nat}
+    (hstream : streamLeft <= streamRight)
+    (hfuel : fuelLeft <= fuelRight) :
+    compactNumericCertificateParserStateWeightBound streamLeft fuelLeft <=
+      compactNumericCertificateParserStateWeightBound streamRight fuelRight := by
+  have hfuelAdd : 1 + fuelLeft <= 1 + fuelRight := by omega
+  have hfuelSize := Nat.size_le_size hfuelAdd
+  have hfuelTasks := Nat.mul_le_mul_right 16 hfuelAdd
+  unfold compactNumericCertificateParserStateWeightBound
+  omega
+
+theorem compactCertificateParserLocalTrace_member_state_weight_le
+    {tokens : List Nat} {fuel : Nat}
+    {states : List CompactUnifiedParserState}
+    (hvalid : CompactParserLocalTraceValid compactCertificateParserStep fuel
+      (compactCertificateParserInitialState tokens) states)
+    {state : CompactUnifiedParserState} (hstate : state ∈ states) :
+    compactAdditiveValueWeight state <=
+      compactNumericCertificateParserStateWeightBound
+        (compactAdditiveValueWeight tokens) fuel := by
+  have hsource :=
+    compactCertificateParserLocalTrace_member_source hvalid hstate
+  have hstream := compactAdditiveValueWeight_suffix_le hsource.1
+  have htaskLength :=
+    compactCertificateParserLocalTrace_member_task_length_le hvalid hstate
+  have htasksRaw := compactAdditiveValueWeight_list_le state.2.1 16
+    (fun task htask =>
+      (hsource.2.1 task htask).weight_le)
+  have htaskSize := Nat.size_le_size htaskLength
+  have htaskProduct := Nat.mul_le_mul_right 16 htaskLength
+  have htasks : compactAdditiveValueWeight state.2.1 <=
+      Nat.size (1 + fuel) + 1 + (1 + fuel) * 16 := by
+    omega
+  have hstatus := hsource.status_weight_le
+  rw [compactAdditiveValueWeight_prod,
+    compactAdditiveValueWeight_prod]
+  unfold compactNumericCertificateParserStateWeightBound
+  omega
+
+def compactNumericCertificateParserTraceWeightBound
+    (streamWeight fuel : Nat) : Nat :=
+  Nat.size (fuel + 1) + 1 +
+    (fuel + 1) *
+      compactNumericCertificateParserStateWeightBound streamWeight fuel
+
+theorem compactNumericCertificateParserTraceWeightBound_mono
+    {streamLeft streamRight fuelLeft fuelRight : Nat}
+    (hstream : streamLeft <= streamRight)
+    (hfuel : fuelLeft <= fuelRight) :
+    compactNumericCertificateParserTraceWeightBound streamLeft fuelLeft <=
+      compactNumericCertificateParserTraceWeightBound streamRight fuelRight := by
+  have hfuelAdd : fuelLeft + 1 <= fuelRight + 1 := by omega
+  have hfuelSize := Nat.size_le_size hfuelAdd
+  have hstate := compactNumericCertificateParserStateWeightBound_mono
+    hstream hfuel
+  have htable := Nat.mul_le_mul hfuelAdd hstate
+  unfold compactNumericCertificateParserTraceWeightBound
+  omega
+
+def compactNumericCertificateParserFuelWeightBound
+    (streamWeight : Nat) : Nat :=
+  16 * (streamWeight + 1) * (streamWeight + 1) + 8
+
+theorem compactCertificateParserFuelBound_le_weightBound
+    {tokens : List Nat} {streamWeight : Nat}
+    (hweight : compactAdditiveValueWeight tokens <= streamWeight) :
+    compactCertificateParserFuelBound tokens <=
+      compactNumericCertificateParserFuelWeightBound streamWeight := by
+  have hlength := compactAdditiveValueWeight_natList_length_le tokens
+  have hlengthWeight : tokens.length + 1 <= streamWeight + 1 := by omega
+  have hscaled := Nat.mul_le_mul_left 16 hlengthWeight
+  have hquadratic := Nat.mul_le_mul hscaled hlengthWeight
+  unfold compactCertificateParserFuelBound
+    compactNumericCertificateParserFuelWeightBound
+  omega
+
+def compactNumericCertificateParserPublicTraceWeightBound
+    (bitLength : Nat) : Nat :=
+  let streamWeight := compactNumericDecodedTokenListWeightBound bitLength
+  compactNumericCertificateParserTraceWeightBound streamWeight
+    (compactNumericCertificateParserFuelWeightBound streamWeight)
+
+theorem compactCertificateTokenParserDirectTraceValid_weight_le
+    {tokens suffix : List Nat}
+    {states : CompactCertificateTokenParserDirectTrace}
+    (hvalid : CompactCertificateTokenParserDirectTraceValid
+      tokens suffix states) :
+    compactAdditiveValueWeight states <=
+      compactNumericCertificateParserTraceWeightBound
+        (compactAdditiveValueWeight tokens)
+        (compactCertificateParserFuelBound tokens) := by
+  have hlocal := hvalid.1
+  have hrows := compactAdditiveValueWeight_list_le states
+    (compactNumericCertificateParserStateWeightBound
+      (compactAdditiveValueWeight tokens)
+      (compactCertificateParserFuelBound tokens))
+    (fun state hstate =>
+      compactCertificateParserLocalTrace_member_state_weight_le
+        hlocal hstate)
+  unfold compactNumericCertificateParserTraceWeightBound
+  rw [hlocal.1] at hrows
+  exact hrows
+
+theorem compactNumericListedDirectTrace_certificateParserTrace_weight_le
+    {code formulaCode : Nat} {trace : CompactNumericListedDirectTrace}
+    (hvalid : CompactNumericListedDirectTraceValid code formulaCode trace) :
+    compactAdditiveValueWeight
+        (compactNumericDirectTraceCertificateParserTrace trace) <=
+      compactNumericCertificateParserPublicTraceWeightBound
+        (Nat.size code) := by
+  have hfull := hvalid
+  unfold CompactNumericListedDirectTraceValid at hfull
+  have hparser : CompactCertificateTokenParserDirectTraceValid
+      (compactNumericDirectTraceParts trace).2.1 []
+      (compactNumericDirectTraceCertificateParserTrace trace) :=
+    hfull.2.2.2.1
+  have hraw :=
+    compactCertificateTokenParserDirectTraceValid_weight_le hparser
+  have hcertificateCurrent :=
+    (compactNumericListedDirectTrace_parts_components_weight_le hvalid).2.1
+  have hcertified :=
+    compactNumericListedDirectTrace_certifiedTokens_weight_le hvalid
+  have hcertificate :
+      compactAdditiveValueWeight
+          (compactNumericDirectTraceParts trace).2.1 <=
+        compactNumericDecodedTokenListWeightBound (Nat.size code) :=
+    hcertificateCurrent.trans hcertified
+  have hfuel := compactCertificateParserFuelBound_le_weightBound hcertificate
+  unfold compactNumericCertificateParserPublicTraceWeightBound
+  exact hraw.trans
+    (compactNumericCertificateParserTraceWeightBound_mono
+      hcertificate hfuel)
+
 #print axioms compactAdditiveValueWeight_natList_le_of_decodeBinaryNatStream
 #print axioms compactPackedTokenStreamDirectTraceValid_token_weight_le
 #print axioms compactNumericListedDirectTrace_certifiedTokens_weight_le
@@ -679,5 +1156,10 @@ theorem compactNumericListedDirectTrace_formulaStreamTrace_weight_le
 #print axioms compactPackedTokenStreamDirectTraceValid_trace_weight_le
 #print axioms compactNumericListedDirectTrace_certifiedStreamTrace_weight_le
 #print axioms compactNumericListedDirectTrace_formulaStreamTrace_weight_le
+#print axioms compactPAAxiomCertificateTokenParser_suffix
+#print axioms compactCertificateParserLocalTrace_member_source
+#print axioms compactCertificateParserLocalTrace_member_state_weight_le
+#print axioms compactCertificateTokenParserDirectTraceValid_weight_le
+#print axioms compactNumericListedDirectTrace_certificateParserTrace_weight_le
 
 end FoundationCompactNumericListedDirectTraceBounds
