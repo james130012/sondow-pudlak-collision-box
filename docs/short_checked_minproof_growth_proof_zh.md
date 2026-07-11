@@ -478,6 +478,22 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     当前边界缩小为组件内部：packed payload、binary-Nat token stream、proof/certificate/formula parser
     和局部语法变换仍以精确函数等式核对结果，尚未统一携带内部状态子轨迹；全部状态与子轨迹也尚未给出
     面向最终算术公式的显式自然数编码和多项式位长界。
+61. [FoundationCompactPackedTokenStreamDirectTrace.lean](../integration/FoundationCompactPackedTokenStreamDirectTrace.lean)
+    已关闭两个公开输入最外层的 packed/token 子轨迹。见证记录 sentinel（哨兵位）剥离后的真实 payload，
+    并用 `BinaryNatStreamLocalTraceValid` 逐行检查精确行数、初态和每个 `binaryNatStreamStep`；规范流轨迹
+    满足局部表，任意合法局部表恢复同一有界运行，最终状态输出严格等于目标 token 列表。Lean 已证明：
+
+    ```text
+    compactPackedTokenStream(code) = some tokens
+      iff exists trace, CompactPackedTokenStreamDirectTraceValid(code,tokens,trace).
+    ```
+
+    proof code（证明码）和 formula code（公式码）的两份子轨迹均已接入第 59 项总见证，总见证不再直接
+    以 `compactPackedTokenStream = some ...` 作为黑箱结果条件。新子模块目标构建及总见证探针均退出 0，
+    公理画像仍只有三个 Lean 标准项。
+
+    当前组件边界继续缩小到 proof/certificate/formula parser（证明/证书/公式解析器）和局部语法变换；
+    这些组件仍待内部子轨迹、总见证组合、显式自然数序列化和多项式位长界。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -502,7 +518,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59、60 项现已关闭非最小化外部轨迹语义和中央任务机局部计算表。当前黄色工作面是补齐组件子轨迹
+   第 59 至 61 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表和两个公开 packed 输入子轨迹。
+   当前黄色工作面是继续补齐解析器组件子轨迹
    并把整套见证显式编码成局部可核验算术公式：
 
    ```text
@@ -511,8 +528,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
      exists trace, DirectVerifierTrace(proofCode,y,trace).
    ```
 
-   精确 `verifier=true iff exists trace.Valid` 及中央 `initial/step/final` 局部检查已闭合。下一步必须为
-   packed 解析、公式解析和局部语法变换补齐内部子轨迹；随后给所有状态与子轨迹显式自然数编码，证明
+   精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查和 packed token stream
+   局部检查已闭合。下一步必须为 proof/certificate/formula parser 和局部语法变换补齐内部子轨迹；
+   随后给所有状态与子轨迹显式自然数编码，证明
    编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，

@@ -1,4 +1,5 @@
 import integration.FoundationCompactNumericListedPublicVerifier
+import integration.FoundationCompactPackedTokenStreamDirectTrace
 import Mathlib.Computability.Primrec.List
 
 /-!
@@ -26,6 +27,7 @@ open FoundationCompactListedPackedBitTokenSynchronization
 open FoundationCompactNumericFormulaListChecks
 open FoundationCompactNumericListedTaskMachine
 open FoundationCompactNumericListedPublicVerifier
+open FoundationCompactPackedTokenStreamDirectTrace
 
 /-- State reached after exactly `stepIndex` transitions. -/
 def compactNumericVerifierStateAt
@@ -311,18 +313,28 @@ theorem compactNumericVerifierLocalTraceValid_primrec :
 
 /-- All data needed to audit one accepting public-verifier run. -/
 abbrev CompactNumericListedDirectTrace :=
-  List Nat ×
-    (List Nat ×
+  (List Nat × CompactPackedTokenStreamDirectTrace) ×
+    ((List Nat × CompactPackedTokenStreamDirectTrace) ×
       (CompactNumericCertifiedParts ×
         (List Nat × List CompactNumericVerifierState)))
 
 def compactNumericDirectTraceCertifiedTokens
     (trace : CompactNumericListedDirectTrace) : List Nat :=
-  trace.1
+  trace.1.1
+
+def compactNumericDirectTraceCertifiedStreamTrace
+    (trace : CompactNumericListedDirectTrace) :
+    CompactPackedTokenStreamDirectTrace :=
+  trace.1.2
 
 def compactNumericDirectTraceFormulaTokens
     (trace : CompactNumericListedDirectTrace) : List Nat :=
-  trace.2.1
+  trace.2.1.1
+
+def compactNumericDirectTraceFormulaStreamTrace
+    (trace : CompactNumericListedDirectTrace) :
+    CompactPackedTokenStreamDirectTrace :=
+  trace.2.1.2
 
 def compactNumericDirectTraceParts
     (trace : CompactNumericListedDirectTrace) :
@@ -349,19 +361,35 @@ theorem compactNumericVerifierStateResult_primrec :
       (Primrec.const false)).of_eq fun state => by
         rfl
 
+def compactNumericVerifierStateResultOption
+    (state : Option CompactNumericVerifierState) : Option Bool :=
+  state.map compactNumericVerifierStateResult
+
+theorem compactNumericVerifierStateResultOption_primrec :
+    Primrec compactNumericVerifierStateResultOption := by
+  refine (Primrec.option_map Primrec.id ?_).of_eq fun state => by rfl
+  apply Primrec₂.mk
+  exact compactNumericVerifierStateResult_primrec.comp Primrec.snd
+
 /-- Direct acceptance witness for the exact two-input public verifier. -/
 def CompactNumericListedDirectTraceValid
     (code formulaCode : Nat)
     (trace : CompactNumericListedDirectTrace) : Prop :=
   let certifiedTokens := compactNumericDirectTraceCertifiedTokens trace
+  let certifiedStreamTrace :=
+    compactNumericDirectTraceCertifiedStreamTrace trace
   let formulaTokens := compactNumericDirectTraceFormulaTokens trace
+  let formulaStreamTrace :=
+    compactNumericDirectTraceFormulaStreamTrace trace
   let parts := compactNumericDirectTraceParts trace
   let formulaValue := compactNumericDirectTraceFormulaValue trace
   let states := compactNumericDirectTraceStates trace
   let fuel := compactNumericVerifierFuelBound parts.1 parts.2.1
   let start := compactNumericVerifierInitialState parts.1 parts.2.1
-  compactPackedTokenStream code = some certifiedTokens ∧
-    compactPackedTokenStream formulaCode = some formulaTokens ∧
+  CompactPackedTokenStreamDirectTraceValid
+      code certifiedTokens certifiedStreamTrace ∧
+    CompactPackedTokenStreamDirectTraceValid
+      formulaCode formulaTokens formulaStreamTrace ∧
     compactNumericCertifiedPartsParser certifiedTokens = some parts ∧
     compactNumericWholeFormulaValue formulaTokens = some formulaValue ∧
     CompactNumericVerifierLocalTraceValid fuel start states ∧
@@ -382,25 +410,33 @@ theorem compactNumericListedDirectTraceValid_primrec :
     Primrec.snd.comp Primrec.fst
   have htrace : Primrec (fun input : Input => input.2) :=
     Primrec.snd
+  have hcertifiedGroup : Primrec (fun input : Input => input.2.1) :=
+    Primrec.fst.comp htrace
   have hcertifiedTokens : Primrec (fun input : Input =>
       compactNumericDirectTraceCertifiedTokens input.2) :=
-    Primrec.fst.comp htrace
+    Primrec.fst.comp hcertifiedGroup
+  have hcertifiedStreamTrace : Primrec (fun input : Input =>
+      compactNumericDirectTraceCertifiedStreamTrace input.2) :=
+    Primrec.snd.comp hcertifiedGroup
+  have hformulaGroup : Primrec (fun input : Input => input.2.2.1) :=
+    Primrec.fst.comp (Primrec.snd.comp htrace)
   have hformulaTokens : Primrec (fun input : Input =>
       compactNumericDirectTraceFormulaTokens input.2) :=
-    Primrec.fst.comp (Primrec.snd.comp htrace)
+    Primrec.fst.comp hformulaGroup
+  have hformulaStreamTrace : Primrec (fun input : Input =>
+      compactNumericDirectTraceFormulaStreamTrace input.2) :=
+    Primrec.snd.comp hformulaGroup
+  have hparsedGroup : Primrec (fun input : Input => input.2.2.2) :=
+    Primrec.snd.comp (Primrec.snd.comp htrace)
   have hparts : Primrec (fun input : Input =>
       compactNumericDirectTraceParts input.2) :=
-    Primrec.fst.comp (Primrec.snd.comp (Primrec.snd.comp htrace))
+    Primrec.fst.comp hparsedGroup
   have hformulaValue : Primrec (fun input : Input =>
       compactNumericDirectTraceFormulaValue input.2) :=
-    Primrec.fst.comp
-      (Primrec.snd.comp
-        (Primrec.snd.comp (Primrec.snd.comp htrace)))
+    Primrec.fst.comp (Primrec.snd.comp hparsedGroup)
   have hstates : Primrec (fun input : Input =>
       compactNumericDirectTraceStates input.2) :=
-    Primrec.snd.comp
-      (Primrec.snd.comp
-        (Primrec.snd.comp (Primrec.snd.comp htrace)))
+    Primrec.snd.comp (Primrec.snd.comp hparsedGroup)
   have hproofTokens : Primrec (fun input : Input =>
       (compactNumericDirectTraceParts input.2).1) :=
     Primrec.fst.comp hparts
@@ -423,17 +459,21 @@ theorem compactNumericListedDirectTraceValid_primrec :
     compactNumericVerifierInitialState_primrec.comp
       hproofTokens hcertificateTokens
   have hcodeStream : PrimrecPred (fun input : Input =>
-      compactPackedTokenStream input.1.1 =
-        some (compactNumericDirectTraceCertifiedTokens input.2)) :=
-    Primrec.eq.comp
-      (compactPackedTokenStream_primrec.comp hcode)
-      (Primrec.option_some.comp hcertifiedTokens)
+      CompactPackedTokenStreamDirectTraceValid input.1.1
+        (compactNumericDirectTraceCertifiedTokens input.2)
+        (compactNumericDirectTraceCertifiedStreamTrace input.2)) :=
+    compactPackedTokenStreamDirectTraceValid_primrec.comp <|
+      Primrec.pair
+        (Primrec.pair hcode hcertifiedTokens)
+        hcertifiedStreamTrace
   have hformulaStream : PrimrecPred (fun input : Input =>
-      compactPackedTokenStream input.1.2 =
-        some (compactNumericDirectTraceFormulaTokens input.2)) :=
-    Primrec.eq.comp
-      (compactPackedTokenStream_primrec.comp hformulaCode)
-      (Primrec.option_some.comp hformulaTokens)
+      CompactPackedTokenStreamDirectTraceValid input.1.2
+        (compactNumericDirectTraceFormulaTokens input.2)
+        (compactNumericDirectTraceFormulaStreamTrace input.2)) :=
+    compactPackedTokenStreamDirectTraceValid_primrec.comp <|
+      Primrec.pair
+        (Primrec.pair hformulaCode hformulaTokens)
+        hformulaStreamTrace
   have hpartsParse : PrimrecPred (fun input : Input =>
       compactNumericCertifiedPartsParser
           (compactNumericDirectTraceCertifiedTokens input.2) =
@@ -473,8 +513,7 @@ theorem compactNumericListedDirectTraceValid_primrec :
           (compactNumericDirectTraceParts input.2).1
           (compactNumericDirectTraceParts input.2).2.1)).map
             compactNumericVerifierStateResult) :=
-    Primrec.option_map hfinalState
-      (compactNumericVerifierStateResult_primrec.comp Primrec₂.right)
+    compactNumericVerifierStateResultOption_primrec.comp hfinalState
   have hfinal : PrimrecPred (fun input : Input =>
       (compactNumericTraceState?
         (compactNumericDirectTraceStates input.2)
@@ -544,6 +583,14 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                       compactNumericParsedStreamsCheck,
                       hcertified, hformula, hparts, hformulaValue] at haccept
                 | some formulaValue =>
+                    obtain ⟨certifiedStreamTrace,
+                        hcertifiedStreamTrace⟩ :=
+                      (compactPackedTokenStream_eq_some_iff_exists_directTrace
+                        code certifiedTokens).mp hcertified
+                    obtain ⟨formulaStreamTrace,
+                        hformulaStreamTrace⟩ :=
+                      (compactPackedTokenStream_eq_some_iff_exists_directTrace
+                        formulaCode formulaTokens).mp hformula
                     let fuel :=
                       compactNumericVerifierFuelBound parts.1 parts.2.1
                     let start :=
@@ -575,15 +622,19 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                         compactNumericFormulaPayloadMatches
                             formulaCode formulaValue = true :=
                       hlocalParts.2.2
-                    refine ⟨(certifiedTokens,
-                      (formulaTokens, (parts, (formulaValue, states)))), ?_⟩
+                    refine ⟨((certifiedTokens, certifiedStreamTrace),
+                      ((formulaTokens, formulaStreamTrace),
+                        (parts, (formulaValue, states)))), ?_⟩
                     simp only [CompactNumericListedDirectTraceValid,
                       compactNumericDirectTraceCertifiedTokens,
+                      compactNumericDirectTraceCertifiedStreamTrace,
                       compactNumericDirectTraceFormulaTokens,
+                      compactNumericDirectTraceFormulaStreamTrace,
                       compactNumericDirectTraceParts,
                       compactNumericDirectTraceFormulaValue,
                       compactNumericDirectTraceStates]
-                    refine ⟨hcertified, hformula, hparts, hformulaValue,
+                    refine ⟨hcertifiedStreamTrace, hformulaStreamTrace,
+                      hparts, hformulaValue,
                       compactNumericVerifierStateTrace_localValid fuel start,
                       ?_, hconclusion, hpayload⟩
                     change
@@ -597,15 +648,21 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                       compactNumericVerifierRun] using hmachine
   · rintro ⟨trace, htrace⟩
     let certifiedTokens := compactNumericDirectTraceCertifiedTokens trace
+    let certifiedStreamTrace :=
+      compactNumericDirectTraceCertifiedStreamTrace trace
     let formulaTokens := compactNumericDirectTraceFormulaTokens trace
+    let formulaStreamTrace :=
+      compactNumericDirectTraceFormulaStreamTrace trace
     let parts := compactNumericDirectTraceParts trace
     let formulaValue := compactNumericDirectTraceFormulaValue trace
     let states := compactNumericDirectTraceStates trace
     let fuel := compactNumericVerifierFuelBound parts.1 parts.2.1
     let start := compactNumericVerifierInitialState parts.1 parts.2.1
     change
-      compactPackedTokenStream code = some certifiedTokens ∧
-        compactPackedTokenStream formulaCode = some formulaTokens ∧
+      CompactPackedTokenStreamDirectTraceValid
+          code certifiedTokens certifiedStreamTrace ∧
+        CompactPackedTokenStreamDirectTraceValid
+          formulaCode formulaTokens formulaStreamTrace ∧
         compactNumericCertifiedPartsParser certifiedTokens = some parts ∧
         compactNumericWholeFormulaValue formulaTokens = some formulaValue ∧
         CompactNumericVerifierLocalTraceValid fuel start states ∧
@@ -614,8 +671,18 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
         tokenFormulaSetEq parts.2.2 [formulaValue] = true ∧
         compactNumericFormulaPayloadMatches formulaCode formulaValue = true
       at htrace
-    rcases htrace with ⟨hcertified, hformula, hparts, hformulaValue,
+    rcases htrace with ⟨hcertifiedStreamTrace, hformulaStreamTrace,
+      hparts, hformulaValue,
       hstates, hfinal, hconclusion, hpayload⟩
+    have hcertified : compactPackedTokenStream code = some certifiedTokens :=
+      (compactPackedTokenStream_eq_some_iff_exists_directTrace
+        code certifiedTokens).mpr ⟨certifiedStreamTrace,
+          hcertifiedStreamTrace⟩
+    have hformula :
+        compactPackedTokenStream formulaCode = some formulaTokens :=
+      (compactPackedTokenStream_eq_some_iff_exists_directTrace
+        formulaCode formulaTokens).mpr ⟨formulaStreamTrace,
+          hformulaStreamTrace⟩
     have hstatesEq : states =
         compactNumericVerifierStateTrace fuel start :=
       compactNumericVerifierLocalTraceValid_eq_canonical hstates
@@ -650,6 +717,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
 #print axioms compactNumericVerifierTraceInitialValid_primrec
 #print axioms compactNumericVerifierLocalTraceValid_primrec
 #print axioms compactNumericVerifierTraceValid_primrec
+#print axioms compactNumericVerifierStateResultOption_primrec
 #print axioms compactNumericListedDirectTraceValid_primrec
 #print axioms compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
 
