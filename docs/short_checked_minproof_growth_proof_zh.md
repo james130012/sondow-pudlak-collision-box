@@ -439,6 +439,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `compactNumericListedPublicVerifier_pointwise` 证明新数值验证器与原公开验证器在每个
     `code/formulaCode` 上结果相等。两个模块的定向探针和目标构建均通过，禁用项扫描为空，端点公理画像
     只有 `propext`、`Classical.choice`、`Quot.sound`。
+58. [FoundationCompactNumericListedProofPredicate.lean](../integration/FoundationCompactNumericListedProofPredicate.lean)
+    已在同一完整载荷坐标上定义 `CompactListedPAProofPredicate(bound, formulaCode)`：存在载荷长度不超过
+    `bound` 的 `code`，且第 57 项数值验证器返回 `true`。Lean 已证明其 witness relation（见证关系）
+    原始递归、该谓词递归可枚举，并构造真实二变量 Σ₁ 算术公式。公式标准模型语义逐点等价于该谓词；
+    以同一 `compactListedFalsumCode` 否定后，标准模型语义精确等价于
+    `ListedCertifiedFiniteConsistencyAt(bound)`。短二进制数词实例符号数不超过固定公式常数乘
+    `6*Nat.size(bound)+6*Nat.size(formulaCode)+2`。目标构建通过，禁用项扫描为空，端点公理画像仅有
+    三个 Lean 标准公理。这里的 `codeOfREPred` 只关闭定性算术表示，不替代下一步的定量 PA 接受轨迹。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -460,10 +468,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    完整句及规范输入上的相等判定，第 54 项已合并全部 23 标签，并利用任意证书输入反演定理
    排除畸形 token 与垃圾尾部，第 55 项已闭合十条规则的全部纯数值局部合并器，第 56 项已闭合
    两侧根节点字段解析并精确保留子流，第 57 项现已闭合有限任务栈、显式燃料、全部拒绝路径和完整
-   公开验证器逐点结果等式。当前工作面因此前移到同一数值机器图的算术化：构造二变量
-   `CompactProof(x,y)`，证明其标准模型语义逐点等价于第 57 项验证器，并用同一 payload cutoff
-   （载荷截断）定义 `Con_PA^compact(k)`。随后还须构造 PA 内部接受计算短证明；
-   `Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
+   公开验证器逐点结果等式，第 58 项又闭合了同一有界谓词、Σ₁ 公式、有限一致性句及二进制实例大小界。
+   当前工作面是对第 58 项的**同一个公式**构造 PA 内部接受计算短证明：真实 accepted run（接受运行）
+   必须产生真实 `Derivation2`，并有统一多项式完整载荷界。`Decidable`（可判定）、可执行、普通
+   `codeOfREPred` 或逐实例 `sigma_one_completeness`（Σ₁ 完备性）均不能代替该定量证明。
 
    第 38 项已证明限制到 canonical accepted codes（规范接受码）不改变精确最短长度，消除了畸形码风险。
    总成本闭合后仍必须新增真正的二变量算术公式 `CompactProof(x,y)`，其标准模型语义逐点精确等价于
@@ -573,4 +581,5 @@ lake env lean integration/FoundationCompactNumericListedRuleChecks.lean
 lake env lean integration/FoundationCompactNumericListedNodeFields.lean
 lake env lean integration/FoundationCompactNumericListedTaskMachine.lean
 lake env lean integration/FoundationCompactNumericListedPublicVerifier.lean
+lake env lean integration/FoundationCompactNumericListedProofPredicate.lean
 ```
