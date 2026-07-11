@@ -1,6 +1,7 @@
 import integration.FoundationCompactProofTokenMachine
 import integration.FoundationCompactCertificateTokenMachine
 import integration.FoundationCompactNumericSyntaxValueParser
+import integration.FoundationCompactClosedFormulaTokenMachine
 import Mathlib.Computability.Primrec.List
 
 /-!
@@ -18,6 +19,7 @@ open FoundationCompactSyntaxTokenMachine
 open FoundationCompactProofTokenMachine
 open FoundationCompactCertificateTokenMachine
 open FoundationCompactNumericSyntaxValueParser
+open FoundationCompactClosedFormulaTokenMachine
 
 abbrev CompactUnifiedParserState := CompactSyntaxParserState
 
@@ -509,6 +511,117 @@ theorem compactFormulaTokenParser_eq_some_iff_exists_directTrace
         compactSyntaxParserStep (compactSyntaxRunFuelBound tokens)
         (compactFormulaParserInitialState binderArity tokens) (some suffix)
 
+abbrev CompactTermTokenParserDirectTrace :=
+  List CompactUnifiedParserState
+
+def CompactTermTokenParserDirectTraceValid
+    (binderArity : Nat) (tokens suffix : List Nat)
+    (states : CompactTermTokenParserDirectTrace) : Prop :=
+  CompactParserOutputLocalTraceValid compactSyntaxParserStep
+    (compactSyntaxRunFuelBound tokens)
+    (compactTermParserInitialState binderArity tokens)
+    (some suffix) states
+
+theorem compactTermTokenParserDirectTraceValid_primrec :
+    PrimrecPred (fun input :
+        ((Nat × List Nat) × List Nat) ×
+          CompactTermTokenParserDirectTrace =>
+      CompactTermTokenParserDirectTraceValid
+        input.1.1.1 input.1.1.2 input.1.2 input.2) := by
+  let Input :=
+    ((Nat × List Nat) × List Nat) ×
+      CompactTermTokenParserDirectTrace
+  have hbinder : Primrec (fun input : Input => input.1.1.1) :=
+    Primrec.fst.comp (Primrec.fst.comp Primrec.fst)
+  have htokens : Primrec (fun input : Input => input.1.1.2) :=
+    Primrec.snd.comp (Primrec.fst.comp Primrec.fst)
+  have hsuffix : Primrec (fun input : Input => input.1.2) :=
+    Primrec.snd.comp Primrec.fst
+  have hstates : Primrec (fun input : Input => input.2) :=
+    Primrec.snd
+  have hfuel : Primrec (fun input : Input =>
+      compactSyntaxRunFuelBound input.1.1.2) :=
+    compactSyntaxRunFuelBound_primrec.comp htokens
+  have hstart : Primrec (fun input : Input =>
+      compactTermParserInitialState input.1.1.1 input.1.1.2) :=
+    compactTermParserInitialState_primrec.comp hbinder htokens
+  have hexpected : Primrec (fun input : Input => some input.1.2) :=
+    Primrec.option_some.comp hsuffix
+  exact
+    ((compactParserOutputLocalTraceValid_primrec
+      compactSyntaxParserStep_primrec).comp <|
+        Primrec.pair (Primrec.pair hfuel hstart)
+          (Primrec.pair hexpected hstates)).of_eq fun input => by
+            simp only [CompactTermTokenParserDirectTraceValid]
+
+theorem compactTermTokenParser_eq_some_iff_exists_directTrace
+    (binderArity : Nat) (tokens suffix : List Nat) :
+    compactTermTokenParser binderArity tokens = some suffix ↔
+      ∃ states : CompactTermTokenParserDirectTrace,
+        CompactTermTokenParserDirectTraceValid
+          binderArity tokens suffix states := by
+  simpa [CompactTermTokenParserDirectTraceValid,
+    compactTermTokenParser, compactTermTokenParserRun] using
+      compactParserOutput_eq_iff_exists_localTrace
+        compactSyntaxParserStep (compactSyntaxRunFuelBound tokens)
+        (compactTermParserInitialState binderArity tokens) (some suffix)
+
+abbrev CompactClosedFormulaTokenParserDirectTrace :=
+  List CompactUnifiedParserState
+
+def CompactClosedFormulaTokenParserDirectTraceValid
+    (binderArity : Nat) (tokens suffix : List Nat)
+    (states : CompactClosedFormulaTokenParserDirectTrace) : Prop :=
+  CompactParserOutputLocalTraceValid compactClosedSyntaxParserStep
+    (compactSyntaxRunFuelBound tokens)
+    (compactFormulaParserInitialState binderArity tokens)
+    (some suffix) states
+
+theorem compactClosedFormulaTokenParserDirectTraceValid_primrec :
+    PrimrecPred (fun input :
+        ((Nat × List Nat) × List Nat) ×
+          CompactClosedFormulaTokenParserDirectTrace =>
+      CompactClosedFormulaTokenParserDirectTraceValid
+        input.1.1.1 input.1.1.2 input.1.2 input.2) := by
+  let Input :=
+    ((Nat × List Nat) × List Nat) ×
+      CompactClosedFormulaTokenParserDirectTrace
+  have hbinder : Primrec (fun input : Input => input.1.1.1) :=
+    Primrec.fst.comp (Primrec.fst.comp Primrec.fst)
+  have htokens : Primrec (fun input : Input => input.1.1.2) :=
+    Primrec.snd.comp (Primrec.fst.comp Primrec.fst)
+  have hsuffix : Primrec (fun input : Input => input.1.2) :=
+    Primrec.snd.comp Primrec.fst
+  have hstates : Primrec (fun input : Input => input.2) :=
+    Primrec.snd
+  have hfuel : Primrec (fun input : Input =>
+      compactSyntaxRunFuelBound input.1.1.2) :=
+    compactSyntaxRunFuelBound_primrec.comp htokens
+  have hstart : Primrec (fun input : Input =>
+      compactFormulaParserInitialState input.1.1.1 input.1.1.2) :=
+    compactFormulaParserInitialState_primrec.comp hbinder htokens
+  have hexpected : Primrec (fun input : Input => some input.1.2) :=
+    Primrec.option_some.comp hsuffix
+  exact
+    ((compactParserOutputLocalTraceValid_primrec
+      compactClosedSyntaxParserStep_primrec).comp <|
+        Primrec.pair (Primrec.pair hfuel hstart)
+          (Primrec.pair hexpected hstates)).of_eq fun input => by
+            simp only [CompactClosedFormulaTokenParserDirectTraceValid]
+
+theorem compactClosedFormulaTokenParser_eq_some_iff_exists_directTrace
+    (binderArity : Nat) (tokens suffix : List Nat) :
+    compactClosedFormulaTokenParser binderArity tokens = some suffix ↔
+      ∃ states : CompactClosedFormulaTokenParserDirectTrace,
+        CompactClosedFormulaTokenParserDirectTraceValid
+          binderArity tokens suffix states := by
+  simpa [CompactClosedFormulaTokenParserDirectTraceValid,
+    compactClosedFormulaTokenParser,
+    compactClosedFormulaTokenParserRun] using
+      compactParserOutput_eq_iff_exists_localTrace
+        compactClosedSyntaxParserStep (compactSyntaxRunFuelBound tokens)
+        (compactFormulaParserInitialState binderArity tokens) (some suffix)
+
 #print axioms compactParserTransitionAt_primrec
 #print axioms compactParserLocalTraceValid_primrec
 #print axioms compactProofTokenParserDirectTraceValid_primrec
@@ -517,5 +630,9 @@ theorem compactFormulaTokenParser_eq_some_iff_exists_directTrace
 #print axioms compactCertificateTokenParser_eq_some_iff_exists_directTrace
 #print axioms compactFormulaTokenParserDirectTraceValid_primrec
 #print axioms compactFormulaTokenParser_eq_some_iff_exists_directTrace
+#print axioms compactTermTokenParserDirectTraceValid_primrec
+#print axioms compactTermTokenParser_eq_some_iff_exists_directTrace
+#print axioms compactClosedFormulaTokenParserDirectTraceValid_primrec
+#print axioms compactClosedFormulaTokenParser_eq_some_iff_exists_directTrace
 
 end FoundationCompactParserDirectTrace

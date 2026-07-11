@@ -535,10 +535,20 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     局部关系、任意合法表逐行等于同一规范运行，并得到公开 sequent value parser 返回目标结果当且仅当
     存在该局部表。状态表有效性及公开 trace relation（轨迹关系）均为 `PrimrecPred`。
 
-    单模块探针和目标构建均通过，六个审计端点公理画像只有三个 Lean 标准项。本检查点只关闭外层
-    `count` 次迭代；每个 `compactFormulaTokenValuesStep` 内仍调用一次 formula value parser，尚未携带第 62 项
-    的公式 parser 局部轨迹。因此该节点已标绿，但还没有冒充为完整 root 分支闭合；下一步为每行加入对应
-    公式子轨迹，再组合进第 64 项的标签分支。
+    本项现已进一步增强：公开见证除 `count+1` 行 repeat 状态外，还携带恰好 `count` 份第 62 项公式
+    parser 局部轨迹。第 `i` 份轨迹必须把第 `i` 行剩余 token 精确解析到第 `i+1` 行后缀，且下一行公式值
+    严格等于上一行列表追加真实 consumed prefix。Lean 已证明增强单步推出原
+    `compactFormulaTokenValuesStep`，最终成功又能逐行构造全部子轨迹；因此公开 sequent parser 成功当且仅当
+    存在增强见证，整函数单步不再作为外部条件。单模块探针和目标构建通过，全部新增端点公理画像仍只有
+    三个 Lean 标准项。剩余工作是把该增强见证按第 64 项 root 标签组合进节点字段分支。
+66. [FoundationCompactParserDirectTrace.lean](../integration/FoundationCompactParserDirectTrace.lean)
+    已补齐同一共享局部表框架的 term parser（项解析器）和 closed-formula parser（闭公式解析器）实例。
+    term 端点使用真实 `compactSyntaxParserStep` 与 term 初态；闭公式端点使用
+    `compactClosedSyntaxParserStep`，因此自由变量拒绝路径没有被普通公式 parser 偷换。两类有效性关系都核对
+    精确燃料行数、初态、每个真实单步和最终 suffix，并分别证明公开 parser 返回 `some suffix` 当且仅当
+    存在该局部轨迹。四个新端点均为 `PrimrecPred`/精确双向等价，探针和目标构建通过，公理画像只有三个
+    Lean 标准项。至此 root 各分支需要的 sequent/formula/term/closed-formula 外层轨迹全部具备；下一义务是
+    构造统一 branch trace（分支轨迹），并强制未使用的分支轨迹为空。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -563,11 +573,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 65 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 66 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
-   包装层、根节点十标签总分派和 sequent value 外层 counted repeat。当前黄色工作面是给 repeat 每一步加入
-   公式 parser 子轨迹，再打开其余标签分支值解析器及验证器单步函数中的原子调用，并把整套见证显式编码成
-   局部可核验算术公式：
+   包装层、根节点十标签总分派、带逐公式子轨迹的 sequent repeat，以及 term/closed-formula 外层轨迹。
+   当前黄色工作面是按 root 标签组合这些绿色组件，替换各节点字段 branch parser 结果等式，再继续打开
+   验证器单步函数中的原子调用，并把整套见证显式编码成局部可核验算术公式：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -576,9 +586,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    ```
 
    精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
-   局部检查、三个 outer parser tableau 及两个结果包装层已闭合。下一步必须打开
-   sequent repeat 中每个公式子运行以及 formula/closed-formula/term value parser，
-   并继续展开 `parserStep/verifierStep` 内的原子字段解析和局部语法变换；随后给所有状态与子轨迹显式自然数编码，证明
+   局部检查、全部现需 outer parser tableau、逐公式子运行及两个结果包装层已闭合。下一步必须构造统一
+   root-field branch trace，按标签组合 sequent/formula/closed-formula/term 轨迹并要求未使用字段为空，
+   随后继续展开 `parserStep/verifierStep` 内的原子字段解析和局部语法变换；再给所有状态与子轨迹显式自然数编码，证明
    编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
