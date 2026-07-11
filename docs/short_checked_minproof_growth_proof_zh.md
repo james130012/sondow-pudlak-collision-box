@@ -609,6 +609,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     证明“`Nat.size(traceCode)` 不超过公开界且 `CodeValid`”这一完整 bounded witness（有界见证）为
     原始递归谓词。该链不使用搜索、`projection` 或 `rfind`，六个关键端点公理画像仅三个 Lean 标准项。
     当前入口已前移到 `verifierStep` 与各子关系的直接有界算术图和二变量 `Σ₁` 公式。
+74. [FoundationCompactNumericListedDirectArithmeticPrimitives.lean](../integration/FoundationCompactNumericListedDirectArithmeticPrimitives.lean)
+    已关闭第一项直接算术原语。Foundation 的 `lengthDef` 本身是无搜索的 `Σ₀/Δ₀` 二进制长度图；Lean
+    又以 `Nat.binaryRec'` 分偶位、奇位证明标准自然数模型中的 `binaryLength n = Nat.size n`，从而得到
+    `compactNatSizeDef(size,n) ↔ size = Nat.size n` 的逐点精确语义和层级证明。三个端点公理画像仅三个
+    Lean 标准项。下一原子是复用 `lengthDef` 与 `bitDef`，为 packed `traceCode` 的终止哨兵、有效位前缀和
+    token-stream 解码写直接有界图；不得退回通用程序表示。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -633,13 +639,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 73 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 74 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
    列表汇总界、十二分量分解、全部十二分量公开界、总轨迹码长界，以及确定性有界 `traceCode`
-   证书关系；公开码长界函数和完整 size-guard witness（码长守卫见证）的原始递归性也已闭合。
-   当前黄色工作面是打开验证器单步函数中的剩余原子调用并构造直接有界算术图：
+   证书关系；公开码长界函数、完整 size-guard witness（码长守卫见证）的原始递归性，以及 `Nat.size`
+   的直接 `Δ₀` 算术图也已闭合。当前黄色工作面先打开 packed 码位与 token 流，再处理验证器单步函数中的
+   剩余原子调用并构造完整直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -774,4 +781,5 @@ lake env lean integration/FoundationCompactNumericListedDirectTraceCode.lean
 lake env lean integration/FoundationCompactNumericListedStateBounds.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceBounds.lean
 lake env lean integration/FoundationCompactNumericListedBoundedTraceCode.lean
+lake env lean integration/FoundationCompactNumericListedDirectArithmeticPrimitives.lean
 ```
