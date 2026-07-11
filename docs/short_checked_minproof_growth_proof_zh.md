@@ -400,8 +400,19 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 51. [FoundationCompactNumericAllClosure.lean](../integration/FoundationCompactNumericAllClosure.lean)
     已将 `∀⁰* formula`（迭代全称闭包）落实为纯数值 token 迭代：每一步真实前置一个全称量词
     token，整体已证 `Primrec`（原始递归），并对任意 `arity = depth` 的规范公式逐 token 等于
-    原依赖类型闭包。该节点不单独声称按二进制 `depth` 多项式时间；下一步必须在调用前闭合
-    `depth <= candidate bit length`（深度不超过候选句位长）的纯数值守卫。
+    原依赖类型闭包。该节点不单独声称按二进制 `depth` 多项式时间；其执行现由第 53 项的
+    `depth <= candidate bit length`（深度不超过候选句位长）纯数值守卫控制。
+52. [FoundationCompactNumericTokenBitLength.lean](../integration/FoundationCompactNumericTokenBitLength.lean)
+    已把每个 Nat token 用公开 `binaryNatCode`（二进制自然数码）重新编码，并证明任意 token 列表
+    的总位长函数为 `Primrec`（原始递归）。项和公式的规范 token 流重新编码后逐位等于原公开
+    `binaryTermCode` / `binaryFormulaCode`；因此候选公式的守卫使用真实 `formulaCode` 位长，
+    不是 token 数量，也没有换长度坐标。定向探针退出码为 0，静态禁用项扫描为空。
+53. [FoundationCompactNumericGuardedInductionSentence.lean](../integration/FoundationCompactNumericGuardedInductionSentence.lean)
+    已闭合标签 `22` 的纯数值带守卫构造与比较。机器先构造 `succInd(body)`、计算精确 `fvSup`，
+    仅在 `fvSup <= candidate formulaCode bit length` 时执行 `fixitr` 与 `allClosure`；对每个规范
+    `body/candidate`，最终布尔值为真当且仅当真实 PA 归纳证书句等于候选句。守卫拒绝分支由既有
+    `inductionSentenceGuardTrace_complete`（归纳句守卫完备性）排除漏接。全部构造器与比较器已证
+    `Primrec`，关键端点公理画像仅为 `propext`、`Classical.choice`、`Quot.sound`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -419,10 +430,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    第 46 项又将公开输入转成同一纯数值 token graph（记号图），并闭合否定、移位、自由化与代入；
    第 48 项进一步闭合 `fixitr`（变量捕获转换），第 49 项已经由这些原语闭合 `succInd(body)`，
    第 50 项又闭合其纯数值 `fvSup`（自由变量上确界），第 51 项闭合 `allClosure`（全称闭包）
-   本体。第 47 项已闭合标签 `0..21`；当前唯一工作面是在调用闭包前实现 candidate bit-length
-   guard（候选句位长守卫），再由已完成的 `succInd(body)`、`fvSup`、`fixitr` 与 `allClosure`
-   构造标签 `22` 的完整句。
-   随后合并 23 标签并逐规则复现 `listedCertificateValidTrace`，闭合完整公开 verifier 的
+   本体，第 52 项将守卫长度精确校准到候选公式公开二进制码，第 53 项闭合守卫、标签 `22`
+   完整句及规范输入上的相等判定。第 47 项已闭合标签 `0..21`；当前唯一工作面是合并全部
+   23 标签，并利用任意输入反演定理覆盖畸形 token 与拒绝分支，再逐规则复现
+   `listedCertificateValidTrace`，闭合完整公开 verifier 的
    `Primrec`（原始递归）图与逐点结果等式。
    随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
 
@@ -527,4 +538,6 @@ lake env lean integration/FoundationCompactListedProofHonestWeight.lean
 lake env lean integration/FoundationCompactListedCertifiedHonestWeight.lean
 lake env lean integration/FoundationCompactListedLocalCostPrimitives.lean
 lake env lean integration/FoundationCompactListedPublicCostSkeleton.lean
+lake env lean integration/FoundationCompactNumericTokenBitLength.lean
+lake env lean integration/FoundationCompactNumericGuardedInductionSentence.lean
 ```
