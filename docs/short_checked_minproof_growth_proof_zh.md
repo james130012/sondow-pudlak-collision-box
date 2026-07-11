@@ -559,6 +559,19 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     [FoundationCompactNumericListedDirectTrace.lean](../integration/FoundationCompactNumericListedDirectTrace.lean)
     已把 `rootTrace` 加入总数据、总有效性和正反向总等价。定向探针与必要目标构建通过，关键端点公理画像
     只有三个 Lean 标准项。下一边界是显式 Nat 编码、`verifierStep` 内部原子算术图及统一多项式位长界。
+68. [FoundationCompactAdditiveTokenCodec.lean](../integration/FoundationCompactAdditiveTokenCodec.lean)
+    已建立加法型 typed token codec（类型化 token 编解码）。默认 `Encodable (List α)` 的
+    `succ(pair(head,tailCode))` 递推虽为原始递归，但直接位长界可逐层翻倍，故已明确弃用。新 codec 对
+    `Nat/Bool/Option/Product/List` 使用单 token、固定标签、直接拼接和“长度头 + 逐元素串联”；所有类型均
+    证明 `decode(encode(x) ++ suffix)=some(x,suffix)`，编码、解码和计数迭代均为原始递归，列表总位长
+    精确等于长度头加各元素位长之和。`binaryNatCode` 与 `packBinaryString` 也已补证原始递归，打包码位长
+    精确为平坦 token 位长加一。
+
+    [FoundationCompactNumericListedDirectTraceCode.lean](../integration/FoundationCompactNumericListedDirectTraceCode.lean)
+    已把该 codec 分层实例化到完整 `CompactNumericListedDirectTrace`：总 token 往返、单一 Nat 打包码与
+    解码器原始递归、`decode(code(trace))=some trace`、编码单射及精确 `Nat.size` 等式全部通过；关键端点
+    公理画像仍只有三个 Lean 标准项。尚未闭合的是合法总轨迹位长关于两项公开输入位长的固定多项式界，
+    以及 `verifierStep` 内部原子关系的直接算术图。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -583,11 +596,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 67 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 68 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
-   直接分派以及 `rootTrace` 的公开总见证接入。当前黄色工作面是打开验证器单步函数中的剩余原子调用，
-   并把整套见证显式编码成局部可核验算术公式：
+   直接分派、`rootTrace` 的公开总见证接入，以及整套见证的加法型 token/Nat 无损编码。当前黄色工作面
+   是证明该打包见证位长关于公开输入的固定多项式界，并打开验证器单步函数中的剩余原子调用：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -596,9 +609,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    ```
 
    精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
-   局部检查、全部 outer parser tableau、逐公式子运行、两个结果包装层及完整 root-field 子轨迹均已闭合。
-   下一步继续展开 `verifierStep` 内的原子字段解析和局部语法变换；再给所有状态与子轨迹显式自然数编码，
-   证明编码位长和局部核验具有统一多项式界，并直接构造
+   局部检查、全部 outer parser tableau、逐公式子运行、两个结果包装层、完整 root-field 子轨迹及无损
+   自定界自然数编码均已闭合。下一步为各状态与子轨迹建立结构位权，结合 fuel、消费前缀和状态不变量
+   证明编码位长与局部核验具有统一多项式界；同时展开 `verifierStep` 内的原子字段解析和局部语法变换，
+   再直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
    且完整证明载荷长度为输入位长的固定多项式。`Decidable`（可判定）、普通 `codeOfREPred` 或逐实例
@@ -715,4 +729,6 @@ lake env lean integration/FoundationCompactNumericListedRootFieldsDecomposition.
 lake env lean integration/FoundationCompactSequentValueDirectTrace.lean
 lake env lean integration/FoundationCompactNumericListedRootFieldsDirectTrace.lean
 lake env lean integration/FoundationCompactNumericListedDirectTrace.lean
+lake env lean integration/FoundationCompactAdditiveTokenCodec.lean
+lake env lean integration/FoundationCompactNumericListedDirectTraceCode.lean
 ```
