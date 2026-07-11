@@ -615,6 +615,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `compactNatSizeDef(size,n) ↔ size = Nat.size n` 的逐点精确语义和层级证明。三个端点公理画像仅三个
     Lean 标准项。下一原子是复用 `lengthDef` 与 `bitDef`，为 packed `traceCode` 的终止哨兵、有效位前缀和
     token-stream 解码写直接有界图；不得退回通用程序表示。
+75. 同一模块已关闭 packed payload sentinel（打包载荷终止哨兵）的直接图。任意 bit list 的
+    `natOfBitsList` 严格小于 `2^length`，且真实 `packBinaryString(bits)` 精确等于
+    `natOfBitsList(bits)+2^bits.length`。据此定义的 `compactPackedPayloadDef` 只使用 Foundation 的
+    `expDef`、有界存在、加法和小于关系，层级严格为 `Σ₀/Δ₀`；其标准模型语义逐点等价于真实编码。
+    全部新增端点仅依赖三个 Lean 标准项，无 `sorryAx`、`projection` 或 `rfind`。下一原子是按
+    `binaryNatCode` 的 `1-bit pairs + 00 terminator` 对 payload 做自定界 token 分段图。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -639,14 +645,15 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 74 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 75 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
    列表汇总界、十二分量分解、全部十二分量公开界、总轨迹码长界，以及确定性有界 `traceCode`
    证书关系；公开码长界函数、完整 size-guard witness（码长守卫见证）的原始递归性，以及 `Nat.size`
-   的直接 `Δ₀` 算术图也已闭合。当前黄色工作面先打开 packed 码位与 token 流，再处理验证器单步函数中的
-   剩余原子调用并构造完整直接有界算术图：
+   的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵又已化为 `value + 2^length` 的直接 `Δ₀` 图。
+   当前黄色工作面先把 payload 切成自定界 token 流，再处理验证器单步函数中的剩余原子调用并构造完整
+   直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,

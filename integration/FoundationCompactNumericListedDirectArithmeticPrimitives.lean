@@ -60,8 +60,85 @@ theorem compactNatSizeDef_sigmaZero :
       compactNatSizeDef.val := by
   simp [compactNatSizeDef]
 
+@[simp] theorem arithmeticExp_nat (n : Nat) :
+    LO.Exp.exp n = 2 ^ n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+      rw [LO.FirstOrder.Arithmetic.exp_succ, ih, pow_succ]
+      omega
+
+theorem natOfBitsList_lt_two_pow_length (bits : List Bool) :
+    FoundationCompactVerifierBitCostPrimitives.natOfBitsList bits <
+      2 ^ bits.length := by
+  induction bits with
+  | nil => simp [FoundationCompactVerifierBitCostPrimitives.natOfBitsList]
+  | cons bit bits ih =>
+      cases bit <;>
+        simp [FoundationCompactVerifierBitCostPrimitives.natOfBitsList,
+          Nat.bit, pow_succ] <;> omega
+
+theorem packBinaryString_eq_payload_add_sentinel (bits : List Bool) :
+    FoundationSuccinctFiniteConsistencyTarget.packBinaryString bits =
+      FoundationCompactVerifierBitCostPrimitives.natOfBitsList bits +
+        2 ^ bits.length := by
+  induction bits with
+  | nil =>
+      simp [FoundationSuccinctFiniteConsistencyTarget.packBinaryString,
+        FoundationCompactVerifierBitCostPrimitives.natOfBitsList]
+  | cons bit bits ih =>
+      cases bit <;>
+        simp [FoundationSuccinctFiniteConsistencyTarget.packBinaryString,
+          FoundationCompactVerifierBitCostPrimitives.natOfBitsList,
+          Nat.bit, ih, pow_succ] <;> omega
+
+/-- A packed bit string is represented by its low-bit value and its exact
+length.  The terminal sentinel is the single power of two above that payload. -/
+def compactPackedPayloadDef : 𝚺₀.Semisentence 3 := .mkSigma
+  “payloadValue payloadLength code.
+    ∃ sentinel <⁺ code,
+      !expDef sentinel payloadLength ∧
+      payloadValue < sentinel ∧
+      code = payloadValue + sentinel”
+
+@[simp] theorem compactPackedPayloadDef_spec
+    (payloadValue payloadLength code : Nat) :
+    compactPackedPayloadDef.val.Evalb
+        ![payloadValue, payloadLength, code] ↔
+      payloadValue < 2 ^ payloadLength ∧
+        code = payloadValue + 2 ^ payloadLength := by
+  simp [compactPackedPayloadDef]
+  intro _ hcode
+  rw [hcode]
+  exact @le_add_self Nat
+    LO.ORingStructure.toAdd
+    LO.FirstOrder.Arithmetic.instLE_foundation
+    LO.FirstOrder.Arithmetic.instCanonicallyOrderedAdd_foundation
+    (2 ^ payloadLength) payloadValue
+
+@[simp] theorem compactPackedPayloadDef_pack_iff
+    (bits : List Bool) (code : Nat) :
+    compactPackedPayloadDef.val.Evalb
+        ![FoundationCompactVerifierBitCostPrimitives.natOfBitsList bits,
+          bits.length, code] ↔
+      code = FoundationSuccinctFiniteConsistencyTarget.packBinaryString bits := by
+  rw [compactPackedPayloadDef_spec]
+  simp only [natOfBitsList_lt_two_pow_length, true_and]
+  rw [packBinaryString_eq_payload_add_sentinel]
+
+theorem compactPackedPayloadDef_sigmaZero :
+    LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
+      compactPackedPayloadDef.val := by
+  simp [compactPackedPayloadDef]
+
 #print axioms binaryLength_nat_eq_size
 #print axioms compactNatSizeDef_spec
 #print axioms compactNatSizeDef_sigmaZero
+#print axioms arithmeticExp_nat
+#print axioms natOfBitsList_lt_two_pow_length
+#print axioms packBinaryString_eq_payload_add_sentinel
+#print axioms compactPackedPayloadDef_spec
+#print axioms compactPackedPayloadDef_pack_iff
+#print axioms compactPackedPayloadDef_sigmaZero
 
 end FoundationCompactNumericListedDirectArithmeticPrimitives
