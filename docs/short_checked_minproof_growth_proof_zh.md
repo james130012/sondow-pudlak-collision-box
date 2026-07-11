@@ -444,9 +444,33 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `bound` 的 `code`，且第 57 项数值验证器返回 `true`。Lean 已证明其 witness relation（见证关系）
     原始递归、该谓词递归可枚举，并构造真实二变量 Σ₁ 算术公式。公式标准模型语义逐点等价于该谓词；
     以同一 `compactListedFalsumCode` 否定后，标准模型语义精确等价于
-    `ListedCertifiedFiniteConsistencyAt(bound)`。短二进制数词实例符号数不超过固定公式常数乘
-    `6*Nat.size(bound)+6*Nat.size(formulaCode)+2`。目标构建通过，禁用项扫描为空，端点公理画像仅有
-    三个 Lean 标准公理。这里的 `codeOfREPred` 只关闭定性算术表示，不替代下一步的定量 PA 接受轨迹。
+    `ListedCertifiedFiniteConsistencyAt(bound)`。表示层现固定一个 `Nat.ArithPart₁.Code`（算术部分递归程序码）
+    并保留其 `Code.eval`（程序求值）证明，不再只暴露 `codeOfREPred` 的语义端点。短二进制数词实例符号数
+    不超过固定公式常数乘 `6*Nat.size(bound)+6*Nat.size(formulaCode)+2`。目标构建通过，禁用项扫描为空，
+    端点公理画像仅有三个 Lean 标准公理。另有明确命名的 qualitative（定性）端点证明接受实例在 PA 中
+    可证且存在真实 `Derivation2`；它调用 Σ₁ 完备性且没有长度结论，不能替代下一步的定量 PA 接受轨迹。
+
+    进一步源码审计确认：这条通用表示的实际构造链经过
+    `REPred.projection -> Partrec.projection -> rfindOpt -> Nat.ArithPart₁.Code.rfind`。
+    `Code.rfind` 的算术公式除成功阶段外，还要求所有更小搜索阶段失败。当前没有这个 bounded minimality
+    （有界最小性）前缀的 PA 证明长度关于输入载荷位长的多项式界；搜索阶段还可能由数值很大的见证码控制。
+    因此第 58 项保留为**定性语义审计**，不能作为 Theorem 3.1 的最终 suitable numeration（合适枚举）。
+    这不是语义定理错误，而是定量路线不合格；依赖图已将它从黄色主链中分离。
+59. [FoundationCompactNumericListedDirectTrace.lean](../integration/FoundationCompactNumericListedDirectTrace.lean)
+    已建立不经最小化搜索的直接有限运行见证。对每个中央任务机状态，模块定义第 `i` 步真实状态及从
+    `0` 到 `fuel` 的完整规范列表，证明列表长度精确为 `fuel+1`，且状态生成、索引与轨迹有效性均为
+    `Primrec`/`PrimrecPred`。公开见证包同时记录两个 token 流、证明与证书解析结果、结论公式值和完整
+    状态列表；最终端点对任意 `code/formulaCode` 证明：
+
+    ```text
+    compactNumericListedPublicVerifier(code, formulaCode) = true
+      iff exists trace, CompactNumericListedDirectTraceValid(code, formulaCode, trace).
+    ```
+
+    单文件探针退出码为 0，六个审计端点公理画像只有三个 Lean 标准公理。该模块不调用
+    `projection/rfind`。当前边界也已明确：组件 parser（解析器）仍以精确函数等式核对，中央状态链的
+    `Valid` 仍等于规范状态列表；这足以关闭外部直接轨迹语义，但还不是 PA 内部可逐步检查的局部计算表，
+    也尚未给出轨迹编码位长的多项式界。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -468,22 +492,31 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    完整句及规范输入上的相等判定，第 54 项已合并全部 23 标签，并利用任意证书输入反演定理
    排除畸形 token 与垃圾尾部，第 55 项已闭合十条规则的全部纯数值局部合并器，第 56 项已闭合
    两侧根节点字段解析并精确保留子流，第 57 项现已闭合有限任务栈、显式燃料、全部拒绝路径和完整
-   公开验证器逐点结果等式，第 58 项又闭合了同一有界谓词、Σ₁ 公式、有限一致性句及二进制实例大小界。
-   当前工作面是对第 58 项的**同一个公式**构造 PA 内部接受计算短证明：真实 accepted run（接受运行）
-   必须产生真实 `Derivation2`，并有统一多项式完整载荷界。`Decidable`（可判定）、可执行、普通
-   `codeOfREPred` 或逐实例 `sigma_one_completeness`（Σ₁ 完备性）均不能代替该定量证明。
+   公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
+   `rfind` 最小化前缀，不能直接承接定量短证明。
+
+   第 59 项现已关闭该公式所需的非最小化**外部轨迹语义**。当前黄色工作面是把它加强为局部可核验公式：
+
+   ```text
+   P_direct(bound,y) := exists proofCode,
+     payloadLength(proofCode) <= bound and
+     exists trace, DirectVerifierTrace(proofCode,y,trace).
+   ```
+
+   精确 `verifier=true iff exists trace.Valid` 已由第 59 项闭合。下一步必须把中央规范列表等式拆为
+   `initial/step/final` 的局部 tableau（计算表）检查，并为 packed 解析、公式解析和局部语法变换补齐内部
+   子轨迹；随后给所有状态与子轨迹显式自然数编码，证明编码位长和局部核验具有统一多项式界，并直接构造
+   该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
+   PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
+   且完整证明载荷长度为输入位长的固定多项式。`Decidable`（可判定）、普通 `codeOfREPred` 或逐实例
+   `sigma_one_completeness`（Σ₁ 完备性）均不能替代上述两个定量证明。
 
    第 38 项已证明限制到 canonical accepted codes（规范接受码）不改变精确最短长度，消除了畸形码风险。
-   总成本闭合后仍必须新增真正的二变量算术公式 `CompactProof(x,y)`，其标准模型语义逐点精确等价于
-   **同一个带守卫紧凑验证器**；再以短二进制数词定义
+   直接轨迹公式必须保持标准模型语义逐点精确等价于**同一个带守卫紧凑验证器**；再以短二进制数词定义
    `Con_PA^compact(k) := ¬∃p (payloadLength(p) <= k ∧ CompactProof(p, falsumCode))`。
    当前 `CertifiedFiniteConsistencyAt` 只是 Lean 元层 `Prop`，而旧
    `succinctFiniteConsistencySentence` 仍使用 Foundation raw-code checker，因此二者都不能直接充当该公式族。
-   还必须为接受计算构造 PA 内部短证明，不能仅用 `codeOfREPred` 的定性表示定理。
-   能力探针还确认当前类型化 proof tree（证明树）、certificate（证书）和 arithmetic formula（算术公式）
-   没有可直接复用的 `Primcodable`（原始递归可编码）实例；因此不能从“Lean 可执行”跳到
-   `codeOfREPred`。必须构造显式 numeric verifier machine（数值验证机器）及接受轨迹，或先证明
-   自定义数值编码与全部递归步骤的 `Primrec`（原始递归）定理。
+   还必须为接受计算构造 PA 内部短证明，不能用第 58 项的定性表示定理代替。
 2. 对该具体 `P` 和同一二进制长度逐项证明 Pudlak 1986 Theorem 3.1 的定量条件
    (0)-(3)，再完成 bounded proof assembly（有界证明拼接）与 exponent extraction（指数提取）。
    定量参数化对角实例化已由第 39 至 42 项关闭；第 43 项已关闭 condition (3) 所需的外部

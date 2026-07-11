@@ -333,8 +333,10 @@ digraph CheckedMinProofDependencies {
     numericrules [label="10/10 primitive-recursive listed local rule checks\n十条列表证明局部规则纯数值检查全部闭合\n\nLean 内核已检查：\n1. closed / axm / verum / and / or / all / exs / wk / shift / cut 全覆盖；\n2. 每个输入只有公式 token、序列 token 列表及子节点布尔结果；\n3. free / substitution / negation / sequent shift 均调用真实纯数值变换；\n4. axm 调用同一个全部 23 标签比较器；\n5. 每条函数均 primitive recursive，规范字段上逐点等于\n   listedCertificateValidTrace 对应分支结果；\n6. 子有效性是任务栈返回值，不是外部证明假设。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericListedRuleChecks.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
     numericnodefields [label="Primitive-recursive synchronized node-field parsers\n原始递归证明 / 证书节点字段解析器\n\nLean 内核已检查：\n1. proof 标签 0..9 按真实编码顺序解析父序列、主公式和见证项；\n2. 每个节点只消费立即字段，完整保留后续子证明 token；\n3. structural certificate 的 leaf/axiom/unary/binary 四形状全覆盖；\n4. axiom 节点精确截取完整 PA 公理证书 token；\n5. 两侧 dispatcher 均 primitive recursive；\n6. 对每个真实树/证书及任意 suffix，返回精确字段和同一子流。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericListedNodeFields.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
     numericparser [label="Public local-check numeric graph\n公开局部检查纯数值图\n\nLean 内核已检查：\n1. 有限任务栈同步消费 proof/certificate 两条 token 流并核对节点形状；\n2. 子结论与子布尔结果自底向上送入十条真实局部合并器；\n3. 显式 fuel 覆盖完整规范树，形状错配、耗尽及畸形输入一律拒绝；\n4. 规范树结果逐点等于 listedCertificateValidTrace；\n5. 任意 packed code/formulaCode 上，新纯数值验证器与原公开验证器布尔值逐点相等。\n\n全部运行数据仅为 Nat / Bool / List；完整图已证 primitive recursive。\n定向探针与目标模块构建退出码 0；禁用项扫描为空；\n关键端点公理画像仅 propext / Classical.choice / Quot.sound。\nFoundationCompactNumericListedTaskMachine.lean\nFoundationCompactNumericListedPublicVerifier.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
-    compactformula [label="CompactProof(bound,y) + Con_PA^compact(k)\n紧凑有界证明谓词算术公式 + 紧凑有限一致性句\n\nLean 内核已检查：\n1. P(bound,y) 精确表示存在完整载荷长度 <= bound 的 code，\n   且同一绿色纯数值公开验证器在 (code,y) 返回 true；\n2. witness relation primitive recursive，P 为 RE predicate；\n3. 构造真实二变量 Sigma-one 公式，标准模型语义逐点 iff P；\n4. 用同一 compact falsumCode 定义有限一致性句，标准模型语义\n   精确 iff ListedCertifiedFiniteConsistencyAt(bound)；\n5. 短二进制数词实例符号数 <= 固定公式常数 *\n   (6*size(bound)+6*size(y)+2)。\n\nFoundation codeOfREPred 仅承担定性标准模型表示；\n本节点不声称 PA 内部短接受轨迹，后者是下一黄色节点。\n目标构建通过；禁用项扫描为空；公理画像仅标准三项。\nFoundationCompactNumericListedProofPredicate.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
-    patrace [label="【主终端当前：同一 CompactProof 的定量 PA 接受轨迹】\nPA accepted-computation trace theorem\nPA 接受计算轨迹定理\n\n目标：给定 witness code 及绿色 numeric verifier 的 true 运行，\n构造同一 compactListedPAProofSentence(bound,y) 的真实 PA Derivation2，\n并给出关于输入位长与运行步数的统一多项式完整载荷界。\n\n当前证明任务：\n1. 暴露 codeOfREPred 所固定的算术程序/公式结构，或构造显式等价公式并重新核准同一 P；\n2. 将 packed 输入、任务栈状态、每步 transition 与最终 true 状态编码成 PA 可逐步核验的 trace；\n3. 用短二进制数词和固定局部引理拼接真实 proof object；\n4. 证明公式生成、见证、逐步验证及拼接总长度为固定多项式。\n\n禁止：逐实例调用 Sigma-one completeness / Classical.choice；\n它们只给存在性，不给统一长度界。", fillcolor="#fff0c9", color="#b37a12", penwidth=2.8];
+    directtrace [label="Direct finite public-verifier trace semantics\n公开验证器直接有限运行轨迹语义\n\nLean 内核已检查：\n1. 明确定义 time i 的真实 task-machine state；\n2. canonical trace 列出从 0 到 fuel 的全部状态，长度精确 fuel+1；\n3. trace 生成、索引及有效性均为 primitive recursive；\n4. 公开直接见证包记录 proof/formula token 流、解析结果、\n   结论值和完整 task-machine 状态列表；\n5. 对任意 code/formulaCode：publicVerifier=true\n   iff exists trace, DirectTraceValid(code,formulaCode,trace)；\n6. 整个端点不调用 projection/rfind。\n\n定向 Lean 探针退出码 0；六个端点公理画像仅\npropext / Classical.choice / Quot.sound。\nFoundationCompactNumericListedDirectTrace.lean\n\n边界：当前 Valid 对组件 parser 使用精确函数等式，\n中央状态链使用 canonical equality；局部 tableau 编码、\n组件内部轨迹及多项式序列化界仍由黄色节点完成。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    resemanticprobe [label="Generic RE/rfind representation audit\n通用递归可枚举 / 最小化搜索表示审计\n\nLean 内核已检查：\n1. P(bound,y) 精确表示存在载荷长度 <= bound 的接受码；\n2. witness relation primitive recursive，P 为 RE predicate；\n3. 固定 Nat.ArithPart1.Code 并保留 Code.eval 求值证明；\n4. 二变量 Sigma-one 公式与有限一致性句的标准模型语义精确；\n5. 二进制数词实例具有线性于输入位长的公式符号数界；\n6. 接受实例在 PA 中定性可证并有真实 Derivation2。\n\n定量审计结论：构造链实际经过\nREPred.projection -> Partrec.projection -> rfindOpt -> Code.rfind；\n其算术公式含“所有更小搜索阶段失败”的 bounded minimality。\n目前没有该前缀证明长度关于载荷位长的多项式界，\n故它只保留为语义审计，不作为 suitable numeration。\n目标构建通过；公理画像仅标准三项。\nFoundationCompactNumericListedProofPredicate.lean", fillcolor="#e9e3f5", color="#76639a", penwidth=2.6];
+    compactformula [label="【主终端当前：Locally checkable direct CompactProof】\n局部可核验的直接紧凑证明算术公式\n\n目标公式：\nP_direct(bound,y) := exists proofCode,\n  payloadLength(proofCode) <= bound and\n  exists trace, DirectVerifierTrace(proofCode,y,trace)。\n\n前置进展：绿色 directtrace 已关闭存在轨迹的精确外部语义。\n\n当前必须由 Lean 内核关闭：\n1. 把 canonical state-list equality 改写为 initial / step / final\n   的局部 tableau（计算表）检查，禁止全局重算整条轨迹；\n2. 为 packed/token parser、公式 parser 与局部变换补齐\n   可组合的内部运行子轨迹，不能只保留函数结果等式；\n3. 给全部状态、子轨迹和见证构造显式 Nat 编码，证明\n   编码位长与局部核验总量有固定多项式界；\n4. 直接手写二变量 Sigma-one 公式，禁止 projection/rfind；\n5. 标准模型语义逐点 iff 同一 P(bound,y)，\n   否定 falsum 实例精确等于同一有限一致性语义。\n\n当前第一义务：局部 task-machine tableau checker\n及 canonical trace 对该 checker 的 soundness/completeness。", fillcolor="#fff0c9", color="#b37a12", penwidth=2.8];
+    patrace [label="PA proof compiler for the direct trace formula\n直接轨迹公式的 PA 短证明编译器\n\n等待黄色 direct CompactProof 公式闭合后启动：\n给定 proofCode 与合法接受轨迹，构造同一公式实例的真实\nPA Derivation2，并证明公式生成、见证、逐步核验及拼接的\n完整证明载荷长度为输入位长的固定多项式。\n\n禁止逐实例调用 Sigma-one completeness / Classical.choice\n来声称任何长度结论。", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
     suitable [label="suitable numeration（合适枚举）\nbit graph representability（位图可表示性）\npolynomial proof construction（多项式证明构造）", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
     cond0 [label="Pudlak condition (0)（普德拉克条件 0）\nPA 内证明 proof-bound monotonicity（证明长度界单调性）\nP 的较紧/较松 cutoff 可在同一公式中转换", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
     cond1 [label="Pudlak condition (1)（普德拉克条件 1）\nexternal short proof -> internal P(n, code(phi))\n外部短证明以多项式开销内部化为 P 实例", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
@@ -349,12 +351,12 @@ digraph CheckedMinProofDependencies {
     diagonal [label="Pudlak 1986 Theorem 3.1\n普德拉克 1986 定理 3.1\ndiagonal proof-length lower bound\n对角证明长度下界", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
     internalnote [shape=note, label="关键注释：外部运行时间界不能自动变成 PA 内部短证明。\n必须构造 accepted computation trace（接受计算轨迹），\n并在同一算术编码中逐步验证。", fillcolor="#e8f1f8", color="#4e7892"];
 
-    predicate -> compactformula [label="exact standard-model relation\n精确标准模型关系"];
-    minmeasure -> compactformula [label="same honest payload length\n同一诚实载荷长度"];
-    canonicalnormalize -> compactformula [style=dotted, label="normalization audit only; public guarded verifier remains the target\n仅作规范化审计；目标仍是公开带守卫验证器"];
+    predicate -> resemanticprobe [label="exact standard-model relation\n精确标准模型关系"];
+    minmeasure -> resemanticprobe [label="same honest payload length\n同一诚实载荷长度"];
+    canonicalnormalize -> resemanticprobe [style=dotted, label="normalization audit only\n仅作规范化审计"];
     predicate -> listedconmeta [label="same accepted-code relation\n同一接受码关系"];
     minmeasure -> listedconmeta [label="same payload coordinate\n同一载荷坐标"];
-    listedconmeta -> compactformula [label="arithmetize this exact semantics\n算术化这一精确语义"];
+    listedconmeta -> resemanticprobe [label="generic semantic representation\n通用定性语义表示"];
     canonicalnormalize -> listedconmeta [label="pointwise same-cutoff equivalence\n逐点同截断值等价"];
     polytime -> arithinput [label="same packed inputs and bit-cost coordinate\n同一打包输入与位成本坐标"];
     arithinput -> tokenstream [label="primitive-recursive payload and Nat-prefix base\n原始递归载荷与自然数前缀基础"];
@@ -427,7 +429,14 @@ digraph CheckedMinProofDependencies {
     numericallaxioms -> numericrules [label="axm branch comparator\n公理叶比较器"];
     numericrules -> numericparser [label="all ten local Boolean combiners closed\n十条局部布尔合并器全部闭合"];
     numericnodefields -> numericparser [label="exact child-stream scheduling inputs\n精确子流调度输入"];
-    numericparser -> compactformula [label="same numeric machine graph\n同一纯数值机器图"];
+    numericparser -> resemanticprobe [label="exact semantics audit\n精确语义审计"];
+    numericparser -> directtrace [label="same bounded state machine\n同一有界状态机"];
+    predicate -> directtrace [label="exact accepted-code equivalence\n接受码关系精确等价"];
+    directtrace -> compactformula [label="replace global equality by local tableau and explicit coding\n把全局等式改为局部计算表并显式编码"];
+    predicate -> compactformula [label="same accepted-code target\n同一接受码目标"];
+    minmeasure -> compactformula [label="same honest payload cutoff\n同一诚实载荷截断"];
+    listedconmeta -> compactformula [label="same finite-consistency target\n同一有限一致性目标"];
+    resemanticprobe -> compactformula [style=dotted, arrowhead=none, constraint=false, label="semantic specification only; rfind program is not reused\n只保留语义规格；不复用最小化程序"];
     compactformula -> patrace [label="fixed formula and binary numerals\n固定公式与二进制数词"];
     internalnote -> patrace [style=dotted, arrowhead=none, constraint=false];
     patrace -> suitable;
