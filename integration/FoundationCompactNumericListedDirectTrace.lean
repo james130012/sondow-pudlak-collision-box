@@ -80,6 +80,17 @@ theorem compactNumericTraceState?_primrec :
     Primrec₂ compactNumericTraceState? := by
   exact Primrec.list_getElem?
 
+def compactNumericVerifierStepOption
+    (state : Option CompactNumericVerifierState) :
+    Option CompactNumericVerifierState :=
+  state.map compactNumericVerifierStep
+
+theorem compactNumericVerifierStepOption_primrec :
+    Primrec compactNumericVerifierStepOption := by
+  refine (Primrec.option_map Primrec.id ?_).of_eq fun state => by rfl
+  apply Primrec₂.mk
+  exact compactNumericVerifierStep_primrec.comp Primrec.snd
+
 @[simp] theorem compactNumericVerifierStateTrace_length
     (fuel : Nat) (start : CompactNumericVerifierState) :
     (compactNumericVerifierStateTrace fuel start).length = fuel + 1 := by
@@ -124,6 +135,179 @@ theorem compactNumericVerifierTraceValid_primrec :
   exact
     (Primrec.eq.comp Primrec.snd hcanonical).of_eq fun input => by
       simp [CompactNumericVerifierTraceValid]
+
+/-- A locally checkable computation tableau: one initial-state equation, one
+transition equation for each time below `fuel`, and an exact row count. -/
+def CompactNumericVerifierLocalTraceValid
+    (fuel : Nat) (start : CompactNumericVerifierState)
+    (states : List CompactNumericVerifierState) : Prop :=
+  states.length = fuel + 1 ∧
+    compactNumericTraceState? states 0 = some start ∧
+    ∀ stepIndex < fuel,
+      compactNumericTraceState? states (stepIndex + 1) =
+        (compactNumericTraceState? states stepIndex).map
+          compactNumericVerifierStep
+
+abbrev CompactNumericVerifierLocalTraceInput :=
+  (Nat × CompactNumericVerifierState) ×
+    List CompactNumericVerifierState
+
+def CompactNumericVerifierTransitionAt
+    (stepIndex : Nat)
+    (input : CompactNumericVerifierLocalTraceInput) : Prop :=
+  compactNumericTraceState? input.2 (stepIndex + 1) =
+    compactNumericVerifierStepOption
+      (compactNumericTraceState? input.2 stepIndex)
+
+theorem compactNumericVerifierTransitionAt_primrec :
+    PrimrecRel CompactNumericVerifierTransitionAt := by
+  have hindex : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput => pair.1) :=
+    Primrec.fst
+  have hstates : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput =>
+        pair.2.2) :=
+    Primrec.snd.comp Primrec.snd
+  have hcurrent : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput =>
+        compactNumericTraceState? pair.2.2 pair.1) :=
+    compactNumericTraceState?_primrec.comp hstates hindex
+  have hnextIndex : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput =>
+        pair.1 + 1) :=
+    Primrec.succ.comp hindex
+  have hnext : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput =>
+        compactNumericTraceState? pair.2.2 (pair.1 + 1)) :=
+    compactNumericTraceState?_primrec.comp hstates hnextIndex
+  have hstepped : Primrec
+      (fun pair : Nat × CompactNumericVerifierLocalTraceInput =>
+        compactNumericVerifierStepOption
+          (compactNumericTraceState? pair.2.2 pair.1)) :=
+    compactNumericVerifierStepOption_primrec.comp hcurrent
+  exact
+    (Primrec.eq.comp hnext hstepped).of_eq fun pair => by
+      simp [CompactNumericVerifierTransitionAt,
+        compactNumericVerifierStepOption]
+
+def CompactNumericVerifierTraceLengthValid
+    (input : CompactNumericVerifierLocalTraceInput) : Prop :=
+  input.2.length = input.1.1 + 1
+
+theorem compactNumericVerifierTraceLengthValid_primrec :
+    PrimrecPred CompactNumericVerifierTraceLengthValid := by
+  have hlength : Primrec
+      (fun input : CompactNumericVerifierLocalTraceInput =>
+        input.2.length) :=
+    Primrec.list_length.comp Primrec.snd
+  have hfuelPlus : Primrec
+      (fun input : CompactNumericVerifierLocalTraceInput =>
+        input.1.1 + 1) :=
+    Primrec.succ.comp (Primrec.fst.comp Primrec.fst)
+  exact
+    (Primrec.eq.comp hlength hfuelPlus).of_eq fun input => by
+      simp [CompactNumericVerifierTraceLengthValid]
+
+def CompactNumericVerifierTraceInitialValid
+    (input : CompactNumericVerifierLocalTraceInput) : Prop :=
+  compactNumericTraceState? input.2 0 = some input.1.2
+
+theorem compactNumericVerifierTraceInitialValid_primrec :
+    PrimrecPred CompactNumericVerifierTraceInitialValid := by
+  have hinitial : Primrec
+      (fun input : CompactNumericVerifierLocalTraceInput =>
+        compactNumericTraceState? input.2 0) :=
+    compactNumericTraceState?_primrec.comp
+      Primrec.snd (Primrec.const 0)
+  have hstart : Primrec
+      (fun input : CompactNumericVerifierLocalTraceInput =>
+        some input.1.2) :=
+    Primrec.option_some.comp
+      (Primrec.snd.comp Primrec.fst)
+  exact
+    (Primrec.eq.comp hinitial hstart).of_eq fun input => by
+      simp [CompactNumericVerifierTraceInitialValid]
+
+def CompactNumericVerifierTraceTransitionsValid
+    (input : CompactNumericVerifierLocalTraceInput) : Prop :=
+  ∀ stepIndex < input.1.1,
+    CompactNumericVerifierTransitionAt stepIndex input
+
+theorem compactNumericVerifierStateTrace_localValid
+    (fuel : Nat) (start : CompactNumericVerifierState) :
+    CompactNumericVerifierLocalTraceValid fuel start
+      (compactNumericVerifierStateTrace fuel start) := by
+  refine ⟨compactNumericVerifierStateTrace_length fuel start, ?_, ?_⟩
+  · simpa [compactNumericVerifierStateAt] using
+      compactNumericVerifierStateTrace_getElem? fuel 0 start (Nat.zero_le fuel)
+  · intro stepIndex hstepIndex
+    rw [compactNumericVerifierStateTrace_getElem? fuel (stepIndex + 1)
+      start (by omega)]
+    rw [compactNumericVerifierStateTrace_getElem? fuel stepIndex
+      start (Nat.le_of_lt hstepIndex)]
+    simp [compactNumericVerifierStateAt, Function.iterate_succ_apply']
+
+theorem compactNumericVerifierLocalTraceValid_stateAt
+    {fuel : Nat} {start : CompactNumericVerifierState}
+    {states : List CompactNumericVerifierState}
+    (hvalid : CompactNumericVerifierLocalTraceValid fuel start states)
+    {stepIndex : Nat} (hstepIndex : stepIndex <= fuel) :
+    compactNumericTraceState? states stepIndex =
+      some (compactNumericVerifierStateAt start stepIndex) := by
+  induction stepIndex with
+  | zero =>
+      simpa [compactNumericVerifierStateAt] using hvalid.2.1
+  | succ stepIndex ih =>
+      have hlt : stepIndex < fuel := by omega
+      have hprevious := ih (by omega)
+      rw [show stepIndex + 1 = stepIndex.succ by omega,
+        hvalid.2.2 stepIndex hlt, hprevious]
+      simp [compactNumericVerifierStateAt,
+        Function.iterate_succ_apply']
+
+theorem compactNumericVerifierLocalTraceValid_eq_canonical
+    {fuel : Nat} {start : CompactNumericVerifierState}
+    {states : List CompactNumericVerifierState}
+    (hvalid : CompactNumericVerifierLocalTraceValid fuel start states) :
+    states = compactNumericVerifierStateTrace fuel start := by
+  apply List.ext_getElem?
+  intro stepIndex
+  by_cases hstepIndex : stepIndex <= fuel
+  · change
+      compactNumericTraceState? states stepIndex =
+        compactNumericTraceState?
+          (compactNumericVerifierStateTrace fuel start) stepIndex
+    rw [compactNumericVerifierLocalTraceValid_stateAt hvalid hstepIndex]
+    rw [compactNumericVerifierStateTrace_getElem?
+      fuel stepIndex start hstepIndex]
+  · have hstatesLength : states.length = fuel + 1 := hvalid.1
+    have hcanonicalLength :=
+      compactNumericVerifierStateTrace_length fuel start
+    have houtside : fuel + 1 <= stepIndex := by omega
+    rw [List.getElem?_eq_none (by omega : states.length <= stepIndex)]
+    rw [List.getElem?_eq_none (by omega :
+      (compactNumericVerifierStateTrace fuel start).length <= stepIndex)]
+
+theorem compactNumericVerifierLocalTraceValid_iff_canonical
+    (fuel : Nat) (start : CompactNumericVerifierState)
+    (states : List CompactNumericVerifierState) :
+    CompactNumericVerifierLocalTraceValid fuel start states ↔
+      CompactNumericVerifierTraceValid fuel start states := by
+  constructor
+  · exact compactNumericVerifierLocalTraceValid_eq_canonical
+  · intro hvalid
+    rw [hvalid]
+    exact compactNumericVerifierStateTrace_localValid fuel start
+
+theorem compactNumericVerifierLocalTraceValid_primrec :
+    PrimrecPred (fun input :
+        (Nat × CompactNumericVerifierState) ×
+          List CompactNumericVerifierState =>
+      CompactNumericVerifierLocalTraceValid
+        input.1.1 input.1.2 input.2) := by
+  exact compactNumericVerifierTraceValid_primrec.of_eq fun input =>
+    (compactNumericVerifierLocalTraceValid_iff_canonical
+      input.1.1 input.1.2 input.2).symm
 
 /-- All data needed to audit one accepting public-verifier run. -/
 abbrev CompactNumericListedDirectTrace :=
@@ -180,7 +364,7 @@ def CompactNumericListedDirectTraceValid
     compactPackedTokenStream formulaCode = some formulaTokens ∧
     compactNumericCertifiedPartsParser certifiedTokens = some parts ∧
     compactNumericWholeFormulaValue formulaTokens = some formulaValue ∧
-    CompactNumericVerifierTraceValid fuel start states ∧
+    CompactNumericVerifierLocalTraceValid fuel start states ∧
     (compactNumericTraceState? states fuel).map
         compactNumericVerifierStateResult = some true ∧
     tokenFormulaSetEq parts.2.2 [formulaValue] = true ∧
@@ -265,7 +449,7 @@ theorem compactNumericListedDirectTraceValid_primrec :
       (compactNumericWholeFormulaValue_primrec.comp hformulaTokens)
       (Primrec.option_some.comp hformulaValue)
   have hmachineTrace : PrimrecPred (fun input : Input =>
-      CompactNumericVerifierTraceValid
+      CompactNumericVerifierLocalTraceValid
         (compactNumericVerifierFuelBound
           (compactNumericDirectTraceParts input.2).1
           (compactNumericDirectTraceParts input.2).2.1)
@@ -273,7 +457,7 @@ theorem compactNumericListedDirectTraceValid_primrec :
           (compactNumericDirectTraceParts input.2).1
           (compactNumericDirectTraceParts input.2).2.1)
         (compactNumericDirectTraceStates input.2)) :=
-    compactNumericVerifierTraceValid_primrec.comp <|
+    compactNumericVerifierLocalTraceValid_primrec.comp <|
       Primrec.pair (Primrec.pair hfuel hstart) hstates
   have hfinalState : Primrec (fun input : Input =>
       compactNumericTraceState?
@@ -400,7 +584,8 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
                       compactNumericDirectTraceFormulaValue,
                       compactNumericDirectTraceStates]
                     refine ⟨hcertified, hformula, hparts, hformulaValue,
-                      rfl, ?_, hconclusion, hpayload⟩
+                      compactNumericVerifierStateTrace_localValid fuel start,
+                      ?_, hconclusion, hpayload⟩
                     change
                       (compactNumericTraceState?
                         (compactNumericVerifierStateTrace fuel start) fuel).map
@@ -423,7 +608,7 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
         compactPackedTokenStream formulaCode = some formulaTokens ∧
         compactNumericCertifiedPartsParser certifiedTokens = some parts ∧
         compactNumericWholeFormulaValue formulaTokens = some formulaValue ∧
-        CompactNumericVerifierTraceValid fuel start states ∧
+        CompactNumericVerifierLocalTraceValid fuel start states ∧
         (compactNumericTraceState? states fuel).map
             compactNumericVerifierStateResult = some true ∧
         tokenFormulaSetEq parts.2.2 [formulaValue] = true ∧
@@ -432,7 +617,8 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
     rcases htrace with ⟨hcertified, hformula, hparts, hformulaValue,
       hstates, hfinal, hconclusion, hpayload⟩
     have hstatesEq : states =
-        compactNumericVerifierStateTrace fuel start := hstates
+        compactNumericVerifierStateTrace fuel start :=
+      compactNumericVerifierLocalTraceValid_eq_canonical hstates
     have hmachine :
         compactNumericVerifierResult parts.1 parts.2.1 = true := by
       rw [hstatesEq] at hfinal
@@ -458,6 +644,11 @@ theorem compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace
 #print axioms compactNumericVerifierStateAt_primrec
 #print axioms compactNumericVerifierStateTrace_primrec
 #print axioms compactNumericTraceState?_primrec
+#print axioms compactNumericVerifierStepOption_primrec
+#print axioms compactNumericVerifierTransitionAt_primrec
+#print axioms compactNumericVerifierTraceLengthValid_primrec
+#print axioms compactNumericVerifierTraceInitialValid_primrec
+#print axioms compactNumericVerifierLocalTraceValid_primrec
 #print axioms compactNumericVerifierTraceValid_primrec
 #print axioms compactNumericListedDirectTraceValid_primrec
 #print axioms compactNumericListedPublicVerifier_eq_true_iff_exists_directTrace

@@ -468,9 +468,16 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     ```
 
     单文件探针退出码为 0，六个审计端点公理画像只有三个 Lean 标准公理。该模块不调用
-    `projection/rfind`。当前边界也已明确：组件 parser（解析器）仍以精确函数等式核对，中央状态链的
-    `Valid` 仍等于规范状态列表；这足以关闭外部直接轨迹语义，但还不是 PA 内部可逐步检查的局部计算表，
-    也尚未给出轨迹编码位长的多项式界。
+    `projection/rfind`。
+60. 同一模块又把中央状态链加强为真正的 local tableau（局部计算表）。
+    `CompactNumericVerifierLocalTraceValid` 要求列表长度精确为 `fuel+1`、第 0 行为同一公开初态，且每个
+    `i<fuel` 的下一行严格等于 `compactNumericVerifierStep` 作用于当前行。Lean 已分别证明单步关系、长度、
+    初态和总局部谓词原始递归；规范轨迹满足局部表，任意合法局部表又逐行等于规范轨迹。公开直接见证已
+    正式改用该局部谓词，并保留第 59 项的双向接受等价。定向探针退出码为 0，公理画像仍只有三个标准项。
+
+    当前边界缩小为组件内部：packed payload、binary-Nat token stream、proof/certificate/formula parser
+    和局部语法变换仍以精确函数等式核对结果，尚未统一携带内部状态子轨迹；全部状态与子轨迹也尚未给出
+    面向最终算术公式的显式自然数编码和多项式位长界。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -495,7 +502,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 项现已关闭该公式所需的非最小化**外部轨迹语义**。当前黄色工作面是把它加强为局部可核验公式：
+   第 59、60 项现已关闭非最小化外部轨迹语义和中央任务机局部计算表。当前黄色工作面是补齐组件子轨迹
+   并把整套见证显式编码成局部可核验算术公式：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -503,9 +511,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
      exists trace, DirectVerifierTrace(proofCode,y,trace).
    ```
 
-   精确 `verifier=true iff exists trace.Valid` 已由第 59 项闭合。下一步必须把中央规范列表等式拆为
-   `initial/step/final` 的局部 tableau（计算表）检查，并为 packed 解析、公式解析和局部语法变换补齐内部
-   子轨迹；随后给所有状态与子轨迹显式自然数编码，证明编码位长和局部核验具有统一多项式界，并直接构造
+   精确 `verifier=true iff exists trace.Valid` 及中央 `initial/step/final` 局部检查已闭合。下一步必须为
+   packed 解析、公式解析和局部语法变换补齐内部子轨迹；随后给所有状态与子轨迹显式自然数编码，证明
+   编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
    且完整证明载荷长度为输入位长的固定多项式。`Decidable`（可判定）、普通 `codeOfREPred` 或逐实例
