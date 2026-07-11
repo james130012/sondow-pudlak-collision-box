@@ -517,6 +517,17 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `publicVerifier=true iff exists DirectTraceValid` 再次通过探针，公理画像仍只有三个 Lean 标准项。
     当前边界已精确落到 `compactListedProofNodeFieldsParser` 的十标签分派及其内部
     sequent/formula/term value parser（序列/公式/项值解析器），不再停留在包装函数。
+64. [FoundationCompactNumericListedRootFieldsDecomposition.lean](../integration/FoundationCompactNumericListedRootFieldsDecomposition.lean)
+    已继续删除 `compactListedProofNodeFieldsParser` 的十标签总分派黑箱。新关系直接匹配输入首 token：空流
+    和标签不在 `0..9` 时严格为假；标签 `0..9` 分别选择公开定义中的 sequent-only、sequent+formula、
+    sequent+two-formula、sequent+closed-formula 或 sequent+formula+term 分支，并同时要求 `root.1` 等于
+    该标签、所选分支精确返回 `root.2`。Lean 已证明 whole root parser 返回 `some root` 当且仅当这条
+    十分支关系成立，且该关系为 `PrimrecPred`。
+
+    第 63 项的 certified-parts residual 已改用新十分支关系，因此总公开见证不再含 whole root parser
+    结果等式。新模块目标构建、分解模块探针和总见证探针均通过；等价端点只需 `propext`，原始递归端点
+    仍只有三个 Lean 标准依赖。当前边界继续下沉到所选标签分支内部的 sequent/formula/closed-formula/term
+    value parser，下一步先打开 sequent value repeat（序列值重复迭代）及每个公式子运行。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -541,10 +552,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 63 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 64 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
-   包装层。当前黄色工作面是打开根节点字段解析器及验证器单步函数内的原子调用，并把整套见证显式编码成
-   局部可核验算术公式：
+   包装层和根节点十标签总分派。当前黄色工作面是打开各标签分支内的值解析器及验证器单步函数中的原子调用，
+   并把整套见证显式编码成局部可核验算术公式：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -554,8 +565,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 
    精确 `verifier=true iff exists trace.Valid`、中央 `initial/step/final` 检查、packed token stream
    局部检查、三个 outer parser tableau 及两个结果包装层已闭合。下一步必须打开
-   `compactListedProofNodeFieldsParser` 的十标签分派及其 sequent/formula/term value parser，并继续展开
-   `parserStep/verifierStep` 内的原子字段解析和局部语法变换；随后给所有状态与子轨迹显式自然数编码，证明
+   sequent/formula/closed-formula/term value parser，首先打开 sequent value repeat 及其中每个公式子运行，
+   并继续展开 `parserStep/verifierStep` 内的原子字段解析和局部语法变换；随后给所有状态与子轨迹显式自然数编码，证明
    编码位长和局部核验具有统一多项式界，并直接构造
    该关系的二变量 Σ₁ 公式。只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
@@ -669,5 +680,6 @@ lake env lean integration/FoundationCompactNumericListedProofPredicate.lean
 lake env lean integration/FoundationCompactPackedTokenStreamDirectTrace.lean
 lake env lean integration/FoundationCompactParserDirectTrace.lean
 lake env lean integration/FoundationCompactNumericListedParseDecomposition.lean
+lake env lean integration/FoundationCompactNumericListedRootFieldsDecomposition.lean
 lake env lean integration/FoundationCompactNumericListedDirectTrace.lean
 ```
