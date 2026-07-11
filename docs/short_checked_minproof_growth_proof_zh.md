@@ -425,6 +425,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     均调用真实数值变换，`axm` 调用第 54 项同一 23 标签比较器。每条函数均已证 `Primrec`，并在
     规范字段上逐点等于 `listedCertificateValidTrace` 对应分支结果。子有效性是后续任务栈的递归返回值，
     不是外部 theorem/axiom（定理/公设）输入；关键公理画像仍只有三个 Lean 标准公理。
+56. [FoundationCompactNumericListedNodeFields.lean](../integration/FoundationCompactNumericListedNodeFields.lean)
+    已闭合 proof/certificate（证明/证书）两侧逐节点字段解析。证明标签 `0..9` 按公开编码顺序只消费
+    父序列、主公式和见证项，并精确保留子证明流；结构证书的 `leaf/axiom/unary/binary` 四种形状
+    同样只消费根标签，公理叶额外精确截取完整 PA 公理证书 token。两个 dispatcher（分派器）均已证
+    `Primrec`，且对任意真实树/证书与任意 suffix 返回规范字段及同一后缀。关键公理画像仍只有三个
+    Lean 标准公理，无类型化语法运行时输入。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -444,10 +450,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    第 50 项又闭合其纯数值 `fvSup`（自由变量上确界），第 51 项闭合 `allClosure`（全称闭包）
    本体，第 52 项将守卫长度精确校准到候选公式公开二进制码，第 53 项闭合守卫、标签 `22`
    完整句及规范输入上的相等判定，第 54 项已合并全部 23 标签，并利用任意证书输入反演定理
-   排除畸形 token 与垃圾尾部，第 55 项已闭合十条规则的全部纯数值局部合并器。当前唯一工作面
-   是建立有限任务栈，同步消费 proof tree（证明树）与 structural certificate（结构证书）token，
-   解析节点字段后把子结论与子布尔结果自底向上交给第 55 项；还须覆盖形状错配、畸形输入、燃料
-   耗尽与全部拒绝分支，最终闭合完整公开 verifier 的
+   排除畸形 token 与垃圾尾部，第 55 项已闭合十条规则的全部纯数值局部合并器，第 56 项已闭合
+   两侧根节点字段解析并精确保留子流。当前唯一工作面是建立有限任务栈，调用第 56 项同步消费
+   proof tree（证明树）与 structural certificate（结构证书）token，再把子结论与子布尔结果
+   自底向上交给第 55 项；还须证明显式燃料界，并覆盖形状错配、燃料耗尽与全部拒绝分支，最终
+   闭合完整公开 verifier 的
    `Primrec`（原始递归）图与逐点结果等式。
    随后才构造 PA 内部接受计算证明；`Decidable`（可判定）、可执行或普通 `codeOfREPred` 均不能代替该证明。
 
@@ -556,4 +563,5 @@ lake env lean integration/FoundationCompactNumericTokenBitLength.lean
 lake env lean integration/FoundationCompactNumericGuardedInductionSentence.lean
 lake env lean integration/FoundationCompactNumericPAAxiomComparator.lean
 lake env lean integration/FoundationCompactNumericListedRuleChecks.lean
+lake env lean integration/FoundationCompactNumericListedNodeFields.lean
 ```
