@@ -891,6 +891,19 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     分量。三段严格占据顶层边界 `4→5`、`5→6`、`6→7`，共享同一 tokenTable、width 和 tokenCount；
     定向构建通过 1354 个任务，全部端点仅依赖标准三项。这里仅关闭状态与边界语义，尚未把
     `initial/step/final`（初态／转移／终态）关系标为已算术化。
+122. [FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean)
+    已将任务栈每行“恰占三个 token”写成三变量手工 `Δ₀` 公式。真实任务行推出
+    `right=left+3`；反方向仅从公共 token 表在 `left`、`left+1`、`left+2` 读取三值，确定性恢复
+    `kind/binderArity/count`，不输入 typed task（类型化任务）见证。
+123. [FoundationCompactNumericListedDirectParserStateFormula.lean](../integration/FoundationCompactNumericListedDirectParserStateFormula.lean)
+    已把两层 product split、剩余 Nat token 列表、三格任务列表、两张边界表的精确 `Nat.size` 与面积界
+    合为手写 13 自由变量 `Δ₀` 核心公式。真实状态布局无条件产生该公式见证；反方向只凭表位恢复
+    `tokens/tasks` 两个真实列表，再与后续给出的 status 布局组成完整解析器状态，核心不再输入 typed state。
+124. [FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean](../integration/FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean)
+    已把第 123 项的实际 `Evalb`（公式求值）安装到 proof、certificate、formula 三条轨迹的每个状态行，
+    同时保留真实 status 布局供下一步分支消元。最终定向构建通过 1359 个任务；全部新增端点只依赖
+    标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。下一义务是把两个相邻状态核心与
+    status 标签、任务头和 token 操作合成三类 parser step 的纯数值公式。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -1118,4 +1131,11 @@ lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamSte
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaBridge.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskLayout.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserStateLayout.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserStateListLayout.lean
+lake env lean integration/FoundationCompactNumericListedDirectTraceParserStateLayouts.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserStateFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean
 ```
