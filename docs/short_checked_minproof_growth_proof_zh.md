@@ -742,6 +742,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     为 Bool 与 Nat：Bool 行直接读取真实 `0/1` tag，Nat 行直接读取真实自然数 token。第 90 项单状态
     布局已升级为 bits/decoded 两张内部表逐行携带这些强关系；第 91、92 项在升级后重新探针通过。六个
     新端点及三层回归公理画像均仅标准三项，无项目公设或 `sorryAx`。
+94. [FoundationCompactNumericListedDirectBinaryNatStreamStepCases.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepCases.lean)
+    已把真实 `binaryNatStreamStep` 精确拆成四个语义分支：status 已完成时保持原状态；运行中且 bits 为空
+    时输出 `decoded.reverse`；非空 bits 解码失败时保持两列表并置 `some none`；解码成功时取得
+    `token/suffix`，把 token 前插 decoded 并继续运行。四分支析取已逐点证明当且仅当真实下一状态，且
+    明确保留 `decodeBinaryNat` 接受冗余高零位的非规范编码行为，未偷换成规范 `binaryNatCode` 长度。
+    两个端点探针退出码 0，仅依赖 `propext`、`Quot.sound`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -766,7 +772,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 93 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 94 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -784,10 +790,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    `Option(Option(List Nat))` 三分支布局，第 90 项进一步把 List Bool、List Nat 与该 status 合并为
    单个完整 `BinaryNatStreamState` 布局，第 91 项再证明任意状态列表的同一规范边界表逐行精确承载
    这些完整布局，第 92 项已把它安装到完整 trace 的 proof/formula 两个具体状态字段，并精确校准第
-   2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开。
-   当前黄色工作面由这些原子行构造 packed bits、suffix、decoded cons/reverse 的直接关系，再表示
-   `binaryNatStreamStep` 四分支并证明逐点等价于 stream local-step；随后处理第 5 至 7 个 parser trace
-   和其余分量：
+   2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开，
+   第 94 项固定了真实 stream step 的四分支精确正常形。当前黄色工作面先构造允许冗余高零位的直接
+   decode segment 并证明成功/失败等价，再接 suffix、decoded cons/reverse，把第 94 项逐项翻译为
+   手写有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -939,4 +945,5 @@ lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamSta
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStateListLayout.lean
 lake env lean integration/FoundationCompactNumericListedDirectTracePackedStreamStateLayouts.lean
 lake env lean integration/FoundationCompactNumericListedDirectAtomicListLayouts.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepCases.lean
 ```
