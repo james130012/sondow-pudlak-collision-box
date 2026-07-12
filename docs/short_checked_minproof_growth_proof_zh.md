@@ -641,8 +641,17 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     offset 表逐行调用第 76 项关系，强制首 offset 为 0、末 offset 为完整 payload length。Lean 对任意真实
     token 列表逐位证明所有 marker/data/`00` 终止位，并构造两张规范表；其码长分别不超过
     `count*payloadLength` 与 `(count+1)*payloadLength`。五个正式端点探针退出码 0，公理画像仅三个标准项。
-    当前边界明确保留为反向义务：从任意合法表唯一恢复同一 token 列表，并证明与
-    `compactPackedTokenStream` 对同一 payload 的结果逐点 `iff`；完成前不得把完整 token 流节点标绿。
+    公开 `decodeBinaryNat` 允许冗余高零位，所以任意原始 code 与规范段的逐码 `iff` 为假，禁止作为目标；
+    该边界由第 79 项的规范反演和不增大规范化精确关闭。
+79. [FoundationCompactNumericListedDirectTokenStreamInverse.lean](../integration/FoundationCompactNumericListedDirectTokenStreamInverse.lean)
+    已关闭 token-stream tableau 的规范反向与非规范输入归一化。Lean 从任意合法定宽表唯一提取 token 和
+    累计 offset，证明全部 offset 等于规范累计偏移、每个 payload bit 被某一 token 段覆盖，并由逐位外延
+    得到 payload 精确等于提取 token 列表的规范重编码。因此 canonical tableau（规范计算表）与同一
+    canonical packed code（规范打包码）双向等价，且可由当前公开 `compactPackedTokenStream` 解码回来。
+    对公开解码器接受的冗余高零位 code，又构造同 token 的规范 code 并证明
+    `Nat.size(canonicalCode) <= Nat.size(originalCode)`；故正确结论是“规范码逐点 `iff` + 保持 cutoff 的
+    存在量词规范化”，而不是错误的原始码逐码 `iff`。十三个正式端点探针退出码 0，公理画像仅
+    `propext`、`Classical.choice`、`Quot.sound`，无 `sorryAx`、`projection`、`rfind` 或项目公设。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -667,15 +676,16 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 75 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 79 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
    列表汇总界、十二分量分解、全部十二分量公开界、总轨迹码长界，以及确定性有界 `traceCode`
    证书关系；公开码长界函数、完整 size-guard witness（码长守卫见证）的原始递归性，以及 `Nat.size`
-   的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵又已化为 `value + 2^length` 的直接 `Δ₀` 图。
-   当前黄色工作面先把 payload 切成自定界 token 流，再处理验证器单步函数中的剩余原子调用并构造完整
-   直接有界算术图：
+   的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵、单 token 段、定宽随机读取及完整 token 流
+   的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化。当前黄色工作面把
+   proofCode 与 formulaCode 两条规范 token 流接入总见证，再处理加法型 typed trace 解码器和
+   `DirectTraceValid` 中的剩余原子调用，构造完整直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -812,4 +822,5 @@ lake env lean integration/FoundationCompactNumericListedDirectTraceBounds.lean
 lake env lean integration/FoundationCompactNumericListedBoundedTraceCode.lean
 lake env lean integration/FoundationCompactNumericListedDirectArithmeticPrimitives.lean
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamTableau.lean
+lake env lean integration/FoundationCompactNumericListedDirectTokenStreamInverse.lean
 ```
