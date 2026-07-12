@@ -265,6 +265,20 @@ theorem CompactAdditiveBoolListRowsWellFormed.realizedRows
     simpa [CompactAdditiveBoolValueDirectLayout,
       compactAdditiveBoolTag] using hone
 
+theorem CompactAdditiveBoolListRowsWellFormed.unitBoundaryRows
+    {tokenTable width tokenCount boundaryTable count : Nat}
+    (hwellFormed : CompactAdditiveBoolListRowsWellFormed
+      tokenTable width tokenCount boundaryTable count) :
+    CompactAdditiveUnitBoundaryRows tokenCount count boundaryTable := by
+  intro index hindex
+  rcases hwellFormed index hindex with
+    ⟨left, hleft, right, hright,
+      hleftEntry, hrightEntry, hzero | hone⟩
+  · exact ⟨left, hleft, right, hright,
+      hleftEntry, hrightEntry, hzero.1.2.1⟩
+  · exact ⟨left, hleft, right, hright,
+      hleftEntry, hrightEntry, hone.1.2.1⟩
+
 theorem CompactAdditiveUnitBoundaryRows.realizedNatRows
     {tokenTable width tokenCount boundaryTable count : Nat}
     (hunit : CompactAdditiveUnitBoundaryRows
@@ -298,6 +312,7 @@ theorem CompactAdditiveUnitBoundaryRows.realizedNatRows
 #print axioms compactAdditiveUnitBoundaryRowsDef_sigmaZero
 #print axioms CompactAdditiveStructuredListElementRowLayouts.boolRowsWellFormed
 #print axioms CompactAdditiveBoolListRowsWellFormed.realizedRows
+#print axioms CompactAdditiveBoolListRowsWellFormed.unitBoundaryRows
 #print axioms CompactAdditiveUnitBoundaryRows.realizedNatRows
 
 end FoundationCompactNumericListedDirectAtomicListRowRealization

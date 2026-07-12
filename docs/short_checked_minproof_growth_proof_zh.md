@@ -857,6 +857,25 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 112. [FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean)
     已把两份第 110 项状态核心与第 108 项单步图共享坐标，合为手写 35 自由变量 `Δ₀` 公式。全部
     `Fin` 环境逐项校准，规格定理逐点 iff 第 111 项已实现单步图；层级与规格端点仅依赖标准三项。
+113. [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTable.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTable.lean)
+    已把当前状态 10 列、下一状态 10 列和分支见证 12 列固定为同一 32 列 row-major（行优先）表。
+    规范表码支持任意行列精确读取，表图逐行求值第 112 项公式，表码位长不超过
+    `rowCount * 32 * tableWidth`；端点仅依赖标准三项。
+114. [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound.lean)
+    已从状态核心图推出全部状态坐标的公开位长界，并按四分支把未使用见证字段规范化为零。保留字段全部
+    落入 `tableWidth=(tokenCount+1)*tokenCount+8`，没有为任意见证另加隐藏上界输入。
+115. [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableInstallation.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableInstallation.lean)
+    已把每个真实相邻状态步转换为满足第 114 项统一列宽的行，并构造 proof/formula 两张规范见证表；
+    两表同时保留精确码长界并逐行满足 35 变量单步图。
+116. [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormula.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormula.lean)
+    已把 32 个定宽条目和 35 变量单步图写成真实 `Δ₀` 表公式。32 个有界见证按当前状态、下一状态、
+    见证头、见证尾四级连续子公式引入，避免元层表关系冒充算术公式；公式规格和层级端点仅依赖标准三项。
+117. [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaBridge.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaBridge.lean)
+    与 [FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaInstallation.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaInstallation.lean)
+    已证明每个条目值由表位唯一决定，`BoundedGraph(valueBound)` 当且仅当
+    `valueBound=2^tableWidth` 且原 `TableGraph` 成立；任意公式见证均被强制回同一规范 32 列行。
+    proof/formula 两张表现已直接满足手写公式。最终定向构建通过 1379 个任务，全部新增端点仅依赖
+    `propext`、`Classical.choice`、`Quot.sound`，无项目公设或 `sorryAx`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -881,7 +900,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 112 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 117 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -912,9 +931,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    位长守卫；第 107 项把四分支逐项恢复为真实 `binaryNatStreamStep`；第 108 项写成 31 变量手写 `Δ₀`
    公式，并安装到 proof/formula 两张状态表的全部相邻行。第 109 至 112 项又从纯数值边界表确定性恢复
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
-   `Δ₀` 公式。当前黄色工作面只剩把每步状态坐标、size 坐标和分支见证汇总成有界表，并证明
-   proof/formula 两张表逐行满足该公式；随后处理第 5 至 7 个
-   parser trace 和其余分量：
+   `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
+   安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。当前黄色
+   工作面已推进到第 5 至 7 个 parser trace（解析器轨迹）和其余 verifier（验证器）分量的直接算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -1078,4 +1097,10 @@ lake env lean integration/FoundationCompactNumericListedDirectAtomicListRowReali
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStateFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRealization.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTable.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaBridge.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaInstallation.lean
 ```
