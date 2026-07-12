@@ -33,6 +33,117 @@ def CompactAdditiveTripleBoundaryRows
       CompactFixedWidthEntry boundaryTable tokenCount (index + 1) right ∧
       right = left + 3
 
+def compactSyntaxTaskDirectLayoutDef : 𝚺₀.Semisentence 8 := .mkSigma
+  “tokenTable width tokenCount start finish
+      kind binderArity repeatCount.
+    ∃ binderStart <⁺ tokenCount,
+      ∃ countStart <⁺ tokenCount,
+        !(compactAdditiveTokenCellDef)
+          tokenTable width tokenCount start kind binderStart ∧
+        !(compactAdditiveTokenCellDef)
+          tokenTable width tokenCount
+            binderStart binderArity countStart ∧
+        !(compactAdditiveTokenCellDef)
+          tokenTable width tokenCount
+            countStart repeatCount finish”
+
+@[simp] theorem compactSyntaxTaskDirectLayoutDef_spec
+    (tokenTable width tokenCount start finish
+      kind binderArity repeatCount : Nat) :
+    compactSyntaxTaskDirectLayoutDef.val.Evalb
+        ![tokenTable, width, tokenCount, start, finish,
+          kind, binderArity, repeatCount] ↔
+      CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+        start finish (kind, binderArity, repeatCount) := by
+  have hfirst (countStart binderStart : Nat) :
+      (Semiformula.Eval
+          (Semiterm.val
+              ![countStart, binderStart,
+                tokenTable, width, tokenCount, start, finish,
+                kind, binderArity, repeatCount]
+              Empty.elim ∘
+            ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #5, #7, #1])
+          Empty.elim) compactAdditiveTokenCellDef.val ↔
+        CompactAdditiveTokenCell
+          tokenTable width tokenCount start kind binderStart := by
+    have henv :
+        (Semiterm.val
+            ![countStart, binderStart,
+              tokenTable, width, tokenCount, start, finish,
+              kind, binderArity, repeatCount]
+            Empty.elim ∘
+          ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #5, #7, #1]) =
+          ![tokenTable, width, tokenCount, start, kind, binderStart] := by
+      funext coordinate
+      fin_cases coordinate <;> rfl
+    rw [henv]
+    simp
+  have hsecond (countStart binderStart : Nat) :
+      (Semiformula.Eval
+          (Semiterm.val
+              ![countStart, binderStart,
+                tokenTable, width, tokenCount, start, finish,
+                kind, binderArity, repeatCount]
+              Empty.elim ∘
+            ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #1, #8, #0])
+          Empty.elim) compactAdditiveTokenCellDef.val ↔
+        CompactAdditiveTokenCell
+          tokenTable width tokenCount
+            binderStart binderArity countStart := by
+    have henv :
+        (Semiterm.val
+            ![countStart, binderStart,
+              tokenTable, width, tokenCount, start, finish,
+              kind, binderArity, repeatCount]
+            Empty.elim ∘
+          ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #1, #8, #0]) =
+          ![tokenTable, width, tokenCount,
+            binderStart, binderArity, countStart] := by
+      funext coordinate
+      fin_cases coordinate <;> rfl
+    rw [henv]
+    simp
+  have hthird (countStart binderStart : Nat) :
+      (Semiformula.Eval
+          (Semiterm.val
+              ![countStart, binderStart,
+                tokenTable, width, tokenCount, start, finish,
+                kind, binderArity, repeatCount]
+              Empty.elim ∘
+            ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #0, #9, #6])
+          Empty.elim) compactAdditiveTokenCellDef.val ↔
+        CompactAdditiveTokenCell
+          tokenTable width tokenCount
+            countStart repeatCount finish := by
+    have henv :
+        (Semiterm.val
+            ![countStart, binderStart,
+              tokenTable, width, tokenCount, start, finish,
+              kind, binderArity, repeatCount]
+            Empty.elim ∘
+          ![(#2 : Semiterm ℒₒᵣ Empty 10), #3, #4, #0, #9, #6]) =
+          ![tokenTable, width, tokenCount,
+            countStart, repeatCount, finish] := by
+      funext coordinate
+      fin_cases coordinate <;> rfl
+    rw [henv]
+    simp
+  simp [compactSyntaxTaskDirectLayoutDef,
+    CompactSyntaxTaskDirectLayout, hfirst, hsecond, hthird]
+  constructor
+  · rintro ⟨binderStart, _hbinderBound,
+      countStart, _hcountBound, hkind, hbinder, hcount⟩
+    exact ⟨binderStart, hkind, countStart, hbinder, hcount⟩
+  · rintro ⟨binderStart, hkind, countStart, hbinder, hcount⟩
+    exact ⟨binderStart, Nat.le_of_lt hbinder.1,
+      countStart, Nat.le_of_lt hcount.1,
+      hkind, hbinder, hcount⟩
+
+theorem compactSyntaxTaskDirectLayoutDef_sigmaZero :
+    LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
+      compactSyntaxTaskDirectLayoutDef.val := by
+  simp [compactSyntaxTaskDirectLayoutDef]
+
 def compactAdditiveTripleBoundaryRowsDef : 𝚺₀.Semisentence 3 := .mkSigma
   “tokenCount count boundaryTable.
     ∀ index < count,
@@ -168,6 +279,8 @@ theorem CompactAdditiveTripleBoundaryRows.realizedTaskRows
 
 #print axioms compactAdditiveTripleBoundaryRowsDef_spec
 #print axioms compactAdditiveTripleBoundaryRowsDef_sigmaZero
+#print axioms compactSyntaxTaskDirectLayoutDef_spec
+#print axioms compactSyntaxTaskDirectLayoutDef_sigmaZero
 #print axioms CompactAdditiveStructuredListElementRowLayouts.tripleBoundaryRows
 #print axioms CompactAdditiveTripleBoundaryRows.realizedTaskRows
 

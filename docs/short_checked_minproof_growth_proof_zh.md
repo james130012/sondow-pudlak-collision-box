@@ -894,7 +894,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 122. [FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean)
     已将任务栈每行“恰占三个 token”写成三变量手工 `Δ₀` 公式。真实任务行推出
     `right=left+3`；反方向仅从公共 token 表在 `left`、`left+1`、`left+2` 读取三值，确定性恢复
-    `kind/binderArity/count`，不输入 typed task（类型化任务）见证。
+    `kind/binderArity/count`，不输入 typed task（类型化任务）见证。现又补齐八变量完整任务布局公式，
+    将三个字段值分别绑定到三个连续 `CompactAdditiveTokenCell`（加法编码 token 单元）。
 123. [FoundationCompactNumericListedDirectParserStateFormula.lean](../integration/FoundationCompactNumericListedDirectParserStateFormula.lean)
     已把两层 product split、剩余 Nat token 列表、三格任务列表、两张边界表的精确 `Nat.size` 与面积界
     合为手写 13 自由变量 `Δ₀` 核心公式。真实状态布局无条件产生该公式见证；反方向只凭表位恢复
@@ -904,6 +905,20 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     同时保留真实 status 布局供下一步分支消元。最终定向构建通过 1359 个任务；全部新增端点只依赖
     标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。下一义务是把两个相邻状态核心与
     status 标签、任务头和 token 操作合成三类 parser step 的纯数值公式。
+125. [FoundationCompactNumericListedDirectParserStepCases.lean](../integration/FoundationCompactNumericListedDirectParserStepCases.lean)
+    已证明三个 parser step 共有的精确外层正常形：status 已结束时状态保持不变；运行中且任务栈为空时
+    以剩余 token 完成；运行中且任务栈非空时仅执行任务头。统一定理无损实例化到 syntax、proof、
+    certificate 三个公开 step，四个端点只依赖 `propext`、`Quot.sound`。
+126. [FoundationCompactNumericListedDirectSyntaxTaskListSameRows.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskListSameRows.lean)
+    已把一个任务的三个 token 块分别接到三份 `AtomicRowEq`（原子行相等）公式，再逐任务提升为列表
+    相等公式。在真实任务行布局下，该手写 `Δ₀` 关系当且仅当两个任务列表完全相等。
+127. [FoundationCompactNumericListedDirectSyntaxTaskListDropRows.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskListDropRows.lean)
+    已证明目标任务第 `i` 行等于源任务第 `consumed+i` 行的手写 `Δ₀` 关系，当且仅当
+    `target=source.drop consumed`；取 `consumed=1` 即真实 parser step 的任务头弹出。
+128. [FoundationCompactNumericListedDirectSyntaxTaskListConsRows.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskListConsRows.lean)
+    已用第 122 项完整任务布局约束目标第零行，并把其余行逐项接到前一源行；所得手写 `Δ₀` 关系
+    当且仅当 `target=head::source`。第 125 至 128 项联合定向构建通过 1362 个任务，全部新增端点无
+    项目公设或 `sorryAx`。下一步将这些 same/drop/cons 组件与 status、Nat token 列表变换合成真实分支。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -1138,4 +1153,8 @@ lake env lean integration/FoundationCompactNumericListedDirectTraceParserStateLa
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserStateFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserStepCases.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListSameRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListDropRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListConsRows.lean
 ```
