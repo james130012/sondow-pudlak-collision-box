@@ -954,6 +954,18 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     已将第 136 项与 `ConsRows` 合成 11 自由变量手工 `Δ₀` 拆头公式。存在带精确码长守卫的尾表见证，
     当且仅当真实任务栈为指定 `(kind,binderArity,repeatCount) :: tail`；因此任务头三个字段、pop 后尾栈及
     后续 push 的共同基准已经在同一算术坐标闭合。定向构建通过 1360 个任务，新增端点仅依赖标准三项。
+138. [FoundationCompactNumericListedDirectSyntaxTaskListAtRows.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskListAtRows.lean)
+    已给任意任务边界表建立九变量 `TaskAtRows` 手工 `Δ₀` 公式：直接读取第 `index/index+1` 两个游标，
+    再绑定该行的 `kind/binderArity/repeatCount` 三个 token。在真实任务行布局下，公式当且仅当
+    `index<tasks.length` 且 `tasks.getI index` 精确等于指定任务，不能用同宽伪行替代。
+139. [FoundationCompactNumericListedDirectParserSyntaxRepeatRows.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxRepeatRows.lean)
+    、[FoundationCompactNumericListedDirectParserSyntaxRepeatFormula.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxRepeatFormula.lean)
+    与 [FoundationCompactNumericListedDirectParserSyntaxRepeatInstallation.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxRepeatInstallation.lean)
+    已完整关闭 syntax `kind=2` repeated-term task（重复项任务）。零计数分支直接暴露第 137 项同一尾栈；
+    正数分支在 next 第 0、1 行压入 term task 与递减 repeat task，并证明 next.drop 2 等于同一尾栈。
+    递减值是显式见证且满足 `repeatCount=decrementedCount+1`，25 变量 `Δ₀` 公式不使用元层减法。
+    公式存在见证 iff 真实 `compactRepeatTermTokenStep`，并已安装到公开 syntax parser step；最终定向
+    构建通过 1369 个任务，全部新增端点仅依赖标准三项。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -978,7 +990,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 137 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 139 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -1011,8 +1023,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
    `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
    安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。
-   第 118 至 137 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
-   正常形、done/empty 两个完整分支，以及非空任务栈的规范有界拆头公式。当前黄色工作面已收窄到
+   第 118 至 139 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
+   正常形、done/empty 两个完整分支、非空任务栈规范拆头，以及 syntax repeat task 的完整有界公式。当前黄色工作面已收窄到
    非空任务栈的 task-head dispatch（任务头标签分派）、parser initial/final（解析器初态／终态）及其余
    verifier（验证器）分量的直接算术图：
 
@@ -1204,4 +1216,8 @@ lake env lean integration/FoundationCompactNumericListedDirectParserEmptyFormula
 lake env lean integration/FoundationCompactNumericListedDirectParserEmptyInstallation.lean
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListTailTable.lean
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListUnconsRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListAtRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatInstallation.lean
 ```

@@ -125,6 +125,42 @@ theorem compactAdditiveSyntaxTaskListUnconsRowsWithSizeDef_sigmaZero :
       compactAdditiveSyntaxTaskListUnconsRowsWithSizeDef.val := by
   simp [compactAdditiveSyntaxTaskListUnconsRowsWithSizeDef]
 
+theorem CompactAdditiveSyntaxTaskListUnconsRowsWithSize.realizes
+    {tokenTable width tokenCount sourceBoundary sourceCount
+      tailBoundary tailCount tailBoundarySize
+      headKind headBinderArity headRepeatCount : Nat}
+    {source : List CompactSyntaxTask}
+    (hrelation : CompactAdditiveSyntaxTaskListUnconsRowsWithSize
+      tokenTable width tokenCount
+        sourceBoundary sourceCount tailBoundary tailCount tailBoundarySize
+        headKind headBinderArity headRepeatCount)
+    (hsourceCount : sourceCount = source.length)
+    (hsource : CompactAdditiveStructuredListElementRowLayouts
+      CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+        sourceBoundary source) :
+    ∃ tail,
+      CompactAdditiveStructuredListElementRowLayouts
+        CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+          tailBoundary tail ∧
+      tail.length = tailCount ∧
+      source = (headKind, headBinderArity, headRepeatCount) :: tail := by
+  let tail := compactAdditiveSyntaxTaskListRowValues
+    tokenTable width tokenCount tailBoundary tailCount
+  have htailRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+        tailBoundary tail :=
+    CompactAdditiveTripleBoundaryRows.realizedTaskRows hrelation.2.2.1
+  have hcons : CompactAdditiveSyntaxTaskListConsRows
+      tokenTable width tokenCount tailBoundary tail.length
+        sourceBoundary source.length
+        headKind headBinderArity headRepeatCount := by
+    simpa [tail, hsourceCount] using hrelation.2.2.2.1
+  have hsourceEq :=
+    (compactAdditiveSyntaxTaskListConsRows_iff_cons_of_rows
+      (head := (headKind, headBinderArity, headRepeatCount))
+      htailRows hsource).mp hcons
+  exact ⟨tail, htailRows, by simp [tail], hsourceEq⟩
+
 theorem exists_compactAdditiveSyntaxTaskListUnconsRowsWithSize_iff
     {tokenTable width tokenCount sourceBoundary : Nat}
     {source : List CompactSyntaxTask}
@@ -192,6 +228,7 @@ theorem exists_compactAdditiveSyntaxTaskListUnconsRowsWithSize_iff
 
 #print axioms compactAdditiveSyntaxTaskListUnconsRowsWithSizeDef_spec
 #print axioms compactAdditiveSyntaxTaskListUnconsRowsWithSizeDef_sigmaZero
+#print axioms CompactAdditiveSyntaxTaskListUnconsRowsWithSize.realizes
 #print axioms exists_compactAdditiveSyntaxTaskListUnconsRowsWithSize_iff
 
 end FoundationCompactNumericListedDirectSyntaxTaskListUnconsRows
