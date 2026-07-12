@@ -4,8 +4,9 @@
 
 ## 主控方式
 
-[定理依赖图 DOT](checked_minproof_theorem_dependency_graph_zh.dot) 是当前工作的唯一实时状态面板；
-PNG/SVG/PDF 只视为历史快照，证明推进期间不再生成。本文件只保留图中节点所需的精确定义、
+[定理依赖图 DOT](checked_minproof_theorem_dependency_graph_zh.dot) 是当前工作的唯一实时状态源；
+[同步 PDF](checked_minproof_theorem_dependency_graph_zh.pdf) 在每次 DOT 实质更新时由同一源文件重新生成，
+供低负载查看。PNG/SVG 只视为历史快照，不再更新。本文件只保留图中节点所需的精确定义、
 文献条件、关键不变量和成功判据，不再另建一套与图可能不同步的进度叙述。
 
 图中绿色节点必须有已通过的 Lean theorem（Lean 定理）和 axiom profile（公理画像）证据；
@@ -966,6 +967,18 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     递减值是显式见证且满足 `repeatCount=decrementedCount+1`，25 变量 `Δ₀` 公式不使用元层减法。
     公式存在见证 iff 真实 `compactRepeatTermTokenStep`，并已安装到公开 syntax parser step；最终定向
     构建通过 1369 个任务，全部新增端点仅依赖标准三项。
+140. [FoundationCompactNumericListedDirectNatListAtRows.lean](../integration/FoundationCompactNumericListedDirectNatListAtRows.lean)
+    已把自然数 token 列表第 `index` 行的两端边界游标与单 token 单元写成七变量手工 `Δ₀` 公式。
+    在真实 Nat 行布局下，该关系当且仅当 `index<values.length` 且 `values.getI index=value`；因此
+    `compactTokenAt 0/1/2` 可由同一公开 token 表精确读取，而不是调用元层列表查询。
+141. [FoundationCompactNumericListedDirectNatListDropRows.lean](../integration/FoundationCompactNumericListedDirectNatListDropRows.lean)
+    已逐行比较目标第 `i` 行与源第 `consumed+i` 行，得到八变量手工 `Δ₀` 公式；在真实布局下当且仅当
+    `consumed≤source.length` 且 `target=source.drop consumed`。这直接覆盖 syntax term/formula 分支所需
+    `drop 1/2/3`，并排除伪后缀或越界消费。
+142. [FoundationCompactNumericListedDirectArithmeticSymbolCodeFormula.lean](../integration/FoundationCompactNumericListedDirectArithmeticSymbolCodeFormula.lean)
+    已把有序环语言的四个合法函数码对与两个合法关系码对写成二变量有限析取 `Δ₀` 公式，逐点精确等价
+    于公开 `ArithmeticFuncCodeValid` / `ArithmeticRelCodeValid`。不使用 decoder（解码器）或存在符号见证。
+    第 140、141 项定向构建各通过 1352 个任务，第 142 项探针通过；全部端点仅依赖标准三项。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -990,7 +1003,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 139 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 142 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -1023,8 +1036,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
    `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
    安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。
-   第 118 至 139 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
-   正常形、done/empty 两个完整分支、非空任务栈规范拆头，以及 syntax repeat task 的完整有界公式。当前黄色工作面已收窄到
+   第 118 至 142 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
+   正常形、done/empty 两个完整分支、非空任务栈规范拆头、syntax repeat task 的完整有界公式，以及
+   term/formula 分支共用的 Nat token 定点读取、精确后缀和有限符号码公式。当前黄色工作面已收窄到
    非空任务栈的 task-head dispatch（任务头标签分派）、parser initial/final（解析器初态／终态）及其余
    verifier（验证器）分量的直接算术图：
 
@@ -1220,4 +1234,7 @@ lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListAtRo
 lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatRows.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserSyntaxRepeatInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectNatListAtRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectNatListDropRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectArithmeticSymbolCodeFormula.lean
 ```
