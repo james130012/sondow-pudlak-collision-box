@@ -931,7 +931,21 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 131. [FoundationCompactNumericListedDirectParserDoneInstallation.lean](../integration/FoundationCompactNumericListedDirectParserDoneInstallation.lean)
     已把第 130 项分别接到 syntax、proof、certificate 三个公开 parser step。在当前 status 已结束时，
     公式存在见证当且仅当对应公开 step 产生给定 next。最终定向构建通过 1369 个任务，全部新增端点
-    仅依赖标准三项。下一义务是用当前 Nat/task 行关系构造 empty-task completion（空任务栈完成）公式。
+    仅依赖标准三项；第二个完整外层分支由第 132 至 135 项继续闭合。
+132. [FoundationCompactNumericListedDirectCompletedOutputSameRows.lean](../integration/FoundationCompactNumericListedDirectCompletedOutputSameRows.lean)
+    已将 next 的 completed output（完成输出）直接绑定到当前剩余 Nat token 行。单位边界刚性排除指向
+    另一片 token 表的伪输出；关系存在当且仅当 status 精确等于 `some (some source)`，并有带精确
+    `Nat.size` 与 `(sourceCount+1)*tokenCount` 面积界的见证版本。
+133. [FoundationCompactNumericListedDirectParserEmptyRows.lean](../integration/FoundationCompactNumericListedDirectParserEmptyRows.lean)
+    已证明运行标签、两侧零任务计数、剩余 token 行保持及第 132 项完成输出关系，当且仅当真实
+    empty case（空任务分支）为 `next=(current.tokens, [], some (some current.tokens))`。
+134. [FoundationCompactNumericListedDirectParserEmptyFormula.lean](../integration/FoundationCompactNumericListedDirectParserEmptyFormula.lean)
+    已把第 133 项写成 22 自由变量手工 `Δ₀` 公式：公共表 3 坐标、当前/下一状态各 8 坐标及完成输出
+    3 坐标。全部 `Fin` 环境逐项校准；公式规格逐点 iff 纯数值行关系，存在见证 iff 真实 empty case。
+135. [FoundationCompactNumericListedDirectParserEmptyInstallation.lean](../integration/FoundationCompactNumericListedDirectParserEmptyInstallation.lean)
+    已把第 134 项分别安装到 syntax、proof、certificate 三个公开 parser step；在当前 status 运行且任务栈
+    为空时，公式存在见证当且仅当实际 step 产生给定 next。最终定向构建通过 1369 个任务，所有新增端点
+    仅依赖 `propext`、`Classical.choice`、`Quot.sound`。下一义务是直接算术化非空任务栈的任务头标签分派。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -956,7 +970,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 117 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 135 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -988,8 +1002,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公式，并安装到 proof/formula 两张状态表的全部相邻行。第 109 至 112 项又从纯数值边界表确定性恢复
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
    `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
-   安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。当前黄色
-   工作面已推进到第 5 至 7 个 parser trace（解析器轨迹）和其余 verifier（验证器）分量的直接算术图：
+   安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。
+   第 118 至 135 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
+   正常形，以及 done/empty 两个完整分支的直接 `Δ₀` 公式和真实公开 step 安装。当前黄色工作面已收窄到
+   非空任务栈的 task-head dispatch（任务头标签分派）、parser initial/final（解析器初态／终态）及其余
+   verifier（验证器）分量的直接算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -1173,4 +1190,8 @@ lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListCons
 lake env lean integration/FoundationCompactNumericListedDirectParserDoneRows.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserDoneFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectParserDoneInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectCompletedOutputSameRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserEmptyRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserEmptyFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserEmptyInstallation.lean
 ```
