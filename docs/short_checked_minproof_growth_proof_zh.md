@@ -753,8 +753,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     分解成若干 `10/11` 数据对、终止 `00` 与 suffix，token 等于全部数据位的 `natOfBitsList`。随后定义
     独立 `digitCount` 的六变量 `CompactBinaryNatFlexibleDecodeSegment`，允许
     `digitCount ≥ Nat.size(token)`，并给出手写 `Δ₀` 公式及逐点语义规格。任何真实成功解码现已构造该段、
-    显式消耗长度 `2*digitCount+2` 和精确 `suffix=bits.drop(consumed)`。六个端点探针退出码 0，公理画像
-    仅标准三项或其子集。反向“合法段推出真实解码成功”仍是当前黄色义务，未提前宣称双向闭合。
+    显式消耗长度 `2*digitCount+2` 和精确 `suffix=bits.drop(consumed)`。反向证明从合法段奇数位重建全部
+    数据位和 token，再以偶数/奇数位逐点外延证明输入前缀恰为这些数据对与终止 `00`，最终反推真实
+    `decodeBinaryNat` 成功。现已得到“解码成功当且仅当存在 flexible segment（灵活解码段）及精确
+    drop suffix（丢弃已消费前缀后的后缀）”的完整定理。全部端点探针退出码 0，公理画像仅标准三项
+    或其子集，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -799,9 +802,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    这些完整布局，第 92 项已把它安装到完整 trace 的 proof/formula 两个具体状态字段，并精确校准第
    2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开，
    第 94 项固定了真实 stream step 的四分支精确正常形，第 95 项已构造允许冗余高零位的直接 decode
-   segment，证明公式规格及真实成功解码到该段的构造方向。当前黄色工作面证明合法段反推真实解码成功，
-   从而把失败写成有界不存在成功段；再接 suffix、decoded cons/reverse，把第 94 项逐项翻译为手写
-   有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
+   segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价。当前黄色工作面先由状态 Bool 原子
+   逐行表汇总精确 packed 位串值，把第 95 项接到同一状态表；再关闭 suffix、decoded cons/reverse 及
+   “有界不存在成功段”的失败关系，把第 94 项四分支逐项翻译为手写有界算术图；随后处理第 5 至 7 个
+   parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
