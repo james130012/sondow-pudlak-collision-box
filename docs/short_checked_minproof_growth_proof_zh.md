@@ -792,6 +792,16 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `sourceIndex + targetIndex + 1 = sourceCount` 的镜像源下标，再用第 97 项比较对应单 token 行。
     正反向均已逐元素恢复，最终公式成立当且仅当 `target = source.reverse`。五个端点探针退出码 0，
     仅依赖 `propext`、`Classical.choice`、`Quot.sound`，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+101. [FoundationCompactNumericListedDirectBinaryNatDecodeFailure.lean](../integration/FoundationCompactNumericListedDirectBinaryNatDecodeFailure.lean)
+    已关闭真实 decoder（解码器）的失败分支，而且没有为 token 人为引入上界。三变量
+    `CompactBinaryNatDecodeShape` 精确表示若干 marker（标记位）之后出现终止 `00`；两变量
+    `CompactBinaryNatNoDecodeShape` 对每个候选位置构造四类局部阻断之一：消费长度越界、某个 marker
+    为 `0`、终止首位为 `1`、终止次位为 `1`。两者均为手写 `Δ₀` 公式，并已证明“全部位置被阻断”
+    当且仅当不存在成功形状。任意成功形状可反向构造真实 flexible segment 和成功解码，因此最终得到
+    `decodeBinaryNat bits = none` 当且仅当这些有界局部失败证书成立。与第 96 项的 packed-value 公式合用
+    时，公式束的两项同时成立当且仅当同一 Bool 行表真实解码失败；公式束不是输入假设，两个成员公式及
+    其规格均已内核检查，最终 stream-step 公式只需在外层直接合取。全部端点探针退出码 0，仅依赖标准
+    三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -816,7 +826,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 100 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 101 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -839,9 +849,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价；第 96 项又证明同一 Bool 行表中的
    packed payload 唯一且精确等于真实 `natOfBitsList`，第 97 项关闭单 token 原子行直接相等关系，第
    98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix；第 99、100 项又分别
-   关闭成功分支的 decoded cons 和空输入分支的 decoded reverse。当前黄色工作面构造失败分支的“有界
-   不存在成功段”，再安装 status 标签、done/failure 不变字段与 empty/success 更新，把第 94 项四分支
-   汇总为手写有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
+   关闭成功分支的 decoded cons 和空输入分支的 decoded reverse；第 101 项又以四类显式局部阻断关闭
+   真实 decode failure。当前黄色工作面安装 status 标签、done/failure 不变字段与 empty/success 更新，
+   把第 94 项四分支汇总为手写有界算术图，再接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个
+   parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
