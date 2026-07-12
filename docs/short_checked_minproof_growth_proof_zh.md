@@ -997,6 +997,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     token 且只保留已弹出的尾栈。二元／量词栈变换各有独立手写 `Δ₀` 公式；26 自由变量总公式逐点
     iff 真实 `compactFormulaTokenStep`，其存在见证 iff 公开 `compactSyntaxParserStep`。最终定向构建
     通过 1374 个任务；无 `sorry`、无项目公设，全部新增端点仅依赖标准三项。
+145. [FoundationCompactNumericListedDirectParserSyntaxInvalidRows.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxInvalidRows.lean)
+    、[FoundationCompactNumericListedDirectParserSyntaxInvalidFormula.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxInvalidFormula.lean)
+    与 [FoundationCompactNumericListedDirectParserSyntaxInvalidInstallation.lean](../integration/FoundationCompactNumericListedDirectParserSyntaxInvalidInstallation.lean)
+    已关闭 syntax parser（语法解析器）的非法任务种类。规范 `UnconsRows` 直接读取真实任务头
+    `(kind,binderArity,repeatCount)`；当 `kind≠0 ∧ kind≠1 ∧ kind≠2` 时，纯数值关系强制 next status
+    为失败、next tokens 等于原 tokens、next tasks 精确等于弹头后的同一尾栈。25 自由变量手写 `Δ₀`
+    公式逐点 iff 该关系；其存在见证 iff 真实非法任务分支，并已安装到公开 `compactSyntaxParserStep`。
+    最终定向构建通过 1373 个任务；无 `sorry`、无项目公设，全部新增端点仅依赖标准三项。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -1021,7 +1029,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 144 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 145 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -1054,12 +1062,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
    `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
    安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。
-   第 118 至 144 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
+   第 118 至 145 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
    正常形、done/empty 两个完整分支、非空任务栈规范拆头、syntax repeat task 的完整有界公式，以及
    term/formula 分支共用的 Nat token 定点读取、精确后缀和有限符号码公式，并完整关闭 syntax term task
-   与 syntax formula task 的两个 26 变量公式及公开执行安装。当前黄色工作面已收窄到
-   非法 task kind（非法任务种类）、
-   非空任务栈的 task-head dispatch（任务头标签分派）、parser initial/final（解析器初态／终态）及其余
+   与 syntax formula task 的两个 26 变量公式、非法 task kind（非法任务种类）及全部公开执行安装。
+   syntax 非空任务栈的 task-head dispatch（任务头标签分派）至此闭合；当前黄色工作面已收窄到
+   parser initial/final（解析器初态／终态）、其余 proof/certificate parser（证明／证书解析器）分支及
    verifier（验证器）分量的直接算术图：
 
    ```text
