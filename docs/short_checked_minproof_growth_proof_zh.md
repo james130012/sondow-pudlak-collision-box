@@ -758,6 +758,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `decodeBinaryNat` 成功。现已得到“解码成功当且仅当存在 flexible segment（灵活解码段）及精确
     drop suffix（丢弃已消费前缀后的后缀）”的完整定理。全部端点探针退出码 0，公理画像仅标准三项
     或其子集，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+96. [FoundationCompactNumericListedDirectBoolListPackedValue.lean](../integration/FoundationCompactNumericListedDirectBoolListPackedValue.lean)
+    已把状态 Bool（布尔值）原子逐行表汇总成唯一 packed payload（打包载荷）。六变量
+    `CompactAdditiveBoolListPackedValue` 已写成直接 `Δ₀` 公式：每个位下标从同一边界表读取相邻游标，
+    再从同一 token table（记号表）读取固定 `0/1` 单元；`Nat.size payload ≤ bitCount` 排除列表长度以外
+    的垃圾高位。真实逐行语义直接构造 `payload = natOfBitsList values`，反向则利用边界表行值唯一性逐位
+    恢复该等式。因此在同一 rows（逐行关系）下，公式成立当且仅当 payload 是真实 Bool 列表的精确
+    打包值。五个端点探针退出码 0，仅依赖 `propext`、`Classical.choice`、`Quot.sound`，无项目公设、
+    `sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -782,7 +790,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 95 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 96 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -802,10 +810,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    这些完整布局，第 92 项已把它安装到完整 trace 的 proof/formula 两个具体状态字段，并精确校准第
    2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开，
    第 94 项固定了真实 stream step 的四分支精确正常形，第 95 项已构造允许冗余高零位的直接 decode
-   segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价。当前黄色工作面先由状态 Bool 原子
-   逐行表汇总精确 packed 位串值，把第 95 项接到同一状态表；再关闭 suffix、decoded cons/reverse 及
-   “有界不存在成功段”的失败关系，把第 94 项四分支逐项翻译为手写有界算术图；随后处理第 5 至 7 个
-   parser trace 和其余分量：
+   segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价；第 96 项又证明同一 Bool 行表中的
+   packed payload 唯一且精确等于真实 `natOfBitsList`。当前黄色工作面把第 96 项安装到相邻 stream
+   states（流状态），在同一表上接入第 95 项；再关闭 suffix、decoded cons/reverse 及“有界不存在成功
+   段”的失败关系，把第 94 项四分支逐项翻译为手写有界算术图；随后处理第 5 至 7 个 parser trace
+   和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
