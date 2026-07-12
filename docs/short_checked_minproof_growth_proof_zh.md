@@ -4,10 +4,9 @@
 
 ## 主控方式
 
-[定理依赖图 DOT](checked_minproof_theorem_dependency_graph_zh.dot) 是当前工作的唯一状态面板；
-[SVG](checked_minproof_theorem_dependency_graph_zh.svg) 和
-[PDF](checked_minproof_theorem_dependency_graph_zh.pdf) 是阅读版。本文件只保留图中节点所需的
-精确定义、文献条件、关键不变量和成功判据，不再另建一套与图可能不同步的进度叙述。
+[定理依赖图 DOT](checked_minproof_theorem_dependency_graph_zh.dot) 是当前工作的唯一实时状态面板；
+PNG/SVG/PDF 只视为历史快照，证明推进期间不再生成。本文件只保留图中节点所需的精确定义、
+文献条件、关键不变量和成功判据，不再另建一套与图可能不同步的进度叙述。
 
 图中绿色节点必须有已通过的 Lean theorem（Lean 定理）和 axiom profile（公理画像）证据；
 黄色节点是唯一当前工作面；灰色虚线节点尚待前置条件；红色节点是审计后弃用的历史路线，
@@ -30,11 +29,8 @@ toy PA（玩具 PA）闭合。
 当前闭合路线示意图：[PNG](checked_minproof_lower_bound_route_zh.png)；
 [Graphviz 源文件](checked_minproof_lower_bound_route_zh.dot)。
 
-详细 theorem dependency graph（定理依赖图）：
-[可缩放 SVG](checked_minproof_theorem_dependency_graph_zh.svg)、
-[PDF](checked_minproof_theorem_dependency_graph_zh.pdf)、
-[PNG](checked_minproof_theorem_dependency_graph_zh.png)、
-[DOT 源文件](checked_minproof_theorem_dependency_graph_zh.dot)。图中每个专业术语均附中文解释，
+详细 theorem dependency graph（定理依赖图）以
+[DOT 源文件](checked_minproof_theorem_dependency_graph_zh.dot) 为准。图中每个专业术语均附中文解释，
 绿色为内核已检查，黄色为当前义务，灰色虚线为尚待闭合根定理。
 
 ## 文献定理校准
@@ -847,6 +843,20 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     环境向量均逐项证明。公式存在见证当且仅当真实 stream step。任意合法本地流轨迹的每对相邻状态行
     都产生该见证，并已安装到完整验证轨迹的 proof/formula 两张状态表。探针与定向构建均退出码 0，
     公理画像仅标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+109. [FoundationCompactNumericListedDirectAtomicListRowRealization.lean](../integration/FoundationCompactNumericListedDirectAtomicListRowRealization.lean)
+    已从定宽边界表确定性定义 Bool/Nat 列表值。Bool 行有效性和单 token Nat 边界均写成手写 `Δ₀`
+    公式；纯数值关系分别构造真实类型化 Bool/Nat 行，长度精确等于公开 `count`。端点仅依赖标准三项。
+110. [FoundationCompactNumericListedDirectBinaryNatStreamStateFormula.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStateFormula.lean)
+    已将一个 stream state 的两个 product split、bits/decoded 列表布局、原子行、计数、精确边界
+    `Nat.size` 及面积界合为手写 13 自由变量 `Δ₀` 核心公式。数值核心确定性恢复两个真实列表，反向
+    typed fixed layout 也产生同一核心图；该核心不再输入 typed state。
+111. [FoundationCompactNumericListedDirectBinaryNatStreamStepRealization.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRealization.lean)
+    已从 `0 / 10 / 11` 数值片段直接构造 running/failed/completed status；完成输出由数值边界行恢复。
+    因而两份纯数值状态核心加四分支 step witness 能构造真实 current/next，并证明
+    `next = binaryNatStreamStep current`；反方向同样成立。不存在只满足数值图却不是实际执行的伪见证。
+112. [FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean)
+    已把两份第 110 项状态核心与第 108 项单步图共享坐标，合为手写 35 自由变量 `Δ₀` 公式。全部
+    `Fin` 环境逐项校准，规格定理逐点 iff 第 111 项已实现单步图；层级与规格端点仅依赖标准三项。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -871,7 +881,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 108 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 112 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -900,9 +910,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    不变则由第 98 项取 `consumed=0` 直接得到；第 105 项再以单 token 边界刚性排除伪输出表，并证明完成
    status 的输出精确等于 `decoded.reverse`；第 106 项关闭两个完成 status 的同一输出及两张边界表的
    位长守卫；第 107 项把四分支逐项恢复为真实 `binaryNatStreamStep`；第 108 项写成 31 变量手写 `Δ₀`
-   公式，并安装到 proof/formula 两张状态表的全部相邻行。当前黄色工作面要把仍用于语义校准的 typed
-   state fixed layout（类型化状态固定布局）消去为纯数值状态坐标公式，再把每步坐标与分支见证汇总成
-   有界表；随后处理第 5 至 7 个
+   公式，并安装到 proof/formula 两张状态表的全部相邻行。第 109 至 112 项又从纯数值边界表确定性恢复
+   typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
+   `Δ₀` 公式。当前黄色工作面只剩把每步状态坐标、size 坐标和分支见证汇总成有界表，并证明
+   proof/formula 两张表逐行满足该公式；随后处理第 5 至 7 个
    parser trace 和其余分量：
 
    ```text
@@ -1063,4 +1074,8 @@ lake env lean integration/FoundationCompactNumericListedDirectCompletedStatusSam
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRows.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepInstallation.lean
+lake env lean integration/FoundationCompactNumericListedDirectAtomicListRowRealization.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStateFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRealization.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean
 ```
