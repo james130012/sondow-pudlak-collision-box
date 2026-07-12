@@ -659,6 +659,13 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     公式 token 流的规范打包码。最终得到原有“存在长度不超过 bound 的接受码”与“存在同 cutoff、携带
     两份规范算术表的接受码”的逐点 `iff`。九个正式端点探针退出码 0，仅依赖三个 Lean 标准公理或其
     子集；无 `sorryAx`、`projection`、`rfind` 或项目公设。
+81. [FoundationCompactNumericListedDirectAdditiveCodecGraph.lean](../integration/FoundationCompactNumericListedDirectAdditiveCodecGraph.lean)
+    已打开加法型 trace 编码的底层结构语法。`token cell`（单记号单元）在规范定宽表上随机读取一行并
+    强制 `next=cursor+1`；list header（列表头）读取元素数并约束剩余 token；`List Nat` 切片精确占用
+    一个头 token 加 `count` 个值 token。复合值统一使用严格递增 boundary table（边界表）保存每个分量
+    的首尾游标，公式直接检查首尾行、所有中间行及相邻游标严格递增。任意给定的合法边界列表都能构造
+    规范 row-major 表，且其码长不超过 `rows*tokenCount`。四类关系均为手写 `Σ₀/Δ₀` 公式；十三个
+    正式端点探针退出码 0，仅依赖三个 Lean 标准公理或其子集，无项目公设或禁用表示路线。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -683,7 +690,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 80 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 81 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -691,9 +698,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    证书关系；公开码长界函数、完整 size-guard witness（码长守卫见证）的原始递归性，以及 `Nat.size`
    的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵、单 token 段、定宽随机读取及完整 token 流
    的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化；第 80 项进一步在
-   有界接受谓词层证明两条输入规范表的同 cutoff 双向替换。当前黄色工作面在绿色定宽 token 表上建立
-   cursor/slice（游标/切片）原子，继而解析 Nat、Bool、Option、Prod、List 的加法型 typed trace 编码，
-   并打开 `DirectTraceValid` 中的剩余局部调用，构造完整直接有界算术图：
+   有界接受谓词层证明两条输入规范表的同 cutoff 双向替换；第 81 项又关闭 token cell、列表头、
+   `List Nat` 精确切片和复合值严格边界表。当前黄色工作面实例化完整 trace 的十二分量边界，为 Bool、
+   Option、Prod 和嵌套 List 写直接布局关系，先恢复顶层十二个 token slice，再打开
+   `DirectTraceValid` 中的剩余局部调用，构造完整直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -832,4 +840,5 @@ lake env lean integration/FoundationCompactNumericListedDirectArithmeticPrimitiv
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamTableau.lean
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamInverse.lean
 lake env lean integration/FoundationCompactNumericListedDirectInputTableau.lean
+lake env lean integration/FoundationCompactNumericListedDirectAdditiveCodecGraph.lean
 ```
