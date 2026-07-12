@@ -173,8 +173,7 @@ theorem compactBinaryNatStreamStateListDirectLayout_canonical
   have hlayout : CompactAdditiveStructuredListLayout
       (compactFixedWidthTableCode width tokens)
       width tokens.length start states.length finish boundaryTable :=
-    FoundationCompactNumericListedDirectAdditiveTypeLayouts.CompactAdditiveListHeader.structuredLayout
-      hheader hboundaries
+    CompactAdditiveListHeader.structuredLayout hheader hboundaries
   have hrowsBounded : ∀ cursor ∈ boundaryRows,
       cursor ≤ tokens.length := by
     simpa [boundaryRows, compactBinaryNatStreamStateBoundaryRows,
