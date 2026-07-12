@@ -666,6 +666,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     的首尾游标，公式直接检查首尾行、所有中间行及相邻游标严格递增。任意给定的合法边界列表都能构造
     规范 row-major 表，且其码长不超过 `rows*tokenCount`。四类关系均为手写 `Σ₀/Δ₀` 公式；十三个
     正式端点探针退出码 0，仅依赖三个 Lean 标准公理或其子集，无项目公设或禁用表示路线。
+82. [FoundationCompactNumericListedDirectTraceComponentTableau.lean](../integration/FoundationCompactNumericListedDirectTraceComponentTableau.lean)
+    已关闭完整 trace 的顶层十二分量布局。模块按真实加法编码顺序显式列出 certified/formula 两流、三份
+    parser trace、parts、root、root-branch trace、formula value 和 states，并证明完整 trace token 串精确
+    等于这十二串依次 `flatten`。对 Nat、Bool、Option、Prod、List 递归建立的非空编码实例保证十二段均
+    非空，故十三个累计边界严格递增、全部不超过 `tokenCount`，末边界精确等于完整串长度。规范边界表
+    码长不超过 `13*tokenCount`；通用八变量 `Σ₀/Δ₀` 公式把规范 packed token 表和任意分量边界表合并，
+    规范 typed trace（类型化轨迹）无条件产生 `partCount=12,start=0,finish=tokenCount` 的实例。十二个
+    审计端点探针退出码 0，仅依赖标准三项或其子集。该项只关闭顶层分段，不把段内类型语法冒充已完成。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -690,7 +698,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 81 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 82 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -699,9 +707,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵、单 token 段、定宽随机读取及完整 token 流
    的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化；第 80 项进一步在
    有界接受谓词层证明两条输入规范表的同 cutoff 双向替换；第 81 项又关闭 token cell、列表头、
-   `List Nat` 精确切片和复合值严格边界表。当前黄色工作面实例化完整 trace 的十二分量边界，为 Bool、
-   Option、Prod 和嵌套 List 写直接布局关系，先恢复顶层十二个 token slice，再打开
-   `DirectTraceValid` 中的剩余局部调用，构造完整直接有界算术图：
+   `List Nat` 精确切片和复合值严格边界表；第 82 项进一步证明完整 trace 恰由十二个非空语义段组成并
+   构造十三行规范边界表。当前黄色工作面在每段内部写 Bool、Option、Prod 和嵌套 List 的直接布局关系，
+   先把第 1、3、11 个 `List Nat` 分量接到已绿切片，再打开两份 packed-stream trace、三份 parser trace
+   及 `DirectTraceValid` 中的剩余局部调用：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -841,4 +850,5 @@ lake env lean integration/FoundationCompactNumericListedDirectTokenStreamTableau
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamInverse.lean
 lake env lean integration/FoundationCompactNumericListedDirectInputTableau.lean
 lake env lean integration/FoundationCompactNumericListedDirectAdditiveCodecGraph.lean
+lake env lean integration/FoundationCompactNumericListedDirectTraceComponentTableau.lean
 ```
