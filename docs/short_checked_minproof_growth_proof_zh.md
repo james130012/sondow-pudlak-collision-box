@@ -674,6 +674,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     码长不超过 `13*tokenCount`；通用八变量 `Σ₀/Δ₀` 公式把规范 packed token 表和任意分量边界表合并，
     规范 typed trace（类型化轨迹）无条件产生 `partCount=12,start=0,finish=tokenCount` 的实例。十二个
     审计端点探针退出码 0，仅依赖标准三项或其子集。该项只关闭顶层分段，不把段内类型语法冒充已完成。
+83. [FoundationCompactNumericListedDirectAdditiveTypeLayouts.lean](../integration/FoundationCompactNumericListedDirectAdditiveTypeLayouts.lean)
+    已关闭加法编码四种通用类型构造子的直接布局。Bool 精确读取一个值为 `0/1` 的 token；Option 的
+    `0` 标签强制空载荷，`1` 标签强制一个非空且有界的载荷区间；Prod 用严格中间游标分开两个非空分量；
+    structured List 用 count header 和一张含 `count+1` 个游标的边界表分割所有非空元素。四个关系均为
+    手写 `Σ₀/Δ₀` 公式，绑定变量下的内层公式调用通过有限坐标环境等式精确接线。十二个审计端点探针
+    退出码 0，仅依赖标准三项或其子集。该项提供递归构造子，不提前宣称具体 trace 分量已经反演。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -698,7 +704,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 82 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 83 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -708,9 +714,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化；第 80 项进一步在
    有界接受谓词层证明两条输入规范表的同 cutoff 双向替换；第 81 项又关闭 token cell、列表头、
    `List Nat` 精确切片和复合值严格边界表；第 82 项进一步证明完整 trace 恰由十二个非空语义段组成并
-   构造十三行规范边界表。当前黄色工作面在每段内部写 Bool、Option、Prod 和嵌套 List 的直接布局关系，
-   先把第 1、3、11 个 `List Nat` 分量接到已绿切片，再打开两份 packed-stream trace、三份 parser trace
-   及 `DirectTraceValid` 中的剩余局部调用：
+   构造十三行规范边界表；第 83 项又关闭 Bool、Option、Prod 和 structured List 的通用直接布局。
+   当前黄色工作面先把第 1、3、11 个 `List Nat` 分量接到已绿切片，再递归实例化两份 packed-stream
+   trace、三份 parser trace、parts/root/root-branch/states 的具体布局，并打开 `DirectTraceValid` 中的
+   剩余局部调用：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -851,4 +858,5 @@ lake env lean integration/FoundationCompactNumericListedDirectTokenStreamInverse
 lake env lean integration/FoundationCompactNumericListedDirectInputTableau.lean
 lake env lean integration/FoundationCompactNumericListedDirectAdditiveCodecGraph.lean
 lake env lean integration/FoundationCompactNumericListedDirectTraceComponentTableau.lean
+lake env lean integration/FoundationCompactNumericListedDirectAdditiveTypeLayouts.lean
 ```
