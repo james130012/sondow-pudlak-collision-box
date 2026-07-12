@@ -808,6 +808,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     保留输出边界表的显式面积界。这使第 100 项的 `decoded.reverse` 能直接连接到完成 status 内部输出，
     而不是停留在仅知道列表长度和边界的空壳。status 探针及下游单状态布局回归均退出码 0，公理画像
     仅 `propext`、`Classical.choice`、`Quot.sound`，无项目公设或 `sorryAx`。
+103. [FoundationCompactNumericListedDirectBinaryNatStatusCases.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStatusCases.lean)
+    已把嵌套 status 的三类标签分别写成直接 `Δ₀` 公式：running（运行中）是单标签 `0`，failed
+    （失败完成）是 `1,0`，completed prefix（成功完成前缀）是 `1,1`。同一 tokenTable 和 cursor 上的
+    cell 值唯一性排除了伪标签；在第 102 项完整 status 布局下，三个数值关系分别当且仅当真实 status 为
+    `none`、`some none`、`some (some outputTokens)`，并证明完成输出起点精确为 status 起点加二。
+    十个端点探针退出码 0，仅依赖标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -832,7 +838,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 102 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 103 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -856,9 +862,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    packed payload 唯一且精确等于真实 `natOfBitsList`，第 97 项关闭单 token 原子行直接相等关系，第
    98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix；第 99、100 项又分别
    关闭成功分支的 decoded cons 和空输入分支的 decoded reverse；第 101 项又以四类显式局部阻断关闭
-   真实 decode failure；第 102 项进一步把完成 status 内部输出列表的每个 Nat 原子行全部打开。当前
-   黄色工作面安装 status 标签、done/failure 不变字段与 empty/success 更新，把第 94 项四分支汇总为
-   手写有界算术图，再接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个 parser trace 和其余分量：
+   真实 decode failure；第 102 项进一步把完成 status 内部输出列表的每个 Nat 原子行全部打开，第
+   103 项又把 `0 / 1,0 / 1,1` 标签精确对应到三种真实 status。当前黄色工作面关闭 done/failure 的
+   Bool/Nat 不变列表关系，把 completed output rows 接到 reverse，再将第 94 项四分支汇总为手写有界
+   算术图并接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个 parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
