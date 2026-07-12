@@ -876,6 +876,21 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `valueBound=2^tableWidth` 且原 `TableGraph` 成立；任意公式见证均被强制回同一规范 32 列行。
     proof/formula 两张表现已直接满足手写公式。最终定向构建通过 1379 个任务，全部新增端点仅依赖
     `propext`、`Classical.choice`、`Quot.sound`，无项目公设或 `sorryAx`。
+118. [FoundationCompactNumericListedDirectSyntaxTaskLayout.lean](../integration/FoundationCompactNumericListedDirectSyntaxTaskLayout.lean)
+    已证明每个 `CompactSyntaxTask`（紧凑语法任务）的加法编码精确为连续三个 Nat token：任务种类、
+    绑定元数和重复计数；三个单元在任意公共前后缀中均有规范直接布局，没有隐藏任务字段或游标参数。
+119. [FoundationCompactNumericListedDirectParserStateLayout.lean](../integration/FoundationCompactNumericListedDirectParserStateLayout.lean)
+    已把一个统一解析器状态精确拆成剩余 token 列表、语法任务栈和双层可选返回状态。两层 product split
+    （积类型分割）、两个 structured-list（结构化列表）边界表、每个任务的三字段行及返回状态全部对齐
+    同一状态区间；两张内部边界表均保留显式多项式面积界。
+120. [FoundationCompactNumericListedDirectParserStateListLayout.lean](../integration/FoundationCompactNumericListedDirectParserStateListLayout.lean)
+    已把第 119 项提升到任意有限解析器状态列表：一张规范边界表同时满足列表头、每行精确游标和每个
+    真实 typed state（类型化状态）的完整布局，且表码长不超过 `(stateCount+1)*tokenCount`。
+121. [FoundationCompactNumericListedDirectTraceParserStateLayouts.lean](../integration/FoundationCompactNumericListedDirectTraceParserStateLayouts.lean)
+    已将第 120 项分别安装到完整直接轨迹的 proof、certificate、formula 三个 parser trace（解析器轨迹）
+    分量。三段严格占据顶层边界 `4→5`、`5→6`、`6→7`，共享同一 tokenTable、width 和 tokenCount；
+    定向构建通过 1354 个任务，全部端点仅依赖标准三项。这里仅关闭状态与边界语义，尚未把
+    `initial/step/final`（初态／转移／终态）关系标为已算术化。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
