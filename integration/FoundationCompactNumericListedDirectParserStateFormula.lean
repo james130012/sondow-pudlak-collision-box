@@ -241,6 +241,87 @@ structure CompactUnifiedParserStateCoreFixedLayout
   tasksBoundarySize : Nat.size coordinates.tasksBoundary ≤
     (coordinates.tasksCount + 1) * tokenCount
 
+structure CompactUnifiedParserStateFixedLayout
+    (tokenTable width tokenCount : Nat)
+    (coordinates : CompactUnifiedParserStateRowCoordinates)
+    (state : CompactUnifiedParserState) : Prop where
+  tokensCount_eq : coordinates.tokensCount = state.1.length
+  tasksCount_eq : coordinates.tasksCount = state.2.1.length
+  outerSplit : CompactAdditiveProductSplit
+    tokenCount coordinates.start coordinates.tokensFinish coordinates.finish
+  tokensLayout : CompactAdditiveStructuredListLayout
+    tokenTable width tokenCount coordinates.start coordinates.tokensCount
+      coordinates.tokensFinish coordinates.tokensBoundary
+  tokensRows : CompactAdditiveStructuredListElementRowLayouts
+    CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+      coordinates.tokensBoundary state.1
+  innerSplit : CompactAdditiveProductSplit
+    tokenCount coordinates.tokensFinish coordinates.tasksFinish
+      coordinates.finish
+  tasksLayout : CompactAdditiveStructuredListLayout
+    tokenTable width tokenCount coordinates.tokensFinish
+      coordinates.tasksCount coordinates.tasksFinish
+      coordinates.tasksBoundary
+  tasksRows : CompactAdditiveStructuredListElementRowLayouts
+    CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+      coordinates.tasksBoundary state.2.1
+  statusLayout : CompactBinaryNatStreamStatusDirectLayout
+    tokenTable width tokenCount coordinates.tasksFinish
+      coordinates.finish state.2.2
+  tokensBoundarySize : Nat.size coordinates.tokensBoundary ≤
+    (coordinates.tokensCount + 1) * tokenCount
+  tasksBoundarySize : Nat.size coordinates.tasksBoundary ≤
+    (coordinates.tasksCount + 1) * tokenCount
+
+theorem compactUnifiedParserStateDirectLayout_iff_fixedCoordinates
+    (tokenTable width tokenCount start finish : Nat)
+    (state : CompactUnifiedParserState) :
+    CompactUnifiedParserStateDirectLayout
+        tokenTable width tokenCount start finish state ↔
+      ∃ coordinates : CompactUnifiedParserStateRowCoordinates,
+        coordinates.start = start ∧
+        coordinates.finish = finish ∧
+        CompactUnifiedParserStateFixedLayout
+          tokenTable width tokenCount coordinates state := by
+  constructor
+  · rintro ⟨tokensFinish, tasksFinish, tokensBoundary, tasksBoundary,
+      houter, htokensLayout, htokensRows, hinner,
+      htasksLayout, htasksRows, hstatus,
+      htokensSize, htasksSize⟩
+    let coordinates : CompactUnifiedParserStateRowCoordinates :=
+      { start := start
+        finish := finish
+        tokensFinish := tokensFinish
+        tasksFinish := tasksFinish
+        tokensBoundary := tokensBoundary
+        tokensCount := state.1.length
+        tasksBoundary := tasksBoundary
+        tasksCount := state.2.1.length }
+    refine ⟨coordinates, rfl, rfl, ?_⟩
+    exact
+      { tokensCount_eq := rfl
+        tasksCount_eq := rfl
+        outerSplit := houter
+        tokensLayout := htokensLayout
+        tokensRows := htokensRows
+        innerSplit := hinner
+        tasksLayout := htasksLayout
+        tasksRows := htasksRows
+        statusLayout := hstatus
+        tokensBoundarySize := htokensSize
+        tasksBoundarySize := htasksSize }
+  · rintro ⟨coordinates, hstart, hfinish, hlayout⟩
+    rw [← hstart, ← hfinish]
+    refine ⟨coordinates.tokensFinish, coordinates.tasksFinish,
+      coordinates.tokensBoundary, coordinates.tasksBoundary,
+      hlayout.outerSplit, ?_, hlayout.tokensRows,
+      hlayout.innerSplit, ?_, hlayout.tasksRows,
+      hlayout.statusLayout, ?_, ?_⟩
+    · simpa only [hlayout.tokensCount_eq] using hlayout.tokensLayout
+    · simpa only [hlayout.tasksCount_eq] using hlayout.tasksLayout
+    · simpa only [hlayout.tokensCount_eq] using hlayout.tokensBoundarySize
+    · simpa only [hlayout.tasksCount_eq] using hlayout.tasksBoundarySize
+
 theorem CompactUnifiedParserStateDirectLayout.toCoreGraph
     {tokenTable width tokenCount start finish : Nat}
     {state : CompactUnifiedParserState}
@@ -384,6 +465,7 @@ def compactUnifiedParserStateCoreFormulaEnvironmentOf
 
 #print axioms compactUnifiedParserStateCoreGraphDef_spec
 #print axioms compactUnifiedParserStateCoreGraphDef_sigmaZero
+#print axioms compactUnifiedParserStateDirectLayout_iff_fixedCoordinates
 #print axioms CompactUnifiedParserStateDirectLayout.toCoreGraph
 #print axioms CompactUnifiedParserStateCoreGraph.realize
 #print axioms CompactUnifiedParserStateCoreFixedLayout.withStatus

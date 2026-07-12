@@ -900,6 +900,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     已把两层 product split、剩余 Nat token 列表、三格任务列表、两张边界表的精确 `Nat.size` 与面积界
     合为手写 13 自由变量 `Δ₀` 核心公式。真实状态布局无条件产生该公式见证；反方向只凭表位恢复
     `tokens/tasks` 两个真实列表，再与后续给出的 status 布局组成完整解析器状态，核心不再输入 typed state。
+    现已补充命名的固定坐标完整状态布局，并证明它与原直接布局双向等价，供相邻状态分支统一复用。
 124. [FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean](../integration/FoundationCompactNumericListedDirectParserStateFormulaInstallation.lean)
     已把第 123 项的实际 `Evalb`（公式求值）安装到 proof、certificate、formula 三条轨迹的每个状态行，
     同时保留真实 status 布局供下一步分支消元。最终定向构建通过 1359 个任务；全部新增端点只依赖
@@ -919,6 +920,18 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     已用第 122 项完整任务布局约束目标第零行，并把其余行逐项接到前一源行；所得手写 `Δ₀` 关系
     当且仅当 `target=head::source`。第 125 至 128 项联合定向构建通过 1362 个任务，全部新增端点无
     项目公设或 `sorryAx`。下一步将这些 same/drop/cons 组件与 status、Nat token 列表变换合成真实分支。
+129. [FoundationCompactNumericListedDirectParserDoneRows.lean](../integration/FoundationCompactNumericListedDirectParserDoneRows.lean)
+    已把 parser 的已结束分支拆成剩余 Nat token 列表相等、任务列表相等，以及两种 status 同一关系：
+    两侧均 failed，或两侧 completed 且输出列表逐行相等。在两份固定状态布局下，该纯数值行关系
+    当且仅当当前 status 已结束且 `next=current`。
+130. [FoundationCompactNumericListedDirectParserDoneFormula.lean](../integration/FoundationCompactNumericListedDirectParserDoneFormula.lean)
+    已将第 129 项写成 26 自由变量手工 `Δ₀` 公式：公共表 3 坐标、当前/下一状态各 8 坐标、completed
+    输出 7 坐标。两张输出边界表均携带精确 `Nat.size` 与公开面积界；公式规格逐点 iff 行关系，且存在
+    见证当且仅当真实 done case（已结束分支）成立。
+131. [FoundationCompactNumericListedDirectParserDoneInstallation.lean](../integration/FoundationCompactNumericListedDirectParserDoneInstallation.lean)
+    已把第 130 项分别接到 syntax、proof、certificate 三个公开 parser step。在当前 status 已结束时，
+    公式存在见证当且仅当对应公开 step 产生给定 next。最终定向构建通过 1369 个任务，全部新增端点
+    仅依赖标准三项。下一义务是用当前 Nat/task 行关系构造 empty-task completion（空任务栈完成）公式。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -1157,4 +1170,7 @@ lake env lean integration/FoundationCompactNumericListedDirectParserStepCases.le
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListSameRows.lean
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListDropRows.lean
 lake env lean integration/FoundationCompactNumericListedDirectSyntaxTaskListConsRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserDoneRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserDoneFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectParserDoneInstallation.lean
 ```
