@@ -139,11 +139,9 @@ theorem CompactAdditiveBoolListPackedValue.eq_natOfBitsList_of_rows
         packedLeft =
             compactFixedWidthTableValue
               boundaryTable tokenCount index :=
-          FoundationCompactNumericListedDirectTokenStreamInverse.CompactFixedWidthEntry.value_eq_tableValue
-            hpackedLeftEntry
+          CompactFixedWidthEntry.value_eq_tableValue hpackedLeftEntry
         _ = rowLeft :=
-          (FoundationCompactNumericListedDirectTokenStreamInverse.CompactFixedWidthEntry.value_eq_tableValue
-            hrowLeftEntry).symm
+          (CompactFixedWidthEntry.value_eq_tableValue hrowLeftEntry).symm
     subst packedLeft
     have hrowSlice : CompactAdditiveBoolSlice
         tokenTable width tokenCount rowLeft

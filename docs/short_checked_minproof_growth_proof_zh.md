@@ -766,6 +766,20 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     恢复该等式。因此在同一 rows（逐行关系）下，公式成立当且仅当 payload 是真实 Bool 列表的精确
     打包值。五个端点探针退出码 0，仅依赖 `propext`、`Classical.choice`、`Quot.sound`，无项目公设、
     `sorryAx`、`projection` 或 `rfind`。
+97. [FoundationCompactNumericListedDirectAtomicRowEquality.lean](../integration/FoundationCompactNumericListedDirectAtomicRowEquality.lean)
+    已构造七变量 `CompactAdditiveAtomicRowEq`（原子行相等关系）及手写 `Δ₀` 公式。它要求两个原子行
+    都是同一 token table（记号表）中的单 token 区间，并在固定宽度内逐位相等。两个携带同一值的
+    token cell（记号单元）直接构造该关系；反向利用两侧 `Nat.size ≤ width` 排除宽度以外的差异，从而
+    恢复真实 Nat（自然数）值相等，并进一步恢复 Bool 值相等。该公共原语同时服务后续 suffix、cons、
+    reverse 三种列表更新。六个端点探针退出码 0，仅依赖标准三项或其子集，无项目公设或 `sorryAx`。
+98. [FoundationCompactNumericListedDirectBoolListDropRows.lean](../integration/FoundationCompactNumericListedDirectBoolListDropRows.lean)
+    已关闭成功解码分支的 Bool 位流转移。八变量 `CompactAdditiveBoolListDropRows` 是直接 `Δ₀` 公式：
+    `consumed` 不越界，源长度等于消费长度加目标长度，且每个目标行等于源表中移位后的对应原子行；在
+    真实逐行语义下，它成立当且仅当 `target = source.drop consumed`。十一变量
+    `CompactAdditiveBoolListDecodeSuccessRows` 再把第 96 项的唯一 packed payload、第 95 项的 flexible
+    segment 与该精确后缀公式合并，并逐项校准三个被引用公式的 `Fin` 参数向量。最终已证明该直接公式
+    成立当且仅当真实 `decodeBinaryNat source = some (token, target)`。全部端点探针退出码 0，仅依赖
+    标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -790,7 +804,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 96 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 98 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -811,10 +825,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开，
    第 94 项固定了真实 stream step 的四分支精确正常形，第 95 项已构造允许冗余高零位的直接 decode
    segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价；第 96 项又证明同一 Bool 行表中的
-   packed payload 唯一且精确等于真实 `natOfBitsList`。当前黄色工作面把第 96 项安装到相邻 stream
-   states（流状态），在同一表上接入第 95 项；再关闭 suffix、decoded cons/reverse 及“有界不存在成功
-   段”的失败关系，把第 94 项四分支逐项翻译为手写有界算术图；随后处理第 5 至 7 个 parser trace
-   和其余分量：
+   packed payload 唯一且精确等于真实 `natOfBitsList`，第 97 项关闭单 token 原子行直接相等关系，第
+   98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix。当前黄色工作面关闭成功
+   分支的 decoded cons、空输入分支的 reverse、失败分支的“有界不存在成功段”，再安装 status 标签与
+   不变字段，把第 94 项四分支汇总为手写有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
