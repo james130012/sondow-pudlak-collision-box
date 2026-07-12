@@ -780,6 +780,18 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     segment 与该精确后缀公式合并，并逐项校准三个被引用公式的 `Fin` 参数向量。最终已证明该直接公式
     成立当且仅当真实 `decodeBinaryNat source = some (token, target)`。全部端点探针退出码 0，仅依赖
     标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+99. [FoundationCompactNumericListedDirectNatListConsRows.lean](../integration/FoundationCompactNumericListedDirectNatListConsRows.lean)
+    已关闭成功分支的 decoded cons（已解码列表前插）。八变量 `CompactAdditiveNatListConsRows` 是手写
+    `Δ₀` 公式：目标长度等于源长度加一，第 0 行精确承载新 head token（头部记号），其余目标行逐项
+    等于前一源行。正向从真实 `head :: source` 构造全部边界与原子行；反向利用边界表唯一性和第 97 项
+    恢复每个真实 Nat 值。最终公式成立当且仅当 `target = head :: source`。五个端点探针退出码 0，
+    仅依赖标准三项或其子集，无项目公设或 `sorryAx`。
+100. [FoundationCompactNumericListedDirectNatListReverseRows.lean](../integration/FoundationCompactNumericListedDirectNatListReverseRows.lean)
+    已关闭空输入分支的 decoded reverse（已解码列表反转）。七变量 `CompactAdditiveNatListReverseRows`
+    是手写 `Δ₀` 公式：源/目标长度相等，每个目标下标显式给出满足
+    `sourceIndex + targetIndex + 1 = sourceCount` 的镜像源下标，再用第 97 项比较对应单 token 行。
+    正反向均已逐元素恢复，最终公式成立当且仅当 `target = source.reverse`。五个端点探针退出码 0，
+    仅依赖 `propext`、`Classical.choice`、`Quot.sound`，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -804,7 +816,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 98 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 100 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -826,9 +838,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    第 94 项固定了真实 stream step 的四分支精确正常形，第 95 项已构造允许冗余高零位的直接 decode
    segment，并证明真实解码成功与该段加精确 suffix 的完整双向等价；第 96 项又证明同一 Bool 行表中的
    packed payload 唯一且精确等于真实 `natOfBitsList`，第 97 项关闭单 token 原子行直接相等关系，第
-   98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix。当前黄色工作面关闭成功
-   分支的 decoded cons、空输入分支的 reverse、失败分支的“有界不存在成功段”，再安装 status 标签与
-   不变字段，把第 94 项四分支汇总为手写有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
+   98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix；第 99、100 项又分别
+   关闭成功分支的 decoded cons 和空输入分支的 decoded reverse。当前黄色工作面构造失败分支的“有界
+   不存在成功段”，再安装 status 标签、done/failure 不变字段与 empty/success 更新，把第 94 项四分支
+   汇总为手写有界算术图；随后处理第 5 至 7 个 parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
