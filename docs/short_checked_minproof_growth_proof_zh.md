@@ -652,6 +652,13 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `Nat.size(canonicalCode) <= Nat.size(originalCode)`；故正确结论是“规范码逐点 `iff` + 保持 cutoff 的
     存在量词规范化”，而不是错误的原始码逐码 `iff`。十三个正式端点探针退出码 0，公理画像仅
     `propext`、`Classical.choice`、`Quot.sound`，无 `sorryAx`、`projection`、`rfind` 或项目公设。
+80. [FoundationCompactNumericListedDirectInputTableau.lean](../integration/FoundationCompactNumericListedDirectInputTableau.lean)
+    已把 `proofCode` 与 `formulaCode` 两条公开输入流接入同一个直接算术关系。两份第 79 项规范表被合并为
+    显式八变量 `Σ₀/Δ₀` 公式；任意接受的非规范 `proofCode` 可替换为同 token 的规范码，公开验证器结果
+    逐点不变，`Nat.size` 与 `packedPayloadLength` 都不增加。接受条件本身又推出 `formulaCode` 等于其真实
+    公式 token 流的规范打包码。最终得到原有“存在长度不超过 bound 的接受码”与“存在同 cutoff、携带
+    两份规范算术表的接受码”的逐点 `iff`。九个正式端点探针退出码 0，仅依赖三个 Lean 标准公理或其
+    子集；无 `sorryAx`、`projection`、`rfind` 或项目公设。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -676,16 +683,17 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 79 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 80 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
    列表汇总界、十二分量分解、全部十二分量公开界、总轨迹码长界，以及确定性有界 `traceCode`
    证书关系；公开码长界函数、完整 size-guard witness（码长守卫见证）的原始递归性，以及 `Nat.size`
    的直接 `Δ₀` 算术图也已闭合；packed payload 的终止哨兵、单 token 段、定宽随机读取及完整 token 流
-   的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化。当前黄色工作面把
-   proofCode 与 formulaCode 两条规范 token 流接入总见证，再处理加法型 typed trace 解码器和
-   `DirectTraceValid` 中的剩余原子调用，构造完整直接有界算术图：
+   的规范正反向均已成为直接 `Δ₀` 图，非规范公开码也已在不增加诚实位长下规范化；第 80 项进一步在
+   有界接受谓词层证明两条输入规范表的同 cutoff 双向替换。当前黄色工作面在绿色定宽 token 表上建立
+   cursor/slice（游标/切片）原子，继而解析 Nat、Bool、Option、Prod、List 的加法型 typed trace 编码，
+   并打开 `DirectTraceValid` 中的剩余局部调用，构造完整直接有界算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -823,4 +831,5 @@ lake env lean integration/FoundationCompactNumericListedBoundedTraceCode.lean
 lake env lean integration/FoundationCompactNumericListedDirectArithmeticPrimitives.lean
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamTableau.lean
 lake env lean integration/FoundationCompactNumericListedDirectTokenStreamInverse.lean
+lake env lean integration/FoundationCompactNumericListedDirectInputTableau.lean
 ```
