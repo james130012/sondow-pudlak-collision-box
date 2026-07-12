@@ -1,4 +1,5 @@
 import integration.FoundationCompactNumericListedDirectAdditiveTypeCanonical
+import integration.FoundationCompactNumericListedDirectAtomicListLayouts
 
 /-!
 # Direct layout of the nested binary-stream status
@@ -22,6 +23,7 @@ open FoundationCompactNumericListedDirectTraceComponentTableau
 open FoundationCompactNumericListedDirectAdditiveTypeLayouts
 open FoundationCompactNumericListedDirectStructuredListCanonical
 open FoundationCompactNumericListedDirectAdditiveTypeCanonical
+open FoundationCompactNumericListedDirectAtomicListLayouts
 
 def CompactBinaryNatStreamStatusDirectLayout
     (tokenTable width tokenCount start finish : Nat)
@@ -44,6 +46,10 @@ def CompactBinaryNatStreamStatusDirectLayout
                 CompactAdditiveStructuredListLayout
                   tokenTable width tokenCount innerPayloadStart
                   outputTokens.length finish outputBoundaryTable ∧
+                CompactAdditiveStructuredListElementRowLayouts
+                  CompactAdditiveNatValueDirectLayout
+                  tokenTable width tokenCount outputBoundaryTable
+                  outputTokens ∧
                 Nat.size outputBoundaryTable ≤
                   (outputTokens.length + 1) * tokenCount
 
@@ -119,16 +125,18 @@ theorem compactBinaryNatStreamStatusDirectLayout_canonical
           exact ⟨innerPayloadStart, hinner, trivial⟩
       | some outputTokens =>
           let outputFront := frontTokens ++ [1, 1]
-          have houtputRaw := compactAdditiveStructuredListLayout_canonical
-            outputFront outputTokens backTokens
-          rcases houtputRaw with
-            ⟨outputBoundaryTable, houtputLayout, houtputSize⟩
+          let outputBoundaryTable :=
+            compactAdditiveStructuredListElementBoundaryTable
+              tokens.length (innerPayloadStart + 1) outputTokens
+          rcases compactAdditiveNatListElementLayouts_canonical
+              outputFront outputTokens backTokens with
+            ⟨houtputLayout, houtputRows, houtputSize⟩
           have houtputTokenEq :
               outputFront ++ compactAdditiveEncode outputTokens ++
                   backTokens = tokens := by
             simp [outputFront, tokens, statusTokens,
               List.append_assoc]
-          rw [houtputTokenEq] at houtputLayout houtputSize
+          rw [houtputTokenEq] at houtputLayout houtputRows houtputSize
           have houtputStart : outputFront.length =
               innerPayloadStart := by
             simp [outputFront, innerPayloadStart,
@@ -148,9 +156,17 @@ theorem compactBinaryNatStreamStatusDirectLayout_canonical
               finish outputBoundaryTable := by
             simpa only [width, houtputStart, houtputFinishDirect] using
               houtputLayout
+          have houtputRows' :
+              CompactAdditiveStructuredListElementRowLayouts
+                CompactAdditiveNatValueDirectLayout
+                (compactFixedWidthTableCode width tokens)
+                width tokens.length outputBoundaryTable outputTokens := by
+            simpa only [width, houtputStart, outputBoundaryTable,
+              innerPayloadStart] using houtputRows
           refine ⟨innerPayloadStart, hinner,
-            outputBoundaryTable, houtputLayout', ?_⟩
-          exact houtputSize
+            outputBoundaryTable, houtputLayout', houtputRows', ?_⟩
+          simpa only [outputBoundaryTable, houtputStart,
+            innerPayloadStart] using houtputSize
 
 #print axioms compactBinaryNatStreamStatusDirectLayout_canonical
 

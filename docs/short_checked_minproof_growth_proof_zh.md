@@ -716,8 +716,8 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     已完整打开 `BinaryNatStreamStatus = Option (Option (List Nat))`。外层 `none`、外层 `some` 加内层
     `none`、以及双层 `some` 加输出 token 列表三种分支均在同一规范 tokenTable 上共享同一 `finish`；
     每层 `0/1` 标签与 `payloadStart` 均由真实编码精确决定。双层 `some` 分支进一步构造输出 `List Nat`
-    的 structured-list 边界表，并证明码长不超过 `(outputCount+1)*tokenCount`。审计端点探针退出码 0，
-    仅依赖标准三项。
+    的 structured-list 边界表；第 102 项现又把输出列表的每个 Nat 原子行接到真实 token，并保留
+    `(outputCount+1)*tokenCount` 码长界。status 与单状态回归探针退出码 0，仅依赖标准三项。
 90. [FoundationCompactNumericListedDirectBinaryNatStreamStateLayout.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStateLayout.lean)
     已把一个完整 `BinaryNatStreamState = List Bool × List Nat × Option (Option (List Nat))`
     接到同一规范 tokenTable。两层 product split（积类型分割）由真实编码长度确定中间游标；bits 与
@@ -802,6 +802,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     时，公式束的两项同时成立当且仅当同一 Bool 行表真实解码失败；公式束不是输入假设，两个成员公式及
     其规格均已内核检查，最终 stream-step 公式只需在外层直接合取。全部端点探针退出码 0，仅依赖标准
     三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+102. [FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout.lean)
+    已加强第 89 项的完成状态输出布局。`some (some outputTokens)` 分支不再只给 structured-list（结构化
+    列表）边界，而是为每个输出元素给出同一边界表的相邻游标、精确单 token Nat 行及真实元素值，并
+    保留输出边界表的显式面积界。这使第 100 项的 `decoded.reverse` 能直接连接到完成 status 内部输出，
+    而不是停留在仅知道列表长度和边界的空壳。status 探针及下游单状态布局回归均退出码 0，公理画像
+    仅 `propext`、`Classical.choice`、`Quot.sound`，无项目公设或 `sorryAx`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -826,7 +832,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 101 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 102 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -850,9 +856,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    packed payload 唯一且精确等于真实 `natOfBitsList`，第 97 项关闭单 token 原子行直接相等关系，第
    98 项据此证明成功分支的源/目标 Bool 行关系当且仅当真实解码与精确 suffix；第 99、100 项又分别
    关闭成功分支的 decoded cons 和空输入分支的 decoded reverse；第 101 项又以四类显式局部阻断关闭
-   真实 decode failure。当前黄色工作面安装 status 标签、done/failure 不变字段与 empty/success 更新，
-   把第 94 项四分支汇总为手写有界算术图，再接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个
-   parser trace 和其余分量：
+   真实 decode failure；第 102 项进一步把完成 status 内部输出列表的每个 Nat 原子行全部打开。当前
+   黄色工作面安装 status 标签、done/failure 不变字段与 empty/success 更新，把第 94 项四分支汇总为
+   手写有界算术图，再接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个 parser trace 和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
