@@ -736,6 +736,12 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     边界；每个真实状态行共享完整 trace 的同一 `tokenTable/width/tokenCount` 并携带第 90 项布局。两张
     边界表分别保留 `(stateCount+1)*tokenCount` 码长界。两个端点探针退出码 0，公理画像仅标准三项，
     无项目公设或 `sorryAx`。
+93. [FoundationCompactNumericListedDirectAtomicListLayouts.lean](../integration/FoundationCompactNumericListedDirectAtomicListLayouts.lean)
+    已给出可复用的 generic element-row construction（通用元素逐行构造）：同一 structured-list 边界表
+    第 `i`、`i+1` 行精确围住真实 `values.getI i`，并在该区间安装指定的直接元素关系。该构造已实例化
+    为 Bool 与 Nat：Bool 行直接读取真实 `0/1` tag，Nat 行直接读取真实自然数 token。第 90 项单状态
+    布局已升级为 bits/decoded 两张内部表逐行携带这些强关系；第 91、92 项在升级后重新探针通过。六个
+    新端点及三层回归公理画像均仅标准三项，无项目公设或 `sorryAx`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -760,7 +766,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 92 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 93 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -778,8 +784,10 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    `Option(Option(List Nat))` 三分支布局，第 90 项进一步把 List Bool、List Nat 与该 status 合并为
    单个完整 `BinaryNatStreamState` 布局，第 91 项再证明任意状态列表的同一规范边界表逐行精确承载
    这些完整布局，第 92 项已把它安装到完整 trace 的 proof/formula 两个具体状态字段，并精确校准第
-   2、4 个顶层分量边界。当前黄色工作面读取相邻状态行字段，直接表示 `binaryNatStreamStep` 的四个
-   分支并证明逐点等价于 stream local-step；随后处理第 5 至 7 个 parser trace 和其余分量：
+   2、4 个顶层分量边界，第 93 项进一步把状态内部 bits/decoded 列表的每个 Bool/Nat 原子全部打开。
+   当前黄色工作面由这些原子行构造 packed bits、suffix、decoded cons/reverse 的直接关系，再表示
+   `binaryNatStreamStep` 四分支并证明逐点等价于 stream local-step；随后处理第 5 至 7 个 parser trace
+   和其余分量：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -930,4 +938,5 @@ lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamSta
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStateLayout.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStateListLayout.lean
 lake env lean integration/FoundationCompactNumericListedDirectTracePackedStreamStateLayouts.lean
+lake env lean integration/FoundationCompactNumericListedDirectAtomicListLayouts.lean
 ```

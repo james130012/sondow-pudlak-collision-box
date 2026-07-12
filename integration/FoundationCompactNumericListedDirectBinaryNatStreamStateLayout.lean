@@ -1,4 +1,5 @@
 import integration.FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout
+import integration.FoundationCompactNumericListedDirectAtomicListLayouts
 import integration.FoundationCompactBinaryNatStreamMachine
 
 /-!
@@ -25,6 +26,7 @@ open FoundationCompactNumericListedDirectAdditiveTypeLayouts
 open FoundationCompactNumericListedDirectStructuredListCanonical
 open FoundationCompactNumericListedDirectAdditiveTypeCanonical
 open FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout
+open FoundationCompactNumericListedDirectAtomicListLayouts
 
 def CompactBinaryNatStreamStateDirectLayout
     (tokenTable width tokenCount start finish : Nat)
@@ -34,10 +36,16 @@ def CompactBinaryNatStreamStateDirectLayout
     CompactAdditiveStructuredListLayout
       tokenTable width tokenCount start state.1.length bitsFinish
       bitsBoundaryTable ∧
+    CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveBoolValueDirectLayout tokenTable width tokenCount
+      bitsBoundaryTable state.1 ∧
     CompactAdditiveProductSplit tokenCount bitsFinish decodedFinish finish ∧
     CompactAdditiveStructuredListLayout
       tokenTable width tokenCount bitsFinish state.2.1.length decodedFinish
       decodedBoundaryTable ∧
+    CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+      decodedBoundaryTable state.2.1 ∧
     CompactBinaryNatStreamStatusDirectLayout
       tokenTable width tokenCount decodedFinish finish state.2.2 ∧
     Nat.size bitsBoundaryTable ≤ (state.1.length + 1) * tokenCount ∧
@@ -118,21 +126,27 @@ theorem compactBinaryNatStreamStateDirectLayout_canonical
     frontTokens bits rest backTokens
   have hinnerRaw := compactAdditiveProductSplit_canonical
     afterBits decoded status backTokens
-  rcases compactAdditiveStructuredListLayout_canonical
+  rcases compactAdditiveBoolListElementLayouts_canonical
       frontTokens bits
         (compactAdditiveEncode decoded ++
           compactAdditiveEncode status ++ backTokens) with
-    ⟨bitsBoundaryTable, hbitsLayout, hbitsSize⟩
-  rcases compactAdditiveStructuredListLayout_canonical
+    ⟨hbitsLayout, hbitsRows, hbitsSize⟩
+  rcases compactAdditiveNatListElementLayouts_canonical
       afterBits decoded (compactAdditiveEncode status ++ backTokens) with
-    ⟨decodedBoundaryTable, hdecodedLayout, hdecodedSize⟩
+    ⟨hdecodedLayout, hdecodedRows, hdecodedSize⟩
+  let bitsBoundaryTable :=
+    compactAdditiveStructuredListElementBoundaryTable
+      tokens.length (start + 1) bits
+  let decodedBoundaryTable :=
+    compactAdditiveStructuredListElementBoundaryTable
+      tokens.length (bitsFinish + 1) decoded
   have hstatusRaw := compactBinaryNatStreamStatusDirectLayout_canonical
     afterDecoded status backTokens
   dsimp only at houterRaw hinnerRaw hstatusRaw
   rw [houterFull] at houterRaw
   rw [hinnerFull] at hinnerRaw
-  rw [hbitsFull] at hbitsLayout hbitsSize
-  rw [hdecodedFull] at hdecodedLayout hdecodedSize
+  rw [hbitsFull] at hbitsLayout hbitsRows hbitsSize
+  rw [hdecodedFull] at hdecodedLayout hdecodedRows hdecodedSize
   rw [hstatusFull] at hstatusRaw
   have hafterBits : afterBits.length = bitsFinish := by
     dsimp only [afterBits, bitsFinish, start]
@@ -151,6 +165,17 @@ theorem compactBinaryNatStreamStateDirectLayout_canonical
       width tokens.length bitsFinish decoded.length decodedFinish
       decodedBoundaryTable := by
     simpa only [width, hafterBits, hafterDecoded] using hdecodedLayout
+  have hbitsRows' : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveBoolValueDirectLayout
+      (compactFixedWidthTableCode width tokens)
+      width tokens.length bitsBoundaryTable bits := by
+    simpa only [width, bitsBoundaryTable, start] using hbitsRows
+  have hdecodedRows' : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout
+      (compactFixedWidthTableCode width tokens)
+      width tokens.length decodedBoundaryTable decoded := by
+    simpa only [width, hafterBits, decodedBoundaryTable,
+      bitsFinish] using hdecodedRows
   have hstatus' : CompactBinaryNatStreamStatusDirectLayout
       (compactFixedWidthTableCode width tokens)
       width tokens.length decodedFinish finish status := by
@@ -179,10 +204,13 @@ theorem compactBinaryNatStreamStateDirectLayout_canonical
   have hbitsSize' : Nat.size bitsBoundaryTable ≤
       (bits.length + 1) * tokens.length := hbitsSize
   have hdecodedSize' : Nat.size decodedBoundaryTable ≤
-      (decoded.length + 1) * tokens.length := hdecodedSize
+      (decoded.length + 1) * tokens.length := by
+    simpa only [decodedBoundaryTable, hafterBits, bitsFinish] using
+      hdecodedSize
   exact ⟨bitsFinish, decodedFinish, bitsBoundaryTable,
-    decodedBoundaryTable, houter, hbitsLayout', hinner,
-    hdecodedLayout', hstatus', hbitsSize', hdecodedSize'⟩
+    decodedBoundaryTable, houter, hbitsLayout', hbitsRows', hinner,
+    hdecodedLayout', hdecodedRows', hstatus',
+    hbitsSize', hdecodedSize'⟩
 
 #print axioms compactBinaryNatStreamStateDirectLayout_canonical
 
