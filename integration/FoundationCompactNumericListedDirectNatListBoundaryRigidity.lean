@@ -99,9 +99,78 @@ theorem CompactAdditiveStructuredListLayout.finish_eq_start_add_count
     hboundary.2.2.2.1).trans
       (CompactFixedWidthEntry.value_eq_tableValue hcanonical).symm
 
+theorem CompactAdditiveStructuredListElementRowLayouts.natRows_on_unitBoundary
+    {tokenTable width tokenCount start finish
+      actualBoundary targetBoundary : Nat}
+    {values : List Nat}
+    (hactualLayout : CompactAdditiveStructuredListLayout
+      tokenTable width tokenCount start values.length finish actualBoundary)
+    (hactualRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        actualBoundary values)
+    (htargetLayout : CompactAdditiveStructuredListLayout
+      tokenTable width tokenCount start values.length finish targetBoundary)
+    (htargetUnit : CompactAdditiveUnitBoundaryRows
+      tokenCount values.length targetBoundary) :
+    CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        targetBoundary values := by
+  have hactualUnit : CompactAdditiveUnitBoundaryRows
+      tokenCount values.length actualBoundary :=
+    CompactAdditiveStructuredListElementRowLayouts.natUnitBoundaryRows
+      hactualRows
+  intro index hindex
+  rcases hactualRows index hindex with
+    ⟨actualLeft, _hactualLeft, actualRight, _hactualRight,
+      hactualLeftEntry, hactualRightEntry, hactualValue⟩
+  rcases htargetUnit index hindex with
+    ⟨targetLeft, htargetLeft, targetRight, htargetRight,
+      htargetLeftEntry, htargetRightEntry, _htargetNext⟩
+  have hactualLeftCanonical :=
+    CompactAdditiveStructuredListLayout.entry_eq_start_add
+      hactualLayout hactualUnit index (by omega)
+  have hactualRightCanonical :=
+    CompactAdditiveStructuredListLayout.entry_eq_start_add
+      hactualLayout hactualUnit (index + 1) (by omega)
+  have htargetLeftCanonical :=
+    CompactAdditiveStructuredListLayout.entry_eq_start_add
+      htargetLayout htargetUnit index (by omega)
+  have htargetRightCanonical :=
+    CompactAdditiveStructuredListLayout.entry_eq_start_add
+      htargetLayout htargetUnit (index + 1) (by omega)
+  have hactualLeftCursor : actualLeft = start + 1 + index :=
+    (CompactFixedWidthEntry.value_eq_tableValue
+      hactualLeftEntry).trans
+        (CompactFixedWidthEntry.value_eq_tableValue
+          hactualLeftCanonical).symm
+  have hactualRightCursor :
+      actualRight = start + 1 + (index + 1) :=
+    (CompactFixedWidthEntry.value_eq_tableValue
+      hactualRightEntry).trans
+        (CompactFixedWidthEntry.value_eq_tableValue
+          hactualRightCanonical).symm
+  have htargetLeftCursor : targetLeft = start + 1 + index :=
+    (CompactFixedWidthEntry.value_eq_tableValue
+      htargetLeftEntry).trans
+        (CompactFixedWidthEntry.value_eq_tableValue
+          htargetLeftCanonical).symm
+  have htargetRightCursor :
+      targetRight = start + 1 + (index + 1) :=
+    (CompactFixedWidthEntry.value_eq_tableValue
+      htargetRightEntry).trans
+        (CompactFixedWidthEntry.value_eq_tableValue
+          htargetRightCanonical).symm
+  have hleft : targetLeft = actualLeft := by omega
+  have hright : targetRight = actualRight := by omega
+  refine ⟨targetLeft, htargetLeft, targetRight, htargetRight,
+    htargetLeftEntry, htargetRightEntry, ?_⟩
+  rw [hleft, hright]
+  exact hactualValue
+
 #print axioms CompactAdditiveStructuredListElementRowLayouts.natUnitBoundaryRows
 #print axioms CompactAdditiveBoundaryTable.entry_eq_bodyStart_add
 #print axioms CompactAdditiveStructuredListLayout.entry_eq_start_add
 #print axioms CompactAdditiveStructuredListLayout.finish_eq_start_add_count
+#print axioms CompactAdditiveStructuredListElementRowLayouts.natRows_on_unitBoundary
 
 end FoundationCompactNumericListedDirectNatListBoundaryRigidity

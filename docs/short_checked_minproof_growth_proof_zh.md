@@ -830,6 +830,23 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     行布局下成立，当且仅当 `status = some (some source.reverse)`。正反方向均已由实际行构造或恢复，
     未把反转结论作为输入。探针退出码 0，公理画像仅标准三项，无项目公设、`sorryAx`、`projection`
     或 `rfind`。
+106. [FoundationCompactNumericListedDirectCompletedStatusSameRows.lean](../integration/FoundationCompactNumericListedDirectCompletedStatusSameRows.lean)
+    已关闭 done（完成后保持不变）分支内部输出的同一性。两侧完成标签、同一 `outputCount` 的输出布局和
+    `NatListSameRows` 直接行关系成立，当且仅当两个 status 都等于同一个 `some (some output)`。第 105 项
+    的边界刚性排除伪输出表；本项及第 105 项又加入精确 `Nat.size` 字段，证明每张输出边界表位长不超过
+    `(outputCount+1)*tokenCount`，因此后续 Σ₁ 见证不能携带任意高位垃圾。全部端点仅依赖标准三项。
+107. [FoundationCompactNumericListedDirectBinaryNatStreamStepRows.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRows.lean)
+    已把状态布局展开成命名数值坐标，并证明该坐标视图与原布局双向等价。done、empty、decode-failure、
+    decode-success 四个纯数值行关系分别当且仅当第 94 项对应语义分支；总析取当且仅当
+    `next = binaryNatStreamStep current`。关系不输入 typed next-state equality（类型化下一状态等式），
+    而是从 Bool/Nat 行、解码图和 status 标签恢复它。七个端点仅依赖标准三项。
+108. [FoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean)
+    与 [FoundationCompactNumericListedDirectBinaryNatStreamStepInstallation.lean](../integration/FoundationCompactNumericListedDirectBinaryNatStreamStepInstallation.lean)
+    已把第 107 项写成四个手写 31 自由变量 `Δ₀` 分支公式及一个总析取公式。显式 step witness（单步见证）
+    记录分支标签、`payload/digitCount/token/consumed` 和带位长守卫的完成输出边界；所有子公式的 `Fin`
+    环境向量均逐项证明。公式存在见证当且仅当真实 stream step。任意合法本地流轨迹的每对相邻状态行
+    都产生该见证，并已安装到完整验证轨迹的 proof/formula 两张状态表。探针与定向构建均退出码 0，
+    公理画像仅标准三项，无项目公设、`sorryAx`、`projection` 或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -854,7 +871,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 105 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 108 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -881,8 +898,11 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    真实 decode failure；第 102 项进一步把完成 status 内部输出列表的每个 Nat 原子行全部打开，第
    103 项又把 `0 / 1,0 / 1,1` 标签精确对应到三种真实 status；第 104 项关闭 Nat 列表不变关系，Bool
    不变则由第 98 项取 `consumed=0` 直接得到；第 105 项再以单 token 边界刚性排除伪输出表，并证明完成
-   status 的输出精确等于 `decoded.reverse`。当前黄色工作面将第 94 项四分支汇总为手写有界算术图并
-   接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个
+   status 的输出精确等于 `decoded.reverse`；第 106 项关闭两个完成 status 的同一输出及两张边界表的
+   位长守卫；第 107 项把四分支逐项恢复为真实 `binaryNatStreamStep`；第 108 项写成 31 变量手写 `Δ₀`
+   公式，并安装到 proof/formula 两张状态表的全部相邻行。当前黄色工作面要把仍用于语义校准的 typed
+   state fixed layout（类型化状态固定布局）消去为纯数值状态坐标公式，再把每步坐标与分支见证汇总成
+   有界表；随后处理第 5 至 7 个
    parser trace 和其余分量：
 
    ```text
@@ -1039,4 +1059,8 @@ lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamSte
 lake env lean integration/FoundationCompactNumericListedDirectFlexibleBinaryNatDecode.lean
 lake env lean integration/FoundationCompactNumericListedDirectNatListBoundaryRigidity.lean
 lake env lean integration/FoundationCompactNumericListedDirectCompletedStatusReverseRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectCompletedStatusSameRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepRows.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean
+lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepInstallation.lean
 ```

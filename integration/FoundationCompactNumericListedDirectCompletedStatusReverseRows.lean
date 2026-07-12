@@ -40,6 +40,16 @@ def CompactBinaryNatCompletedOutputReverseRows
       tokenTable width tokenCount sourceBoundary sourceCount
         outputBoundary sourceCount
 
+def CompactBinaryNatCompletedOutputReverseRowsWithSize
+    (tokenTable width tokenCount statusStart statusFinish
+      sourceBoundary sourceCount outputStart outputBoundary
+      outputBoundarySize : Nat) : Prop :=
+  CompactBinaryNatCompletedOutputReverseRows
+      tokenTable width tokenCount statusStart statusFinish
+        sourceBoundary sourceCount outputStart outputBoundary ∧
+    outputBoundarySize = Nat.size outputBoundary ∧
+    outputBoundarySize ≤ (sourceCount + 1) * tokenCount
+
 def compactBinaryNatCompletedOutputReverseRowsFormulaBundle :
     𝚺₀.Semisentence 5 × 𝚺₀.Semisentence 7 × 𝚺₀.Semisentence 7 :=
   (compactBinaryNatCompletedStatusPrefixDef,
@@ -226,8 +236,57 @@ theorem completedOutputReverseRows_iff
     exact ⟨innerPayloadStart, outputBoundary,
       hprefix, houtputLayout', hreverseRows⟩
 
+theorem completedOutputReverseRowsWithSize_iff
+    {tokenTable width tokenCount statusStart statusFinish sourceBoundary : Nat}
+    {source : List Nat} {status : Option (Option (List Nat))}
+    (hsource : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        sourceBoundary source)
+    (hstatus : CompactBinaryNatStreamStatusDirectLayout
+      tokenTable width tokenCount statusStart statusFinish status) :
+    (∃ outputStart outputBoundary outputBoundarySize,
+        CompactBinaryNatCompletedOutputReverseRowsWithSize
+          tokenTable width tokenCount statusStart statusFinish
+            sourceBoundary source.length outputStart outputBoundary
+            outputBoundarySize) ↔
+      status = some (some source.reverse) := by
+  constructor
+  · rintro ⟨outputStart, outputBoundary, outputBoundarySize,
+      hrelation, _hsizeEq, _hsizeBound⟩
+    exact (completedOutputReverseRows_iff hsource hstatus).mp
+      ⟨outputStart, outputBoundary, hrelation⟩
+  · intro hstatusEq
+    subst status
+    have hstatusCopy := hstatus
+    rcases hstatus with
+      ⟨outerPayloadStart, houter,
+        innerPayloadStart, hinner,
+        outputBoundary, houtputLayout, houtputRows, houtputSize⟩
+    have hinnerPayloadStart : innerPayloadStart = statusStart + 2 := by
+      have houterNext := houter.1.2.1
+      have hinnerNext := hinner.1.2.1
+      omega
+    have hprefix : CompactBinaryNatCompletedStatusPrefix
+        tokenTable width tokenCount statusStart innerPayloadStart :=
+      (CompactBinaryNatStreamStatusDirectLayout.completedPrefix_iff
+        hstatusCopy).mpr
+          ⟨source.reverse, rfl, hinnerPayloadStart⟩
+    have houtputLayout' : CompactAdditiveStructuredListLayout
+        tokenTable width tokenCount innerPayloadStart source.length
+          statusFinish outputBoundary := by
+      simpa using houtputLayout
+    have hreverseRows : CompactAdditiveNatListReverseRows
+        tokenTable width tokenCount sourceBoundary source.length
+          outputBoundary source.length := by
+      simpa using
+        (CompactAdditiveStructuredListElementRowLayouts.natReverseRows
+          hsource houtputRows rfl)
+    exact ⟨innerPayloadStart, outputBoundary, Nat.size outputBoundary,
+      ⟨hprefix, houtputLayout', hreverseRows⟩, rfl, by simpa using houtputSize⟩
+
 #print axioms compactBinaryNatCompletedOutputReverseRowsFormulaBundle_spec
 #print axioms CompactAdditiveNatListReverseRows.targetUnitBoundaryRows
 #print axioms completedOutputReverseRows_iff
+#print axioms completedOutputReverseRowsWithSize_iff
 
 end FoundationCompactNumericListedDirectCompletedStatusReverseRows
