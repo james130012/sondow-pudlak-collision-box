@@ -1005,6 +1005,16 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     为失败、next tokens 等于原 tokens、next tasks 精确等于弹头后的同一尾栈。25 自由变量手写 `Δ₀`
     公式逐点 iff 该关系；其存在见证 iff 真实非法任务分支，并已安装到公开 `compactSyntaxParserStep`。
     最终定向构建通过 1373 个任务；无 `sorry`、无项目公设，全部新增端点仅依赖标准三项。
+146. [StateAtRows](../integration/FoundationCompactNumericListedDirectParserStateAtRows.lean)、
+    [TaskBoundaryRigidity](../integration/FoundationCompactNumericListedDirectSyntaxTaskBoundaryRigidity.lean)、
+    [Initial](../integration/FoundationCompactNumericListedDirectParserInitialFormula.lean)、
+    [Final](../integration/FoundationCompactNumericListedDirectParserFinalFormula.lean)、
+    [TraceNatRows](../integration/FoundationCompactNumericListedDirectTraceNatListRowLayouts.lean)、
+    [InitialFinal](../integration/FoundationCompactNumericListedDirectParserInitialFinalFormula.lean) 与
+    [Installation](../integration/FoundationCompactNumericListedDirectParserInitialFinalInstallation.lean)
+    已关闭 parser initial/final（解析器初态／终态）：16/36 变量手写 `Δ₀` 公式锁定真实第 0 行、第
+    `fuel` 行及 `fuel+1` 行数；proof 终态输出行直接成为 certificate 初态输入行。定向构建 1376 个任务
+    通过；无 `sorry`、无项目公设，仅依赖标准三项。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -1029,7 +1039,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 145 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 146 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -1062,13 +1072,14 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    typed 列表和三类 status，消去 typed state 输入，并把两状态核心与单步关系合成逐点精确的 35 变量
    `Δ₀` 公式。第 113 至 117 项进一步构造统一列宽的 32 列相邻步见证表、证明全部列的公开位长界、
    安装 proof/formula 两张规范表，并闭合真实手写 `Δ₀` 表公式及其与原表图的完整双向等价。
-   第 118 至 145 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
+   第 118 至 146 项进一步给出三条 parser trace（解析器轨迹）的规范状态表、13 变量状态核心、共有三分支
    正常形、done/empty 两个完整分支、非空任务栈规范拆头、syntax repeat task 的完整有界公式，以及
    term/formula 分支共用的 Nat token 定点读取、精确后缀和有限符号码公式，并完整关闭 syntax term task
-   与 syntax formula task 的两个 26 变量公式、非法 task kind（非法任务种类）及全部公开执行安装。
-   syntax 非空任务栈的 task-head dispatch（任务头标签分派）至此闭合；当前黄色工作面已收窄到
-   parser initial/final（解析器初态／终态）、其余 proof/certificate parser（证明／证书解析器）分支及
-   verifier（验证器）分量的直接算术图：
+   与 syntax formula task 的两个 26 变量公式、非法 task kind（非法任务种类）及全部公开执行安装；
+   三条解析器的初态／终态公式也已与同一完整轨迹边界闭合，proof 终态输出和 certificate 初态输入由
+   同一行表直接连接。syntax 非空任务栈的 task-head dispatch（任务头标签分派）至此闭合；当前黄色
+   工作面已收窄到其余 proof/certificate parser（证明／证书解析器）任务头分支及 verifier（验证器）
+   分量的直接算术图：
 
    ```text
    P_direct(bound,y) := exists proofCode,
@@ -1080,8 +1091,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
 
    精确 `verifier=true iff exists bounded traceCode.Valid`、中央 `initial/step/final` 检查、packed token stream
    局部检查、全部 outer parser tableau、逐公式子运行、两个结果包装层、完整 root-field 子轨迹及无损
-   自定界自然数编码、全部十二分量界和有界轨迹码双向等价均已闭合。下一步展开 `verifierStep` 内的
-   原子字段解析和局部语法变换，直接构造该关系的二变量 Σ₁ 公式。
+   自定界自然数编码、全部十二分量界、有界轨迹码双向等价，以及三条解析器的精确初态／终态公式均已
+   闭合。下一步先展开 proof/certificate parser 的任务头分支，再汇总完整 parser step（解析器单步）
+   关系，随后展开 `verifierStep` 内的原子字段解析和局部语法变换，直接构造该关系的二变量 Σ₁ 公式。
    只有这些步骤闭合后，才进入
    PA 内部 accepted-computation proof compiler（接受计算证明编译器）：合法轨迹产生真实 `Derivation2`，
    且完整证明载荷长度为输入位长的固定多项式。`Decidable`（可判定）、普通 `codeOfREPred` 或逐实例
