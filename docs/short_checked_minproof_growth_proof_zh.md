@@ -821,6 +821,15 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
     `target = source`。Bool 不变字段无需新公式，直接使用第 98 项的 `BoolListDropRows` 并令
     `consumed=0`，其已证 iff 立即化为 `target=source`。五个端点探针退出码 0，仅依赖标准三项或其
     子集，无项目公设、`sorryAx`、`projection` 或 `rfind`。
+105. [FoundationCompactNumericListedDirectCompletedStatusReverseRows.lean](../integration/FoundationCompactNumericListedDirectCompletedStatusReverseRows.lean)
+    已关闭完成 status（状态）输出与 decoded reverse（已解码列表反转）之间最后的边界歧义。配套的
+    [FoundationCompactNumericListedDirectNatListBoundaryRigidity.lean](../integration/FoundationCompactNumericListedDirectNatListBoundaryRigidity.lean)
+    证明：当每个 Nat 行恰占一个 token（编码单元）时，第 `i` 个边界必为 `outputStart+1+i`，列表终点
+    必为 `outputStart+1+count`。因此公式给出的输出边界表不能指向另一组伪造 token 行。完成标签、输出
+    structured-list（结构化列表）布局和 `NatListReverseRows` 组成的直接公式束，在真实 source/status
+    行布局下成立，当且仅当 `status = some (some source.reverse)`。正反方向均已由实际行构造或恢复，
+    未把反转结论作为输入。探针退出码 0，公理画像仅标准三项，无项目公设、`sorryAx`、`projection`
+    或 `rfind`。
 
 这与 Pudlak 1986 原文一致：原文明确拒绝通常的一元数词，采用长度与
 `log n` 成比例的短数词；公式和证明按二元串/符号数计长。
@@ -845,7 +854,7 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    公开验证器逐点结果等式。第 58 项闭合的是同一有界谓词的**通用定性表示审计**；因其内含
    `rfind` 最小化前缀，不能直接承接定量短证明。
 
-   第 59 至 104 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
+   第 59 至 105 项现已关闭非最小化外部轨迹语义、中央任务机局部计算表、两个公开 packed 输入子轨迹、
    proof/certificate/formula 三类解析器的外层局部计算表，以及 certified-parts/whole-formula 两个结果
    包装层、带逐公式子轨迹的 sequent repeat、term/closed-formula 外层轨迹、五类根字段分支、十标签
    直接分派、`rootTrace` 的公开总见证接入、整套见证的加法型 token/Nat 无损编码、精确结构位权、
@@ -871,8 +880,9 @@ encoding artifact（编码伪影），不是 Friedman-Pudlak/Buss（弗里德曼
    关闭成功分支的 decoded cons 和空输入分支的 decoded reverse；第 101 项又以四类显式局部阻断关闭
    真实 decode failure；第 102 项进一步把完成 status 内部输出列表的每个 Nat 原子行全部打开，第
    103 项又把 `0 / 1,0 / 1,1` 标签精确对应到三种真实 status；第 104 项关闭 Nat 列表不变关系，Bool
-   不变则由第 98 项取 `consumed=0` 直接得到。当前黄色工作面把 completed output rows 接到 reverse，
-   再将第 94 项四分支汇总为手写有界算术图并接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个
+   不变则由第 98 项取 `consumed=0` 直接得到；第 105 项再以单 token 边界刚性排除伪输出表，并证明完成
+   status 的输出精确等于 `decoded.reverse`。当前黄色工作面将第 94 项四分支汇总为手写有界算术图并
+   接入 proof/formula 两张相邻状态表；随后处理第 5 至 7 个
    parser trace 和其余分量：
 
    ```text
@@ -1027,4 +1037,6 @@ lake env lean integration/FoundationCompactNumericListedDirectTracePackedStreamS
 lake env lean integration/FoundationCompactNumericListedDirectAtomicListLayouts.lean
 lake env lean integration/FoundationCompactNumericListedDirectBinaryNatStreamStepCases.lean
 lake env lean integration/FoundationCompactNumericListedDirectFlexibleBinaryNatDecode.lean
+lake env lean integration/FoundationCompactNumericListedDirectNatListBoundaryRigidity.lean
+lake env lean integration/FoundationCompactNumericListedDirectCompletedStatusReverseRows.lean
 ```
