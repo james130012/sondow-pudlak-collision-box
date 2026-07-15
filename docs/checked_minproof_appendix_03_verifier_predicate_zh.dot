@@ -1,0 +1,111 @@
+digraph DirectVerifierPredicateAppendix {
+  graph [rankdir=TB, bgcolor="white", splines=polyline, nodesep="0.28",
+    ranksep="0.44", pad="0.18", size="10,14!", ratio=compress,
+    fontname="Noto Sans CJK SC", fontsize=21,
+    label="附图 03：验证器步骤与 P_direct", labelloc="t"];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+    fontsize=10.5, color="#526d75", fillcolor="#f3f3f3",
+    margin="0.14,0.09", penwidth=1.2];
+  edge [fontname="Noto Sans CJK SC", fontsize=8.5, color="#65777d",
+    arrowsize=0.68];
+
+  verifier [node_id="A03.01", status="done", endpoint_theorem="public verifier exactness",
+    source="integration/FoundationCompactNumericListedPublicVerifier.lean", appendix="03",
+    next_obligation="none", label="A03.01 公开紧凑 PA 验证器\n同一 proof + certificate 载荷",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  bitcost [node_id="A03.02", status="done", endpoint_theorem="public verifier polynomial bit cost",
+    source="integration/FoundationCompactListedPublicCostSkeleton.lean", appendix="03",
+    next_obligation="none", label="A03.02 验证器执行位成本\n解码、局部检查和语法变换均收费",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  trace_code [node_id="A03.03", status="done", endpoint_theorem="bounded direct trace code",
+    source="integration/FoundationCompactNumericListedBoundedTraceCode.lean", appendix="03",
+    next_obligation="none", label="A03.03 十二分量有界轨迹码\n规范表与公开位长界",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  parser_parts [node_id="A03.04", status="partial_done", endpoint_theorem="audited direct parser components",
+    source="docs/checked_minproof_appendix_02_parser_traces_zh.dot", appendix="03",
+    next_obligation="reuse selectively after PA compiler",
+    label="A03.04 解析器直接公式部件\n大量已绿，但完整 step 尚未汇总",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  step_skeleton [node_id="A03.05a", status="done",
+    endpoint_theorem="compactNumericVerifierStep_cases_iff + typed task/state realization",
+    source="integration/FoundationCompactNumericListedDirectVerifierStepCases.lean", appendix="03",
+    next_obligation="none",
+    label="A03.05a 单步状态骨架\n状态、任务、子结果的有界行表与公开分支分解\nLean 探针通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  local_combine [node_id="A03.05b", status="done",
+    endpoint_theorem="CompactNumericSimpleCombineTransitionRows.sound_combineTransition + CompactNumericExsCutCombineRuleRows.sound_combineTransition",
+    source="integration/FoundationCompactNumericListedDirectSimpleCombineTransitionRows.lean + integration/FoundationCompactNumericListedDirectExsCutCombineRuleRows.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05b 简单规则及 Exs/Cut 合并\nAnd/Or/Wk 已补真实 source-head；Exs/Cut 保持同一严格接线\n五个标签均可靠给出公开 combineTransition\n直接探针与清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  all_shift_exact [node_id="A03.05c", status="done",
+    endpoint_theorem="CompactFormulaShiftExactListRows.sound + compactAdditiveAllRuleCheck_iff + compactAdditiveShiftRuleCheck_iff",
+    source="integration/FoundationCompactNumericListedDirectFormulaTransformTotalExactFormula.lean + integration/FoundationCompactNumericListedDirectFormulaShiftExactListRows.lean + integration/FoundationCompactNumericListedDirectAllShiftRuleCheck.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05c All/Shift 精确规则检查\nfree/shift 共用完整变换轨迹；失败位不能伪造成空公式\n列表 Option 折叠与公开规则逐点相等\n直接探针通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  all_shift_combine [node_id="A03.05d", status="done",
+    endpoint_theorem="CompactNumericAllShiftCombineRuleRows.sound_combineTransition",
+    source="integration/FoundationCompactNumericListedDirectAllShiftCombineRuleRows.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05d All/Shift 合并转移\ntask tag 5/8、真实子结果头、drop-one 栈与新结果共用同一行表\n每个接受行图均可靠地给出公开 compactNumericCombineTransition\n直接探针与清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  task_drop [node_id="A03.05e1", status="done",
+    endpoint_theorem="CompactNumericVerifierTaskListDropRows.eq_drop_of_rows",
+    source="integration/FoundationCompactNumericListedDirectVerifierTaskListDropRows.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05e1 任务栈删除关系\n完整固定宽切片相等恢复每个真实 verifier task\n逐行关系严格推出 target = source.drop consumed\n直接探针与清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  task_head [node_id="A03.05e2", status="done",
+    endpoint_theorem="CompactNumericVerifierTaskBoundedHead.realize_actualHeadWithFields",
+    source="integration/FoundationCompactNumericListedDirectVerifierTaskBoundedHeadFormula.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05e2 真实任务表头\n第 0 行显式坐标双向对应原有有界行图\n严格恢复 tasks.getI 0 及 tag、gamma、first、second、witness、suffix\n直接探针与清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  combine_sound [node_id="A03.05e3a", status="done",
+    endpoint_theorem="CompactNumericVerifierCombineStateGraph.realizeExactStep + compactNumericVerifierCombineStateGraphDef_sigmaZero",
+    source="integration/FoundationCompactNumericListedDirectVerifierCombineStateGraph.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05e3a 状态级 combine 正向可靠性\n固定 93 列 Delta-zero 图统一七个成功标签与精确失败分支\n真实任务头、drop-one、值栈、证明流和证书流处于同一状态对\n每个满足图的行都逐点等于公开 verifierStep；定向构建与禁用扫描通过",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  combine_complete [node_id="A03.05e3b", status="done",
+    endpoint_theorem="CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step",
+    source="integration/FoundationCompactNumericListedDirectVerifierCombineCanonicalCompleteness.lean",
+    appendix="03", next_obligation="none",
+    label="A03.05e3b 状态级 combine 反向构造性\n规范前后状态与规则辅助数据共用同一 token table\n七种成功规则和精确失败分支均构造固定 93 列有界见证\n公开 combineTransition 穷尽分流；探针、定向构建与禁用扫描通过",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  verifier_step [node_id="A03.05e4", status="done",
+    endpoint_theorem="compactNumericVerifierStepFormula_closedEndpoint + CompactNumericVerifierStepGraph.realizeExactStep",
+    source="integration/FoundationCompactNumericListedDirectVerifierStepEndpoint.lean", appendix="03",
+    next_obligation="none",
+    label="A03.05e4 完整 verifierStep 图\n固定 429 列 Sigma-zero 公式统一 halted / finish / parse / combine\n任意满足行精确实现公开 verifierStep；任意公开单步规范构造公式见证\n状态表与前后切片四端点显式锁定；探针、定向构建与禁用扫描通过\n公理画像仅 propext / Classical.choice / Quot.sound",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  direct_trace [node_id="A03.06", status="active", endpoint_theorem="DirectVerifierTraceCode exact formula",
+    source="planned", appendix="03", next_obligation="join initial, every 429-column step, and final rows",
+    label="A03.06【当前】完整验证轨迹公式\n把初态、每个 verifierStep 有界行和终态汇入同一轨迹表\n目标：轨迹公式与同一公开 bounded run 逐行一致",
+    fillcolor="#fff0c9", color="#b37a12", penwidth=3.0];
+  predicate [node_id="A03.07", status="pending", endpoint_theorem="P_direct(bound,y)",
+    source="planned", appendix="03", next_obligation="wait for A03.06",
+    label="A03.07 二变量 Sigma-one 谓词 P_direct\n标准模型 iff 同一公开检查器接受",
+    style="rounded,filled,dashed", color="#777777", penwidth=2.2];
+  identity [node_id="A03.08", status="pending", endpoint_theorem="same formula/checker/measure identity",
+    source="planned", appendix="03", next_obligation="wait for A03.07",
+    label="A03.08 对象恒等审计\n同一公式码、检查器与完整载荷长度",
+    fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed"];
+
+  verifier -> bitcost;
+  verifier -> trace_code;
+  parser_parts -> step_skeleton;
+  bitcost -> step_skeleton;
+  step_skeleton -> local_combine;
+  step_skeleton -> all_shift_combine;
+  all_shift_exact -> all_shift_combine;
+  step_skeleton -> task_drop;
+  step_skeleton -> task_head;
+  local_combine -> combine_sound;
+  all_shift_combine -> combine_sound;
+  task_drop -> combine_sound;
+  task_head -> combine_sound -> combine_complete -> verifier_step;
+  trace_code -> direct_trace;
+  verifier_step -> direct_trace -> predicate -> identity;
+}

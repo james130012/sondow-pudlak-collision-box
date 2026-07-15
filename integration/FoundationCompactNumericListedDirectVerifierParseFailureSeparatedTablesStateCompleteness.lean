@@ -33,17 +33,19 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
     {stateTable stateWidth stateTokenCount
       currentStart currentFinish nextStart nextFinish : Nat}
     {proofTokens certificateTokens : List Nat}
+    {currentTask : CompactNumericVerifierTask}
     {restTasks : List CompactNumericVerifierTask}
     {values : List CompactNumericChildResult}
     (hcurrent : CompactNumericVerifierStateDirectLayout
       stateTable stateWidth stateTokenCount currentStart currentFinish
       (((proofTokens, certificateTokens),
-        (compactNumericParseTask :: restTasks, values)), none))
+        (currentTask :: restTasks, values)), none))
     (hnext : CompactNumericVerifierStateDirectLayout
       stateTable stateWidth stateTokenCount nextStart nextFinish
       (((proofTokens, certificateTokens), (restTasks, values)), some false))
     (hparse : compactNumericParsePayload
-      ((proofTokens, certificateTokens), (restTasks, values)) = none) :
+      ((proofTokens, certificateTokens), (restTasks, values)) = none)
+    (hcurrentTaskTag : currentTask.1 = 10) :
     ∃ currentCoordinates nextCoordinates :
         CompactNumericVerifierStateRowCoordinates,
     ∃ currentSizeWitness nextSizeWitness :
@@ -56,6 +58,10 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
         certificateInputStart certificateInputFinish,
     ∃ axiomStart axiomFinish formulaStart formulaFinish,
     ∃ suffixStart suffixFinish certificateTag certificateEndpointBound,
+      currentCoordinates.start = currentStart ∧
+      currentCoordinates.finish = currentFinish ∧
+      nextCoordinates.start = nextStart ∧
+      nextCoordinates.finish = nextFinish ∧
       CompactNumericVerifierParseFailureSeparatedTablesStateGraph
         stateTable stateWidth stateTokenCount
         currentCoordinates nextCoordinates
@@ -69,12 +75,16 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
         suffixStart suffixFinish certificateTag certificateEndpointBound := by
   rcases
       CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layouts
-        hcurrent hnext with
+        hcurrent hnext hcurrentTaskTag with
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       taskCoordinates, taskSizeWitness, hframePackage⟩
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, hhead, hframe, hfailureRows⟩
+  have hcurrentStartEq := hcurrentPackage.1
+  have hcurrentFinishEq := hcurrentPackage.2.1
+  have hnextStartEq := hnextPackage.1
+  have hnextFinishEq := hnextPackage.2.1
   rcases hcurrentPackage with
     ⟨_hcurrentStart, _hcurrentFinish,
       hcurrentProof, hcurrentCertificate,
@@ -114,7 +124,9 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
     certificateInputStart, certificateInputFinish,
     axiomStart, axiomFinish, formulaStart, formulaFinish,
     suffixStart, suffixFinish, certificateTag, certificateEndpointBound, ?_⟩
-  exact ⟨hcurrentCore, hnextCore, hhead, hframe,
+  exact ⟨hcurrentStartEq, hcurrentFinishEq,
+    hnextStartEq, hnextFinishEq,
+    hcurrentCore, hnextCore, hhead, hframe,
     ⟨hpayload, hfailureRows⟩⟩
 
 #print axioms

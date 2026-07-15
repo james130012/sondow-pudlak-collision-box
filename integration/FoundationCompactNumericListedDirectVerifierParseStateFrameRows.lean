@@ -5,10 +5,10 @@ import integration.FoundationCompactNumericListedDirectVerifierParseScheduleRows
 /-!
 # Common bounded frame for verifier parse states
 
-A parse step starts in a running state whose task-list head is exactly the
-empty-field parse task.  This frame exposes that head and realizes both state
-rows without assuming how the parsed node changes streams, stacks, or status.
-Those branch-specific changes are checked by the succeeding row relations.
+A parse step starts in a running state whose task-list head has public tag 10.
+The executable branch ignores the other task fields, so this frame validates
+their encoding without requiring them to be empty.  Generated parse tasks in
+non-leaf schedules remain subject to the stricter empty-field shape.
 -/
 
 open LO FirstOrder LO.FirstOrder.Arithmetic
@@ -37,7 +37,7 @@ def CompactNumericVerifierParseStateFrameRows
     (taskCoordinates : CompactNumericVerifierTaskRowCoordinates) : Prop :=
   currentStatusTag = 0 ∧
     1 ≤ currentTaskCount ∧
-    CompactNumericParseTaskShape taskCoordinates
+    taskCoordinates.tag = 10
 
 def compactNumericVerifierParseStateFrameRowsDef :
     𝚺₀.Semisentence 8 := .mkSigma
@@ -46,12 +46,7 @@ def compactNumericVerifierParseStateFrameRowsDef :
       taskWitnessCount taskSuffixCount.
     currentStatusTag = 0 ∧
     1 ≤ currentTaskCount ∧
-    taskTag = 10 ∧
-    taskGammaCount = 0 ∧
-    taskFirstCount = 0 ∧
-    taskSecondCount = 0 ∧
-    taskWitnessCount = 0 ∧
-    taskSuffixCount = 0”
+    taskTag = 10”
 
 @[simp] theorem compactNumericVerifierParseStateFrameRowsDef_spec
     (currentTaskCount currentStatusTag
@@ -77,8 +72,7 @@ def compactNumericVerifierParseStateFrameRowsDef :
           witnessCount := taskWitnessCount
           suffixCount := taskSuffixCount } := by
   simp [compactNumericVerifierParseStateFrameRowsDef,
-    CompactNumericVerifierParseStateFrameRows,
-    CompactNumericParseTaskShape]
+    CompactNumericVerifierParseStateFrameRows]
 
 theorem compactNumericVerifierParseStateFrameRowsDef_sigmaZero :
     LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
@@ -161,8 +155,11 @@ structure CompactNumericVerifierParseStateFrameRealization
     nextCertificateTokens.length = nextCoordinates.certificateCount
   nextTasks_length : nextTasks.length = nextCoordinates.taskCount
   nextValues_length : nextValues.length = nextCoordinates.valueCount
-  currentTasks_eq :
-    currentTasks = compactNumericParseTask :: currentTasks.drop 1
+  currentTask : CompactNumericVerifierTask
+  currentRestTasks : List CompactNumericVerifierTask
+  currentTasks_eq : currentTasks = currentTask :: currentRestTasks
+  currentTaskTag : currentTask.1 = 10
+  currentRestTasks_eq : currentRestTasks = currentTasks.drop 1
   nextStatusCase :
     (nextStatus = none ∧ nextCoordinates.statusTag = 0) ∨
       ∃ result : Bool,
@@ -191,7 +188,7 @@ theorem CompactNumericVerifierParseStateFrameRows.realize
     Nonempty (CompactNumericVerifierParseStateFrameRealization
       tokenTable width tokenCount currentCoordinates nextCoordinates
       currentSizeWitness nextSizeWitness) := by
-  rcases hframe with ⟨hcurrentStatusTag, htaskCount, hparseShape⟩
+  rcases hframe with ⟨hcurrentStatusTag, htaskCount, hparseTag⟩
   rcases CompactNumericVerifierStateCoreGraph.realizeDirectLayout hcurrent with
     ⟨currentProofTokens, currentCertificateTokens,
       currentTasks, currentValues, currentStatus,
@@ -222,42 +219,23 @@ theorem CompactNumericVerifierParseStateFrameRows.realize
   rcases hhead.realize_actualHeadWithFields
       hcurrentTasksNonempty hcurrentTaskRows with
     ⟨task, htaskActual, htaskTag, _htaskLayout,
-      _hgammaRows, hgammaLength,
-      _hfirstLayout, hfirstLength,
-      _hsecondLayout, hsecondLength,
-      _hwitnessLayout, hwitnessLength,
-      _hsuffixLayout, hsuffixLength⟩
-  rcases hparseShape with
-    ⟨hshapeTag, hgammaZero, hfirstZero, hsecondZero,
-      hwitnessZero, hsuffixZero⟩
-  have htaskTagValue : task.1 = 10 := htaskTag.trans hshapeTag
-  have hgamma : task.2.1 = [] :=
-    List.eq_nil_of_length_eq_zero (hgammaLength.trans hgammaZero)
-  have hfirst : task.2.2.1 = [] :=
-    List.eq_nil_of_length_eq_zero (hfirstLength.trans hfirstZero)
-  have hsecond : task.2.2.2.1 = [] :=
-    List.eq_nil_of_length_eq_zero (hsecondLength.trans hsecondZero)
-  have hwitness : task.2.2.2.2.1 = [] :=
-    List.eq_nil_of_length_eq_zero (hwitnessLength.trans hwitnessZero)
-  have hsuffix : task.2.2.2.2.2 = [] :=
-    List.eq_nil_of_length_eq_zero (hsuffixLength.trans hsuffixZero)
-  have htaskFields : task.2 = compactNumericEmptyNodeFields := by
-    apply Prod.ext hgamma
-    apply Prod.ext hfirst
-    apply Prod.ext hsecond
-    exact Prod.ext hwitness hsuffix
-  have htaskValue : task = compactNumericParseTask :=
-    Prod.ext htaskTagValue htaskFields
-  have hcurrentTasksEq :
-      currentTasks = compactNumericParseTask :: currentTasks.drop 1 := by
+      _hgammaRows, _hgammaLength,
+      _hfirstLayout, _hfirstLength,
+      _hsecondLayout, _hsecondLength,
+      _hwitnessLayout, _hwitnessLength,
+      _hsuffixLayout, _hsuffixLength⟩
+  have htaskTagValue : task.1 = 10 := htaskTag.trans hparseTag
+  have hcurrentTasksParts : ∃ restTasks,
+      currentTasks = task :: restTasks ∧
+      restTasks = currentTasks.drop 1 := by
     cases htasks : currentTasks with
     | nil => simp [htasks] at hcurrentTasksNonempty
     | cons head tail =>
         have htaskHead : task = head := by
           simpa [htasks] using htaskActual
-        have hheadParse : head = compactNumericParseTask :=
-          htaskHead.symm.trans htaskValue
-        simp [hheadParse]
+        exact ⟨tail, by simp [htaskHead], by simp⟩
+  rcases hcurrentTasksParts with
+    ⟨currentRestTasks, hcurrentTasksEq, hcurrentRestTasksEq⟩
   have hcurrentTaskGraph : CompactNumericVerifierTaskListRowsGraph
       tokenTable width tokenCount currentCoordinates.taskBoundary
       currentTasks.length currentSizeWitness.taskTableWidth
@@ -320,7 +298,11 @@ theorem CompactNumericVerifierParseStateFrameRows.realize
       nextCertificateTokens_length := hnextCertificateLength
       nextTasks_length := hnextTasksLength
       nextValues_length := hnextValuesLength
+      currentTask := task
+      currentRestTasks := currentRestTasks
       currentTasks_eq := hcurrentTasksEq
+      currentTaskTag := htaskTagValue
+      currentRestTasks_eq := hcurrentRestTasksEq
       nextStatusCase := hnextStatus }⟩
 
 #print axioms compactNumericVerifierParseStateFrameRowsDef_spec

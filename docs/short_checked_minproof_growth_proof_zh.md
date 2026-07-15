@@ -242,8 +242,13 @@ token table（令牌表）。公开规则号 3--9、单前提/双前提栈形及
 布局、成功表或界参数。端点探针、定向构建和禁用扫描均通过，公理画像只有
 `propext`（命题外延）、`Classical.choice`（经典选择）、`Quot.sound`（商类型可靠性）。
 
-当前唯一义务转为 `A03.05e4`：把已闭合的 combine 图与 halted/finish/parse
-（停机/结束/解析）三类分支汇总为完整公开单步有界图，并证明逐点 iff（当且仅当）。
+`A03.05e4` 已闭合：固定 429 列 `Sigma-zero`（零阶有界算术）公式统一 halted、finish、parse、
+combine（已停止、结束、解析、组合）四类公开单步。任意满足图的行都实现同一公开
+`compactNumericVerifierStep`（紧凑数值验证器单步）；反向则从任意真实公开单步规范构造同一公式见证，
+并显式锁定状态表、当前切片和下一切片的起止列。总端点、正向精确性、层级与禁用扫描全部通过，
+公理画像仅有 `propext`、`Classical.choice`、`Quot.sound`。
+
+当前唯一义务转为 `A03.06`：把初态、逐行 429 列单步公式和终态汇成完整验证轨迹公式。
 
 parse（解析）分支的 successful closed-formula trace（成功封闭公式轨迹）现已闭合：
 真实封闭解析与普通解析的唯一差异被证明为局部 free-variable guard（自由变量保护条件），
@@ -339,10 +344,9 @@ fixed/symbol/induction（固定／符号／归纳）三分支均恢复真实 PA 
 非叶 tag 3--9 的 93 坐标 combine 成功聚合也已闭合：
 七个规范构造器均在状态框架内推出 `statusTag = 0`（成功状态标签），正向语义与从真实 combine
 transition（合并转移）出发的反向构造均通过；任务栈只消费一次，不重复 `drop`。
-当前工作点是把已闭合的 one-parse/two-parse 基础行图接入 tag `3--9` 的解析成功完整状态图；随后汇总
-parse state（解析状态）逐点 `iff`（当且仅当）。
-最后与已闭合的 halted/finish/combine（停机／结束／合并）三类图汇总为完整公开单步有界图。
-`A03.05e4` 在 halted/finish/parse/combine（停机／结束／解析／合并）四类公开单步全部汇总前保持黄色。
+one-parse/two-parse 基础行图、tag `3--9` 的解析成功完整状态图和 parse state（解析状态）逐点语义
+现均已闭合，并已与 halted/finish/combine（已停止／结束／组合）汇总为完整公开单步有界图。
+`A03.05e4` 已转绿；后续工作不再展开单步内部，而从 `A03.06` 的完整轨迹公式继续。
 
 ```text
 已审计 verifierStep 部件

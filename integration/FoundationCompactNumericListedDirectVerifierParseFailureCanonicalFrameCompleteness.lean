@@ -43,6 +43,7 @@ def CompactNumericVerifierParseFailureCanonicalFramePackage
     (tokenTable width tokenCount currentStart currentFinish
       nextStart nextFinish : Nat)
     (proofTokens certificateTokens : List Nat)
+    (currentTask : CompactNumericVerifierTask)
     (restTasks : List CompactNumericVerifierTask)
     (values : List CompactNumericChildResult)
     (currentCoordinates nextCoordinates :
@@ -54,7 +55,7 @@ def CompactNumericVerifierParseFailureCanonicalFramePackage
   CompactNumericVerifierStateCanonicalCorePackage
       tokenTable width tokenCount currentStart currentFinish
       (((proofTokens, certificateTokens),
-        (compactNumericParseTask :: restTasks, values)), none)
+        (currentTask :: restTasks, values)), none)
       currentCoordinates currentSizeWitness ∧
     CompactNumericVerifierStateCanonicalCorePackage
       tokenTable width tokenCount nextStart nextFinish
@@ -84,15 +85,17 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
     {tokenTable width tokenCount currentStart currentFinish
       nextStart nextFinish : Nat}
     {proofTokens certificateTokens : List Nat}
+    {currentTask : CompactNumericVerifierTask}
     {restTasks : List CompactNumericVerifierTask}
     {values : List CompactNumericChildResult}
     (hcurrent : CompactNumericVerifierStateDirectLayout
       tokenTable width tokenCount currentStart currentFinish
       (((proofTokens, certificateTokens),
-        (compactNumericParseTask :: restTasks, values)), none))
+        (currentTask :: restTasks, values)), none))
     (hnext : CompactNumericVerifierStateDirectLayout
       tokenTable width tokenCount nextStart nextFinish
-      (((proofTokens, certificateTokens), (restTasks, values)), some false)) :
+      (((proofTokens, certificateTokens), (restTasks, values)), some false))
+    (hcurrentTaskTag : currentTask.1 = 10) :
     ∃ currentCoordinates nextCoordinates :
           CompactNumericVerifierStateRowCoordinates,
       ∃ currentSizeWitness nextSizeWitness :
@@ -101,7 +104,7 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
       ∃ taskSizeWitness : CompactNumericVerifierTaskSizeWitness,
       CompactNumericVerifierParseFailureCanonicalFramePackage
         tokenTable width tokenCount currentStart currentFinish
-        nextStart nextFinish proofTokens certificateTokens restTasks values
+        nextStart nextFinish proofTokens certificateTokens currentTask restTasks values
         currentCoordinates nextCoordinates
         currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness := by
   rcases CompactNumericVerifierStateDirectLayout.toCanonicalCorePackage
@@ -146,11 +149,11 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
       _hnextValueStructure, hnextValueGraph,
       _hnextValueBoundarySizeEq, _hnextValueBoundarySize,
       _hnextOption, _hnextCoreStatus⟩
-  have htaskNonempty : 0 < (compactNumericParseTask :: restTasks).length := by
+  have htaskNonempty : 0 < (currentTask :: restTasks).length := by
     simp
   have hcurrentTaskGraphTyped : CompactNumericVerifierTaskListRowsGraph
       tokenTable width tokenCount currentCoordinates.taskBoundary
-      (compactNumericParseTask :: restTasks).length
+      (currentTask :: restTasks).length
       currentSizeWitness.taskTableWidth currentSizeWitness.taskValueBound := by
     simpa only [hcurrentTaskCount] using hcurrentTaskGraph
   have hrow : CompactNumericVerifierTaskBoundedRow
@@ -166,22 +169,11 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
       _hsecondLayout, hsecondCount,
       _hwitnessLayout, hwitnessCount,
       _hsuffixLayout, hsuffixCount⟩
-  have hactualTaskEq : actualTask = compactNumericParseTask := by
+  have hactualTaskEq : actualTask = currentTask := by
     simpa using hactualTask
-  rw [hactualTaskEq] at htaskTag hgammaCount hfirstCount hsecondCount hwitnessCount hsuffixCount
-  have hparseShape : CompactNumericParseTaskShape taskCoordinates := by
-    refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
-    · simpa [compactNumericParseTask] using htaskTag.symm
-    · simpa [compactNumericParseTask, compactNumericEmptyNodeFields] using
-        hgammaCount.symm
-    · simpa [compactNumericParseTask, compactNumericEmptyNodeFields] using
-        hfirstCount.symm
-    · simpa [compactNumericParseTask, compactNumericEmptyNodeFields] using
-        hsecondCount.symm
-    · simpa [compactNumericParseTask, compactNumericEmptyNodeFields] using
-        hwitnessCount.symm
-    · simpa [compactNumericParseTask, compactNumericEmptyNodeFields] using
-        hsuffixCount.symm
+  rw [hactualTaskEq] at htaskTag
+  have hparseTag : taskCoordinates.tag = 10 :=
+    htaskTag.symm.trans hcurrentTaskTag
   have hcurrentStatusTag : currentCoordinates.statusTag = 0 :=
     hcurrentPackageSaved.statusTag_eq_zero rfl
   have hnextStatusTagBool : nextCoordinates.statusTag = 1 ∧
@@ -190,7 +182,7 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
   have hframe : CompactNumericVerifierParseStateFrameRows
       currentCoordinates.taskCount currentCoordinates.statusTag
       taskCoordinates := by
-    refine ⟨hcurrentStatusTag, ?_, hparseShape⟩
+    refine ⟨hcurrentStatusTag, ?_, hparseTag⟩
     rw [hcurrentTaskCount]
     simp
   have hproofSlices : CompactFixedWidthTokenSlicesEq
@@ -220,7 +212,7 @@ theorem CompactNumericVerifierParseFailureCanonicalFramePackage.exists_of_layout
   have htaskDropTyped : CompactNumericVerifierTaskListDropRows
       tokenTable width tokenCount
       currentCoordinates.taskBoundary
-        (compactNumericParseTask :: restTasks).length
+        (currentTask :: restTasks).length
       nextCoordinates.taskBoundary restTasks.length
       currentSizeWitness.taskTableWidth currentSizeWitness.taskValueBound 1 :=
     (compactNumericVerifierTaskListDropRows_iff_drop_of_rows

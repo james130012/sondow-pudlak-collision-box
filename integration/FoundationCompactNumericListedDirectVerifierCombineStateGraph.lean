@@ -1,75 +1,69 @@
-import integration.FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesBranchRows
+import integration.FoundationCompactNumericListedDirectVerifierCombineBranchRows
 
 /-!
-# Complete bounded state graph for a failed verifier parse step with separated tables
+# Complete bounded row graph for a verifier combine state
 
-The state-transition rows use the verifier state table.  Proof and certificate
-parsing use their own independent bounded tables.
+This is the fixed outer schema used by a trace row.  It joins both typed state
+graphs, the real bounded task head, the stream/task-stack frame, and the exact
+successful-or-failed combine branch.
 -/
 
 open LO FirstOrder LO.FirstOrder.Arithmetic
 
 noncomputable section
 
-namespace FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesStateGraph
+namespace FoundationCompactNumericListedDirectVerifierCombineStateGraph
 
 open FoundationCompactNumericListedTaskMachine
-open FoundationCompactNumericListedDirectAdditiveTypeCanonical
 open FoundationCompactNumericListedDirectVerifierStateLayout
 open FoundationCompactNumericListedDirectVerifierStateFormula
 open FoundationCompactNumericListedDirectVerifierTaskFormula
 open FoundationCompactNumericListedDirectVerifierTaskBoundedHeadFormula
-open FoundationCompactNumericListedDirectVerifierParseStateFrameRows
-open FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesBranchRows
+open FoundationCompactNumericListedDirectVerifierCombineStateFrameRows
+open FoundationCompactNumericListedDirectVerifierCombineBranchRows
 
-def CompactNumericVerifierParseFailureSeparatedTablesStateGraph
-    (stateTable stateWidth stateTokenCount : Nat)
+def CompactNumericVerifierCombineStateGraph
+    (tokenTable width tokenCount : Nat)
     (currentCoordinates nextCoordinates :
       CompactNumericVerifierStateRowCoordinates)
     (currentSizeWitness nextSizeWitness :
       CompactNumericVerifierStateSizeWitness)
     (taskCoordinates : CompactNumericVerifierTaskRowCoordinates)
     (taskSizeWitness : CompactNumericVerifierTaskSizeWitness)
-    (proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound : Nat) : Prop :=
+    (ruleWitness : CompactNumericVerifierCombineRuleWitness) : Prop :=
   CompactNumericVerifierStateCoreGraph
-      stateTable stateWidth stateTokenCount currentCoordinates currentSizeWitness ∧
+      tokenTable width tokenCount currentCoordinates currentSizeWitness ∧
     CompactNumericVerifierStateCoreGraph
-      stateTable stateWidth stateTokenCount nextCoordinates nextSizeWitness ∧
+      tokenTable width tokenCount nextCoordinates nextSizeWitness ∧
     CompactNumericVerifierTaskBoundedHead
-      stateTable stateWidth stateTokenCount currentCoordinates.taskBoundary
+      tokenTable width tokenCount currentCoordinates.taskBoundary
       currentSizeWitness.taskValueBound taskCoordinates taskSizeWitness ∧
-    CompactNumericVerifierParseStateFrameRows
-      currentCoordinates.taskCount currentCoordinates.statusTag
-      taskCoordinates ∧
-    CompactNumericVerifierParseFailureSeparatedTablesBranchRows
-      stateTable stateWidth stateTokenCount
-      currentCoordinates.start currentCoordinates.proofFinish
-        currentCoordinates.certificateFinish
+    CompactNumericVerifierCombineStateFrameRows
+      tokenTable width tokenCount
+      currentCoordinates.start currentCoordinates.certificateFinish
       currentCoordinates.taskBoundary currentCoordinates.taskCount
-      currentCoordinates.valueBoundary currentCoordinates.valueCount
       currentSizeWitness.taskTableWidth currentSizeWitness.taskValueBound
       currentSizeWitness.valueTableWidth currentSizeWitness.valueValueBound
+      currentCoordinates.statusTag taskCoordinates.tag
       nextCoordinates.start nextCoordinates.certificateFinish
       nextCoordinates.taskBoundary nextCoordinates.taskCount
+      nextSizeWitness.valueTableWidth nextSizeWitness.valueValueBound ∧
+    CompactNumericVerifierCombineBranchRows
+      tokenTable width tokenCount
+      taskCoordinates.tag taskCoordinates.gammaFinish
+        taskCoordinates.gammaCount taskCoordinates.gammaBoundary
+      taskCoordinates.firstFinish taskCoordinates.firstCount
+        taskCoordinates.secondFinish taskCoordinates.secondCount
+      taskCoordinates.witnessFinish taskCoordinates.witnessCount
+      currentCoordinates.valueBoundary currentCoordinates.valueCount
       nextCoordinates.valueBoundary nextCoordinates.valueCount
-      nextSizeWitness.taskTableWidth nextSizeWitness.taskValueBound
-      nextSizeWitness.valueTableWidth nextSizeWitness.valueValueBound
-      nextCoordinates.statusTag nextCoordinates.statusBool
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound
+      currentSizeWitness.valueTableWidth
+      currentSizeWitness.valueValueBound
+      nextCoordinates.statusTag nextCoordinates.statusBool ruleWitness
 
-def compactNumericVerifierParseFailureSeparatedTablesStateGraphDef :
-    𝚺₀.Semisentence 81 := .mkSigma
-  “stateTable stateWidth stateTokenCount
+def compactNumericVerifierCombineStateGraphDef :
+    𝚺₀.Semisentence 93 := .mkSigma
+  “tokenTable width tokenCount
       currentStart currentFinish
       currentProofFinish currentProofCount
       currentCertificateFinish currentCertificateCount
@@ -94,14 +88,20 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphDef :
       taskSecondFinish taskSecondCount
       taskWitnessFinish taskWitnessCount taskSuffixCount
       taskGammaBoundarySize
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound.
+      rightGammaCount rightGammaBoundary rightBoolValue
+      leftGammaCount leftGammaBoundary leftBoolValue
+      formulaBoundary formulaBoundarySize
+      transformedStart transformedFinish transformedBoundary
+      transformedCount transformedBoundarySize
+      transformStateBoundary transformStateCount
+      freedStart freedFinish freedBoundary freedCount freedBoundarySize
+      freeStateBoundary freeStateCount
+      shiftCandidateBoundary shiftSuccessTable
+      shiftedBoundary shiftedCount
+      emptyStart emptyFinish emptyBoundary emptyBoundarySize
+      shiftWitnessBound freeTableWidth freeValueBound resultBoolValue.
     !(compactNumericVerifierStateCoreGraphDef)
-      stateTable stateWidth stateTokenCount
+      tokenTable width tokenCount
       currentStart currentFinish
       currentProofFinish currentProofCount
       currentCertificateFinish currentCertificateCount
@@ -112,7 +112,7 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphDef :
       currentTaskTableWidth currentTaskValueBound
       currentValueTableWidth currentValueValueBound ∧
     !(compactNumericVerifierStateCoreGraphDef)
-      stateTable stateWidth stateTokenCount
+      tokenTable width tokenCount
       nextStart nextFinish
       nextProofFinish nextProofCount
       nextCertificateFinish nextCertificateCount
@@ -123,7 +123,7 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphDef :
       nextTaskTableWidth nextTaskValueBound
       nextValueTableWidth nextValueValueBound ∧
     !(compactNumericVerifierTaskBoundedHeadDef)
-      stateTable stateWidth stateTokenCount
+      tokenTable width tokenCount
       currentTaskBoundary currentTaskValueBound
       taskStart taskFinish taskTag
       taskGammaFinish taskGammaCount taskGammaBoundary
@@ -131,32 +131,40 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphDef :
       taskSecondFinish taskSecondCount
       taskWitnessFinish taskWitnessCount taskSuffixCount
       taskGammaBoundarySize ∧
-    !(compactNumericVerifierParseStateFrameRowsDef)
-      currentTaskCount currentStatusTag
-      taskTag taskGammaCount taskFirstCount taskSecondCount
-      taskWitnessCount taskSuffixCount ∧
-    !(compactNumericVerifierParseFailureSeparatedTablesBranchRowsDef)
-      stateTable stateWidth stateTokenCount
-      currentStart currentProofFinish currentCertificateFinish
+    !(compactNumericVerifierCombineStateFrameRowsDef)
+      tokenTable width tokenCount
+      currentStart currentCertificateFinish
       currentTaskBoundary currentTaskCount
-      currentValueBoundary currentValueCount
       currentTaskTableWidth currentTaskValueBound
       currentValueTableWidth currentValueValueBound
+      currentStatusTag taskTag
       nextStart nextCertificateFinish
       nextTaskBoundary nextTaskCount
+      nextValueTableWidth nextValueValueBound ∧
+    !(compactNumericVerifierCombineBranchRowsDef)
+      tokenTable width tokenCount
+      taskTag taskGammaFinish taskGammaCount taskGammaBoundary
+      taskFirstFinish taskFirstCount taskSecondFinish taskSecondCount
+      taskWitnessFinish taskWitnessCount
+      currentValueBoundary currentValueCount
       nextValueBoundary nextValueCount
-      nextTaskTableWidth nextTaskValueBound
-      nextValueTableWidth nextValueValueBound
+      currentValueTableWidth currentValueValueBound
       nextStatusTag nextStatusBool
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound”
+      rightGammaCount rightGammaBoundary rightBoolValue
+      leftGammaCount leftGammaBoundary leftBoolValue
+      formulaBoundary formulaBoundarySize
+      transformedStart transformedFinish transformedBoundary
+      transformedCount transformedBoundarySize
+      transformStateBoundary transformStateCount
+      freedStart freedFinish freedBoundary freedCount freedBoundarySize
+      freeStateBoundary freeStateCount
+      shiftCandidateBoundary shiftSuccessTable
+      shiftedBoundary shiftedCount
+      emptyStart emptyFinish emptyBoundary emptyBoundarySize
+      shiftWitnessBound freeTableWidth freeValueBound resultBoolValue”
 
-def compactNumericVerifierParseFailureSeparatedTablesStateGraphEnvironment
-    (stateTable stateWidth stateTokenCount
+def compactNumericVerifierCombineStateGraphEnvironment
+    (tokenTable width tokenCount
       currentStart currentFinish
       currentProofFinish currentProofCount
       currentCertificateFinish currentCertificateCount
@@ -181,13 +189,20 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphEnvironment
       taskSecondFinish taskSecondCount
       taskWitnessFinish taskWitnessCount taskSuffixCount
       taskGammaBoundarySize
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound : Nat) : Fin 81 → Nat :=
-  ![stateTable, stateWidth, stateTokenCount,
+      rightGammaCount rightGammaBoundary rightBoolValue
+      leftGammaCount leftGammaBoundary leftBoolValue
+      formulaBoundary formulaBoundarySize
+      transformedStart transformedFinish transformedBoundary
+      transformedCount transformedBoundarySize
+      transformStateBoundary transformStateCount
+      freedStart freedFinish freedBoundary freedCount freedBoundarySize
+      freeStateBoundary freeStateCount
+      shiftCandidateBoundary shiftSuccessTable
+      shiftedBoundary shiftedCount
+      emptyStart emptyFinish emptyBoundary emptyBoundarySize
+      shiftWitnessBound freeTableWidth freeValueBound resultBoolValue : Nat) :
+    Fin 93 → Nat :=
+  ![tokenTable, width, tokenCount,
     currentStart, currentFinish,
     currentProofFinish, currentProofCount,
     currentCertificateFinish, currentCertificateCount,
@@ -212,16 +227,22 @@ def compactNumericVerifierParseFailureSeparatedTablesStateGraphEnvironment
     taskSecondFinish, taskSecondCount,
     taskWitnessFinish, taskWitnessCount, taskSuffixCount,
     taskGammaBoundarySize,
-    proofTable, proofWidth, proofTokenCount, proofInputStart, proofInputFinish,
-    rootStart, rootFinish, proofTag, proofEndpointBound,
-    certificateTable, certificateWidth, certificateTokenCount,
-    certificateInputStart, certificateInputFinish,
-    axiomStart, axiomFinish, formulaStart, formulaFinish,
-    suffixStart, suffixFinish, certificateTag, certificateEndpointBound]
+    rightGammaCount, rightGammaBoundary, rightBoolValue,
+    leftGammaCount, leftGammaBoundary, leftBoolValue,
+    formulaBoundary, formulaBoundarySize,
+    transformedStart, transformedFinish, transformedBoundary,
+    transformedCount, transformedBoundarySize,
+    transformStateBoundary, transformStateCount,
+    freedStart, freedFinish, freedBoundary, freedCount, freedBoundarySize,
+    freeStateBoundary, freeStateCount,
+    shiftCandidateBoundary, shiftSuccessTable,
+    shiftedBoundary, shiftedCount,
+    emptyStart, emptyFinish, emptyBoundary, emptyBoundarySize,
+    shiftWitnessBound, freeTableWidth, freeValueBound, resultBoolValue]
 
 set_option maxRecDepth 32768 in
-@[simp] theorem compactNumericVerifierParseFailureSeparatedTablesStateGraphDef_spec
-    (stateTable stateWidth stateTokenCount
+@[simp] theorem compactNumericVerifierCombineStateGraphDef_spec
+    (tokenTable width tokenCount
       currentStart currentFinish
       currentProofFinish currentProofCount
       currentCertificateFinish currentCertificateCount
@@ -246,15 +267,21 @@ set_option maxRecDepth 32768 in
       taskSecondFinish taskSecondCount
       taskWitnessFinish taskWitnessCount taskSuffixCount
       taskGammaBoundarySize
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound : Nat) :
-    compactNumericVerifierParseFailureSeparatedTablesStateGraphDef.val.Evalb
-        (compactNumericVerifierParseFailureSeparatedTablesStateGraphEnvironment
-          stateTable stateWidth stateTokenCount
+      rightGammaCount rightGammaBoundary rightBoolValue
+      leftGammaCount leftGammaBoundary leftBoolValue
+      formulaBoundary formulaBoundarySize
+      transformedStart transformedFinish transformedBoundary
+      transformedCount transformedBoundarySize
+      transformStateBoundary transformStateCount
+      freedStart freedFinish freedBoundary freedCount freedBoundarySize
+      freeStateBoundary freeStateCount
+      shiftCandidateBoundary shiftSuccessTable
+      shiftedBoundary shiftedCount
+      emptyStart emptyFinish emptyBoundary emptyBoundarySize
+      shiftWitnessBound freeTableWidth freeValueBound resultBoolValue : Nat) :
+    compactNumericVerifierCombineStateGraphDef.val.Evalb
+        (compactNumericVerifierCombineStateGraphEnvironment
+          tokenTable width tokenCount
           currentStart currentFinish
           currentProofFinish currentProofCount
           currentCertificateFinish currentCertificateCount
@@ -279,14 +306,19 @@ set_option maxRecDepth 32768 in
           taskSecondFinish taskSecondCount
           taskWitnessFinish taskWitnessCount taskSuffixCount
           taskGammaBoundarySize
-          proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-          rootStart rootFinish proofTag proofEndpointBound
-          certificateTable certificateWidth certificateTokenCount
-          certificateInputStart certificateInputFinish
-          axiomStart axiomFinish formulaStart formulaFinish
-          suffixStart suffixFinish certificateTag certificateEndpointBound) ↔
-      CompactNumericVerifierParseFailureSeparatedTablesStateGraph
-        stateTable stateWidth stateTokenCount
+          rightGammaCount rightGammaBoundary rightBoolValue
+          leftGammaCount leftGammaBoundary leftBoolValue
+          formulaBoundary formulaBoundarySize
+          transformedStart transformedFinish transformedBoundary
+          transformedCount transformedBoundarySize
+          transformStateBoundary transformStateCount
+          freedStart freedFinish freedBoundary freedCount freedBoundarySize
+          freeStateBoundary freeStateCount
+          shiftCandidateBoundary shiftSuccessTable
+          shiftedBoundary shiftedCount
+          emptyStart emptyFinish emptyBoundary emptyBoundarySize
+          shiftWitnessBound freeTableWidth freeValueBound resultBoolValue) ↔
+      CompactNumericVerifierCombineStateGraph tokenTable width tokenCount
         (compactNumericVerifierStateRowCoordinatesOf
           currentStart currentFinish
           currentProofFinish currentProofCount
@@ -320,14 +352,21 @@ set_option maxRecDepth 32768 in
           taskSecondFinish taskSecondCount
           taskWitnessFinish taskWitnessCount taskSuffixCount)
         { gammaBoundarySize := taskGammaBoundarySize }
-        proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-        rootStart rootFinish proofTag proofEndpointBound
-        certificateTable certificateWidth certificateTokenCount
-        certificateInputStart certificateInputFinish
-        axiomStart axiomFinish formulaStart formulaFinish
-        suffixStart suffixFinish certificateTag certificateEndpointBound := by
-  let env := compactNumericVerifierParseFailureSeparatedTablesStateGraphEnvironment
-    stateTable stateWidth stateTokenCount
+        (compactNumericVerifierCombineRuleWitnessOf
+          rightGammaCount rightGammaBoundary rightBoolValue
+          leftGammaCount leftGammaBoundary leftBoolValue
+          formulaBoundary formulaBoundarySize
+          transformedStart transformedFinish transformedBoundary
+          transformedCount transformedBoundarySize
+          transformStateBoundary transformStateCount
+          freedStart freedFinish freedBoundary freedCount freedBoundarySize
+          freeStateBoundary freeStateCount
+          shiftCandidateBoundary shiftSuccessTable
+          shiftedBoundary shiftedCount
+          emptyStart emptyFinish emptyBoundary emptyBoundarySize
+          shiftWitnessBound freeTableWidth freeValueBound resultBoolValue) := by
+  let env := compactNumericVerifierCombineStateGraphEnvironment
+    tokenTable width tokenCount
     currentStart currentFinish
     currentProofFinish currentProofCount
     currentCertificateFinish currentCertificateCount
@@ -352,20 +391,26 @@ set_option maxRecDepth 32768 in
     taskSecondFinish taskSecondCount
     taskWitnessFinish taskWitnessCount taskSuffixCount
     taskGammaBoundarySize
-    proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-    rootStart rootFinish proofTag proofEndpointBound
-    certificateTable certificateWidth certificateTokenCount
-    certificateInputStart certificateInputFinish
-    axiomStart axiomFinish formulaStart formulaFinish
-    suffixStart suffixFinish certificateTag certificateEndpointBound
-  change compactNumericVerifierParseFailureSeparatedTablesStateGraphDef.val.Evalb env ↔ _
+    rightGammaCount rightGammaBoundary rightBoolValue
+    leftGammaCount leftGammaBoundary leftBoolValue
+    formulaBoundary formulaBoundarySize
+    transformedStart transformedFinish transformedBoundary
+    transformedCount transformedBoundarySize
+    transformStateBoundary transformStateCount
+    freedStart freedFinish freedBoundary freedCount freedBoundarySize
+    freeStateBoundary freeStateCount
+    shiftCandidateBoundary shiftSuccessTable
+    shiftedBoundary shiftedCount
+    emptyStart emptyFinish emptyBoundary emptyBoundarySize
+    shiftWitnessBound freeTableWidth freeValueBound resultBoolValue
+  change compactNumericVerifierCombineStateGraphDef.val.Evalb env ↔ _
   have hcurrentEnv :
       (Semiterm.val env Empty.elim ∘
-        ![(#0 : Semiterm ℒₒᵣ Empty 81), #1, #2, #3, #4, #5, #6,
+        ![(#0 : Semiterm ℒₒᵣ Empty 93), #1, #2, #3, #4, #5, #6,
           #7, #8, #9, #10, #11, #12, #13, #14, #15, #16, #17,
           #18, #19, #20, #21, #22, #23]) =
         compactNumericVerifierStateCoreFormulaEnvironment
-          stateTable stateWidth stateTokenCount
+          tokenTable width tokenCount
           currentStart currentFinish
           currentProofFinish currentProofCount
           currentCertificateFinish currentCertificateCount
@@ -379,11 +424,11 @@ set_option maxRecDepth 32768 in
     fin_cases coordinate <;> rfl
   have hnextEnv :
       (Semiterm.val env Empty.elim ∘
-        ![(#0 : Semiterm ℒₒᵣ Empty 81), #1, #2, #24, #25, #26,
+        ![(#0 : Semiterm ℒₒᵣ Empty 93), #1, #2, #24, #25, #26,
           #27, #28, #29, #30, #31, #32, #33, #34, #35, #36,
           #37, #38, #39, #40, #41, #42, #43, #44]) =
         compactNumericVerifierStateCoreFormulaEnvironment
-          stateTable stateWidth stateTokenCount
+          tokenTable width tokenCount
           nextStart nextFinish
           nextProofFinish nextProofCount
           nextCertificateFinish nextCertificateCount
@@ -397,11 +442,11 @@ set_option maxRecDepth 32768 in
     fin_cases coordinate <;> rfl
   have hheadEnv :
       (Semiterm.val env Empty.elim ∘
-        ![(#0 : Semiterm ℒₒᵣ Empty 81), #1, #2, #11, #21,
+        ![(#0 : Semiterm ℒₒᵣ Empty 93), #1, #2, #11, #21,
           #45, #46, #47, #48, #49, #50, #51, #52, #53, #54,
           #55, #56, #57, #58]) =
         compactNumericVerifierTaskBoundedHeadEnvironment
-          stateTable stateWidth stateTokenCount
+          tokenTable width tokenCount
           currentTaskBoundary currentTaskValueBound
           taskStart taskFinish taskTag
           taskGammaFinish taskGammaCount taskGammaBoundary
@@ -413,158 +458,92 @@ set_option maxRecDepth 32768 in
     fin_cases coordinate <;> rfl
   have hframeEnv :
       (Semiterm.val env Empty.elim ∘
-        ![(#10 : Semiterm ℒₒᵣ Empty 81), #15, #47, #49,
-          #52, #54, #56, #57]) =
-        ![currentTaskCount, currentStatusTag,
-          taskTag, taskGammaCount, taskFirstCount, taskSecondCount,
-          taskWitnessCount, taskSuffixCount] := by
+        ![(#0 : Semiterm ℒₒᵣ Empty 93), #1, #2,
+          #3, #7, #11, #10, #20, #21, #22, #23, #15, #47,
+          #24, #28, #32, #31, #43, #44]) =
+        ![tokenTable, width, tokenCount,
+          currentStart, currentCertificateFinish,
+          currentTaskBoundary, currentTaskCount,
+          currentTaskTableWidth, currentTaskValueBound,
+          currentValueTableWidth, currentValueValueBound,
+          currentStatusTag, taskTag,
+          nextStart, nextCertificateFinish,
+          nextTaskBoundary, nextTaskCount,
+          nextValueTableWidth, nextValueValueBound] := by
     funext coordinate
     fin_cases coordinate <;> rfl
   have hbranchEnv :
       (Semiterm.val env Empty.elim ∘
-        ![(#0 : Semiterm ℒₒᵣ Empty 81), #1, #2,
-          #3, #5, #7, #11, #10, #14, #13, #20, #21, #22, #23,
-          #24, #28, #32, #31, #35, #34, #41, #42, #43, #44,
-          #36, #38, #59, #60, #61, #62, #63, #64, #65, #66, #67,
-          #68, #69, #70, #71, #72, #73, #74, #75, #76, #77, #78,
-          #79, #80]) =
-        compactNumericVerifierParseFailureSeparatedTablesBranchRowsEnvironment
-          stateTable stateWidth stateTokenCount
-          currentStart currentProofFinish currentCertificateFinish
-          currentTaskBoundary currentTaskCount
+        ![(#0 : Semiterm ℒₒᵣ Empty 93), #1, #2,
+          #47, #48, #49, #50, #51, #52, #53, #54, #55, #56,
+          #14, #13, #35, #34, #22, #23, #36, #38,
+          #59, #60, #61, #62, #63, #64, #65, #66, #67, #68,
+          #69, #70, #71, #72, #73, #74, #75, #76, #77, #78,
+          #79, #80, #81, #82, #83, #84, #85, #86, #87, #88,
+          #89, #90, #91, #92]) =
+        compactNumericVerifierCombineBranchRowsEnvironment
+          tokenTable width tokenCount
+          taskTag taskGammaFinish taskGammaCount taskGammaBoundary
+          taskFirstFinish taskFirstCount taskSecondFinish taskSecondCount
+          taskWitnessFinish taskWitnessCount
           currentValueBoundary currentValueCount
-          currentTaskTableWidth currentTaskValueBound
-          currentValueTableWidth currentValueValueBound
-          nextStart nextCertificateFinish
-          nextTaskBoundary nextTaskCount
           nextValueBoundary nextValueCount
-          nextTaskTableWidth nextTaskValueBound
-          nextValueTableWidth nextValueValueBound
+          currentValueTableWidth currentValueValueBound
           nextStatusTag nextStatusBool
-          proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-          rootStart rootFinish proofTag proofEndpointBound
-          certificateTable certificateWidth certificateTokenCount
-          certificateInputStart certificateInputFinish
-          axiomStart axiomFinish formulaStart formulaFinish
-          suffixStart suffixFinish certificateTag certificateEndpointBound := by
+          rightGammaCount rightGammaBoundary rightBoolValue
+          leftGammaCount leftGammaBoundary leftBoolValue
+          formulaBoundary formulaBoundarySize
+          transformedStart transformedFinish transformedBoundary
+          transformedCount transformedBoundarySize
+          transformStateBoundary transformStateCount
+          freedStart freedFinish freedBoundary freedCount freedBoundarySize
+          freeStateBoundary freeStateCount
+          shiftCandidateBoundary shiftSuccessTable
+          shiftedBoundary shiftedCount
+          emptyStart emptyFinish emptyBoundary emptyBoundarySize
+          shiftWitnessBound freeTableWidth freeValueBound resultBoolValue := by
     funext coordinate
     fin_cases coordinate <;> rfl
-  simp [compactNumericVerifierParseFailureSeparatedTablesStateGraphDef,
-    CompactNumericVerifierParseFailureSeparatedTablesStateGraph,
-    CompactNumericVerifierParseStateFrameRows,
+  simp [compactNumericVerifierCombineStateGraphDef,
+    CompactNumericVerifierCombineStateGraph,
     compactNumericVerifierStateRowCoordinatesOf,
     compactNumericVerifierTaskRowCoordinatesOf,
+    compactNumericVerifierCombineRuleWitnessOf,
     hcurrentEnv, hnextEnv, hheadEnv, hframeEnv, hbranchEnv]
 
 set_option maxRecDepth 32768 in
-theorem compactNumericVerifierParseFailureSeparatedTablesStateGraphDef_sigmaZero :
+theorem compactNumericVerifierCombineStateGraphDef_sigmaZero :
     LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
-      compactNumericVerifierParseFailureSeparatedTablesStateGraphDef.val := by
-  simp [compactNumericVerifierParseFailureSeparatedTablesStateGraphDef]
+      compactNumericVerifierCombineStateGraphDef.val := by
+  simp [compactNumericVerifierCombineStateGraphDef]
 
-theorem CompactNumericVerifierParseFailureSeparatedTablesStateGraph.realizeExactStep
-    {stateTable stateWidth stateTokenCount : Nat}
+theorem CompactNumericVerifierCombineStateGraph.realizeExactStep
+    {tokenTable width tokenCount : Nat}
     {currentCoordinates nextCoordinates :
       CompactNumericVerifierStateRowCoordinates}
     {currentSizeWitness nextSizeWitness :
       CompactNumericVerifierStateSizeWitness}
     {taskCoordinates : CompactNumericVerifierTaskRowCoordinates}
     {taskSizeWitness : CompactNumericVerifierTaskSizeWitness}
-    {proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound : Nat}
-    (hgraph : CompactNumericVerifierParseFailureSeparatedTablesStateGraph
-      stateTable stateWidth stateTokenCount
+    {ruleWitness : CompactNumericVerifierCombineRuleWitness}
+    (hgraph : CompactNumericVerifierCombineStateGraph
+      tokenTable width tokenCount
       currentCoordinates nextCoordinates
       currentSizeWitness nextSizeWitness
-      taskCoordinates taskSizeWitness
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound) :
+      taskCoordinates taskSizeWitness ruleWitness) :
     ∃ currentState nextState : CompactNumericVerifierState,
       CompactNumericVerifierStateDirectLayout
-        stateTable stateWidth stateTokenCount currentCoordinates.start
+        tokenTable width tokenCount currentCoordinates.start
           currentCoordinates.finish currentState ∧
       CompactNumericVerifierStateDirectLayout
-        stateTable stateWidth stateTokenCount nextCoordinates.start
+        tokenTable width tokenCount nextCoordinates.start
           nextCoordinates.finish nextState ∧
       nextState = compactNumericVerifierStep currentState := by
   rcases hgraph with ⟨hcurrent, hnext, hhead, hframe, hbranch⟩
-  rcases hframe.realize hcurrent hnext hhead with ⟨realization⟩
-  have hbranchTyped : CompactNumericVerifierParseFailureSeparatedTablesBranchRows
-      stateTable stateWidth stateTokenCount
-      currentCoordinates.start currentCoordinates.proofFinish
-        currentCoordinates.certificateFinish
-      currentCoordinates.taskBoundary realization.currentTasks.length
-      currentCoordinates.valueBoundary realization.currentValues.length
-      currentSizeWitness.taskTableWidth currentSizeWitness.taskValueBound
-      currentSizeWitness.valueTableWidth currentSizeWitness.valueValueBound
-      nextCoordinates.start nextCoordinates.certificateFinish
-      nextCoordinates.taskBoundary realization.nextTasks.length
-      nextCoordinates.valueBoundary realization.nextValues.length
-      nextSizeWitness.taskTableWidth nextSizeWitness.taskValueBound
-      nextSizeWitness.valueTableWidth nextSizeWitness.valueValueBound
-      nextCoordinates.statusTag nextCoordinates.statusBool
-      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
-      rootStart rootFinish proofTag proofEndpointBound
-      certificateTable certificateWidth certificateTokenCount
-      certificateInputStart certificateInputFinish
-      axiomStart axiomFinish formulaStart formulaFinish
-      suffixStart suffixFinish certificateTag certificateEndpointBound := by
-    simpa only [realization.currentTasks_length,
-      realization.currentValues_length,
-      realization.nextTasks_length,
-      realization.nextValues_length] using hbranch
-  rcases _root_.FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesBranchRows.CompactNumericVerifierParseFailureSeparatedTablesBranchRows.sound hbranchTyped
-      realization.currentProofLayout realization.currentCertificateLayout
-      realization.nextProofLayout realization.nextCertificateLayout
-      realization.currentTaskRows realization.nextTaskRows
-      realization.currentValueRows realization.nextValueRows with
-    ⟨hparse, hnextProof, hnextCertificate, hnextTasks, hnextValues,
-      _hnextTaskTableWidth, _hnextTaskValueBound,
-      _hnextValueTableWidth, _hnextValueValueBound,
-      hnextStatusTag, hnextStatusBool⟩
-  have hnextStatus : realization.nextStatus = some false := by
-    rcases realization.nextStatusCase with hnone | hsome
-    · omega
-    · rcases hsome with ⟨result, hstatus, _htag, hbool⟩
-      have hresult : result = false := by
-        cases result
-        · rfl
-        · simp [compactAdditiveBoolTag] at hbool hnextStatusBool
-          omega
-      simpa [hresult] using hstatus
-  let currentState : CompactNumericVerifierState :=
-    (((realization.currentProofTokens,
-        realization.currentCertificateTokens),
-      (realization.currentTasks, realization.currentValues)), none)
-  let nextState : CompactNumericVerifierState :=
-    (((realization.nextProofTokens,
-        realization.nextCertificateTokens),
-      (realization.nextTasks, realization.nextValues)),
-      realization.nextStatus)
-  refine ⟨currentState, nextState,
-    realization.currentLayout, realization.nextLayout, ?_⟩
-  dsimp only [currentState, nextState]
-  rw [hnextProof, hnextCertificate, hnextTasks, hnextValues, hnextStatus]
-  have hparseRest : compactNumericParsePayload
-      ((realization.currentProofTokens,
-        realization.currentCertificateTokens),
-        (realization.currentRestTasks, realization.currentValues)) = none := by
-    rw [realization.currentRestTasks_eq]
-    exact hparse
-  rw [realization.currentTasks_eq]
-  simp [compactNumericVerifierStep, compactNumericRunningStep,
-    realization.currentTaskTag, compactNumericParseState, hparseRest]
+  exact hbranch.realizeExactStep hcurrent hnext hhead hframe
 
-#print axioms compactNumericVerifierParseFailureSeparatedTablesStateGraphDef_spec
-#print axioms compactNumericVerifierParseFailureSeparatedTablesStateGraphDef_sigmaZero
-#print axioms FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesStateGraph.CompactNumericVerifierParseFailureSeparatedTablesStateGraph.realizeExactStep
+#print axioms compactNumericVerifierCombineStateGraphDef_spec
+#print axioms compactNumericVerifierCombineStateGraphDef_sigmaZero
+#print axioms CompactNumericVerifierCombineStateGraph.realizeExactStep
 
-end FoundationCompactNumericListedDirectVerifierParseFailureSeparatedTablesStateGraph
+end FoundationCompactNumericListedDirectVerifierCombineStateGraph
