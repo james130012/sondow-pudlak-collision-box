@@ -32,6 +32,7 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds
 open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybridValuationBoundedFormulaCertificate
 open FoundationCompactPAHybridConnectiveTransparentBounds
 open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompiler
+open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompilerPublicBounds
 open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompilerOpenIndexTransparentBounds
 open FoundationCompactPAExplicitBoundedWitnessHybridTransparentBounds
 open FoundationCompactNumericListedDirectArithmeticPrimitives
@@ -44,7 +45,7 @@ open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificat
 open FoundationCompactNumericListedDirectAdditiveTokenCellValuationPublicBounds
 open FoundationCompactNumericListedDirectAdditiveListHeaderPublicBounds
 
-private abbrev natListAtZeroValuation : Nat -> Nat :=
+abbrev natListAtZeroValuation : Nat -> Nat :=
   FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
 
 private theorem arithmeticAddTerm_eq_func
@@ -94,6 +95,15 @@ private theorem termValue_arithmeticAdd
 private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
+
+theorem natListAtSuccessorTermAtValuationIndex_freeVariables_subset
+    (indexTerm : ValuationTerm)
+    (hindex : indexTerm.freeVariables ⊆ {0}) :
+    (natListAtSuccessorTermAtValuationIndex indexTerm).freeVariables ⊆ {0} := by
+  unfold natListAtSuccessorTermAtValuationIndex
+  rw [arithmeticAddTerm_eq_func, binaryFunctionTerm_freeVariables,
+    arithmeticOneTerm_freeVariables_eq_empty]
+  simpa using hindex
 
 def compactAdditiveNatListAtRowsIndexGuardPayloadPolynomial
     (count : Nat) (indexTerm : ValuationTerm) : Nat :=
@@ -492,9 +502,554 @@ theorem
         boundaryTable count (termValue natListAtZeroValuation indexTerm) value
         hrows)
 
+/-! ## Exact index-and-value-term endpoint -/
+
+def compactAdditiveNatListAtRowsValueTokenCellPayloadEnvelope
+    (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
+      ValuationTerm) : Nat :=
+  let successorTerm : ValuationTerm := ‘!!cursorTerm + 1’
+  let cursorFormula : ValuationFormula :=
+    “!!cursorTerm < !!tokenCountTerm”
+  let successorFormula : ValuationFormula :=
+    “!!nextTerm = !!cursorTerm + 1”
+  let entryFormula := compactFixedWidthEntryAtValuationFormula
+    tokenTableTerm widthTerm cursorTerm valueTerm
+  let innerResource := transparentHybridConjunctionPayloadEnvelope
+    natListAtZeroValuation successorFormula entryFormula
+    (compilePositiveRelationPayloadPolynomial natListAtZeroValuation
+      Language.Eq.eq ![nextTerm, successorTerm])
+    (compactFixedWidthEntryAtValuationStructuralPayloadPolynomial
+      natListAtZeroValuation tokenTableTerm widthTerm cursorTerm valueTerm)
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    cursorFormula (successorFormula ⋏ entryFormula)
+    (compilePositiveRelationPayloadPolynomial natListAtZeroValuation
+      Language.ORing.Rel.lt ![cursorTerm, tokenCountTerm])
+    innerResource
+
+theorem
+    compactAdditiveTokenCellAtNatListValuationExplicitHybridCertificateLocal_structuralPayloadBound_le_public
+    (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
+      ValuationTerm)
+    (htable : tokenTableTerm.freeVariables = ∅)
+    (hwidth : widthTerm.freeVariables = ∅)
+    (htokenCount : tokenCountTerm.freeVariables = ∅)
+    (hcursor : cursorTerm.freeVariables = ∅)
+    (hvalue : valueTerm.freeVariables = ∅)
+    (hnext : nextTerm.freeVariables = ∅)
+    (hcell : CompactAdditiveTokenCell
+      (termValue natListAtZeroValuation tokenTableTerm)
+      (termValue natListAtZeroValuation widthTerm)
+      (termValue natListAtZeroValuation tokenCountTerm)
+      (termValue natListAtZeroValuation cursorTerm)
+      (termValue natListAtZeroValuation valueTerm)
+      (termValue natListAtZeroValuation nextTerm)) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
+          natListAtZeroValuation tokenTableTerm widthTerm tokenCountTerm
+          cursorTerm valueTerm nextTerm hcell) <=
+      compactAdditiveNatListAtRowsValueTokenCellPayloadEnvelope tokenTableTerm
+        widthTerm tokenCountTerm cursorTerm valueTerm nextTerm := by
+  let successorTerm : ValuationTerm := ‘!!cursorTerm + 1’
+  let cursorCertificate :=
+    CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
+      natListAtZeroValuation Language.ORing.Rel.lt
+      ![cursorTerm, tokenCountTerm] hcell.1
+  let successorCertificate :=
+    CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
+      natListAtZeroValuation Language.Eq.eq ![nextTerm, successorTerm] (by
+        change termValue natListAtZeroValuation nextTerm =
+          termValue natListAtZeroValuation successorTerm
+        simpa [successorTerm, termValue_arithmeticAdd,
+          termValue_arithmeticOne] using hcell.2.1)
+  let entryCertificate :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate
+      natListAtZeroValuation tokenTableTerm widthTerm cursorTerm valueTerm
+      hcell.2.2
+  have hcursorVars : cursorTerm.freeVariables ⊆ {0} := by
+    rw [hcursor]
+    simp
+  have htokenCountVars : tokenCountTerm.freeVariables ⊆ {0} := by
+    rw [htokenCount]
+    simp
+  have hnextVars : nextTerm.freeVariables ⊆ {0} := by
+    rw [hnext]
+    simp
+  have hsuccessorClosed : successorTerm.freeVariables = ∅ := by
+    dsimp only [successorTerm]
+    rw [arithmeticAddTerm_eq_func, binaryFunctionTerm_freeVariables, hcursor,
+      arithmeticOneTerm_freeVariables_eq_empty]
+    simp
+  have hsuccessorVars : successorTerm.freeVariables ⊆ {0} := by
+    rw [hsuccessorClosed]
+    simp
+  have hcursorResource :=
+    compilePositiveRelationPayloadResource_le_publicPolynomial
+      natListAtZeroValuation Language.ORing.Rel.lt
+      ![cursorTerm, tokenCountTerm] hcursorVars htokenCountVars
+  have hsuccessorResource :=
+    compilePositiveRelationPayloadResource_le_publicPolynomial
+      natListAtZeroValuation Language.Eq.eq ![nextTerm, successorTerm]
+      hnextVars hsuccessorVars
+  have hentryResource :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate_structuralPayloadBound_le_public
+      natListAtZeroValuation tokenTableTerm widthTerm cursorTerm valueTerm
+      htable hwidth hcursor hvalue hcell.2.2
+  have hinner := transparentHybridConjunctionPayloadBound_le
+    (CheckedHybridValuationBoundedFormulaCertificate.cast
+      (LO.FirstOrder.Semiformula.Operator.eq_def _ _).symm
+      successorCertificate)
+    entryCertificate _ _ (by
+      simpa only [hybridFormulaStructuralPayloadBound,
+        successorCertificate] using hsuccessorResource) hentryResource
+  have hparts := transparentHybridConjunctionPayloadBound_le
+    (CheckedHybridValuationBoundedFormulaCertificate.cast
+      (LO.FirstOrder.Semiformula.Operator.lt_def _ _).symm cursorCertificate)
+    (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+      (CheckedHybridValuationBoundedFormulaCertificate.cast
+        (LO.FirstOrder.Semiformula.Operator.eq_def _ _).symm
+        successorCertificate)
+      entryCertificate) _ _ (by
+        simpa only [hybridFormulaStructuralPayloadBound,
+          cursorCertificate] using hcursorResource) hinner
+  change hybridFormulaStructuralPayloadBound
+      (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+        (CheckedHybridValuationBoundedFormulaCertificate.cast
+          (LO.FirstOrder.Semiformula.Operator.lt_def _ _).symm
+          cursorCertificate)
+        (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+          (CheckedHybridValuationBoundedFormulaCertificate.cast
+            (LO.FirstOrder.Semiformula.Operator.eq_def _ _).symm
+            successorCertificate)
+          entryCertificate)) <= _
+  unfold compactAdditiveNatListAtRowsValueTokenCellPayloadEnvelope
+  simpa only [successorTerm] using hparts
+
+def compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelope
+    (tokenTable width tokenCount boundaryTable : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    {index value : Nat}
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) : Nat :=
+  let successorTerm := natListAtSuccessorTermAtValuationIndex indexTerm
+  let leftFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) indexTerm
+    (shortBinaryNumeralTerm data.left)
+  let rightFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) successorTerm
+    (shortBinaryNumeralTerm data.right)
+  let cellFormula := compactAdditiveTokenCellAtValuationFormula
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm data.left)
+    valueTerm (shortBinaryNumeralTerm data.right)
+  let leftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) indexTerm
+      (shortBinaryNumeralTerm data.left)
+  let rightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) successorTerm
+      (shortBinaryNumeralTerm data.right)
+  let cellResource := compactAdditiveNatListAtRowsValueTokenCellPayloadEnvelope
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm data.left)
+    valueTerm (shortBinaryNumeralTerm data.right)
+  let rightCellResource := transparentHybridConjunctionPayloadEnvelope
+    natListAtZeroValuation rightFormula cellFormula rightResource cellResource
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    leftFormula (rightFormula ⋏ cellFormula) leftResource rightCellResource
+
+def compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope
+    (tokenTable width tokenCount boundaryTable : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    {index value : Nat}
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) : Nat :=
+  let values : Fin 2 -> Nat := ![data.right, data.left]
+  explicitBoundedWitnessHybridStructuralPayloadEnvelope natListAtZeroValuation
+    tokenCount
+    (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
+      tokenCount boundaryTable indexTerm valueTerm)
+    values
+    (compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelope
+      tokenTable width tokenCount boundaryTable indexTerm valueTerm data)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValueWitnessCertificate_structuralPayloadBound_le_public
+    (tokenTable width tokenCount boundaryTable index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables ⊆ {0})
+    (hvalueClosed : valueTerm.freeVariables = ∅)
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hvalueValue : termValue natListAtZeroValuation valueTerm = value)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
+    let values : Fin 2 -> Nat := ![data.right, data.left]
+    let terminalParts :=
+      CheckedHybridValuationBoundedFormulaCertificate.conjunction
+        (compactFixedWidthEntryAtValuationExplicitHybridCertificate
+          natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+          (shortBinaryNumeralTerm tokenCount) indexTerm
+          (shortBinaryNumeralTerm data.left) (by
+            simpa [termValue_shortBinaryNumeralTerm, hindexValue] using
+              data.left_entry))
+        (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+          (compactFixedWidthEntryAtValuationExplicitHybridCertificate
+            natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+            (shortBinaryNumeralTerm tokenCount)
+            (natListAtSuccessorTermAtValuationIndex indexTerm)
+            (shortBinaryNumeralTerm data.right) (by
+              simpa [natListAtSuccessorTermAtValuationIndex,
+                termValue_shortBinaryNumeralTerm, termValue_arithmeticAdd,
+                termValue_arithmeticOne, hindexValue] using data.right_entry))
+          (compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
+            natListAtZeroValuation
+            (shortBinaryNumeralTerm tokenTable)
+            (shortBinaryNumeralTerm width)
+            (shortBinaryNumeralTerm tokenCount)
+            (shortBinaryNumeralTerm data.left) valueTerm
+            (shortBinaryNumeralTerm data.right) (by
+              simpa [termValue_shortBinaryNumeralTerm, hvalueValue] using
+                data.cell)))
+    let terminal : CheckedHybridValuationBoundedFormulaCertificate
+        natListAtZeroValuation
+        ((compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable
+          width tokenCount boundaryTable indexTerm valueTerm) ⇜
+          fun coordinate => shortBinaryNumeralTerm (values coordinate)) :=
+      .cast (by
+        have hvalueTerms :
+            (fun coordinate : Fin 2 =>
+              shortBinaryNumeralTerm (values coordinate)) =
+              ![shortBinaryNumeralTerm data.right,
+                shortBinaryNumeralTerm data.left] := by
+          funext coordinate
+          fin_cases coordinate <;> rfl
+        rw [hvalueTerms]
+        exact
+          (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue_substitution_alignment
+            tokenTable width tokenCount boundaryTable data.left data.right
+            indexTerm valueTerm).symm) terminalParts
+    hybridFormulaStructuralPayloadBound
+        (buildExplicitBoundedWitnessHybridCertificate tokenCount
+          (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable
+            width tokenCount boundaryTable indexTerm valueTerm)
+          values (by
+            intro coordinate
+            fin_cases coordinate
+            · exact data.right_le
+            · exact data.left_le)
+          terminal) <=
+      compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope
+        tokenTable width tokenCount boundaryTable indexTerm valueTerm data := by
+  dsimp only
+  let values : Fin 2 -> Nat := ![data.right, data.left]
+  let successorTerm := natListAtSuccessorTermAtValuationIndex indexTerm
+  let leftCertificate :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) indexTerm
+      (shortBinaryNumeralTerm data.left) (by
+        simpa [termValue_shortBinaryNumeralTerm, hindexValue] using
+          data.left_entry)
+  let rightCertificate :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) successorTerm
+      (shortBinaryNumeralTerm data.right) (by
+        simpa [successorTerm, natListAtSuccessorTermAtValuationIndex,
+          termValue_shortBinaryNumeralTerm, termValue_arithmeticAdd,
+          termValue_arithmeticOne, hindexValue] using data.right_entry)
+  have hcellTerms : CompactAdditiveTokenCell
+      (termValue natListAtZeroValuation (shortBinaryNumeralTerm tokenTable))
+      (termValue natListAtZeroValuation (shortBinaryNumeralTerm width))
+      (termValue natListAtZeroValuation (shortBinaryNumeralTerm tokenCount))
+      (termValue natListAtZeroValuation (shortBinaryNumeralTerm data.left))
+      (termValue natListAtZeroValuation valueTerm)
+      (termValue natListAtZeroValuation
+        (shortBinaryNumeralTerm data.right)) := by
+    simpa [termValue_shortBinaryNumeralTerm, hvalueValue] using data.cell
+  let cellCertificate :=
+    compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
+      natListAtZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm data.left)
+      valueTerm (shortBinaryNumeralTerm data.right) hcellTerms
+  have hsuccessorClosed : successorTerm.freeVariables ⊆ {0} := by
+    dsimp only [successorTerm, natListAtSuccessorTermAtValuationIndex]
+    rw [arithmeticAddTerm_eq_func, binaryFunctionTerm_freeVariables,
+      arithmeticOneTerm_freeVariables_eq_empty]
+    simpa using hindexClosed
+  have hboundary :
+      (shortBinaryNumeralTerm boundaryTable).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty boundaryTable
+  have hcount : (shortBinaryNumeralTerm tokenCount).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty tokenCount
+  have hleftTerm : (shortBinaryNumeralTerm data.left).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty data.left
+  have hrightTerm : (shortBinaryNumeralTerm data.right).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty data.right
+  have htable : (shortBinaryNumeralTerm tokenTable).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty tokenTable
+  have hwidth : (shortBinaryNumeralTerm width).freeVariables = ∅ :=
+    shortBinaryNumeralTerm_freeVariables_eq_empty width
+  have hleftResource :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate_structuralPayloadBound_le_openIndexPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) indexTerm
+      (shortBinaryNumeralTerm data.left) hboundary hcount hindexClosed
+      hleftTerm (by
+        simpa [termValue_shortBinaryNumeralTerm, hindexValue] using
+          data.left_entry)
+  have hrightResource :=
+    compactFixedWidthEntryAtValuationExplicitHybridCertificate_structuralPayloadBound_le_openIndexPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) successorTerm
+      (shortBinaryNumeralTerm data.right) hboundary hcount hsuccessorClosed
+      hrightTerm (by
+        simpa [successorTerm, natListAtSuccessorTermAtValuationIndex,
+          termValue_shortBinaryNumeralTerm, termValue_arithmeticAdd,
+          termValue_arithmeticOne, hindexValue] using data.right_entry)
+  have hcellResource :=
+    compactAdditiveTokenCellAtNatListValuationExplicitHybridCertificateLocal_structuralPayloadBound_le_public
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm data.left)
+      valueTerm (shortBinaryNumeralTerm data.right) htable hwidth hcount
+      hleftTerm hvalueClosed hrightTerm hcellTerms
+  let rightCell := CheckedHybridValuationBoundedFormulaCertificate.conjunction
+    rightCertificate cellCertificate
+  have hrightCell := transparentHybridConjunctionPayloadBound_le
+    rightCertificate cellCertificate _ _ hrightResource hcellResource
+  let terminalParts := CheckedHybridValuationBoundedFormulaCertificate.conjunction
+    leftCertificate rightCell
+  have hterminalParts := transparentHybridConjunctionPayloadBound_le
+    leftCertificate rightCell _ _ hleftResource hrightCell
+  have hvalueTerms :
+      (fun coordinate : Fin 2 => shortBinaryNumeralTerm (values coordinate)) =
+        ![shortBinaryNumeralTerm data.right,
+          shortBinaryNumeralTerm data.left] := by
+    funext coordinate
+    fin_cases coordinate <;> rfl
+  let terminal : CheckedHybridValuationBoundedFormulaCertificate
+      natListAtZeroValuation
+      ((compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable
+        width tokenCount boundaryTable indexTerm valueTerm) ⇜
+        fun coordinate => shortBinaryNumeralTerm (values coordinate)) :=
+    .cast (by
+      rw [hvalueTerms]
+      exact
+        (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue_substitution_alignment
+          tokenTable width tokenCount boundaryTable data.left data.right
+          indexTerm valueTerm).symm) terminalParts
+  have hterminal : hybridFormulaStructuralPayloadBound terminal <=
+      compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelope
+        tokenTable width tokenCount boundaryTable indexTerm valueTerm data := by
+    unfold
+      compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelope
+    simpa only [hybridFormulaStructuralPayloadBound, successorTerm,
+      leftCertificate, rightCertificate, cellCertificate, rightCell,
+      terminalParts, terminal] using hterminalParts
+  have hinstalled :=
+    buildExplicitBoundedWitnessHybridCertificate_structuralPayloadBound_le_transparent
+      tokenCount
+      (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
+        tokenCount boundaryTable indexTerm valueTerm)
+      values (by
+        intro coordinate
+        fin_cases coordinate
+        · exact data.right_le
+        · exact data.left_le)
+      terminal
+      (compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelope
+        tokenTable width tokenCount boundaryTable indexTerm valueTerm data)
+      hterminal
+  simpa only [
+    compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope,
+    values, terminal] using hinstalled
+
+def compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) : Nat :=
+  let guardFormula : ValuationFormula :=
+    “!!indexTerm < !!(shortBinaryNumeralTerm count)”
+  let witnessFormula :=
+    compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue tokenTable width
+      tokenCount boundaryTable indexTerm valueTerm
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    guardFormula witnessFormula
+    (compactAdditiveNatListAtRowsIndexGuardPayloadPolynomial count indexTerm)
+    (compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope
+      tokenTable width tokenCount boundaryTable indexTerm valueTerm data)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData_structuralPayloadBound_le_public
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables ⊆ {0})
+    (hvalueClosed : valueTerm.freeVariables = ∅)
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hvalueValue : termValue natListAtZeroValuation valueTerm = value)
+    (hindex : index < count)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData
+          natListAtZeroValuation tokenTable width tokenCount boundaryTable count
+          index value indexTerm valueTerm hindexValue hvalueValue hindex data) <=
+      compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope tokenTable
+        width tokenCount boundaryTable count index value indexTerm valueTerm
+        data := by
+  let values : Fin 2 -> Nat := ![data.right, data.left]
+  let terminalParts :=
+    CheckedHybridValuationBoundedFormulaCertificate.conjunction
+      (compactFixedWidthEntryAtValuationExplicitHybridCertificate
+        natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+        (shortBinaryNumeralTerm tokenCount) indexTerm
+        (shortBinaryNumeralTerm data.left) (by
+          simpa [termValue_shortBinaryNumeralTerm, hindexValue] using
+            data.left_entry))
+      (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+        (compactFixedWidthEntryAtValuationExplicitHybridCertificate
+          natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+          (shortBinaryNumeralTerm tokenCount)
+          (natListAtSuccessorTermAtValuationIndex indexTerm)
+          (shortBinaryNumeralTerm data.right) (by
+            simpa [natListAtSuccessorTermAtValuationIndex,
+              termValue_shortBinaryNumeralTerm, termValue_arithmeticAdd,
+              termValue_arithmeticOne, hindexValue] using data.right_entry))
+        (compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
+          natListAtZeroValuation
+          (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+          (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm data.left)
+          valueTerm (shortBinaryNumeralTerm data.right) (by
+            simpa [termValue_shortBinaryNumeralTerm, hvalueValue] using
+              data.cell)))
+  let terminal : CheckedHybridValuationBoundedFormulaCertificate
+      natListAtZeroValuation
+      ((compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable
+        width tokenCount boundaryTable indexTerm valueTerm) ⇜
+        fun coordinate => shortBinaryNumeralTerm (values coordinate)) :=
+    .cast (by
+      have hvalueTerms :
+          (fun coordinate : Fin 2 =>
+            shortBinaryNumeralTerm (values coordinate)) =
+            ![shortBinaryNumeralTerm data.right,
+              shortBinaryNumeralTerm data.left] := by
+        funext coordinate
+        fin_cases coordinate <;> rfl
+      rw [hvalueTerms]
+      exact
+        (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue_substitution_alignment
+          tokenTable width tokenCount boundaryTable data.left data.right
+          indexTerm valueTerm).symm) terminalParts
+  let installed := buildExplicitBoundedWitnessHybridCertificate tokenCount
+    (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
+      tokenCount boundaryTable indexTerm valueTerm)
+    values (by
+      intro coordinate
+      fin_cases coordinate
+      · exact data.right_le
+      · exact data.left_le) terminal
+  let body : CheckedHybridValuationBoundedFormulaCertificate
+      natListAtZeroValuation
+      (compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue tokenTable
+        width tokenCount boundaryTable indexTerm valueTerm) :=
+    .cast (by
+      rw [explicitBoundedWitnessFormula_two_eq]
+      rfl) installed
+  have hguardTruth : termValue natListAtZeroValuation indexTerm <
+      termValue natListAtZeroValuation (shortBinaryNumeralTerm count) := by
+    simpa [termValue_shortBinaryNumeralTerm, hindexValue] using hindex
+  let guardDirect :=
+    CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
+      natListAtZeroValuation Language.ORing.Rel.lt
+      ![indexTerm, shortBinaryNumeralTerm count] hguardTruth
+  let guard : CheckedHybridValuationBoundedFormulaCertificate
+      natListAtZeroValuation
+      “!!indexTerm < !!(shortBinaryNumeralTerm count)” :=
+    .cast (Semiformula.Operator.lt_def _ _).symm guardDirect
+  have hcountClosed :
+      (shortBinaryNumeralTerm count).freeVariables ⊆ {0} := by
+    rw [shortBinaryNumeralTerm_freeVariables_eq_empty]
+    simp
+  have hguardPublic :=
+    compilePositiveRelationPayloadResource_le_publicPolynomial
+      natListAtZeroValuation Language.ORing.Rel.lt
+      ![indexTerm, shortBinaryNumeralTerm count] hindexClosed hcountClosed
+  have hguardResource : hybridFormulaStructuralPayloadBound guard <=
+      compactAdditiveNatListAtRowsIndexGuardPayloadPolynomial count
+        indexTerm := by
+    change compilePositiveRelationPayloadResource natListAtZeroValuation
+      Language.ORing.Rel.lt ![indexTerm, shortBinaryNumeralTerm count] <= _
+    exact hguardPublic
+  have hinstalledResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexValueWitnessCertificate_structuralPayloadBound_le_public
+      tokenTable width tokenCount boundaryTable index value indexTerm valueTerm
+      hindexClosed hvalueClosed hindexValue hvalueValue data
+  have hbodyResource : hybridFormulaStructuralPayloadBound body <=
+      compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope
+        tokenTable width tokenCount boundaryTable indexTerm valueTerm data := by
+    simpa only [body, hybridFormulaStructuralPayloadBound, installed,
+      terminal, values, terminalParts] using hinstalledResource
+  let parts := CheckedHybridValuationBoundedFormulaCertificate.conjunction
+    guard body
+  have hparts := transparentHybridConjunctionPayloadBound_le
+    guard body _ _ hguardResource hbodyResource
+  change hybridFormulaStructuralPayloadBound
+      (CheckedHybridValuationBoundedFormulaCertificate.conjunction guard body) <= _
+  unfold compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope
+  simpa only [guard, body, parts] using hparts
+
+noncomputable def
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) : Nat :=
+  compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope tokenTable
+    width tokenCount boundaryTable count index value indexTerm valueTerm
+    (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
+      boundaryTable count index value hrows)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables ⊆ {0})
+    (hvalueClosed : valueTerm.freeVariables = ∅)
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hvalueValue : termValue natListAtZeroValuation valueTerm = value)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+          natListAtZeroValuation tokenTable width tokenCount boundaryTable count
+          index value indexTerm valueTerm hindexValue hvalueValue hrows) <=
+      compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope
+        tokenTable width tokenCount boundaryTable count index value indexTerm
+        valueTerm hrows := by
+  simpa only [
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph,
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateFromRowData,
+    hybridFormulaStructuralPayloadBound,
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope] using
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData_structuralPayloadBound_le_public
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      valueTerm hindexClosed hvalueClosed hindexValue hvalueValue hrows.1
+      (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
+        boundaryTable count index value hrows)
+
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexWitnessCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactAdditiveNatListAtRowsAtValuationIndexValueWitnessCertificate_structuralPayloadBound_le_public
+#print axioms
+  compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
 
 end FoundationCompactNumericListedDirectNatListAtRowsPublicBounds

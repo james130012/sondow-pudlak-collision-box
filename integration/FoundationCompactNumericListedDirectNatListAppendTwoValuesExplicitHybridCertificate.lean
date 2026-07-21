@@ -33,7 +33,7 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+abbrev zeroValuation : Nat -> Nat := fun _ => 0
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -48,10 +48,10 @@ private theorem arithmeticRewritingApp_congr
   cases h
   rfl
 
-private def successorTerm (term : ValuationTerm) : ValuationTerm :=
+def successorTerm (term : ValuationTerm) : ValuationTerm :=
   ‘!!term + 1’
 
-private def addTerm (left right : ValuationTerm) : ValuationTerm :=
+def addTerm (left right : ValuationTerm) : ValuationTerm :=
   ‘!!left + !!right’
 
 private theorem arithmeticAddTerm_eq_func
@@ -61,18 +61,18 @@ private theorem arithmeticAddTerm_eq_func
   simp [Semiterm.Operator.operator,
     Semiterm.Operator.Add.term_eq, Rew.func, Matrix.fun_eq_vec_two]
 
-private theorem termValue_arithmeticAdd
+theorem termValue_arithmeticAdd
     (valuation : Nat -> Nat) (left right : ValuationTerm) :
     termValue valuation ‘!!left + !!right’ =
       termValue valuation left + termValue valuation right := by
   rw [arithmeticAddTerm_eq_func]
   exact termValue_add valuation ![left, right]
 
-private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
+theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-private theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
+theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
     termValue valuation (‘2’ : ValuationTerm) = 2 := by
   unfold termValue
   rw [Semiterm.val_operator]
@@ -83,13 +83,13 @@ private theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
         exact Fin.elim0 index]
   simp
 
-@[simp] private theorem termValue_successorTerm
+@[simp] theorem termValue_successorTerm
     (valuation : Nat -> Nat) (term : ValuationTerm) :
     termValue valuation (successorTerm term) =
       termValue valuation term + 1 := by
   simp [successorTerm, termValue_arithmeticAdd, termValue_arithmeticOne]
 
-@[simp] private theorem termValue_addTerm
+@[simp] theorem termValue_addTerm
     (valuation : Nat -> Nat) (left right : ValuationTerm) :
     termValue valuation (addTerm left right) =
       termValue valuation left + termValue valuation right := by
@@ -171,7 +171,7 @@ theorem compactAdditiveNatListAppendTwoValuesClosedFormula_alignment
     · intro coordinate
       exact Empty.elim coordinate
 
-private noncomputable def valuationEqCertificate
+noncomputable def valuationEqCertificate
     (left right : ValuationTerm)
     (heq : termValue zeroValuation left = termValue zeroValuation right) :
     HybridCertificate “!!left = !!right” := by
@@ -285,7 +285,7 @@ def compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula
       firstTerm,
       secondTerm]
 
-private def
+def
     compactAdditiveNatListAppendTwoValuesExplicitFormulaAtValuationValues
     (tokenTable width tokenCount
       sourceStart sourceFinish sourceCount
@@ -348,7 +348,7 @@ theorem
       exact Empty.elim coordinate
 
 noncomputable def
-    compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateDirectOfGraph
     (tokenTable width tokenCount
       sourceStart sourceFinish sourceCount
       targetStart targetFinish targetBoundary targetCount
@@ -360,7 +360,7 @@ noncomputable def
       sourceStart sourceFinish sourceCount targetStart targetFinish
       targetBoundary targetCount first second) :
     HybridCertificate
-      (compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula
+      (compactAdditiveNatListAppendTwoValuesExplicitFormulaAtValuationValues
         tokenTable width tokenCount sourceStart sourceFinish sourceCount
         targetStart targetFinish targetBoundary targetCount firstTerm
           secondTerm) := by
@@ -377,7 +377,6 @@ noncomputable def
           tokenTable.testBit
             ((targetStart + 1 + offset) * width + bitIndex) := by
     simpa [sliceCount, Nat.add_assoc] using Classical.choose_spec hslice
-  rw [compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula_alignment]
   unfold compactAdditiveNatListAppendTwoValuesExplicitFormulaAtValuationValues
   let sliceCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
@@ -404,15 +403,23 @@ noncomputable def
           hsliceSpec.2.2.2.2.2 offset hoffset bitIndex hbitIndex')
   let firstCertificate :=
     compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
-      zeroValuation tokenTable width tokenCount targetBoundary targetCount
+      FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
+      tokenTable width tokenCount targetBoundary targetCount
       sourceCount first (shortBinaryNumeralTerm sourceCount) firstTerm
-      (by simp [termValue_shortBinaryNumeralTerm]) hfirstValue hfirst
+      (by simp [termValue_shortBinaryNumeralTerm]) (by
+        change termValue (fun _ => 0) firstTerm = first
+        change termValue (fun _ => 0) firstTerm = first at hfirstValue
+        exact hfirstValue) hfirst
   let secondCertificate :=
     compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
-      zeroValuation tokenTable width tokenCount targetBoundary targetCount
+      FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
+      tokenTable width tokenCount targetBoundary targetCount
       (sourceCount + 1) second
       (successorTerm (shortBinaryNumeralTerm sourceCount)) secondTerm
-      (by simp [termValue_shortBinaryNumeralTerm]) hsecondValue hsecond
+      (by simp [termValue_shortBinaryNumeralTerm]) (by
+        change termValue (fun _ => 0) secondTerm = second
+        change termValue (fun _ => 0) secondTerm = second at hsecondValue
+        exact hsecondValue) hsecond
   exact CheckedHybridValuationBoundedFormulaCertificate.conjunction
     (valuationEqCertificate
       (shortBinaryNumeralTerm targetFinish)
@@ -430,6 +437,34 @@ noncomputable def
         sliceCertificate
         (CheckedHybridValuationBoundedFormulaCertificate.conjunction
           firstCertificate secondCertificate)))
+
+/-- Formula-level transport of the transparent two-value certificate. -/
+noncomputable def
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+    (tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount
+      first second : Nat)
+    (firstTerm secondTerm : ValuationTerm)
+    (hfirstValue : termValue zeroValuation firstTerm = first)
+    (hsecondValue : termValue zeroValuation secondTerm = second)
+    (hgraph : CompactAdditiveNatListAppendTwoValues tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount targetStart targetFinish
+      targetBoundary targetCount first second) :
+    HybridCertificate
+      (compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula
+        tokenTable width tokenCount sourceStart sourceFinish sourceCount
+        targetStart targetFinish targetBoundary targetCount firstTerm
+          secondTerm) :=
+  .cast
+    (compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula_alignment
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount firstTerm
+      secondTerm).symm
+    (compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateDirectOfGraph
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount first second firstTerm
+      secondTerm hfirstValue hsecondValue hgraph)
 
 noncomputable def
     compileCompactAdditiveNatListAppendTwoValuesExplicitHybridContext
@@ -491,6 +526,8 @@ theorem
 #print axioms compactAdditiveNatListAppendTwoValuesExplicitHybridCertificateOfGraph
 #print axioms
   compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula_alignment
+#print axioms
+  compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateDirectOfGraph
 #print axioms
   compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
 #print axioms

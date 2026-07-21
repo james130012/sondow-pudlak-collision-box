@@ -22,9 +22,9 @@ open FoundationCompactPABinaryNumeralAddition
 open FoundationCompactPAValuationTermCompiler
 open FoundationCompactPAHybridValuationBoundedFormulaCompiler
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+def zeroValuation : Nat -> Nat := fun _ => 0
 
-private abbrev AppendSlicesHybridCertificate
+abbrev AppendSlicesHybridCertificate
     (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
 
@@ -94,10 +94,10 @@ private theorem rewriting_emptyFormulaSubstitution
         (rewriting ∘ terms) := by
       rw [TransitiveRewriting.comp_app]
 
-private def successorTerm (term : ValuationTerm) : ValuationTerm :=
+def successorTerm (term : ValuationTerm) : ValuationTerm :=
   ‘!!term + 1’
 
-private def appendMidpointTerm
+def appendMidpointTerm
     (targetStartTerm leftCountTerm : ValuationTerm) : ValuationTerm :=
   ‘!!(successorTerm targetStartTerm) + !!leftCountTerm’
 
@@ -121,7 +121,7 @@ def compactAdditiveNatListAppendSlicesClosedFormula
       shortBinaryNumeralTerm targetFinish,
       shortBinaryNumeralTerm targetCount]
 
-private def compactAdditiveNatListAppendSlicesExplicitFormula
+def compactAdditiveNatListAppendSlicesExplicitFormula
     (tokenTable width tokenCount
       leftStart leftFinish leftCount
       rightStart rightFinish rightCount
@@ -185,23 +185,23 @@ private theorem arithmeticAddTerm_eq_func
     LO.FirstOrder.Semiterm.Operator.Add.term_eq,
     Rew.func, Matrix.fun_eq_vec_two]
 
-private theorem termValue_arithmeticAdd
+theorem termValue_arithmeticAdd
     (valuation : Nat -> Nat) (left right : ValuationTerm) :
     termValue valuation (‘!!left + !!right’) =
       termValue valuation left + termValue valuation right := by
   rw [arithmeticAddTerm_eq_func]
   exact termValue_add valuation ![left, right]
 
-private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
+theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-@[simp] private theorem termValue_successorTerm
+@[simp] theorem termValue_successorTerm
     (valuation : Nat -> Nat) (term : ValuationTerm) :
     termValue valuation (successorTerm term) = termValue valuation term + 1 := by
   simp [successorTerm, termValue_arithmeticAdd, termValue_arithmeticOne]
 
-@[simp] private theorem termValue_appendMidpointTerm
+@[simp] theorem termValue_appendMidpointTerm
     (valuation : Nat -> Nat) (targetStartTerm leftCountTerm : ValuationTerm) :
     termValue valuation
         (appendMidpointTerm targetStartTerm leftCountTerm) =
@@ -209,7 +209,7 @@ private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
         termValue valuation leftCountTerm := by
   simp [appendMidpointTerm, termValue_arithmeticAdd]
 
-private noncomputable def appendCountCertificate
+noncomputable def appendCountCertificate
     (leftCount rightCount targetCount : Nat)
     (hcount : targetCount = leftCount + rightCount) :
     AppendSlicesHybridCertificate
@@ -233,7 +233,7 @@ private noncomputable def appendCountCertificate
 /-- Fully explicit checked certificate constructed from the concrete append
 graph.  Both bounded token-slice witnesses are consumed field by field. -/
 noncomputable def
-    compactAdditiveNatListAppendSlicesExplicitHybridCertificateOfGraph
+    compactAdditiveNatListAppendSlicesExplicitHybridCertificateDirectOfGraph
     (tokenTable width tokenCount
       leftStart leftFinish leftCount
       rightStart rightFinish rightCount
@@ -242,7 +242,7 @@ noncomputable def
       leftStart leftFinish leftCount rightStart rightFinish rightCount
       targetStart targetFinish targetCount) :
     AppendSlicesHybridCertificate
-      (compactAdditiveNatListAppendSlicesClosedFormula tokenTable width
+      (compactAdditiveNatListAppendSlicesExplicitFormula tokenTable width
         tokenCount leftStart leftFinish leftCount rightStart rightFinish
         rightCount targetStart targetFinish targetCount) := by
   have hcount := hgraph.1
@@ -286,7 +286,6 @@ noncomputable def
   have hrightSourceFinishBound := hrightSpec.2.2.2.1
   have hrightTargetFinishBound := hrightSpec.2.2.2.2.1
   have hrightBits := hrightSpec.2.2.2.2.2
-  rw [compactAdditiveNatListAppendSlicesClosedFormula_alignment]
   unfold compactAdditiveNatListAppendSlicesExplicitFormula
   let leftCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
@@ -355,7 +354,31 @@ noncomputable def
     (CheckedHybridValuationBoundedFormulaCertificate.conjunction
       leftCertificate rightCertificate)
 
+/-- Closed-form transport of the transparent append-slices certificate. -/
+noncomputable def
+    compactAdditiveNatListAppendSlicesExplicitHybridCertificateOfGraph
+    (tokenTable width tokenCount
+      leftStart leftFinish leftCount
+      rightStart rightFinish rightCount
+      targetStart targetFinish targetCount : Nat)
+    (hgraph : CompactAdditiveNatListAppendSlices tokenTable width tokenCount
+      leftStart leftFinish leftCount rightStart rightFinish rightCount
+      targetStart targetFinish targetCount) :
+    AppendSlicesHybridCertificate
+      (compactAdditiveNatListAppendSlicesClosedFormula tokenTable width
+        tokenCount leftStart leftFinish leftCount rightStart rightFinish
+        rightCount targetStart targetFinish targetCount) :=
+  .cast
+    (compactAdditiveNatListAppendSlicesClosedFormula_alignment tokenTable width
+      tokenCount leftStart leftFinish leftCount rightStart rightFinish rightCount
+      targetStart targetFinish targetCount).symm
+    (compactAdditiveNatListAppendSlicesExplicitHybridCertificateDirectOfGraph
+      tokenTable width tokenCount leftStart leftFinish leftCount rightStart
+      rightFinish rightCount targetStart targetFinish targetCount hgraph)
+
 #print axioms compactAdditiveNatListAppendSlicesClosedFormula_alignment
+#print axioms
+  compactAdditiveNatListAppendSlicesExplicitHybridCertificateDirectOfGraph
 #print axioms compactAdditiveNatListAppendSlicesExplicitHybridCertificateOfGraph
 
 end FoundationCompactNumericListedDirectNatListAppendSlicesExplicitHybridCertificate

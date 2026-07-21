@@ -29,7 +29,7 @@ open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompiler
 open FoundationCompactPAExplicitHybridUniversalBranches
 open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 
-def zeroValuation : Nat -> Nat := fun _ => 0
+abbrev zeroValuation : Nat -> Nat := fun _ => 0
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -902,7 +902,7 @@ the checked syntax tree and uses their values only to connect to the semantic
 row graph.
 -/
 
-private noncomputable def
+noncomputable def
     compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
     (valuation : Nat -> Nat)
     (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
@@ -1037,7 +1037,7 @@ theorem
           valueTerm] := by
   rfl
 
-private def compactAdditiveNatListAtRowsTerminalAtValuationIndexValue
+def compactAdditiveNatListAtRowsTerminalAtValuationIndexValue
     (tokenTable width tokenCount boundaryTable : Nat)
     (indexTerm valueTerm : ValuationTerm) : ArithmeticSemiformula Nat 2 :=
   ((Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val) ⇜
@@ -1059,7 +1059,7 @@ private def compactAdditiveNatListAtRowsTerminalAtValuationIndexValue
           closedShift 2 valueTerm,
           (#0 : ArithmeticSemiterm Nat 2)]))
 
-private def compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue
+def compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue
     (tokenTable width tokenCount boundaryTable : Nat)
     (indexTerm valueTerm : ValuationTerm) : ValuationFormula :=
   ((compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
@@ -1067,7 +1067,7 @@ private def compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue
         (closedShift 1 (shortBinaryNumeralTerm tokenCount))).bexsLTSucc
       (shortBinaryNumeralTerm tokenCount)
 
-private def compactAdditiveNatListAtRowsExplicitFormulaAtValuationIndexValue
+def compactAdditiveNatListAtRowsExplicitFormulaAtValuationIndexValue
     (tokenTable width tokenCount boundaryTable count : Nat)
     (indexTerm valueTerm : ValuationTerm) : ValuationFormula :=
   “!!indexTerm < !!(shortBinaryNumeralTerm count)” ⋏
@@ -1142,7 +1142,7 @@ theorem compactAdditiveNatListAtRowsAtValuationIndexValueFormula_alignment
   rw [natListAtSourceGuardAtValuationIndexValue_rewrite,
     natListAtSourceWitnessBodyAtValuationIndexValue_rewrite]
 
-private theorem
+theorem
     compactAdditiveNatListAtRowsTerminalAtValuationIndexValue_substitution_alignment
     (tokenTable width tokenCount boundaryTable left right : Nat)
     (indexTerm valueTerm : ValuationTerm) :
@@ -1180,37 +1180,26 @@ private theorem
     · intro coordinate
       exact Empty.elim coordinate
 
-/-- Build the exact lookup certificate while preserving the caller's index and
-value terms in the checked syntax tree. -/
+/-- Build the explicit-form certificate from concrete row data while preserving
+the caller's index and value terms in the checked syntax tree. -/
 noncomputable def
-    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount boundaryTable count index value : Nat)
     (indexTerm valueTerm : ValuationTerm)
     (hindexValue : termValue valuation indexTerm = index)
     (hvalueValue : termValue valuation valueTerm = value)
-    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
-      boundaryTable count index value) :
+    (hindex : index < count)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
     CheckedHybridValuationBoundedFormulaCertificate valuation
-      (compactAdditiveNatListAtRowsAtValuationIndexValueFormula tokenTable width
-        tokenCount boundaryTable count indexTerm valueTerm) := by
-  let leftExists := hrows.2
-  let left := Classical.choose leftExists
-  have hleftData := Classical.choose_spec leftExists
-  let rightExists := hleftData.2
-  let right := Classical.choose rightExists
-  have hrightData := Classical.choose_spec rightExists
-  have hindex := hrows.1
-  have hleft := hleftData.1
-  have hright := hrightData.1
-  have hleftEntry := hrightData.2.1
-  have hrightEntry := hrightData.2.2.1
-  have hcell := hrightData.2.2.2
-  let values : Fin 2 -> Nat := ![right, left]
+      (compactAdditiveNatListAtRowsExplicitFormulaAtValuationIndexValue
+        tokenTable width tokenCount boundaryTable count indexTerm valueTerm) := by
+  let values : Fin 2 -> Nat := ![data.right, data.left]
   have hvalueTerms :
       (fun coordinate : Fin 2 => shortBinaryNumeralTerm (values coordinate)) =
-        ![shortBinaryNumeralTerm right,
-          shortBinaryNumeralTerm left] := by
+        ![shortBinaryNumeralTerm data.right,
+          shortBinaryNumeralTerm data.left] := by
     funext coordinate
     fin_cases coordinate <;> rfl
   let terminalParts :=
@@ -1220,29 +1209,29 @@ noncomputable def
         (shortBinaryNumeralTerm boundaryTable)
         (shortBinaryNumeralTerm tokenCount)
         indexTerm
-        (shortBinaryNumeralTerm left) (by
+        (shortBinaryNumeralTerm data.left) (by
           simpa [termValue_shortBinaryNumeralTerm, hindexValue]
-            using hleftEntry))
+            using data.left_entry))
       (CheckedHybridValuationBoundedFormulaCertificate.conjunction
         (compactFixedWidthEntryAtValuationExplicitHybridCertificate
           valuation
           (shortBinaryNumeralTerm boundaryTable)
           (shortBinaryNumeralTerm tokenCount)
           (natListAtSuccessorTermAtValuationIndex indexTerm)
-          (shortBinaryNumeralTerm right) (by
+          (shortBinaryNumeralTerm data.right) (by
             simpa [natListAtSuccessorTermAtValuationIndex,
               termValue_shortBinaryNumeralTerm,
               termValue_arithmeticAdd, termValue_arithmeticOne,
-              hindexValue] using hrightEntry))
+              hindexValue] using data.right_entry))
         (compactAdditiveTokenCellAtValuationExplicitHybridCertificateLocal
           valuation
           (shortBinaryNumeralTerm tokenTable)
           (shortBinaryNumeralTerm width)
           (shortBinaryNumeralTerm tokenCount)
-          (shortBinaryNumeralTerm left) valueTerm
-          (shortBinaryNumeralTerm right) (by
+          (shortBinaryNumeralTerm data.left) valueTerm
+          (shortBinaryNumeralTerm data.right) (by
             simpa [termValue_shortBinaryNumeralTerm, hvalueValue]
-              using hcell)))
+              using data.cell)))
   let terminal : CheckedHybridValuationBoundedFormulaCertificate valuation
       ((compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable
           width tokenCount boundaryTable indexTerm valueTerm) ⇜
@@ -1251,7 +1240,7 @@ noncomputable def
       rw [hvalueTerms]
       exact
         (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue_substitution_alignment
-          tokenTable width tokenCount boundaryTable left right indexTerm
+          tokenTable width tokenCount boundaryTable data.left data.right indexTerm
             valueTerm).symm) terminalParts
   let installed := buildExplicitBoundedWitnessHybridCertificate tokenCount
     (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
@@ -1259,8 +1248,8 @@ noncomputable def
     values (by
       intro coordinate
       fin_cases coordinate
-      · exact hright
-      · exact hleft) terminal
+      · exact data.right_le
+      · exact data.left_le) terminal
   let body : CheckedHybridValuationBoundedFormulaCertificate valuation
       (compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue tokenTable
         width tokenCount boundaryTable indexTerm valueTerm) :=
@@ -1277,8 +1266,49 @@ noncomputable def
   let guard : CheckedHybridValuationBoundedFormulaCertificate valuation
       “!!indexTerm < !!(shortBinaryNumeralTerm count)” :=
     .cast (Semiformula.Operator.lt_def _ _).symm guardDirect
-  rw [compactAdditiveNatListAtRowsAtValuationIndexValueFormula_alignment]
   exact CheckedHybridValuationBoundedFormulaCertificate.conjunction guard body
+
+/-- Transport the transparent row-data certificate to the original lookup
+formula. -/
+noncomputable def
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateFromRowData
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexValue : termValue valuation indexTerm = index)
+    (hvalueValue : termValue valuation valueTerm = value)
+    (hindex : index < count)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
+    CheckedHybridValuationBoundedFormulaCertificate valuation
+      (compactAdditiveNatListAtRowsAtValuationIndexValueFormula tokenTable width
+        tokenCount boundaryTable count indexTerm valueTerm) :=
+  .cast
+    (compactAdditiveNatListAtRowsAtValuationIndexValueFormula_alignment
+      tokenTable width tokenCount boundaryTable count indexTerm valueTerm).symm
+    (compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData
+      valuation tokenTable width tokenCount boundaryTable count index value
+      indexTerm valueTerm hindexValue hvalueValue hindex data)
+
+/-- Build the exact lookup certificate while preserving the caller's index and
+value terms in the checked syntax tree. -/
+noncomputable def
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexValue : termValue valuation indexTerm = index)
+    (hvalueValue : termValue valuation valueTerm = value)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    CheckedHybridValuationBoundedFormulaCertificate valuation
+      (compactAdditiveNatListAtRowsAtValuationIndexValueFormula tokenTable width
+        tokenCount boundaryTable count indexTerm valueTerm) :=
+  compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateFromRowData
+    valuation tokenTable width tokenCount boundaryTable count index value
+    indexTerm valueTerm hindexValue hvalueValue hrows.1
+    (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
+      boundaryTable count index value hrows)
 
 #print axioms compactAdditiveNatListAtRowsClosedFormula_alignment
 #print axioms compactAdditiveNatListAtRowsTerminal_substitution_alignment
@@ -1286,6 +1316,8 @@ noncomputable def
 #print axioms compactAdditiveNatListAtRowsAtValuationIndexFormula_alignment
 #print axioms compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph
 #print axioms compactAdditiveNatListAtRowsAtValuationIndexValueFormula_alignment
+#print axioms
+  compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData
 #print axioms compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
 
 end FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate

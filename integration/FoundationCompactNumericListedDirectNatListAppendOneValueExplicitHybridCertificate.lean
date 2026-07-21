@@ -30,7 +30,7 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+def zeroValuation : Nat -> Nat := fun _ => 0
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -101,10 +101,10 @@ private theorem rewriting_emptyFormulaSubstitution
         (rewriting ∘ terms) := by
       rw [TransitiveRewriting.comp_app]
 
-private def successorTerm (term : ValuationTerm) : ValuationTerm :=
+def successorTerm (term : ValuationTerm) : ValuationTerm :=
   ‘!!term + 1’
 
-private def appendOneTargetFinishTerm
+def appendOneTargetFinishTerm
     (targetStartTerm targetCountTerm : ValuationTerm) : ValuationTerm :=
   ‘!!targetStartTerm + 1 + !!targetCountTerm’
 
@@ -127,7 +127,7 @@ def compactAdditiveNatListAppendOneValueClosedFormula
       shortBinaryNumeralTerm targetCount,
       shortBinaryNumeralTerm value]
 
-private def compactAdditiveNatListAppendOneValueExplicitFormula
+def compactAdditiveNatListAppendOneValueExplicitFormula
     (tokenTable width tokenCount
       sourceStart sourceFinish sourceCount
       targetStart targetFinish targetBoundary targetCount value : Nat) :
@@ -183,7 +183,7 @@ theorem compactAdditiveNatListAppendOneValueClosedFormula_alignment
     fin_cases coordinate <;>
       simp [Rew.subst_bvar]
 
-private theorem arithmeticAddTerm_eq_func
+theorem arithmeticAddTerm_eq_func
     (left right : ValuationTerm) :
     (‘!!left + !!right’ : ValuationTerm) =
       LO.FirstOrder.Semiterm.func Language.Add.add ![left, right] := by
@@ -191,23 +191,23 @@ private theorem arithmeticAddTerm_eq_func
     LO.FirstOrder.Semiterm.Operator.Add.term_eq,
     Rew.func, Matrix.fun_eq_vec_two]
 
-private theorem termValue_arithmeticAdd
+theorem termValue_arithmeticAdd
     (valuation : Nat -> Nat) (left right : ValuationTerm) :
     termValue valuation (‘!!left + !!right’) =
       termValue valuation left + termValue valuation right := by
   rw [arithmeticAddTerm_eq_func]
   exact termValue_add valuation ![left, right]
 
-private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
+theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-@[simp] private theorem termValue_successorTerm
+@[simp] theorem termValue_successorTerm
     (valuation : Nat -> Nat) (term : ValuationTerm) :
     termValue valuation (successorTerm term) = termValue valuation term + 1 := by
   simp [successorTerm, termValue_arithmeticAdd, termValue_arithmeticOne]
 
-@[simp] private theorem termValue_appendOneTargetFinishTerm
+@[simp] theorem termValue_appendOneTargetFinishTerm
     (valuation : Nat -> Nat) (targetStartTerm targetCountTerm : ValuationTerm) :
     termValue valuation
         (appendOneTargetFinishTerm targetStartTerm targetCountTerm) =
@@ -216,7 +216,7 @@ private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
   simp [appendOneTargetFinishTerm, termValue_arithmeticAdd,
     termValue_arithmeticOne]
 
-private noncomputable def equalityCertificate
+noncomputable def equalityCertificate
     (leftTerm rightTerm : ValuationTerm)
     (hequality : termValue zeroValuation leftTerm =
       termValue zeroValuation rightTerm) :
@@ -228,7 +228,7 @@ private noncomputable def equalityCertificate
 /-- Fully explicit checked certificate constructed from the public append-one
 graph.  No split graph assumptions or semantic truth selector are exposed. -/
 noncomputable def
-    compactAdditiveNatListAppendOneValueExplicitHybridCertificateOfGraph
+    compactAdditiveNatListAppendOneValueExplicitHybridCertificateDirectOfGraph
     (tokenTable width tokenCount
       sourceStart sourceFinish sourceCount
       targetStart targetFinish targetBoundary targetCount value : Nat)
@@ -236,7 +236,7 @@ noncomputable def
       sourceStart sourceFinish sourceCount targetStart targetFinish
       targetBoundary targetCount value) :
     HybridCertificate
-      (compactAdditiveNatListAppendOneValueClosedFormula
+      (compactAdditiveNatListAppendOneValueExplicitFormula
         tokenTable width tokenCount sourceStart sourceFinish sourceCount
         targetStart targetFinish targetBoundary targetCount value) := by
   have htargetFinish := hgraph.1
@@ -262,7 +262,6 @@ noncomputable def
   have hsourceFinishBound := hsliceSpec.2.2.2.1
   have htargetFinishBound := hsliceSpec.2.2.2.2.1
   have hbits := hsliceSpec.2.2.2.2.2
-  rw [compactAdditiveNatListAppendOneValueClosedFormula_alignment]
   unfold compactAdditiveNatListAppendOneValueExplicitFormula
   let sliceCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
@@ -303,6 +302,29 @@ noncomputable def
           simpa [termValue_shortBinaryNumeralTerm] using htargetCount))
       (CheckedHybridValuationBoundedFormulaCertificate.conjunction
         sliceCertificate rowCertificate))
+
+/-- The closed-form certificate is an explicit transport of the transparent
+certificate above.  Keeping this transport visible makes structural-resource
+audits reduce through the `.cast` constructor. -/
+noncomputable def
+    compactAdditiveNatListAppendOneValueExplicitHybridCertificateOfGraph
+    (tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount value : Nat)
+    (hgraph : CompactAdditiveNatListAppendOneValue tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount targetStart targetFinish
+      targetBoundary targetCount value) :
+    HybridCertificate
+      (compactAdditiveNatListAppendOneValueClosedFormula
+        tokenTable width tokenCount sourceStart sourceFinish sourceCount
+        targetStart targetFinish targetBoundary targetCount value) :=
+  .cast
+    (compactAdditiveNatListAppendOneValueClosedFormula_alignment
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount value).symm
+    (compactAdditiveNatListAppendOneValueExplicitHybridCertificateDirectOfGraph
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount value hgraph)
 
 noncomputable def
     compileCompactAdditiveNatListAppendOneValueExplicitHybridContext
@@ -358,6 +380,8 @@ theorem
       targetStart targetFinish targetBoundary targetCount value hgraph)
 
 #print axioms compactAdditiveNatListAppendOneValueClosedFormula_alignment
+#print axioms
+  compactAdditiveNatListAppendOneValueExplicitHybridCertificateDirectOfGraph
 #print axioms compactAdditiveNatListAppendOneValueExplicitHybridCertificateOfGraph
 #print axioms
   compileCompactAdditiveNatListAppendOneValueExplicitHybridContext_payloadLength_le
