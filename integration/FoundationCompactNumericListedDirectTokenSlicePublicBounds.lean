@@ -976,6 +976,39 @@ noncomputable def compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope
       widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm targetStartTerm
       targetFinishTerm count)
 
+noncomputable def
+    compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope
+    (bound : Nat)
+    (valuation : Nat -> Nat)
+    (tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm : ValuationTerm) : Nat :=
+  (Finset.range (bound + 1)).sum fun count =>
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope valuation
+      tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm count
+
+theorem
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_publicFinite
+    (bound : Nat)
+    (valuation : Nat -> Nat)
+    (tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm : ValuationTerm)
+    (count : Nat) (hcount : count <= bound) :
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope valuation
+        tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+        targetStartTerm targetFinishTerm count <=
+      compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope bound
+        valuation tokenTableTerm widthTerm tokenCountTerm sourceStartTerm
+        sourceFinishTerm targetStartTerm targetFinishTerm := by
+  unfold
+    compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope
+  exact Finset.single_le_sum
+    (fun candidate _ => Nat.zero_le
+      (compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope valuation
+        tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+        targetStartTerm targetFinishTerm candidate))
+    (Finset.mem_range.mpr (Nat.lt_succ_of_le hcount))
+
 theorem compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_structuralPayloadBound_le_transparent
     (valuation : Nat -> Nat)
     (tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
@@ -1029,6 +1062,49 @@ theorem compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_struc
     compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope,
     body, postCertificate] using hexists
 
+theorem
+    compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_structuralPayloadBound_le_publicFinite
+    (bound : Nat)
+    (valuation : Nat -> Nat)
+    (tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm : ValuationTerm)
+    (count : Nat)
+    (hcount : count <= bound)
+    (hcountBound : count <= termValue valuation tokenCountTerm)
+    (hsourceEndpoint : termValue valuation sourceFinishTerm =
+      termValue valuation sourceStartTerm + count)
+    (htargetEndpoint : termValue valuation targetFinishTerm =
+      termValue valuation targetStartTerm + count)
+    (hsourceFinishBound : termValue valuation sourceFinishTerm <=
+      termValue valuation tokenCountTerm)
+    (htargetFinishBound : termValue valuation targetFinishTerm <=
+      termValue valuation tokenCountTerm)
+    (hbits : ∀ offset < count, ∀ bitIndex < termValue valuation widthTerm,
+      (termValue valuation tokenTableTerm).testBit
+          ((termValue valuation sourceStartTerm + offset) *
+            termValue valuation widthTerm + bitIndex) =
+        (termValue valuation tokenTableTerm).testBit
+          ((termValue valuation targetStartTerm + offset) *
+            termValue valuation widthTerm + bitIndex)) :
+    hybridFormulaStructuralPayloadBound
+        (compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
+          valuation tokenTableTerm widthTerm tokenCountTerm sourceStartTerm
+          sourceFinishTerm targetStartTerm targetFinishTerm count hcountBound
+          hsourceEndpoint htargetEndpoint hsourceFinishBound htargetFinishBound
+          hbits) <=
+      compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope bound
+        valuation tokenTableTerm widthTerm tokenCountTerm sourceStartTerm
+        sourceFinishTerm targetStartTerm targetFinishTerm := by
+  exact
+    (compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_structuralPayloadBound_le_transparent
+      valuation tokenTableTerm widthTerm tokenCountTerm sourceStartTerm
+      sourceFinishTerm targetStartTerm targetFinishTerm count hcountBound
+      hsourceEndpoint htargetEndpoint hsourceFinishBound htargetFinishBound
+      hbits).trans
+    (compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_publicFinite
+      bound valuation tokenTableTerm widthTerm tokenCountTerm sourceStartTerm
+      sourceFinishTerm targetStartTerm targetFinishTerm count hcount)
+
 #print axioms
   tokenSliceAtValuationBitBranchCertificate_structuralPayloadBound_le_transparent
 #print axioms
@@ -1039,5 +1115,7 @@ theorem compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_struc
   tokenSliceAtValuationPostWitnessCertificate_structuralPayloadBound_le_transparent
 #print axioms
   compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_structuralPayloadBound_le_transparent
+#print axioms
+  compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectTokenSlicePublicBounds

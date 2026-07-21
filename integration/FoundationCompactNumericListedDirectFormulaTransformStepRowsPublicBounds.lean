@@ -354,12 +354,12 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
   | formula hparser hrows =>
       let formulaResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation formulaParserFormula formulaOutputFormula
-        (compactUnifiedParserSyntaxFormulaGraphPayloadEnvelope tokenTable width
-          tokenCount current.parser next.parser stepWitness.slot0
-          stepWitness.formula hparser)
-        (compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope tokenTable
-          width tokenCount current next mode stepWitness.formula.tag
-          consumedCount mappedHead hrows)
+        (compactUnifiedParserSyntaxFormulaPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current.parser next.parser stepWitness.slot0
+          stepWitness.formula)
+        (compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+          tokenTable width tokenCount current next mode stepWitness.formula.tag
+          consumedCount mappedHead)
       exact threeWayPath2PayloadEnvelope quietFormula termFormula formulaFormula
         formulaResource
 
@@ -688,11 +688,11 @@ theorem
           tokenTable width tokenCount current next mode stepWitness.formula.tag
           consumedCount mappedHead hrows
       have hparserResource :=
-        compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.parser next.parser
           stepWitness.slot0 stepWitness.formula hparser
       have hrowsResource :=
-        compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next mode stepWitness.formula.tag
           consumedCount mappedHead hrows
       let selected :=

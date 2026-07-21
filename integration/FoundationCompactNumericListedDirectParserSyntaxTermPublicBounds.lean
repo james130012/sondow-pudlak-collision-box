@@ -2740,6 +2740,1093 @@ theorem
       tokenTable width tokenCount current next binderArity witness hgraph data
   exact hparts
 
+theorem syntaxTermShortBranchAssemblyPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {leSmall leLarge failureSmall failureLarge : Nat}
+    (hle : leSmall <= leLarge)
+    (hfailure : failureSmall <= failureLarge) :
+    syntaxTermShortBranchAssemblyPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness leSmall failureSmall <=
+      syntaxTermShortBranchAssemblyPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness leLarge failureLarge := by
+  unfold syntaxTermShortBranchAssemblyPayloadEnvelope
+  exact transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hle hfailure)
+
+theorem syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {countSmall countLarge tagSmall tagLarge argumentSmall argumentLarge
+      decisionSmall decisionLarge : Nat}
+    (hcount : countSmall <= countLarge)
+    (htag : tagSmall <= tagLarge)
+    (hargument : argumentSmall <= argumentLarge)
+    (hdecision : decisionSmall <= decisionLarge) :
+    syntaxTermEnoughBranchAssemblyPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness countSmall tagSmall argumentSmall
+        decisionSmall <=
+      syntaxTermEnoughBranchAssemblyPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness countLarge tagLarge argumentLarge
+        decisionLarge := by
+  unfold syntaxTermEnoughBranchAssemblyPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hcount
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ htag
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hargument
+          hdecision)))
+
+theorem syntaxTermDecisionZeroSuccessPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {small large : Nat} (hresource : small <= large) :
+    syntaxTermDecisionZeroSuccessPathPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness small <=
+      syntaxTermDecisionZeroSuccessPathPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness large := by
+  unfold syntaxTermDecisionZeroSuccessPathPayloadEnvelope
+  exact transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource)
+
+theorem syntaxTermDecisionZeroFailurePathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {small large : Nat} (hresource : small <= large) :
+    syntaxTermDecisionZeroFailurePathPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness small <=
+      syntaxTermDecisionZeroFailurePathPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness large := by
+  unfold syntaxTermDecisionZeroFailurePathPayloadEnvelope
+  exact transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _ hresource)
+
+theorem syntaxTermDecisionOnePathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {small large : Nat} (hresource : small <= large) :
+    syntaxTermDecisionOnePathPayloadEnvelope tokenTable width tokenCount current
+        next binderArity witness small <=
+      syntaxTermDecisionOnePathPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness large := by
+  unfold syntaxTermDecisionOnePathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource)
+
+theorem syntaxTermDecisionTwoPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {small large : Nat} (hresource : small <= large) :
+    syntaxTermDecisionTwoPathPayloadEnvelope tokenTable width tokenCount current
+        next binderArity witness small <=
+      syntaxTermDecisionTwoPathPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness large := by
+  unfold syntaxTermDecisionTwoPathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource))
+
+theorem syntaxTermDecisionInvalidTagPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    {small large : Nat} (hresource : small <= large) :
+    syntaxTermDecisionInvalidTagPathPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness small <=
+      syntaxTermDecisionInvalidTagPathPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness large := by
+  unfold syntaxTermDecisionInvalidTagPathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _ hresource))
+
+def syntaxTermZeroSuccessSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let equalityFormula := nativeEqFormula witness.tag 0
+  let strictFormula := shortLtFormula witness.argument binderArity
+  let continueFormula :=
+    compactUnifiedParserSyntaxTermContinueFixedNumeralClosedFormula tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount 2
+  let strictContinueResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation strictFormula continueFormula
+    (syntaxTermShortLtPayloadPolynomial witness.argument binderArity)
+    (compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount 2)
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation equalityFormula
+    (strictFormula ⋏ continueFormula)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 0)
+    strictContinueResource
+
+theorem syntaxTermZeroSuccessSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hcontinue : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount 2) :
+    syntaxTermZeroSuccessSelectedPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness hcontinue <=
+      syntaxTermZeroSuccessSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold syntaxTermZeroSuccessSelectedPayloadEnvelope
+    syntaxTermZeroSuccessSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current next witness.tailBoundary
+        witness.tailCount 2 hcontinue))
+
+def syntaxTermZeroFailureSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let equalityFormula := nativeEqFormula witness.tag 0
+  let leFormula := shortLeFormula binderArity witness.argument
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let leFailureResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation leFormula failureFormula
+    (syntaxTermShortLePayloadEnvelope binderArity witness.argument)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation equalityFormula
+    (leFormula ⋏ failureFormula)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 0) leFailureResource
+
+theorem syntaxTermZeroFailureSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    syntaxTermZeroFailureSelectedPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness hfailure <=
+      syntaxTermZeroFailureSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold syntaxTermZeroFailureSelectedPayloadEnvelope
+    syntaxTermZeroFailureSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current next witness.tailBoundary
+        witness.tailCount hfailure))
+
+def syntaxTermOneSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation
+    (nativeEqFormula witness.tag 1)
+    (compactUnifiedParserSyntaxTermContinueFixedNumeralClosedFormula tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount 2)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 1)
+    (compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount 2)
+
+theorem syntaxTermOneSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hcontinue : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount 2) :
+    syntaxTermOneSelectedPayloadEnvelope tokenTable width tokenCount current
+        next witness hcontinue <=
+      syntaxTermOneSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next witness := by
+  unfold syntaxTermOneSelectedPayloadEnvelope
+    syntaxTermOneSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next witness.tailBoundary
+      witness.tailCount 2 hcontinue)
+
+def syntaxTermTwoShortSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let equalityFormula := nativeEqFormula witness.tag 2
+  let shortFormula := syntaxTermTwoShortFormula tokenTable width tokenCount
+    current next witness
+  let functionFormula := syntaxTermTwoFunctionFormula tokenTable width
+    tokenCount current next binderArity witness
+  let leFormula := shortNativeLeFormula current.tokensCount 2
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let shortResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation leFormula failureFormula
+    (syntaxTermShortNativeLePayloadEnvelope current.tokensCount 2)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  let choiceResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    termZeroValuation shortFormula functionFormula shortResource
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation equalityFormula
+    (shortFormula ⋎ functionFormula)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 2) choiceResource
+
+theorem syntaxTermTwoShortSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    syntaxTermTwoShortSelectedPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness hfailure <=
+      syntaxTermTwoShortSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold syntaxTermTwoShortSelectedPayloadEnvelope
+    syntaxTermTwoShortSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next witness.tailBoundary
+          witness.tailCount hfailure)))
+
+def syntaxTermInvalidTagSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let ne0Formula := nativeNeFormula witness.tag 0
+  let ne1Formula := nativeNeFormula witness.tag 1
+  let ne2Formula := nativeNeFormula witness.tag 2
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let ne2FailureResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation ne2Formula failureFormula
+    (syntaxTermNativeNePayloadPolynomial witness.tag 2)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  let ne1TailResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation ne1Formula (ne2Formula ⋏ failureFormula)
+    (syntaxTermNativeNePayloadPolynomial witness.tag 1) ne2FailureResource
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation ne0Formula
+    (ne1Formula ⋏ ne2Formula ⋏ failureFormula)
+    (syntaxTermNativeNePayloadPolynomial witness.tag 0) ne1TailResource
+
+theorem syntaxTermInvalidTagSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    syntaxTermInvalidTagSelectedPayloadEnvelope tokenTable width tokenCount
+        current next witness hfailure <=
+      syntaxTermInvalidTagSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next witness := by
+  unfold syntaxTermInvalidTagSelectedPayloadEnvelope
+    syntaxTermInvalidTagSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next witness.tailBoundary
+          witness.tailCount hfailure)))
+
+def syntaxTermTwoValidSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let equalityFormula := nativeEqFormula witness.tag 2
+  let shortFormula := syntaxTermTwoShortFormula tokenTable width tokenCount
+    current next witness
+  let functionFormula := syntaxTermTwoFunctionFormula tokenTable width
+    tokenCount current next binderArity witness
+  let countFormula := nativeShortLeFormula 3 current.tokensCount
+  let atFunctionFormula :=
+    compactAdditiveNatListAtRowsAtValuationIndexFormula tokenTable width
+      tokenCount current.tokensBoundary current.tokensCount
+      witness.functionCode (fixedNumeralTerm 2)
+  let validFormula := compactAdditiveArithmeticFuncCodeValidClosedFormula
+    witness.argument witness.functionCode
+  let functionTransitionFormula :=
+    compactUnifiedParserSyntaxTermFunctionFixedNumeralClosedFormula tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount
+      binderArity witness.argument
+  let invalidFormula := compactAdditiveArithmeticFuncCodeInvalidClosedFormula
+    witness.argument witness.functionCode
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let validBranchFormula := validFormula ⋏ functionTransitionFormula
+  let invalidBranchFormula := invalidFormula ⋏ failureFormula
+  let validBranchResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation validFormula functionTransitionFormula
+    (compactAdditiveArithmeticFuncCodeValidPayloadEnvelope witness.argument
+      witness.functionCode)
+    (compactUnifiedParserSyntaxTermFunctionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount
+      binderArity witness.argument)
+  let validityChoiceResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    termZeroValuation validBranchFormula invalidBranchFormula
+    validBranchResource
+  let atFunctionTailResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation atFunctionFormula
+    (validBranchFormula ⋎ invalidBranchFormula)
+    (compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      witness.functionCode (fixedNumeralTerm 2))
+    validityChoiceResource
+  let functionResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation countFormula
+    (atFunctionFormula ⋏ (validBranchFormula ⋎ invalidBranchFormula))
+    (syntaxTermNativeShortLePayloadEnvelope 3 current.tokensCount)
+    atFunctionTailResource
+  let shortFunctionChoiceResource :=
+    transparentHybridDisjunctionRightPayloadEnvelope termZeroValuation
+      shortFormula functionFormula functionResource
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation equalityFormula
+    (shortFormula ⋎ functionFormula)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 2)
+    shortFunctionChoiceResource
+
+theorem syntaxTermTwoValidSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (atFunctionResource : Nat)
+    (hfunction : CompactUnifiedParserSyntaxTermFunctionRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount binderArity
+      witness.argument)
+    (hatFunctionResource : atFunctionResource <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount
+        witness.functionCode (fixedNumeralTerm 2)) :
+    syntaxTermTwoValidSelectedPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness atFunctionResource hfunction <=
+      syntaxTermTwoValidSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold syntaxTermTwoValidSelectedPayloadEnvelope
+    syntaxTermTwoValidSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          hatFunctionResource
+          (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+            (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+              (compactUnifiedParserSyntaxTermFunctionGraphPayloadEnvelope_le_publicFinite
+                tokenTable width tokenCount current next witness.tailBoundary
+                witness.tailCount binderArity witness.argument
+                hfunction))))))
+
+def syntaxTermTwoInvalidSelectedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let equalityFormula := nativeEqFormula witness.tag 2
+  let shortFormula := syntaxTermTwoShortFormula tokenTable width tokenCount
+    current next witness
+  let functionFormula := syntaxTermTwoFunctionFormula tokenTable width
+    tokenCount current next binderArity witness
+  let countFormula := nativeShortLeFormula 3 current.tokensCount
+  let atFunctionFormula :=
+    compactAdditiveNatListAtRowsAtValuationIndexFormula tokenTable width
+      tokenCount current.tokensBoundary current.tokensCount
+      witness.functionCode (fixedNumeralTerm 2)
+  let validFormula := compactAdditiveArithmeticFuncCodeValidClosedFormula
+    witness.argument witness.functionCode
+  let functionTransitionFormula :=
+    compactUnifiedParserSyntaxTermFunctionFixedNumeralClosedFormula tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount
+      binderArity witness.argument
+  let invalidFormula := compactAdditiveArithmeticFuncCodeInvalidClosedFormula
+    witness.argument witness.functionCode
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let validBranchFormula := validFormula ⋏ functionTransitionFormula
+  let invalidBranchFormula := invalidFormula ⋏ failureFormula
+  let invalidBranchResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation invalidFormula failureFormula
+    (compactAdditiveArithmeticFuncCodeInvalidPayloadEnvelope witness.argument
+      witness.functionCode)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  let validityChoiceResource :=
+    transparentHybridDisjunctionRightPayloadEnvelope termZeroValuation
+      validBranchFormula invalidBranchFormula invalidBranchResource
+  let atFunctionTailResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation atFunctionFormula
+    (validBranchFormula ⋎ invalidBranchFormula)
+    (compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      witness.functionCode (fixedNumeralTerm 2))
+    validityChoiceResource
+  let functionResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation countFormula
+    (atFunctionFormula ⋏ (validBranchFormula ⋎ invalidBranchFormula))
+    (syntaxTermNativeShortLePayloadEnvelope 3 current.tokensCount)
+    atFunctionTailResource
+  let shortFunctionChoiceResource :=
+    transparentHybridDisjunctionRightPayloadEnvelope termZeroValuation
+      shortFormula functionFormula functionResource
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation equalityFormula
+    (shortFormula ⋎ functionFormula)
+    (syntaxTermNativeEqPayloadPolynomial witness.tag 2)
+    shortFunctionChoiceResource
+
+theorem syntaxTermTwoInvalidSelectedPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (atFunctionResource : Nat)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount)
+    (hatFunctionResource : atFunctionResource <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount
+        witness.functionCode (fixedNumeralTerm 2)) :
+    syntaxTermTwoInvalidSelectedPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness atFunctionResource hfailure <=
+      syntaxTermTwoInvalidSelectedPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold syntaxTermTwoInvalidSelectedPayloadEnvelope
+    syntaxTermTwoInvalidSelectedPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          hatFunctionResource
+          (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+            (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+              (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+                tokenTable width tokenCount current next witness.tailBoundary
+                witness.tailCount hfailure))))))
+
+def compactSyntaxTermZeroSuccessDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionZeroSuccessPathPayloadEnvelope tokenTable width tokenCount
+    current next binderArity witness
+    (syntaxTermZeroSuccessSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+
+theorem
+    compactSyntaxTermZeroSuccessDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hcontinue : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount 2) :
+    compactSyntaxTermZeroSuccessDecisionPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hcontinue <=
+      compactSyntaxTermZeroSuccessDecisionPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next binderArity witness := by
+  unfold compactSyntaxTermZeroSuccessDecisionPayloadEnvelope
+    compactSyntaxTermZeroSuccessDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionZeroSuccessPathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermZeroSuccessSelectedPayloadEnvelope_le_publicFinite tokenTable
+      width tokenCount current next binderArity witness hcontinue)
+
+def compactSyntaxTermZeroFailureDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionZeroFailurePathPayloadEnvelope tokenTable width tokenCount
+    current next binderArity witness
+    (syntaxTermZeroFailureSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+
+theorem
+    compactSyntaxTermZeroFailureDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    compactSyntaxTermZeroFailureDecisionPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hfailure <=
+      compactSyntaxTermZeroFailureDecisionPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next binderArity witness := by
+  unfold compactSyntaxTermZeroFailureDecisionPayloadEnvelope
+    compactSyntaxTermZeroFailureDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionZeroFailurePathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermZeroFailureSelectedPayloadEnvelope_le_publicFinite tokenTable
+      width tokenCount current next binderArity witness hfailure)
+
+def compactSyntaxTermOneDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionOnePathPayloadEnvelope tokenTable width tokenCount current
+    next binderArity witness
+    (syntaxTermOneSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next witness)
+
+theorem compactSyntaxTermOneDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hcontinue : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount 2) :
+    compactSyntaxTermOneDecisionPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness hcontinue <=
+      compactSyntaxTermOneDecisionPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold compactSyntaxTermOneDecisionPayloadEnvelope
+    compactSyntaxTermOneDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionOnePathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermOneSelectedPayloadEnvelope_le_publicFinite tokenTable width
+      tokenCount current next witness hcontinue)
+
+def compactSyntaxTermTwoShortDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionTwoPathPayloadEnvelope tokenTable width tokenCount current
+    next binderArity witness
+    (syntaxTermTwoShortSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+
+theorem compactSyntaxTermTwoShortDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    compactSyntaxTermTwoShortDecisionPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hfailure <=
+      compactSyntaxTermTwoShortDecisionPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  unfold compactSyntaxTermTwoShortDecisionPayloadEnvelope
+    compactSyntaxTermTwoShortDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionTwoPathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermTwoShortSelectedPayloadEnvelope_le_publicFinite tokenTable width
+      tokenCount current next binderArity witness hfailure)
+
+def compactSyntaxTermTwoValidDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionTwoPathPayloadEnvelope tokenTable width tokenCount current
+    next binderArity witness
+    (syntaxTermTwoValidSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+
+theorem compactSyntaxTermTwoValidDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hatFunction : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      current.tokensBoundary current.tokensCount 2 witness.functionCode)
+    (hfunction : CompactUnifiedParserSyntaxTermFunctionRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount binderArity
+      witness.argument) :
+    compactSyntaxTermTwoValidDecisionPayloadEnvelope tokenTable width tokenCount
+        current next binderArity witness hatFunction hfunction <=
+      compactSyntaxTermTwoValidDecisionPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  let atFunctionResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope tokenTable
+      width tokenCount current.tokensBoundary current.tokensCount 2
+      witness.functionCode (fixedNumeralTerm 2)
+      (natListAtFixedNumeralTerm_value 2) hatFunction
+  have hatFunctionResource : atFunctionResource <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount
+        witness.functionCode (fixedNumeralTerm 2) := by
+    exact
+      compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount 2
+        witness.functionCode (fixedNumeralTerm 2)
+        (natListAtFixedNumeralTerm_value 2) hatFunction
+  unfold compactSyntaxTermTwoValidDecisionPayloadEnvelope
+    compactSyntaxTermTwoValidDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionTwoPathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermTwoValidSelectedPayloadEnvelope_le_publicFinite tokenTable width
+      tokenCount current next binderArity witness atFunctionResource hfunction
+      hatFunctionResource)
+
+def compactSyntaxTermTwoInvalidDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionTwoPathPayloadEnvelope tokenTable width tokenCount current
+    next binderArity witness
+    (syntaxTermTwoInvalidSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+
+theorem compactSyntaxTermTwoInvalidDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hatFunction : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      current.tokensBoundary current.tokensCount 2 witness.functionCode)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    compactSyntaxTermTwoInvalidDecisionPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hatFunction hfailure <=
+      compactSyntaxTermTwoInvalidDecisionPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  let atFunctionResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope tokenTable
+      width tokenCount current.tokensBoundary current.tokensCount 2
+      witness.functionCode (fixedNumeralTerm 2)
+      (natListAtFixedNumeralTerm_value 2) hatFunction
+  have hatFunctionResource : atFunctionResource <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount
+        witness.functionCode (fixedNumeralTerm 2) := by
+    exact
+      compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount 2
+        witness.functionCode (fixedNumeralTerm 2)
+        (natListAtFixedNumeralTerm_value 2) hatFunction
+  unfold compactSyntaxTermTwoInvalidDecisionPayloadEnvelope
+    compactSyntaxTermTwoInvalidDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionTwoPathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermTwoInvalidSelectedPayloadEnvelope_le_publicFinite tokenTable
+      width tokenCount current next binderArity witness atFunctionResource
+      hfailure hatFunctionResource)
+
+def compactSyntaxTermInvalidTagDecisionPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  syntaxTermDecisionInvalidTagPathPayloadEnvelope tokenTable width tokenCount
+    current next binderArity witness
+    (syntaxTermInvalidTagSelectedPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next witness)
+
+theorem compactSyntaxTermInvalidTagDecisionPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    compactSyntaxTermInvalidTagDecisionPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hfailure <=
+      compactSyntaxTermInvalidTagDecisionPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  unfold compactSyntaxTermInvalidTagDecisionPayloadEnvelope
+    compactSyntaxTermInvalidTagDecisionPublicFinitePayloadEnvelope
+  exact syntaxTermDecisionInvalidTagPathPayloadEnvelope_mono tokenTable width
+    tokenCount current next binderArity witness
+    (syntaxTermInvalidTagSelectedPayloadEnvelope_le_publicFinite tokenTable
+      width tokenCount current next witness hfailure)
+
+def syntaxTermNatListAtFixedIndexPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count index value : Nat) : Nat :=
+  compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+    tokenTable width tokenCount boundaryTable count value
+    (fixedNumeralTerm index)
+
+theorem
+    syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    syntaxTermNatListAtFixedIndexGraphPayloadEnvelope tokenTable width
+        tokenCount boundaryTable count index value hrows <=
+      syntaxTermNatListAtFixedIndexPublicFinitePayloadEnvelope tokenTable width
+        tokenCount boundaryTable count index value := by
+  unfold syntaxTermNatListAtFixedIndexGraphPayloadEnvelope
+    syntaxTermNatListAtFixedIndexPublicFinitePayloadEnvelope
+  exact
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count index value
+      (fixedNumeralTerm index) (natListAtFixedNumeralTerm_value index) hrows
+
+def compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let countResource :=
+    syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount
+  let tagResource := syntaxTermNatListAtFixedIndexPublicFinitePayloadEnvelope
+    tokenTable width tokenCount current.tokensBoundary current.tokensCount 0
+    witness.tag
+  let argumentResource :=
+    syntaxTermNatListAtFixedIndexPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current.tokensBoundary current.tokensCount 1 witness.argument
+  let shortBranch := syntaxTermShortBranchAssemblyPayloadEnvelope tokenTable
+    width tokenCount current next binderArity witness
+    (syntaxTermShortNativeLePayloadEnvelope current.tokensCount 1)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  let zeroSuccessBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope
+    tokenTable width tokenCount current next binderArity witness countResource
+    tagResource argumentResource
+    (compactSyntaxTermZeroSuccessDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  let zeroFailureBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope
+    tokenTable width tokenCount current next binderArity witness countResource
+    tagResource argumentResource
+    (compactSyntaxTermZeroFailureDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  let oneBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope tokenTable
+    width tokenCount current next binderArity witness countResource tagResource
+    argumentResource
+    (compactSyntaxTermOneDecisionPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current next binderArity witness)
+  let twoShortBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope tokenTable
+    width tokenCount current next binderArity witness countResource tagResource
+    argumentResource
+    (compactSyntaxTermTwoShortDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  let twoValidBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope tokenTable
+    width tokenCount current next binderArity witness countResource tagResource
+    argumentResource
+    (compactSyntaxTermTwoValidDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  let twoInvalidBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope
+    tokenTable width tokenCount current next binderArity witness countResource
+    tagResource argumentResource
+    (compactSyntaxTermTwoInvalidDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  let invalidTagBranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope
+    tokenTable width tokenCount current next binderArity witness countResource
+    tagResource argumentResource
+    (compactSyntaxTermInvalidTagDecisionPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness)
+  shortBranch + zeroSuccessBranch + zeroFailureBranch + oneBranch +
+    twoShortBranch + twoValidBranch + twoInvalidBranch + invalidTagBranch
+
+theorem
+    compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (data : CompactSyntaxTermCheckedBranchData tokenTable width tokenCount
+      current next binderArity witness) :
+    compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData tokenTable width
+        tokenCount current next binderArity witness data <=
+      compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  cases data with
+  | short hcount hfailure =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermShortBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermShortNativeLePayloadEnvelope current.tokensCount 1 <=
+          syntaxTermShortNativeLePayloadEnvelope current.tokensCount 1 from
+          le_rfl)
+        (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next witness.tailBoundary
+          witness.tailCount hfailure)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | zeroSuccess hcount hatTag hatArgument htag hargument hcontinue =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermZeroSuccessDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness
+          hcontinue)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | zeroFailure hcount hatTag hatArgument htag hargument hfailure =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermZeroFailureDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness hfailure)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | one hcount hatTag hatArgument htag hcontinue =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermOneDecisionPayloadEnvelope_le_publicFinite tokenTable
+          width tokenCount current next binderArity witness hcontinue)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | twoShort hcount hatTag hatArgument htag htooShort hfailure =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermTwoShortDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness hfailure)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | twoValid hcount hatTag hatArgument htag hthree hatFunction hvalid
+      hfunction =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermTwoValidDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness
+          hatFunction hfunction)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | twoInvalid hcount hatTag hatArgument htag hthree hatFunction hinvalid
+      hfailure =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermTwoInvalidDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness
+          hatFunction hfailure)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | invalidTag hcount hatTag hatArgument hne0 hne1 hne2 hfailure =>
+      unfold compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData
+      have hbranch := syntaxTermEnoughBranchAssemblyPayloadEnvelope_mono
+        tokenTable width tokenCount current next binderArity witness
+        (show syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount <=
+          syntaxTermNativeShortLePayloadEnvelope 2 current.tokensCount from
+          le_rfl)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 0 witness.tag hatTag)
+        (syntaxTermNatListAtFixedIndexGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.tokensBoundary
+          current.tokensCount 1 witness.argument hatArgument)
+        (compactSyntaxTermInvalidTagDecisionPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current next binderArity witness hfailure)
+      refine hbranch.trans ?_
+      unfold
+        compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+
+theorem
+    compactUnifiedParserSyntaxTermBranchExplicitHybridCertificateFromData_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (data : CompactSyntaxTermCheckedBranchData tokenTable width tokenCount
+      current next binderArity witness) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxTermBranchExplicitHybridCertificateFromData
+          tokenTable width tokenCount current next binderArity witness data) <=
+      compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity witness := by
+  exact
+    (compactUnifiedParserSyntaxTermBranchExplicitHybridCertificateFromData_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next binderArity witness data).trans
+    (compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData_le_publicFinite
+      tokenTable width tokenCount current next binderArity witness data)
+
+def compactUnifiedParserSyntaxTermExplicitPartsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  let runningFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount current.tasksFinish current.finish
+  let unconsFormula :=
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsFormula
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let branchFormula := compactUnifiedParserSyntaxTermBranchExplicitFormula
+    tokenTable width tokenCount current next binderArity witness
+  let unconsResource :=
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize 0
+      binderArity 0 (fixedNumeralTerm 0)
+      (shortBinaryNumeralTerm binderArity) (fixedNumeralTerm 0)
+  let branchResource :=
+    compactUnifiedParserSyntaxTermBranchPublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next binderArity witness
+  let tailResource := transparentHybridConjunctionPayloadEnvelope
+    termZeroValuation unconsFormula branchFormula unconsResource branchResource
+  transparentHybridConjunctionPayloadEnvelope termZeroValuation runningFormula
+    (unconsFormula ⋏ branchFormula)
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount current.tasksFinish current.finish)
+    tailResource
+
+theorem
+    compactUnifiedParserSyntaxTermExplicitPartsPayloadEnvelopeFromData_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxTermRows tokenTable width tokenCount
+      current next binderArity witness)
+    (data : CompactSyntaxTermCheckedBranchData tokenTable width tokenCount
+      current next binderArity witness) :
+    compactUnifiedParserSyntaxTermExplicitPartsPayloadEnvelopeFromData tokenTable
+        width tokenCount current next binderArity witness hgraph data <=
+      compactUnifiedParserSyntaxTermExplicitPartsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next binderArity witness := by
+  unfold compactUnifiedParserSyntaxTermExplicitPartsPayloadEnvelopeFromData
+    compactUnifiedParserSyntaxTermExplicitPartsPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tasksBoundary current.tasksCount
+        witness.tailBoundary witness.tailCount witness.tailBoundarySize 0
+        binderArity 0 (fixedNumeralTerm 0)
+        (shortBinaryNumeralTerm binderArity) (fixedNumeralTerm 0) hgraph.2.1)
+      (compactUnifiedParserSyntaxTermBranchPayloadEnvelopeFromData_le_publicFinite
+        tokenTable width tokenCount current next binderArity witness data))
+
+def compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates) : Nat :=
+  compactUnifiedParserSyntaxTermExplicitPartsPublicFinitePayloadEnvelope
+    tokenTable width tokenCount current next binderArity witness
+
+theorem compactUnifiedParserSyntaxTermGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxTermRows tokenTable width tokenCount
+      current next binderArity witness) :
+    compactUnifiedParserSyntaxTermGraphPayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness hgraph <=
+      compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  unfold compactUnifiedParserSyntaxTermGraphPayloadEnvelope
+    compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope
+  exact
+    compactUnifiedParserSyntaxTermExplicitPartsPayloadEnvelopeFromData_le_publicFinite
+      tokenTable width tokenCount current next binderArity witness hgraph
+      (compactSyntaxTermCheckedBranchDataOfGraph tokenTable width tokenCount
+        current next binderArity witness hgraph)
+
+theorem
+    compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity : Nat)
+    (witness : CompactSyntaxTermTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxTermRows tokenTable width tokenCount
+      current next binderArity witness) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next binderArity witness hgraph) <=
+      compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next binderArity witness := by
+  exact
+    (compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next binderArity witness hgraph).trans
+    (compactUnifiedParserSyntaxTermGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next binderArity witness hgraph)
+
 #print axioms nativeEqCertificate_structuralPayloadBound_le_public
 #print axioms nativeNeCertificate_structuralPayloadBound_le_public
 #print axioms shortLtCertificate_structuralPayloadBound_le_public
@@ -2783,5 +3870,7 @@ theorem
   compactUnifiedParserSyntaxTermExplicitParts_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxTermPublicBounds

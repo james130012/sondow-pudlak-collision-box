@@ -234,6 +234,195 @@ noncomputable def
         (headFormula ⋏ tailSliceFormula))))))
     positiveResource prefixTailResource
 
+noncomputable def
+    compactAdditiveNatListAppendMappedSourcePrefixPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount
+      leftStart leftFinish leftCount
+      sourceStart sourceFinish sourceCount prefixCount
+      targetStart targetFinish targetBoundary targetCount
+      mappedHead : Nat) : Nat :=
+  let positiveFormula : ValuationFormula :=
+    “!!(‘1’ : ValuationTerm) ≤
+      !!(shortBinaryNumeralTerm prefixCount)”
+  let prefixFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm prefixCount) ≤
+      !!(shortBinaryNumeralTerm sourceCount)”
+  let sourceWithinFormula : ValuationFormula :=
+    “!!(addTerm (successorTerm (shortBinaryNumeralTerm sourceStart))
+          (shortBinaryNumeralTerm prefixCount)) ≤
+      !!(shortBinaryNumeralTerm sourceFinish)”
+  let targetFinishFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm targetFinish) =
+      !!(addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm targetCount))”
+  let countFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm targetCount) =
+      !!(addTerm (shortBinaryNumeralTerm leftCount)
+        (shortBinaryNumeralTerm prefixCount))”
+  let leftSliceFormula := compactFixedWidthTokenSlicesEqAtValuationFormula
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount)
+    (successorTerm (shortBinaryNumeralTerm leftStart))
+    (shortBinaryNumeralTerm leftFinish)
+    (successorTerm (shortBinaryNumeralTerm targetStart))
+    (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+      (shortBinaryNumeralTerm leftCount))
+  let headFormula := compactAdditiveNatListAtRowsAtValuationIndexFormula
+    tokenTable width tokenCount targetBoundary targetCount mappedHead
+    (shortBinaryNumeralTerm leftCount)
+  let tailSliceFormula := compactFixedWidthTokenSlicesEqAtValuationFormula
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount)
+    (addTerm (shortBinaryNumeralTerm sourceStart) twoTerm)
+    (addTerm (successorTerm (shortBinaryNumeralTerm sourceStart))
+      (shortBinaryNumeralTerm prefixCount))
+    (addTerm (addTerm (shortBinaryNumeralTerm targetStart) twoTerm)
+      (shortBinaryNumeralTerm leftCount))
+    (shortBinaryNumeralTerm targetFinish)
+  let positiveResource := mappedSourcePrefixValuationLeStructuralEnvelope
+    (‘1’ : ValuationTerm) (shortBinaryNumeralTerm prefixCount)
+  let prefixResource := mappedSourcePrefixValuationLeStructuralEnvelope
+    (shortBinaryNumeralTerm prefixCount)
+    (shortBinaryNumeralTerm sourceCount)
+  let sourceWithinResource := mappedSourcePrefixValuationLeStructuralEnvelope
+    (addTerm (successorTerm (shortBinaryNumeralTerm sourceStart))
+      (shortBinaryNumeralTerm prefixCount))
+    (shortBinaryNumeralTerm sourceFinish)
+  let targetFinishResource := mappedSourcePrefixValuationEqStructuralEnvelope
+    (shortBinaryNumeralTerm targetFinish)
+    (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+      (shortBinaryNumeralTerm targetCount))
+  let countResource := mappedSourcePrefixValuationEqStructuralEnvelope
+    (shortBinaryNumeralTerm targetCount)
+    (addTerm (shortBinaryNumeralTerm leftCount)
+      (shortBinaryNumeralTerm prefixCount))
+  let leftSliceResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope
+      tokenCount mappedSourceZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (successorTerm (shortBinaryNumeralTerm leftStart))
+      (shortBinaryNumeralTerm leftFinish)
+      (successorTerm (shortBinaryNumeralTerm targetStart))
+      (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm leftCount))
+  let headResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+      tokenTable width tokenCount targetBoundary targetCount mappedHead
+      (shortBinaryNumeralTerm leftCount)
+  let tailSliceResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope
+      tokenCount mappedSourceZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (addTerm (shortBinaryNumeralTerm sourceStart) twoTerm)
+      (addTerm (successorTerm (shortBinaryNumeralTerm sourceStart))
+        (shortBinaryNumeralTerm prefixCount))
+      (addTerm (addTerm (shortBinaryNumeralTerm targetStart) twoTerm)
+        (shortBinaryNumeralTerm leftCount))
+      (shortBinaryNumeralTerm targetFinish)
+  let headTailResource := transparentHybridConjunctionPayloadEnvelope
+    FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
+    headFormula tailSliceFormula headResource tailSliceResource
+  let leftTailResource := transparentHybridConjunctionPayloadEnvelope
+    mappedSourceZeroValuation leftSliceFormula
+    (headFormula ⋏ tailSliceFormula) leftSliceResource headTailResource
+  let countTailResource := transparentHybridConjunctionPayloadEnvelope
+    mappedSourceZeroValuation countFormula
+    (leftSliceFormula ⋏ (headFormula ⋏ tailSliceFormula))
+    countResource leftTailResource
+  let targetTailResource := transparentHybridConjunctionPayloadEnvelope
+    mappedSourceZeroValuation targetFinishFormula
+    (countFormula ⋏ (leftSliceFormula ⋏ (headFormula ⋏ tailSliceFormula)))
+    targetFinishResource countTailResource
+  let sourceTailResource := transparentHybridConjunctionPayloadEnvelope
+    mappedSourceZeroValuation sourceWithinFormula
+    (targetFinishFormula ⋏
+      (countFormula ⋏ (leftSliceFormula ⋏
+        (headFormula ⋏ tailSliceFormula))))
+    sourceWithinResource targetTailResource
+  let prefixTailResource := transparentHybridConjunctionPayloadEnvelope
+    mappedSourceZeroValuation prefixFormula
+    (sourceWithinFormula ⋏ (targetFinishFormula ⋏
+      (countFormula ⋏ (leftSliceFormula ⋏
+        (headFormula ⋏ tailSliceFormula)))))
+    prefixResource sourceTailResource
+  transparentHybridConjunctionPayloadEnvelope mappedSourceZeroValuation
+    positiveFormula
+    (prefixFormula ⋏ (sourceWithinFormula ⋏ (targetFinishFormula ⋏
+      (countFormula ⋏ (leftSliceFormula ⋏
+        (headFormula ⋏ tailSliceFormula))))))
+    positiveResource prefixTailResource
+
+theorem
+    compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount
+      leftStart leftFinish leftCount
+      sourceStart sourceFinish sourceCount prefixCount
+      targetStart targetFinish targetBoundary targetCount
+      mappedHead : Nat)
+    (hgraph : CompactAdditiveNatListAppendMappedSourcePrefix
+      tokenTable width tokenCount leftStart leftFinish leftCount
+      sourceStart sourceFinish sourceCount prefixCount targetStart
+      targetFinish targetBoundary targetCount mappedHead) :
+    compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope
+        tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
+        sourceFinish sourceCount prefixCount targetStart targetFinish
+        targetBoundary targetCount mappedHead hgraph <=
+      compactAdditiveNatListAppendMappedSourcePrefixPublicFinitePayloadEnvelope
+        tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
+        sourceFinish sourceCount prefixCount targetStart targetFinish
+        targetBoundary targetCount mappedHead := by
+  let leftSliceCount := Classical.choose hgraph.2.2.2.2.2.1
+  let tailSliceCount := Classical.choose hgraph.2.2.2.2.2.2.2
+  let headIndexValue : termValue
+      FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
+      (shortBinaryNumeralTerm leftCount) = leftCount := by
+    simp [termValue_shortBinaryNumeralTerm]
+  have hleftCount : leftSliceCount <= tokenCount := by
+    dsimp only [leftSliceCount]
+    exact (Classical.choose_spec hgraph.2.2.2.2.2.1).1
+  have htailCount : tailSliceCount <= tokenCount := by
+    dsimp only [tailSliceCount]
+    exact (Classical.choose_spec hgraph.2.2.2.2.2.2.2).1
+  have hleftResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_publicFinite
+      tokenCount mappedSourceZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (successorTerm (shortBinaryNumeralTerm leftStart))
+      (shortBinaryNumeralTerm leftFinish)
+      (successorTerm (shortBinaryNumeralTerm targetStart))
+      (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm leftCount)) leftSliceCount hleftCount
+  have hheadResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount targetBoundary targetCount leftCount
+      mappedHead (shortBinaryNumeralTerm leftCount) headIndexValue
+      hgraph.2.2.2.2.2.2.1
+  have htailResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_publicFinite
+      tokenCount mappedSourceZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (addTerm (shortBinaryNumeralTerm sourceStart) twoTerm)
+      (addTerm (successorTerm (shortBinaryNumeralTerm sourceStart))
+        (shortBinaryNumeralTerm prefixCount))
+      (addTerm (addTerm (shortBinaryNumeralTerm targetStart) twoTerm)
+        (shortBinaryNumeralTerm leftCount))
+      (shortBinaryNumeralTerm targetFinish) tailSliceCount htailCount
+  unfold compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope
+    compactAdditiveNatListAppendMappedSourcePrefixPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+              hleftResource
+              (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+                hheadResource htailResource))))))
+
 theorem
     compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount
@@ -571,9 +760,41 @@ theorem
     compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope,
     leftSliceCount, tailSliceCount] using hdirect
 
+theorem
+    compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount
+      leftStart leftFinish leftCount
+      sourceStart sourceFinish sourceCount prefixCount
+      targetStart targetFinish targetBoundary targetCount
+      mappedHead : Nat)
+    (hgraph : CompactAdditiveNatListAppendMappedSourcePrefix
+      tokenTable width tokenCount leftStart leftFinish leftCount
+      sourceStart sourceFinish sourceCount prefixCount targetStart
+      targetFinish targetBoundary targetCount mappedHead) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount leftStart leftFinish leftCount
+          sourceStart sourceFinish sourceCount prefixCount targetStart
+          targetFinish targetBoundary targetCount mappedHead hgraph) <=
+      compactAdditiveNatListAppendMappedSourcePrefixPublicFinitePayloadEnvelope
+        tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
+        sourceFinish sourceCount prefixCount targetStart targetFinish
+        targetBoundary targetCount mappedHead := by
+  exact
+    (compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
+      sourceFinish sourceCount prefixCount targetStart targetFinish
+      targetBoundary targetCount mappedHead hgraph).trans
+    (compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
+      sourceFinish sourceCount prefixCount targetStart targetFinish
+      targetBoundary targetCount mappedHead hgraph)
+
 #print axioms valuationLeCertificate_structuralPayloadBound_le_transparent
 #print axioms valuationEqCertificate_structuralPayloadBound_le_transparent
 #print axioms
   compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixPublicBounds

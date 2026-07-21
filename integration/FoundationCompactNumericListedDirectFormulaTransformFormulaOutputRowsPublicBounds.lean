@@ -556,6 +556,19 @@ def otherModeWithTailPayloadEnvelope
     (outputRowsNativeNeStructuralEnvelope modeTerm (‘0’ : ValuationTerm))
     oneTail
 
+theorem otherModeWithTailPayloadEnvelope_mono
+    (mode : Nat) (tail : ValuationFormula)
+    {small large : Nat} (hresource : small <= large) :
+    otherModeWithTailPayloadEnvelope mode tail small <=
+      otherModeWithTailPayloadEnvelope mode tail large := by
+  unfold otherModeWithTailPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            hresource))))
+
 theorem otherModeWithTailCertificate_structuralPayloadBound_le_transparent
     (mode : Nat)
     (hzero : mode ≠ 0) (hone : mode ≠ 1) (htwo : mode ≠ 2)
@@ -805,6 +818,81 @@ def outputRowsMappedSelectedPayloadEnvelope
       (shortBinaryNumeralTerm current.parserTokensCount)
       (nativeAddTerm (shortBinaryNumeralTerm consumedCount)
         (shortBinaryNumeralTerm next.parserTokensCount))) casesResource
+
+theorem outputRowsZeroSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    outputRowsZeroSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead small <=
+      outputRowsZeroSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead large := by
+  unfold outputRowsZeroSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        hresource))
+
+theorem outputRowsRawSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    {modeSmall modeLarge sourceSmall sourceLarge : Nat}
+    (hmode : modeSmall <= modeLarge)
+    (hsource : sourceSmall <= sourceLarge) :
+    outputRowsRawSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead modeSmall sourceSmall <=
+      outputRowsRawSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead modeLarge sourceLarge := by
+  unfold outputRowsRawSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hmode
+            hsource))))
+
+theorem outputRowsSameFourSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    {modeSmall modeLarge sameSmall sameLarge : Nat}
+    (hmode : modeSmall <= modeLarge)
+    (hsame : sameSmall <= sameLarge) :
+    outputRowsSameFourSelectedPayloadEnvelope tokenTable width tokenCount
+        current next mode tag consumedCount mappedHead modeSmall sameSmall <=
+      outputRowsSameFourSelectedPayloadEnvelope tokenTable width tokenCount
+        current next mode tag consumedCount mappedHead modeLarge sameLarge := by
+  unfold outputRowsSameFourSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+          (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+            (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hmode
+              hsame)))))
+
+theorem outputRowsMappedSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    {tagSmall tagLarge rowsSmall rowsLarge : Nat}
+    (htag : tagSmall <= tagLarge)
+    (hrows : rowsSmall <= rowsLarge) :
+    outputRowsMappedSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead tagSmall rowsSmall <=
+      outputRowsMappedSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode tag consumedCount mappedHead tagLarge rowsLarge := by
+  unfold outputRowsMappedSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+          (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+            (otherModeWithTailPayloadEnvelope_mono _ _
+              (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ htag
+                hrows))))))
 
 theorem outputRowsZeroSelectedCertificate_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount : Nat)
@@ -1175,6 +1263,184 @@ noncomputable def
           current.outputCount current.start current.parserTokensFinish
           current.parserTokensCount consumedCount next.parserFinish next.finish
           next.outputBoundary next.outputCount mappedHead hrows)
+
+def compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat) : Nat :=
+  let sameResource :=
+    compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current.outputBoundary current.outputCount next.outputBoundary
+      next.outputCount
+  let sourceResource :=
+    compactAdditiveNatListAppendSourcePrefixPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.parserFinish current.finish
+      current.outputCount current.start current.parserTokensFinish
+      current.parserTokensCount consumedCount next.parserFinish next.finish
+      next.outputCount
+  let mappedTagResource :=
+    compactNegationFormulaTagPublicFinitePayloadEnvelope tag mappedHead
+  let mappedRowsResource :=
+    compactAdditiveNatListAppendMappedSourcePrefixPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.parserFinish current.finish
+      current.outputCount current.start current.parserTokensFinish
+      current.parserTokensCount consumedCount next.parserFinish next.finish
+      next.outputBoundary next.outputCount mappedHead
+  let zeroBranch := outputRowsZeroSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead sameResource
+  let rawZeroBranch := outputRowsRawSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead
+    (rawModeZeroPayloadEnvelope mode) sourceResource
+  let rawOneBranch := outputRowsRawSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead
+    (rawModeOnePayloadEnvelope mode) sourceResource
+  let rawTwoBranch := outputRowsRawSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead
+    (rawModeTwoPayloadEnvelope mode) sourceResource
+  let rawFiveBranch := outputRowsRawSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead
+    (rawModeFivePayloadEnvelope mode) sourceResource
+  let sameFourBranch := outputRowsSameFourSelectedPayloadEnvelope tokenTable
+    width tokenCount current next mode tag consumedCount mappedHead
+    (outputRowsNativeEqStructuralEnvelope (shortBinaryNumeralTerm mode)
+      (‘4’ : ValuationTerm)) sameResource
+  let mappedBranch := outputRowsMappedSelectedPayloadEnvelope tokenTable width
+    tokenCount current next mode tag consumedCount mappedHead mappedTagResource
+    mappedRowsResource
+  zeroBranch + rawZeroBranch + rawOneBranch + rawTwoBranch + rawFiveBranch +
+    sameFourBranch + mappedBranch
+
+theorem
+    compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    (data : CompactFormulaTransformFormulaOutputRowsCheckedBranchData
+      tokenTable width tokenCount current next mode tag consumedCount
+      mappedHead) :
+    compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+        tokenTable width tokenCount current next mode tag consumedCount
+        mappedHead data <=
+      compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next mode tag consumedCount
+        mappedHead := by
+  cases data with
+  | zero hcount hconsumed hsame =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsZeroSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.outputBoundary
+          current.outputCount next.outputBoundary next.outputCount hsame)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | rawZero hcount hconsumed hmode hsource =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsRawSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (show rawModeZeroPayloadEnvelope mode <=
+          rawModeZeroPayloadEnvelope mode from le_rfl)
+        (compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hsource)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | rawOne hcount hconsumed hmode hsource =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsRawSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (show rawModeOnePayloadEnvelope mode <=
+          rawModeOnePayloadEnvelope mode from le_rfl)
+        (compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hsource)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | rawTwo hcount hconsumed hmode hsource =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsRawSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (show rawModeTwoPayloadEnvelope mode <=
+          rawModeTwoPayloadEnvelope mode from le_rfl)
+        (compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hsource)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | rawFive hcount hconsumed hmode hsource =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsRawSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (show rawModeFivePayloadEnvelope mode <=
+          rawModeFivePayloadEnvelope mode from le_rfl)
+        (compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hsource)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | sameFour hcount hconsumed hmode hsame =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsSameFourSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (show outputRowsNativeEqStructuralEnvelope
+            (shortBinaryNumeralTerm mode) (‘4’ : ValuationTerm) <=
+          outputRowsNativeEqStructuralEnvelope
+            (shortBinaryNumeralTerm mode) (‘4’ : ValuationTerm) from le_rfl)
+        (compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.outputBoundary
+          current.outputCount next.outputBoundary next.outputCount hsame)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
+  | mapped hcount hconsumed hmodeZero hmodeOne hmodeTwo hmodeFour hmodeFive
+      htag hrows =>
+      unfold
+        compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData
+      have hbranch := outputRowsMappedSelectedPayloadEnvelope_mono tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead
+        (compactNegationFormulaTagGraphPayloadEnvelope_le_publicFinite tag
+          mappedHead htag)
+        (compactAdditiveNatListAppendMappedSourcePrefixGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputBoundary next.outputCount mappedHead hrows)
+      refine hbranch.trans ?_
+      unfold
+        compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+      dsimp only
+      omega
 
 theorem
     compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateFromData_structuralPayloadBound_le_transparent
@@ -1554,6 +1820,27 @@ noncomputable def compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope
       hgraph)
 
 theorem
+    compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    (hgraph : CompactFormulaTransformFormulaOutputRows
+      tokenTable width tokenCount current next mode tag consumedCount
+      mappedHead) :
+    compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope tokenTable
+        width tokenCount current next mode tag consumedCount mappedHead hgraph <=
+      compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next mode tag consumedCount
+        mappedHead := by
+  unfold compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope
+  exact
+    compactFormulaTransformFormulaOutputRowsBranchPayloadEnvelopeFromData_le_publicFinite
+      tokenTable width tokenCount current next mode tag consumedCount mappedHead
+      (compactFormulaTransformFormulaOutputRowsCheckedBranchDataOfGraph
+        tokenTable width tokenCount current next mode tag consumedCount
+        mappedHead hgraph)
+
+theorem
     compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
@@ -1586,6 +1873,29 @@ theorem
       data
   exact hbranch
 
+theorem
+    compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead : Nat)
+    (hgraph : CompactFormulaTransformFormulaOutputRows
+      tokenTable width tokenCount current next mode tag consumedCount
+      mappedHead) :
+    hybridFormulaStructuralPayloadBound
+        (compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next mode tag consumedCount
+          mappedHead hgraph) <=
+      compactFormulaTransformFormulaOutputRowsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next mode tag consumedCount
+        mappedHead := by
+  exact
+    (compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount current next mode tag consumedCount mappedHead
+      hgraph).trans
+    (compactFormulaTransformFormulaOutputRowsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next mode tag consumedCount mappedHead
+      hgraph)
+
 #print axioms nativeEqCertificate_structuralPayloadBound_le_transparent
 #print axioms nativeNeCertificate_structuralPayloadBound_le_transparent
 #print axioms nativeLeCertificate_structuralPayloadBound_le_transparent
@@ -1594,5 +1904,7 @@ theorem
   compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateFromData_structuralPayloadBound_le_transparent
 #print axioms
   compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsPublicBounds

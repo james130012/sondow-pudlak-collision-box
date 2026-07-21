@@ -550,6 +550,139 @@ noncomputable def compactNegationFormulaTagBranchPayloadEnvelopeFromData
       transparentHybridDisjunctionRightPayloadEnvelope valuation
         smallFormula largeFormula largeResource
 
+def compactNegationFormulaTagEvenBranchPayloadEnvelope
+    (tag mapped pair : Nat) : Nat :=
+  let valuation :=
+    FoundationCompactNumericListedDirectNegationFormulaTagExplicitHybridCertificate.zeroValuation
+  let tagLtFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm tag) < 8”
+  let evenFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagEvenWitnessBody tag mapped
+  let oddFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagOddWitnessBody tag mapped
+  let witnessFormula := evenFormula ⋎ oddFormula
+  let smallFormula := tagLtFormula ⋏ witnessFormula
+  let eightLeFormula : ValuationFormula :=
+    “8 ≤ !!(shortBinaryNumeralTerm tag)”
+  let mappedFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm mapped) = !!(shortBinaryNumeralTerm tag)”
+  let largeFormula := eightLeFormula ⋏ mappedFormula
+  let evenResource := hybridExistsWitnessStructuralPayloadEnvelope
+    valuation (compactNegationFormulaTagEvenWitnessBody tag mapped) pair
+    (compactNegationFormulaTagEvenPostWitnessPayloadEnvelope tag mapped pair)
+  let witnessResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    valuation evenFormula oddFormula evenResource
+  let smallResource := transparentHybridConjunctionPayloadEnvelope
+    valuation tagLtFormula witnessFormula
+    (tagLtEightStructuralPayloadPolynomial tag) witnessResource
+  transparentHybridDisjunctionLeftPayloadEnvelope valuation
+    smallFormula largeFormula smallResource
+
+def compactNegationFormulaTagOddBranchPayloadEnvelope
+    (tag mapped pair : Nat) : Nat :=
+  let valuation :=
+    FoundationCompactNumericListedDirectNegationFormulaTagExplicitHybridCertificate.zeroValuation
+  let tagLtFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm tag) < 8”
+  let evenFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagEvenWitnessBody tag mapped
+  let oddFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagOddWitnessBody tag mapped
+  let witnessFormula := evenFormula ⋎ oddFormula
+  let smallFormula := tagLtFormula ⋏ witnessFormula
+  let eightLeFormula : ValuationFormula :=
+    “8 ≤ !!(shortBinaryNumeralTerm tag)”
+  let mappedFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm mapped) = !!(shortBinaryNumeralTerm tag)”
+  let largeFormula := eightLeFormula ⋏ mappedFormula
+  let oddResource := hybridExistsWitnessStructuralPayloadEnvelope
+    valuation (compactNegationFormulaTagOddWitnessBody tag mapped) pair
+    (compactNegationFormulaTagOddPostWitnessPayloadEnvelope tag mapped pair)
+  let witnessResource := transparentHybridDisjunctionRightPayloadEnvelope
+    valuation evenFormula oddFormula oddResource
+  let smallResource := transparentHybridConjunctionPayloadEnvelope
+    valuation tagLtFormula witnessFormula
+    (tagLtEightStructuralPayloadPolynomial tag) witnessResource
+  transparentHybridDisjunctionLeftPayloadEnvelope valuation
+    smallFormula largeFormula smallResource
+
+def compactNegationFormulaTagLargeBranchPayloadEnvelope
+    (tag mapped : Nat) : Nat :=
+  let valuation :=
+    FoundationCompactNumericListedDirectNegationFormulaTagExplicitHybridCertificate.zeroValuation
+  let tagLtFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm tag) < 8”
+  let evenFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagEvenWitnessBody tag mapped
+  let oddFormula : ValuationFormula :=
+    ∃⁰ compactNegationFormulaTagOddWitnessBody tag mapped
+  let witnessFormula := evenFormula ⋎ oddFormula
+  let smallFormula := tagLtFormula ⋏ witnessFormula
+  let eightLeFormula : ValuationFormula :=
+    “8 ≤ !!(shortBinaryNumeralTerm tag)”
+  let mappedFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm mapped) = !!(shortBinaryNumeralTerm tag)”
+  let largeFormula := eightLeFormula ⋏ mappedFormula
+  let largeResource := transparentHybridConjunctionPayloadEnvelope
+    valuation eightLeFormula mappedFormula
+    (eightLeTagStructuralPayloadEnvelope tag)
+    (mappedTagEqualityStructuralPayloadPolynomial tag mapped)
+  transparentHybridDisjunctionRightPayloadEnvelope valuation
+    smallFormula largeFormula largeResource
+
+def compactNegationFormulaTagPublicFinitePayloadEnvelope
+    (tag mapped : Nat) : Nat :=
+  (Finset.range 4).sum
+      (compactNegationFormulaTagEvenBranchPayloadEnvelope tag mapped) +
+    (Finset.range 4).sum
+      (compactNegationFormulaTagOddBranchPayloadEnvelope tag mapped) +
+    compactNegationFormulaTagLargeBranchPayloadEnvelope tag mapped
+
+theorem
+    compactNegationFormulaTagBranchPayloadEnvelopeFromData_le_publicFinite
+    (tag mapped : Nat)
+    (data : CompactNegationFormulaTagCheckedBranchData tag mapped) :
+    compactNegationFormulaTagBranchPayloadEnvelopeFromData tag mapped data <=
+      compactNegationFormulaTagPublicFinitePayloadEnvelope tag mapped := by
+  cases data with
+  | even hsmall pair hpair htag hmapped =>
+      unfold compactNegationFormulaTagBranchPayloadEnvelopeFromData
+      change compactNegationFormulaTagEvenBranchPayloadEnvelope tag mapped
+          pair <= _
+      have heven :
+          compactNegationFormulaTagEvenBranchPayloadEnvelope tag mapped pair <=
+            (Finset.range 4).sum
+              (compactNegationFormulaTagEvenBranchPayloadEnvelope tag
+                mapped) := by
+        exact Finset.single_le_sum
+          (fun candidate _ => Nat.zero_le
+            (compactNegationFormulaTagEvenBranchPayloadEnvelope tag mapped
+              candidate))
+          (Finset.mem_range.mpr hpair)
+      unfold compactNegationFormulaTagPublicFinitePayloadEnvelope
+      omega
+  | odd hsmall pair hpair htag hmapped =>
+      unfold compactNegationFormulaTagBranchPayloadEnvelopeFromData
+      change compactNegationFormulaTagOddBranchPayloadEnvelope tag mapped
+          pair <= _
+      have hodd :
+          compactNegationFormulaTagOddBranchPayloadEnvelope tag mapped pair <=
+            (Finset.range 4).sum
+              (compactNegationFormulaTagOddBranchPayloadEnvelope tag
+                mapped) := by
+        exact Finset.single_le_sum
+          (fun candidate _ => Nat.zero_le
+            (compactNegationFormulaTagOddBranchPayloadEnvelope tag mapped
+              candidate))
+          (Finset.mem_range.mpr hpair)
+      unfold compactNegationFormulaTagPublicFinitePayloadEnvelope
+      omega
+  | large hlarge hmapped =>
+      unfold compactNegationFormulaTagBranchPayloadEnvelopeFromData
+      change compactNegationFormulaTagLargeBranchPayloadEnvelope tag mapped <= _
+      unfold compactNegationFormulaTagPublicFinitePayloadEnvelope
+      omega
+
 theorem
     compactNegationFormulaTagExplicitHybridCertificateFromData_structuralPayloadBound_le_public
     (tag mapped : Nat)
@@ -670,6 +803,17 @@ noncomputable def compactNegationFormulaTagGraphPayloadEnvelope
   compactNegationFormulaTagBranchPayloadEnvelopeFromData tag mapped
     (compactNegationFormulaTagCheckedBranchDataOfGraph tag mapped hgraph)
 
+theorem compactNegationFormulaTagGraphPayloadEnvelope_le_publicFinite
+    (tag mapped : Nat)
+    (hgraph : CompactNegationFormulaTagGraph tag mapped) :
+    compactNegationFormulaTagGraphPayloadEnvelope tag mapped hgraph <=
+      compactNegationFormulaTagPublicFinitePayloadEnvelope tag mapped := by
+  unfold compactNegationFormulaTagGraphPayloadEnvelope
+  exact
+    compactNegationFormulaTagBranchPayloadEnvelopeFromData_le_publicFinite
+      tag mapped
+      (compactNegationFormulaTagCheckedBranchDataOfGraph tag mapped hgraph)
+
 theorem
     compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
     (tag mapped : Nat)
@@ -687,6 +831,20 @@ theorem
     compactNegationFormulaTagGraphPayloadEnvelope,
     hybridFormulaStructuralPayloadBound, data] using hbound
 
+theorem
+    compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tag mapped : Nat)
+    (hgraph : CompactNegationFormulaTagGraph tag mapped) :
+    hybridFormulaStructuralPayloadBound
+        (compactNegationFormulaTagExplicitHybridCertificateOfGraph
+          tag mapped hgraph) <=
+      compactNegationFormulaTagPublicFinitePayloadEnvelope tag mapped := by
+  exact
+    (compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tag mapped hgraph).trans
+    (compactNegationFormulaTagGraphPayloadEnvelope_le_publicFinite
+      tag mapped hgraph)
+
 #print axioms pairLtFourCertificate_structuralPayloadBound_le_public
 #print axioms tagLtEightCertificate_structuralPayloadBound_le_public
 #print axioms evenTagEqualityCertificate_structuralPayloadBound_le_public
@@ -703,5 +861,7 @@ theorem
   compactNegationFormulaTagExplicitHybridCertificateFromData_structuralPayloadBound_le_public
 #print axioms
   compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectNegationFormulaTagPublicBounds

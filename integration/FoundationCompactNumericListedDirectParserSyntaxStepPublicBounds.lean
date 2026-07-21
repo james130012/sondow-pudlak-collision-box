@@ -313,13 +313,13 @@ noncomputable def compactUnifiedParserSyntaxStepBranchPayloadEnvelopeFromData
   | term hgraph =>
       exact sixWayDisjunctionPath3PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserSyntaxTermGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.slot0 witness.term hgraph)
+        (compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current next witness.slot0 witness.term)
   | formula hgraph =>
       exact sixWayDisjunctionPath4PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserSyntaxFormulaGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.slot0 witness.formula hgraph)
+        (compactUnifiedParserSyntaxFormulaPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current next witness.slot0 witness.formula)
   | invalid hgraph =>
       exact sixWayDisjunctionPath5PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
@@ -403,7 +403,7 @@ theorem
         invalidFormula] using hpath
   | term hgraph =>
       have hselected :=
-        compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.slot0 witness.term
           hgraph
       have hpath := sixWayDisjunctionPath3PayloadBound_le
@@ -421,7 +421,7 @@ theorem
         invalidFormula] using hpath
   | formula hgraph =>
       have hselected :=
-        compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.slot0 witness.formula
           hgraph
       have hpath := sixWayDisjunctionPath4PayloadBound_le
