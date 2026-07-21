@@ -34,14 +34,22 @@ open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformOutputPrimitives
 open FoundationCompactNumericListedDirectFormulaTransformStepFormula
 open FoundationCompactNumericListedDirectParserDoneExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserDoneFormula
 open FoundationCompactNumericListedDirectParserEmptyExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserEmptyFormula
 open FoundationCompactNumericListedDirectParserSyntaxRepeatExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserSyntaxRepeatRows
 open FoundationCompactNumericListedDirectParserSyntaxTermExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserSyntaxTermRows
 open FoundationCompactNumericListedDirectParserSyntaxFormulaExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserSyntaxFormulaRows
 open FoundationCompactNumericListedDirectParserSyntaxInvalidExplicitHybridCertificate
+open FoundationCompactNumericListedDirectParserSyntaxInvalidRows
 open FoundationCompactNumericListedDirectNatListSameRowsExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformTermOutputRowsExplicitHybridCertificate
+open FoundationCompactNumericListedDirectFormulaTransformTermOutputRows
 open FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsExplicitHybridCertificate
+open FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRows
 open FoundationCompactBinaryNumeralTerm
 open FoundationCompactPABinaryNumeralAddition
 open FoundationCompactPAValuationTermCompiler
@@ -51,7 +59,10 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+def compactFormulaTransformStepRowsZeroValuation : Nat -> Nat := fun _ => 0
+
+private abbrev zeroValuation : Nat -> Nat :=
+  compactFormulaTransformStepRowsZeroValuation
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -199,7 +210,50 @@ theorem compactFormulaTransformStepRowsClosedFormula_alignment
        · intro coordinate
          exact Empty.elim coordinate)
 
-private theorem compactFormulaTransformStepRowsCertificate_nonempty
+inductive CompactFormulaTransformStepRowsCheckedBranchData
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode : Nat)
+    (stepWitness : CompactUnifiedParserSyntaxStepWitnessCoordinates)
+    (consumedCount mappedHead witnessStart witnessFinish witnessCount : Nat) :
+    Type where
+  | quietDone
+      (hparser : CompactUnifiedParserDoneGraphRows tokenTable width tokenCount
+        current.parser next.parser stepWitness.done)
+      (hrows : CompactFormulaTransformOutputSameRows tokenTable width tokenCount
+        current next)
+  | quietEmpty
+      (hparser : CompactUnifiedParserEmptyGraphRows tokenTable width tokenCount
+        current.parser next.parser stepWitness.empty)
+      (hrows : CompactFormulaTransformOutputSameRows tokenTable width tokenCount
+        current next)
+  | quietRepeat
+      (hparser : CompactUnifiedParserSyntaxRepeatRows tokenTable width tokenCount
+        current.parser next.parser stepWitness.slot0 stepWitness.slot1
+        stepWitness.repeat)
+      (hrows : CompactFormulaTransformOutputSameRows tokenTable width tokenCount
+        current next)
+  | quietInvalid
+      (hparser : CompactUnifiedParserSyntaxInvalidRows tokenTable width
+        tokenCount current.parser next.parser stepWitness.invalid)
+      (hrows : CompactFormulaTransformOutputSameRows tokenTable width tokenCount
+        current next)
+  | term
+      (hparser : CompactUnifiedParserSyntaxTermRows tokenTable width tokenCount
+        current.parser next.parser stepWitness.slot0 stepWitness.term)
+      (hrows : CompactFormulaTransformTermOutputRows tokenTable width tokenCount
+        current next mode stepWitness.slot0 stepWitness.term.tag
+        stepWitness.term.argument consumedCount witnessStart witnessFinish
+        witnessCount)
+  | formula
+      (hparser : CompactUnifiedParserSyntaxFormulaRows tokenTable width
+        tokenCount current.parser next.parser stepWitness.slot0
+        stepWitness.formula)
+      (hrows : CompactFormulaTransformFormulaOutputRows tokenTable width
+        tokenCount current next mode stepWitness.formula.tag consumedCount
+        mappedHead)
+
+theorem compactFormulaTransformStepRowsCheckedBranchData_nonempty
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
     (mode : Nat)
@@ -208,56 +262,105 @@ private theorem compactFormulaTransformStepRowsCertificate_nonempty
     (hgraph : CompactFormulaTransformStepRows tokenTable width tokenCount
       current next mode stepWitness consumedCount mappedHead witnessStart
       witnessFinish witnessCount) :
-    Nonempty (HybridCertificate
-      (compactFormulaTransformStepRowsExplicitFormula tokenTable width tokenCount
-        current next mode stepWitness consumedCount mappedHead witnessStart
-        witnessFinish witnessCount)) := by
+    Nonempty (CompactFormulaTransformStepRowsCheckedBranchData tokenTable width
+      tokenCount current next mode stepWitness consumedCount mappedHead
+      witnessStart witnessFinish witnessCount) := by
   rcases hgraph with hquiet | hterm | hformula
   · rcases hquiet with ⟨hparser, hrows⟩
-    let rowsCertificate :=
-      compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph tokenTable
-        width tokenCount current.outputBoundary current.outputCount
-        next.outputBoundary next.outputCount hrows
     rcases hparser with hdone | hempty | hrepeat | hinvalid
-    · exact ⟨.disjunctionLeft (.conjunction
+    · exact ⟨.quietDone hdone hrows⟩
+    · exact ⟨.quietEmpty hempty hrows⟩
+    · exact ⟨.quietRepeat hrepeat hrows⟩
+    · exact ⟨.quietInvalid hinvalid hrows⟩
+  · rcases hterm with ⟨hparser, hrows⟩
+    exact ⟨.term hparser hrows⟩
+  · rcases hformula with ⟨hparser, hrows⟩
+    exact ⟨.formula hparser hrows⟩
+
+noncomputable def compactFormulaTransformStepRowsCheckedBranchDataOfGraph
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode : Nat)
+    (stepWitness : CompactUnifiedParserSyntaxStepWitnessCoordinates)
+    (consumedCount mappedHead witnessStart witnessFinish witnessCount : Nat)
+    (hgraph : CompactFormulaTransformStepRows tokenTable width tokenCount
+      current next mode stepWitness consumedCount mappedHead witnessStart
+      witnessFinish witnessCount) :
+    CompactFormulaTransformStepRowsCheckedBranchData tokenTable width tokenCount
+      current next mode stepWitness consumedCount mappedHead witnessStart
+      witnessFinish witnessCount :=
+  Classical.choice
+    (compactFormulaTransformStepRowsCheckedBranchData_nonempty tokenTable width
+      tokenCount current next mode stepWitness consumedCount mappedHead
+      witnessStart witnessFinish witnessCount hgraph)
+
+noncomputable def compactFormulaTransformStepRowsExplicitHybridCertificateFromData
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode : Nat)
+    (stepWitness : CompactUnifiedParserSyntaxStepWitnessCoordinates)
+    (consumedCount mappedHead witnessStart witnessFinish witnessCount : Nat)
+    (data : CompactFormulaTransformStepRowsCheckedBranchData tokenTable width
+      tokenCount current next mode stepWitness consumedCount mappedHead
+      witnessStart witnessFinish witnessCount) :
+    HybridCertificate
+      (compactFormulaTransformStepRowsExplicitFormula tokenTable width tokenCount
+        current next mode stepWitness consumedCount mappedHead witnessStart
+        witnessFinish witnessCount) := by
+  cases data with
+  | quietDone hparser hrows =>
+      exact .disjunctionLeft (.conjunction
         (.disjunctionLeft
           (compactUnifiedParserDoneExplicitHybridCertificateOfGraph tokenTable
-            width tokenCount current.parser next.parser stepWitness.done hdone))
-        rowsCertificate)⟩
-    · exact ⟨.disjunctionLeft (.conjunction
+            width tokenCount current.parser next.parser stepWitness.done
+            hparser))
+        (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hrows))
+  | quietEmpty hparser hrows =>
+      exact .disjunctionLeft (.conjunction
         (.disjunctionRight (.disjunctionLeft
           (compactUnifiedParserEmptyExplicitHybridCertificateOfGraph tokenTable
-            width tokenCount current.parser next.parser stepWitness.empty hempty)))
-        rowsCertificate)⟩
-    · exact ⟨.disjunctionLeft (.conjunction
+            width tokenCount current.parser next.parser stepWitness.empty
+            hparser)))
+        (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hrows))
+  | quietRepeat hparser hrows =>
+      exact .disjunctionLeft (.conjunction
         (.disjunctionRight (.disjunctionRight (.disjunctionLeft
           (compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph
             tokenTable width tokenCount current.parser next.parser
-            stepWitness.slot0 stepWitness.slot1 stepWitness.repeat hrepeat))))
-        rowsCertificate)⟩
-    · exact ⟨.disjunctionLeft (.conjunction
+            stepWitness.slot0 stepWitness.slot1 stepWitness.repeat hparser))))
+        (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hrows))
+  | quietInvalid hparser hrows =>
+      exact .disjunctionLeft (.conjunction
         (.disjunctionRight (.disjunctionRight (.disjunctionRight
           (compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph
             tokenTable width tokenCount current.parser next.parser
-            stepWitness.invalid hinvalid))))
-        rowsCertificate)⟩
-  · rcases hterm with ⟨hparser, hrows⟩
-    exact ⟨.disjunctionRight (.disjunctionLeft (.conjunction
-      (compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph tokenTable
-        width tokenCount current.parser next.parser stepWitness.slot0
-        stepWitness.term hparser)
-      (compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph
-        tokenTable width tokenCount current next mode stepWitness.slot0
-        stepWitness.term.tag stepWitness.term.argument consumedCount
-        witnessStart witnessFinish witnessCount hrows)))⟩
-  · rcases hformula with ⟨hparser, hrows⟩
-    exact ⟨.disjunctionRight (.disjunctionRight (.conjunction
-      (compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph
-        tokenTable width tokenCount current.parser next.parser stepWitness.slot0
-        stepWitness.formula hparser)
-      (compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph
-        tokenTable width tokenCount current next mode stepWitness.formula.tag
-        consumedCount mappedHead hrows)))⟩
+            stepWitness.invalid hparser))))
+        (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hrows))
+  | term hparser hrows =>
+      exact .disjunctionRight (.disjunctionLeft (.conjunction
+        (compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parser next.parser
+          stepWitness.slot0 stepWitness.term hparser)
+        (compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next mode stepWitness.slot0
+          stepWitness.term.tag stepWitness.term.argument consumedCount
+          witnessStart witnessFinish witnessCount hrows)))
+  | formula hparser hrows =>
+      exact .disjunctionRight (.disjunctionRight (.conjunction
+        (compactUnifiedParserSyntaxFormulaExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parser next.parser
+          stepWitness.slot0 stepWitness.formula hparser)
+        (compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next mode stepWitness.formula.tag
+          consumedCount mappedHead hrows)))
 
 noncomputable def compactFormulaTransformStepRowsExplicitHybridCertificateOfGraph
     (tokenTable width tokenCount : Nat)
@@ -276,8 +379,10 @@ noncomputable def compactFormulaTransformStepRowsExplicitHybridCertificateOfGrap
     (compactFormulaTransformStepRowsClosedFormula_alignment tokenTable width
       tokenCount current next mode stepWitness consumedCount mappedHead
       witnessStart witnessFinish witnessCount).symm
-    (Classical.choice
-      (compactFormulaTransformStepRowsCertificate_nonempty tokenTable width
+    (compactFormulaTransformStepRowsExplicitHybridCertificateFromData tokenTable
+      width tokenCount current next mode stepWitness consumedCount mappedHead
+      witnessStart witnessFinish witnessCount
+      (compactFormulaTransformStepRowsCheckedBranchDataOfGraph tokenTable width
         tokenCount current next mode stepWitness consumedCount mappedHead
         witnessStart witnessFinish witnessCount hgraph))
 

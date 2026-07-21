@@ -260,8 +260,8 @@ noncomputable def compactBinaryNatCompletedStatusStructuralPayloadEnvelope
         tokenTable width tokenCount outputStart outputCount finish
           outputBoundary hcompleted.2.1)
   let unitResource :=
-    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope
-      tokenCount outputCount outputBoundary hcompleted.2.2.1
+    compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
+      tokenCount outputCount outputBoundary
   let sizeResource := compactNatSizeStructuralPayloadPolynomial
     outputBoundarySize outputBoundary
   let areaResource := completedAreaStructuralPayloadPolynomial
@@ -316,9 +316,13 @@ theorem
     compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
       tokenTable width tokenCount outputStart outputCount finish outputBoundary
         hcompleted.2.1
-  have hunit :=
+  have hunitTransparent :=
     compactAdditiveUnitBoundaryRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
       tokenCount outputCount outputBoundary hcompleted.2.2.1
+  have hunitPublic :=
+    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope_le_publicFinite
+      tokenCount outputCount outputBoundary hcompleted.2.2.1
+  have hunit := hunitTransparent.trans hunitPublic
   have hsize :=
     compactNatSizeExplicitHybridCertificate_structuralPayloadBound_le_public
       outputBoundarySize outputBoundary hcompleted.2.2.2.1

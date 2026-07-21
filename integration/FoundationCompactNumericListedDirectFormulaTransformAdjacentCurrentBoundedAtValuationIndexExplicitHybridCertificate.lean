@@ -1,5 +1,6 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentNextBoundedAtValuationIndexExplicitHybridCertificate
 import integration.FoundationCompactNumericListedDirectBoundedEndpointExplicitHybridSupport
+import integration.FoundationCompactNumericListedDirectBoundedEndpointCodeBounds
 import integration.FoundationCompactPAExplicitBoundedWitnessDirectCompilerFixedArities
 
 /-!
@@ -19,10 +20,12 @@ set_option Elab.async false
 
 namespace FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedAtValuationIndexExplicitHybridCertificate
 
+open FoundationSuccinctFiniteConsistencyTarget
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentNextBoundedAtValuationIndexExplicitHybridCertificate
 open FoundationCompactNumericListedDirectBoundedEndpointExplicitHybridSupport
+open FoundationCompactNumericListedDirectBoundedEndpointCodeBounds
 open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 open FoundationCompactPABinaryNumeralAddition
 open FoundationCompactPAValuationTermCompiler
@@ -201,6 +204,95 @@ private theorem compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal_r
     rw [sourceSubstitutionQpow_bvar] <;>
       simp [sourceSubstitutionNormalizedBVarResult,
         adjacentCurrentSourceTerms]
+
+def compactFormulaTransformAdjacentCurrentBoundedRawTerminalSourceCodeEnvelope
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat) : Nat :=
+  sourceSubstitutionFormulaCodeEnvelope 14
+    (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+      stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+      valueBound)
+    compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal
+
+def compactFormulaTransformAdjacentCurrentBoundedRawTerminalSourceCodeEnvelopeOfTermBound
+    (termBound : Nat) : Nat :=
+  sourceSubstitutionFormulaCodeEnvelopeOfTermBound 14 termBound
+    compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal
+
+theorem compactFormulaTransformAdjacentCurrentBoundedRawTerminal_code_length_le_source_of_termBound
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound termBound : Nat)
+    (hterms : forall index,
+      (binaryTermCode
+        (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+          stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+          valueBound index)).length <= termBound) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentCurrentBoundedRawTerminal tokenTable width
+        tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound)).length <=
+      compactFormulaTransformAdjacentCurrentBoundedRawTerminalSourceCodeEnvelopeOfTermBound
+        termBound := by
+  rw [← compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal_rewriting]
+  exact binaryFormulaCode_sourceSubstitutionQpow_length_le_of_termBound 14
+    termBound
+    (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+      stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+      valueBound)
+    compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal hterms
+
+def compactFormulaTransformAdjacentCurrentBoundedRawTerminalPolynomialSourceCodeEnvelopeOfTermBound
+    (termBound : Nat) : Nat :=
+  sourceSubstitutionPolynomialFormulaCodeEnvelopeOfTermBound 14 termBound
+    (binaryFormulaCode
+      compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal).length
+
+theorem compactFormulaTransformAdjacentCurrentBoundedRawTerminal_code_length_le_polynomial_source_of_termBound
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound termBound : Nat)
+    (hterms : forall index,
+      (binaryTermCode
+        (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+          stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+          valueBound index)).length <= termBound) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentCurrentBoundedRawTerminal tokenTable width
+        tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound)).length <=
+      compactFormulaTransformAdjacentCurrentBoundedRawTerminalPolynomialSourceCodeEnvelopeOfTermBound
+        termBound := by
+  rw [← compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal_rewriting]
+  exact
+    binaryFormulaCode_sourceSubstitutionQpow_length_le_polynomial_of_termBound
+      14 termBound
+      (binaryFormulaCode
+        compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal).length
+      (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+        stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+        valueBound)
+      compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal hterms
+      le_rfl
+
+theorem compactFormulaTransformAdjacentCurrentBoundedRawTerminal_code_length_le_source
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentCurrentBoundedRawTerminal tokenTable width
+        tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound)).length <=
+      compactFormulaTransformAdjacentCurrentBoundedRawTerminalSourceCodeEnvelope
+        tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+        witnessStart witnessFinish witnessCount valueBound := by
+  rw [← compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal_rewriting]
+  exact binaryFormulaCode_sourceSubstitutionQpow_length_le 14
+    (adjacentCurrentSourceTerms tokenTable width tokenCount stateBoundary
+      stateCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+      valueBound)
+    compactFormulaTransformAdjacentCurrentBoundedSourceRawTerminal
 
 @[simp] private theorem compactFormulaTransformAdjacentCurrentBoundedSourceQpow_valueBound
     (tokenTable width tokenCount stateBoundary stateCount : Nat)

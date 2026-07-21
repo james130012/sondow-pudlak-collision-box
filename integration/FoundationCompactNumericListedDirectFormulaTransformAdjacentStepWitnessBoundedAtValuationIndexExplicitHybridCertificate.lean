@@ -1,7 +1,10 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexExplicitHybridCertificate
+import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexPublicBounds
 import integration.FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedExplicitHybridCertificate
+import integration.FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedPublicDirectCompiler
 import integration.FoundationCompactNumericListedDirectBoundedEndpointExplicitHybridSupport
+import integration.FoundationCompactNumericListedDirectBoundedEndpointCodeBounds
 import integration.FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 import integration.FoundationCompactPAExplicitBoundedWitnessDirectCompilerFixedArities
 import integration.FoundationCompactPAClosedHybridContextTransport
@@ -24,14 +27,18 @@ set_option Elab.async false
 
 namespace FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitHybridCertificate
 
+open FoundationSuccinctFiniteConsistencyTarget
 open FoundationCompactNumericListedDirectParserSyntaxStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexExplicitHybridCertificate
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexPublicBounds
 open FoundationCompactNumericListedDirectBinaryNatStatusValidity
 open FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedExplicitHybridCertificate
+open FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedPublicDirectCompiler
 open FoundationCompactNumericListedDirectBoundedEndpointExplicitHybridSupport
+open FoundationCompactNumericListedDirectBoundedEndpointCodeBounds
 open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 open FoundationCompactBinaryNumeralTerm
 open FoundationCompactPABinaryNumeralAddition
@@ -376,6 +383,120 @@ private theorem
     rw [sourceSubstitutionQpow_bvar] <;>
       simp [sourceSubstitutionNormalizedBVarResult, boundedSourceTerms]
 
+def compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalSourceCodeEnvelope
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness) : Nat :=
+  sourceSubstitutionFormulaCodeEnvelope 9
+    (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+      currentCoordinates currentSize nextCoordinates nextSize)
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal
+
+def compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalSourceCodeEnvelopeOfTermBound
+    (termBound : Nat) : Nat :=
+  sourceSubstitutionFormulaCodeEnvelopeOfTermBound 9 termBound
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal
+
+theorem compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal_code_length_le_source_of_termBound
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound termBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hterms : forall index,
+      (binaryTermCode
+        (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+          rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+          currentCoordinates currentSize nextCoordinates nextSize index)).length
+        <= termBound) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal tokenTable
+        width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound currentCoordinates currentSize
+        nextCoordinates nextSize)).length <=
+      compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalSourceCodeEnvelopeOfTermBound
+        termBound := by
+  rw [←
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal_rewriting]
+  exact binaryFormulaCode_sourceSubstitutionQpow_length_le_of_termBound 9
+    termBound
+    (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+      currentCoordinates currentSize nextCoordinates nextSize)
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal hterms
+
+def compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalPolynomialSourceCodeEnvelopeOfTermBound
+    (termBound : Nat) : Nat :=
+  sourceSubstitutionPolynomialFormulaCodeEnvelopeOfTermBound 9 termBound
+    (binaryFormulaCode
+      compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal).length
+
+theorem compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal_code_length_le_polynomial_source_of_termBound
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound termBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hterms : forall index,
+      (binaryTermCode
+        (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+          rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+          currentCoordinates currentSize nextCoordinates nextSize index)).length
+        <= termBound) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal tokenTable
+        width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound currentCoordinates currentSize
+        nextCoordinates nextSize)).length <=
+      compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalPolynomialSourceCodeEnvelopeOfTermBound
+        termBound := by
+  rw [←
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal_rewriting]
+  exact
+    binaryFormulaCode_sourceSubstitutionQpow_length_le_polynomial_of_termBound
+      9 termBound
+      (binaryFormulaCode
+        compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal).length
+      (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+        rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+        currentCoordinates currentSize nextCoordinates nextSize)
+      compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal hterms
+      le_rfl
+
+theorem compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal_code_length_le_source
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness) :
+    (binaryFormulaCode
+      (compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal tokenTable
+        width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound currentCoordinates currentSize
+        nextCoordinates nextSize)).length <=
+      compactFormulaTransformAdjacentStepWitnessBoundedRawTerminalSourceCodeEnvelope
+        tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+        witnessStart witnessFinish witnessCount valueBound currentCoordinates
+        currentSize nextCoordinates nextSize := by
+  rw [←
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal_rewriting]
+  exact binaryFormulaCode_sourceSubstitutionQpow_length_le 9
+    (boundedSourceTerms tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+      currentCoordinates currentSize nextCoordinates nextSize)
+    compactFormulaTransformAdjacentStepWitnessBoundedSourceRawTerminal
+
 @[simp] private theorem
     compactFormulaTransformAdjacentStepWitnessBoundedSourceQpow_valueBound
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
@@ -437,12 +558,38 @@ theorem
           currentSize nextCoordinates nextSize) = _
   rfl
 
-private def boundedWitnessValues
+def boundedWitnessValues
     (row : CompactFormulaTransformAdjacentStepRow) : Fin 9 -> Nat :=
   ![row.mappedHead, row.consumedCount,
     row.stepWitness.slot6, row.stepWitness.slot5, row.stepWitness.slot4,
     row.stepWitness.slot3, row.stepWitness.slot2, row.stepWitness.slot1,
     row.stepWitness.slot0]
+
+structure ExplicitAdjacentStepDirectTerminalComponents
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness) where
+  row : CompactFormulaTransformAdjacentStepRow
+  row_current_coordinates : row.currentCoordinates = currentCoordinates
+  row_current_size : row.currentSize = currentSize
+  row_next_coordinates : row.nextCoordinates = nextCoordinates
+  row_next_size : row.nextSize = nextSize
+  row_graph : CompactFormulaTransformAdjacentStepRowGraph
+    tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount row
+  current_status : CompactBinaryNatStatusValidBounded
+    tokenTable width tokenCount currentCoordinates.parserTasksFinish
+      currentCoordinates.parserFinish valueBound
+  next_status : CompactBinaryNatStatusValidBounded
+    tokenTable width tokenCount nextCoordinates.parserTasksFinish
+      nextCoordinates.parserFinish valueBound
+  values_le : ∀ index, boundedWitnessValues row index ≤ valueBound
 
 private structure CompactFormulaTransformAdjacentStepLocalWitness where
   stepWitness : CompactUnifiedParserSyntaxStepWitnessCoordinates
@@ -463,6 +610,34 @@ private def compactFormulaTransformAdjacentStepRowOfLocalWitness
     stepWitness := witness.stepWitness
     consumedCount := witness.consumedCount
     mappedHead := witness.mappedHead }
+
+private structure ExplicitAdjacentStepGraphData
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness) where
+  witness : CompactFormulaTransformAdjacentStepLocalWitness
+  values_le : ∀ index,
+    boundedWitnessValues
+      (compactFormulaTransformAdjacentStepRowOfLocalWitness
+        currentCoordinates currentSize nextCoordinates nextSize witness)
+      index ≤ valueBound
+  row_graph : CompactFormulaTransformAdjacentStepRowGraph
+    tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount
+      (compactFormulaTransformAdjacentStepRowOfLocalWitness
+        currentCoordinates currentSize nextCoordinates nextSize witness)
+  current_status : CompactBinaryNatStatusValidBounded
+    tokenTable width tokenCount currentCoordinates.parserTasksFinish
+      currentCoordinates.parserFinish valueBound
+  next_status : CompactBinaryNatStatusValidBounded
+    tokenTable width tokenCount nextCoordinates.parserTasksFinish
+      nextCoordinates.parserFinish valueBound
 
 private theorem substitute_sourceSubstitutionLift
     {depth : Nat} (values : Fin (0 + depth) -> ValuationTerm)
@@ -502,7 +677,7 @@ private theorem substitute_sourceSubstitutionLift9
   simpa only using
     (substitute_sourceSubstitutionLift (depth := 9) values term)
 
-private theorem
+theorem
     compactFormulaTransformAdjacentStepWitnessBoundedRawTerminal_alignment
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (rowIndexTerm : ValuationTerm)
@@ -551,6 +726,117 @@ private theorem compactBinaryNatStatusValidBoundedClosedFormula_freeVariables
   intro coordinate
   fin_cases coordinate <;>
     exact shortBinaryNumeralTerm_freeVariables_eq_empty _
+
+private noncomputable def explicitAdjacentStepGraphDataOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize) :
+    ExplicitAdjacentStepGraphData valuation tokenTable width tokenCount
+      stateBoundary stateCount rowIndexTerm mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize := by
+  have hexists :
+      ∃ witness : CompactFormulaTransformAdjacentStepLocalWitness,
+        (∀ index,
+          boundedWitnessValues
+            (compactFormulaTransformAdjacentStepRowOfLocalWitness
+              currentCoordinates currentSize nextCoordinates nextSize witness)
+            index ≤ valueBound) ∧
+        CompactFormulaTransformAdjacentStepRowGraph
+          tokenTable width tokenCount stateBoundary stateCount
+            (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+            witnessCount
+            (compactFormulaTransformAdjacentStepRowOfLocalWitness
+              currentCoordinates currentSize nextCoordinates nextSize witness) ∧
+        CompactBinaryNatStatusValidBounded tokenTable width tokenCount
+          currentCoordinates.parserTasksFinish currentCoordinates.parserFinish
+            valueBound ∧
+        CompactBinaryNatStatusValidBounded tokenTable width tokenCount
+          nextCoordinates.parserTasksFinish nextCoordinates.parserFinish
+            valueBound := by
+    rcases hbounded with
+      ⟨slot0, hslot0, slot1, hslot1, slot2, hslot2, slot3, hslot3,
+        slot4, hslot4, slot5, hslot5, slot6, hslot6,
+        consumedCount, hconsumedCount, mappedHead, hmappedHead,
+        hrow, hcurrentStatus, hnextStatus⟩
+    let witness : CompactFormulaTransformAdjacentStepLocalWitness :=
+      { stepWitness :=
+          { slot0 := slot0
+            slot1 := slot1
+            slot2 := slot2
+            slot3 := slot3
+            slot4 := slot4
+            slot5 := slot5
+            slot6 := slot6 }
+        consumedCount := consumedCount
+        mappedHead := mappedHead }
+    refine ⟨witness, ?_, ?_, hcurrentStatus, hnextStatus⟩
+    · intro index
+      fin_cases index
+      · exact hmappedHead
+      · exact hconsumedCount
+      · exact hslot6
+      · exact hslot5
+      · exact hslot4
+      · exact hslot3
+      · exact hslot2
+      · exact hslot1
+      · exact hslot0
+    · simpa [witness, compactFormulaTransformAdjacentStepRowOfLocalWitness]
+        using hrow
+  let witness := Classical.choose hexists
+  have hdata := Classical.choose_spec hexists
+  exact
+    { witness := witness
+      values_le := hdata.1
+      row_graph := hdata.2.1
+      current_status := hdata.2.2.1
+      next_status := hdata.2.2.2 }
+
+noncomputable def explicitAdjacentStepDirectTerminalComponentsOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize) :
+    ExplicitAdjacentStepDirectTerminalComponents valuation tokenTable width
+      tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+      witnessFinish witnessCount valueBound currentCoordinates currentSize
+      nextCoordinates nextSize := by
+  let data := explicitAdjacentStepGraphDataOfGraph valuation tokenTable width
+    tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+    witnessFinish witnessCount valueBound currentCoordinates currentSize
+    nextCoordinates nextSize hbounded
+  let row := compactFormulaTransformAdjacentStepRowOfLocalWitness
+    currentCoordinates currentSize nextCoordinates nextSize data.witness
+  exact
+    { row := row
+      row_current_coordinates := rfl
+      row_current_size := rfl
+      row_next_coordinates := rfl
+      row_next_size := rfl
+      row_graph := data.row_graph
+      current_status := data.current_status
+      next_status := data.next_status
+      values_le := data.values_le }
 
 noncomputable def
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitHybridTerminalOfGraph
@@ -675,6 +961,94 @@ noncomputable def
       terminal := terminal }
 
 noncomputable def
+    compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResource
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (row : CompactFormulaTransformAdjacentStepRow)
+    (hrowGraph : CompactFormulaTransformAdjacentStepRowGraph
+      tokenTable width tokenCount stateBoundary stateCount
+        (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+        witnessCount row)
+    (hcurrentStatus : CompactBinaryNatStatusValidBounded
+      tokenTable width tokenCount currentCoordinates.parserTasksFinish
+        currentCoordinates.parserFinish valueBound)
+    (hnextStatus : CompactBinaryNatStatusValidBounded
+      tokenTable width tokenCount nextCoordinates.parserTasksFinish
+        nextCoordinates.parserFinish valueBound) : Nat :=
+  let rowFormula :=
+    compactFormulaTransformAdjacentStepRowAtValuationIndexFormula
+      tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+      witnessStart witnessFinish witnessCount row
+  let currentFormula := compactBinaryNatStatusValidBoundedClosedFormula
+    tokenTable width tokenCount currentCoordinates.parserTasksFinish
+    currentCoordinates.parserFinish valueBound
+  let nextFormula := compactBinaryNatStatusValidBoundedClosedFormula
+    tokenTable width tokenCount nextCoordinates.parserTasksFinish
+    nextCoordinates.parserFinish valueBound
+  let innerFormula := currentFormula ⋏ nextFormula
+  let terminalFormula := rowFormula ⋏ innerFormula
+  let rowResource :=
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope
+      valuation tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount row
+      hrowGraph
+  let currentResource :=
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+      tokenTable width tokenCount currentCoordinates.parserTasksFinish
+      currentCoordinates.parserFinish valueBound hcurrentStatus
+  let nextResource :=
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+      tokenTable width tokenCount nextCoordinates.parserTasksFinish
+      nextCoordinates.parserFinish valueBound hnextStatus
+  (rowResource + weakeningFullAssemblyCost
+      (insert rowFormula
+        (valuationContext terminalFormula.freeVariables valuation))) +
+    (((currentResource + weakeningFullAssemblyCost
+          (insert currentFormula
+            (valuationContext innerFormula.freeVariables valuation))) +
+        (nextResource + weakeningFullAssemblyCost
+          (insert nextFormula
+            (valuationContext innerFormula.freeVariables valuation))) +
+        CertifiedPAContextProof.conjunctionFullAssemblyCost
+          (valuationContext innerFormula.freeVariables valuation)
+          currentFormula nextFormula) +
+      weakeningFullAssemblyCost
+        (insert innerFormula
+          (valuationContext terminalFormula.freeVariables valuation))) +
+    CertifiedPAContextProof.conjunctionFullAssemblyCost
+      (valuationContext terminalFormula.freeVariables valuation)
+      rowFormula innerFormula
+
+noncomputable def
+    compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResourceOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize) : Nat :=
+  let components := explicitAdjacentStepDirectTerminalComponentsOfGraph
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+    currentSize nextCoordinates nextSize hbounded
+  compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResource
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+    nextCoordinates components.row components.row_graph
+    components.current_status components.next_status
+
+noncomputable def
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitDirectTerminalOfGraph
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
@@ -694,73 +1068,25 @@ noncomputable def
         tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
         witnessStart witnessFinish witnessCount valueBound currentCoordinates
         currentSize nextCoordinates nextSize) := by
-  have hexists :
-      ∃ witness : CompactFormulaTransformAdjacentStepLocalWitness,
-        (∀ index,
-          boundedWitnessValues
-            (compactFormulaTransformAdjacentStepRowOfLocalWitness
-              currentCoordinates currentSize nextCoordinates nextSize witness)
-            index ≤ valueBound) ∧
-        CompactFormulaTransformAdjacentStepRowGraph
-          tokenTable width tokenCount stateBoundary stateCount
-            (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
-            witnessCount
-            (compactFormulaTransformAdjacentStepRowOfLocalWitness
-              currentCoordinates currentSize nextCoordinates nextSize witness) ∧
-        CompactBinaryNatStatusValidBounded tokenTable width tokenCount
-          currentCoordinates.parserTasksFinish currentCoordinates.parserFinish
-            valueBound ∧
-        CompactBinaryNatStatusValidBounded tokenTable width tokenCount
-          nextCoordinates.parserTasksFinish nextCoordinates.parserFinish
-            valueBound := by
-    rcases hbounded with
-      ⟨slot0, hslot0, slot1, hslot1, slot2, hslot2, slot3, hslot3,
-        slot4, hslot4, slot5, hslot5, slot6, hslot6,
-        consumedCount, hconsumedCount, mappedHead, hmappedHead,
-        hrow, hcurrentStatus, hnextStatus⟩
-    let witness : CompactFormulaTransformAdjacentStepLocalWitness :=
-      { stepWitness :=
-          { slot0 := slot0
-            slot1 := slot1
-            slot2 := slot2
-            slot3 := slot3
-            slot4 := slot4
-            slot5 := slot5
-            slot6 := slot6 }
-        consumedCount := consumedCount
-        mappedHead := mappedHead }
-    refine ⟨witness, ?_, ?_, hcurrentStatus, hnextStatus⟩
-    · intro index
-      fin_cases index
-      · exact hmappedHead
-      · exact hconsumedCount
-      · exact hslot6
-      · exact hslot5
-      · exact hslot4
-      · exact hslot3
-      · exact hslot2
-      · exact hslot1
-      · exact hslot0
-    · simpa [witness, compactFormulaTransformAdjacentStepRowOfLocalWitness]
-        using hrow
-  let witness := Classical.choose hexists
-  have hrowData := Classical.choose_spec hexists
+  let graphData := explicitAdjacentStepGraphDataOfGraph valuation tokenTable
+    width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+    witnessFinish witnessCount valueBound currentCoordinates currentSize
+    nextCoordinates nextSize hbounded
+  let witness := graphData.witness
   let row := compactFormulaTransformAdjacentStepRowOfLocalWitness
     currentCoordinates currentSize nextCoordinates nextSize witness
   let values := boundedWitnessValues row
-  have hvalues : ∀ index, values index ≤ valueBound := by
-    simpa [values, row] using hrowData.1
+  have hvalues : ∀ index, values index ≤ valueBound := graphData.values_le
   have hrowGraph : CompactFormulaTransformAdjacentStepRowGraph
       tokenTable width tokenCount stateBoundary stateCount
       (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
-      witnessCount row := by
-    simpa [row] using hrowData.2.1
+      witnessCount row := graphData.row_graph
   have hcurrentStatus : CompactBinaryNatStatusValidBounded
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
-      currentCoordinates.parserFinish valueBound := hrowData.2.2.1
+      currentCoordinates.parserFinish valueBound := graphData.current_status
   have hnextStatus : CompactBinaryNatStatusValidBounded
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
-      nextCoordinates.parserFinish valueBound := hrowData.2.2.2
+      nextCoordinates.parserFinish valueBound := graphData.next_status
   let rowFormula :=
     compactFormulaTransformAdjacentStepRowAtValuationIndexFormula
       tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
@@ -773,41 +1099,44 @@ noncomputable def
     nextCoordinates.parserFinish valueBound
   let innerFormula := currentFormula ⋏ nextFormula
   let terminalFormula := rowFormula ⋏ innerFormula
-  let rowCertificate :=
-    compactFormulaTransformAdjacentStepRowAtValuationIndexExplicitHybridCertificateOfGraph
+  let rowBound :=
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedExplicitDirectOfGraph
       valuation tokenTable width tokenCount stateBoundary stateCount
       rowIndexTerm mode witnessStart witnessFinish witnessCount row hrowGraph
-  let rowProof := rowCertificate.compile
-  let rowResource := hybridFormulaStructuralPayloadBound rowCertificate
+  let rowProof := rowBound.proof
+  let rowResource :=
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope
+      valuation tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount row hrowGraph
   have hrowPayload : rowProof.payloadLength ≤ rowResource := by
-    exact compile_payloadLength_le_structuralPayloadBound rowCertificate
+    exact rowBound.payloadLength_le
   let currentProof :=
-    compileCompactBinaryNatStatusValidBoundedDirectAtValuationOfGraph
+    compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph
       valuation tokenTable width tokenCount
         currentCoordinates.parserTasksFinish currentCoordinates.parserFinish
         valueBound hcurrentStatus
   let currentResource :=
-    compactBinaryNatStatusValidBoundedDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
       currentCoordinates.parserFinish valueBound hcurrentStatus
   have hcurrentPayload : currentProof.payloadLength ≤ currentResource := by
     exact
-      compileCompactBinaryNatStatusValidBoundedDirectAtValuationOfGraph_payloadLength_le
+      compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph_payloadLength_le
         valuation tokenTable width tokenCount
           currentCoordinates.parserTasksFinish currentCoordinates.parserFinish
           valueBound hcurrentStatus
   let nextProof :=
-    compileCompactBinaryNatStatusValidBoundedDirectAtValuationOfGraph
+    compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph
       valuation tokenTable width tokenCount
         nextCoordinates.parserTasksFinish nextCoordinates.parserFinish
         valueBound hnextStatus
   let nextResource :=
-    compactBinaryNatStatusValidBoundedDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
       nextCoordinates.parserFinish valueBound hnextStatus
   have hnextPayload : nextProof.payloadLength ≤ nextResource := by
     exact
-      compileCompactBinaryNatStatusValidBoundedDirectAtValuationOfGraph_payloadLength_le
+      compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph_payloadLength_le
         valuation tokenTable width tokenCount
           nextCoordinates.parserTasksFinish nextCoordinates.parserFinish
           valueBound hnextStatus
@@ -904,24 +1233,11 @@ noncomputable def
   let outerProof := CertifiedPAContextProof.conjunction
     rowAtTerminal innerAtTerminal
   let terminalResource :=
-    (rowResource + weakeningFullAssemblyCost
-      (insert rowFormula
-        (valuationContext terminalFormula.freeVariables valuation))) +
-    (((currentResource + weakeningFullAssemblyCost
-          (insert currentFormula
-            (valuationContext innerFormula.freeVariables valuation))) +
-        (nextResource + weakeningFullAssemblyCost
-          (insert nextFormula
-            (valuationContext innerFormula.freeVariables valuation))) +
-        CertifiedPAContextProof.conjunctionFullAssemblyCost
-          (valuationContext innerFormula.freeVariables valuation)
-          currentFormula nextFormula) +
-      weakeningFullAssemblyCost
-        (insert innerFormula
-          (valuationContext terminalFormula.freeVariables valuation))) +
-    CertifiedPAContextProof.conjunctionFullAssemblyCost
-      (valuationContext terminalFormula.freeVariables valuation)
-      rowFormula innerFormula
+    compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResourceOfGraph
+      valuation
+      tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+      witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hbounded
   have houterRaw := CertifiedPAContextProof.conjunction_payloadLength_le
     rowAtTerminal innerAtTerminal
   have houter : outerProof.payloadLength ≤ terminalResource := by
@@ -980,6 +1296,32 @@ noncomputable def
       terminal := by simpa only [rawBody] using terminal
       terminal_payloadLength_le := by
         simpa only [rawBody] using hterminal }
+
+theorem
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitDirectTerminalOfGraph_terminalResource_eq
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize) :
+    (compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitDirectTerminalOfGraph
+      valuation tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+      currentCoordinates currentSize nextCoordinates nextSize
+      hbounded).terminalResource =
+    compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResourceOfGraph
+      valuation tokenTable width tokenCount stateBoundary stateCount
+      rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+      currentCoordinates currentSize nextCoordinates nextSize hbounded := by
+  rfl
 
 noncomputable def
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitHybridCertificateOfGraph

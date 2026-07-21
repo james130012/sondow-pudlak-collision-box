@@ -49,9 +49,9 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+abbrev zeroValuation : Nat -> Nat := fun _ => 0
 
-private abbrev HybridCertificate (formula : ValuationFormula) :=
+abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
 
 private theorem arithmeticRewritingApp_congr
@@ -109,30 +109,30 @@ private theorem rewriting_emptyFormulaSubstitution
         (rewriting ∘ terms) := by
       rw [TransitiveRewriting.comp_app]
 
-private def nativeAddTerm (left right : ValuationTerm) : ValuationTerm :=
+def nativeAddTerm (left right : ValuationTerm) : ValuationTerm :=
   ‘!!left + !!right’
 
-private def nativeEqFormula
+def nativeEqFormula
     (left right : ValuationTerm) : ValuationFormula :=
   “!!left = !!right”
 
-private def nativeNeFormula
+def nativeNeFormula
     (left right : ValuationTerm) : ValuationFormula :=
   ∼(nativeEqFormula left right)
 
-private def nativeLtFormula
+def nativeLtFormula
     (left right : ValuationTerm) : ValuationFormula :=
   “!!left < !!right”
 
-private def nativeLeFormula
+def nativeLeFormula
     (left right : ValuationTerm) : ValuationFormula :=
   “!!left ≤ !!right”
 
-private def nativeImpFormula
+def nativeImpFormula
     (left right : ValuationFormula) : ValuationFormula :=
   left 🡒 right
 
-private def tripleFailureFormula
+def tripleFailureFormula
     (consumedTerm tagTerm argumentTerm binderArityTerm : ValuationTerm) :
     ValuationFormula :=
   nativeImpFormula
@@ -142,13 +142,13 @@ private def tripleFailureFormula
       (nativeNeFormula (nativeAddTerm argumentTerm (‘1’ : ValuationTerm))
         binderArityTerm))
 
-private def doubleFailureFormula
+def doubleFailureFormula
     (consumedTerm tagTerm : ValuationTerm) : ValuationFormula :=
   nativeImpFormula
     (nativeEqFormula consumedTerm (‘2’ : ValuationTerm))
     (nativeNeFormula tagTerm (‘1’ : ValuationTerm))
 
-private def otherModesWithTailFormula
+def otherModesWithTailFormula
     (modeTerm : ValuationTerm) (tail : ValuationFormula) : ValuationFormula :=
   nativeNeFormula modeTerm (‘0’ : ValuationTerm) ⋏
     (nativeNeFormula modeTerm (‘1’ : ValuationTerm) ⋏
@@ -156,7 +156,7 @@ private def otherModesWithTailFormula
         (nativeNeFormula modeTerm (‘4’ : ValuationTerm) ⋏
           (nativeNeFormula modeTerm (‘5’ : ValuationTerm) ⋏ tail))))
 
-private def compactFormulaTransformTermResidualWitnessBody
+def compactFormulaTransformTermResidualWitnessBody
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
     (argument witnessCount : Nat) : ArithmeticSemiformula Nat 1 :=
@@ -180,7 +180,7 @@ private def compactFormulaTransformTermResidualWitnessBody
           Rew.bShift (‘1’ : ValuationTerm),
           (#0 : ArithmeticSemiterm Nat 1)]))
 
-private def compactFormulaTransformTermResidualExistsFormula
+def compactFormulaTransformTermResidualExistsFormula
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
     (argument witnessCount : Nat) : ValuationFormula :=
@@ -589,34 +589,34 @@ private theorem arithmeticAddTerm_eq_func
   simp [Semiterm.Operator.operator,
     Semiterm.Operator.Add.term_eq, Rew.func, Matrix.fun_eq_vec_two]
 
-private theorem termValue_arithmeticAdd
+theorem termValue_arithmeticAdd
     (valuation : Nat -> Nat) (left right : ValuationTerm) :
     termValue valuation ‘!!left + !!right’ =
       termValue valuation left + termValue valuation right := by
   rw [arithmeticAddTerm_eq_func]
   exact termValue_add valuation ![left, right]
 
-private theorem termValue_arithmeticZero (valuation : Nat -> Nat) :
+theorem termValue_arithmeticZero (valuation : Nat -> Nat) :
     termValue valuation (‘0’ : ValuationTerm) = 0 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
+theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-private theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
+theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
     termValue valuation (‘2’ : ValuationTerm) = 2 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticFour (valuation : Nat -> Nat) :
+theorem termValue_arithmeticFour (valuation : Nat -> Nat) :
     termValue valuation (‘4’ : ValuationTerm) = 4 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticFive (valuation : Nat -> Nat) :
+theorem termValue_arithmeticFive (valuation : Nat -> Nat) :
     termValue valuation (‘5’ : ValuationTerm) = 5 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private noncomputable def nativeEqCertificate
+noncomputable def nativeEqCertificate
     (left right : ValuationTerm)
     (heq : termValue zeroValuation left = termValue zeroValuation right) :
     HybridCertificate (nativeEqFormula left right) := by
@@ -625,7 +625,7 @@ private noncomputable def nativeEqCertificate
     zeroValuation Language.Eq.eq ![left, right] heq
   exact .cast (Semiformula.Operator.eq_def _ _).symm direct
 
-private noncomputable def nativeNeCertificate
+noncomputable def nativeNeCertificate
     (left right : ValuationTerm)
     (hne : termValue zeroValuation left ≠ termValue zeroValuation right) :
     HybridCertificate (nativeNeFormula left right) := by
@@ -636,7 +636,7 @@ private noncomputable def nativeNeCertificate
     (congrArg (fun formula : ValuationFormula => ∼formula)
       (Semiformula.Operator.eq_def _ _).symm) direct
 
-private noncomputable def nativeLtCertificate
+noncomputable def nativeLtCertificate
     (left right : ValuationTerm)
     (hlt : termValue zeroValuation left < termValue zeroValuation right) :
     HybridCertificate (nativeLtFormula left right) := by
@@ -645,25 +645,49 @@ private noncomputable def nativeLtCertificate
     zeroValuation Language.ORing.Rel.lt ![left, right] hlt
   exact .cast (Semiformula.Operator.lt_def _ _).symm direct
 
-private noncomputable def nativeLeCertificate
+noncomputable def nativeLeCertificateCore
     (left right : ValuationTerm)
     (hle : termValue zeroValuation left ≤ termValue zeroValuation right) :
-    HybridCertificate (nativeLeFormula left right) := by
-  unfold nativeLeFormula
+    HybridCertificate “!!left ≤ !!right” := by
   if heq : termValue zeroValuation left = termValue zeroValuation right then
+    have hequality :
+        FoundationCompactPAValuationAtomicCompiler.formulaValue zeroValuation
+          (LO.FirstOrder.Semiformula.rel Language.Eq.eq ![left, right]) := by
+      change termValue zeroValuation left = termValue zeroValuation right
+      exact heq
     let equality := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
-      zeroValuation Language.Eq.eq ![left, right] heq
+      zeroValuation Language.Eq.eq ![left, right] hequality
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionLeft
+        (right := LO.FirstOrder.Semiformula.rel Language.ORing.Rel.lt
+          ![left, right]) equality
     exact .cast (Semiformula.Operator.le_def _ _).symm
-      (.disjunctionLeft equality)
+      direct
   else
     have hlt : termValue zeroValuation left < termValue zeroValuation right :=
       Nat.lt_of_le_of_ne hle heq
+    have hstrict :
+        FoundationCompactPAValuationAtomicCompiler.formulaValue zeroValuation
+          (LO.FirstOrder.Semiformula.rel Language.ORing.Rel.lt
+            ![left, right]) := by
+      change termValue zeroValuation left < termValue zeroValuation right
+      exact hlt
     let strict := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
-      zeroValuation Language.ORing.Rel.lt ![left, right] hlt
+      zeroValuation Language.ORing.Rel.lt ![left, right] hstrict
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionRight
+        (left := LO.FirstOrder.Semiformula.rel Language.Eq.eq
+          ![left, right]) strict
     exact .cast (Semiformula.Operator.le_def _ _).symm
-      (.disjunctionRight strict)
+      direct
 
-private noncomputable def shortNumeralLiteralEqCertificate
+noncomputable def nativeLeCertificate
+    (left right : ValuationTerm)
+    (hle : termValue zeroValuation left ≤ termValue zeroValuation right) :
+    HybridCertificate (nativeLeFormula left right) :=
+  nativeLeCertificateCore left right hle
+
+noncomputable def shortNumeralLiteralEqCertificate
     (value expected : Nat) (literal : ValuationTerm)
     (hliteral : termValue zeroValuation literal = expected)
     (heq : value = expected) :
@@ -672,7 +696,7 @@ private noncomputable def shortNumeralLiteralEqCertificate
   nativeEqCertificate (shortBinaryNumeralTerm value) literal (by
     simpa [termValue_shortBinaryNumeralTerm, hliteral] using heq)
 
-private noncomputable def shortNumeralLiteralNeCertificate
+noncomputable def shortNumeralLiteralNeCertificate
     (value expected : Nat) (literal : ValuationTerm)
     (hliteral : termValue zeroValuation literal = expected)
     (hne : value ≠ expected) :
@@ -681,7 +705,7 @@ private noncomputable def shortNumeralLiteralNeCertificate
   nativeNeCertificate (shortBinaryNumeralTerm value) literal (by
     simpa [termValue_shortBinaryNumeralTerm, hliteral] using hne)
 
-private noncomputable def consumedCountEqualityCertificate
+noncomputable def consumedCountEqualityCertificate
     (current next : CompactFormulaTransformStateRowCoordinates)
     (consumedCount : Nat)
     (hcount : current.parserTokensCount =
@@ -697,7 +721,7 @@ private noncomputable def consumedCountEqualityCertificate
       simpa [nativeAddTerm, termValue_shortBinaryNumeralTerm,
         termValue_arithmeticAdd] using hcount)
 
-private noncomputable def consumedCountZeroCertificate
+noncomputable def consumedCountZeroCertificate
     (consumedCount : Nat) (hzero : consumedCount = 0) :
     HybridCertificate
       (nativeEqFormula (shortBinaryNumeralTerm consumedCount)
@@ -705,7 +729,7 @@ private noncomputable def consumedCountZeroCertificate
   shortNumeralLiteralEqCertificate consumedCount 0 (‘0’ : ValuationTerm)
     (termValue_arithmeticZero zeroValuation) hzero
 
-private noncomputable def consumedCountPositiveCertificate
+noncomputable def consumedCountPositiveCertificate
     (consumedCount : Nat) (hpositive : 1 ≤ consumedCount) :
     HybridCertificate
       (nativeLeFormula (‘1’ : ValuationTerm)
@@ -715,7 +739,7 @@ private noncomputable def consumedCountPositiveCertificate
       simpa [termValue_arithmeticOne, termValue_shortBinaryNumeralTerm]
         using hpositive)
 
-private noncomputable def zeroTagGuardCertificate
+noncomputable def zeroTagGuardCertificate
     (consumedCount tag argument binderArity : Nat)
     (hguard : consumedCount = 2 ∧ tag = 0 ∧ argument + 1 = binderArity) :
     HybridCertificate
@@ -741,7 +765,7 @@ private noncomputable def zeroTagGuardCertificate
             termValue_arithmeticOne, termValue_shortBinaryNumeralTerm]
             using hguard.2.2)))
 
-private noncomputable def oneTagGuardCertificate
+noncomputable def oneTagGuardCertificate
     (consumedCount tag : Nat)
     (hguard : consumedCount = 2 ∧ tag = 1) :
     HybridCertificate
@@ -755,7 +779,7 @@ private noncomputable def oneTagGuardCertificate
     (shortNumeralLiteralEqCertificate tag 1 (‘1’ : ValuationTerm)
       (termValue_arithmeticOne zeroValuation) hguard.2)
 
-private noncomputable def capturedGuardCertificate
+noncomputable def capturedGuardCertificate
     (consumedCount tag argument witnessCount : Nat)
     (hguard : consumedCount = 2 ∧ tag = 1 ∧ argument < witnessCount) :
     HybridCertificate
@@ -775,7 +799,7 @@ private noncomputable def capturedGuardCertificate
         (shortBinaryNumeralTerm witnessCount) (by
           simpa [termValue_shortBinaryNumeralTerm] using hguard.2.2)))
 
-private noncomputable def residualGuardCertificate
+noncomputable def residualGuardCertificate
     (consumedCount tag argument witnessCount : Nat)
     (hguard : consumedCount = 2 ∧ tag = 1 ∧ witnessCount ≤ argument) :
     HybridCertificate
@@ -795,7 +819,7 @@ private noncomputable def residualGuardCertificate
         (shortBinaryNumeralTerm argument) (by
           simpa [termValue_shortBinaryNumeralTerm] using hguard.2.2)))
 
-private def tripleFailureDisjunctionFormula
+def tripleFailureDisjunctionFormula
     (consumedTerm tagTerm argumentTerm binderArityTerm : ValuationTerm) :
     ValuationFormula :=
   nativeNeFormula consumedTerm (‘2’ : ValuationTerm) ⋎
@@ -803,7 +827,7 @@ private def tripleFailureDisjunctionFormula
       nativeNeFormula (nativeAddTerm argumentTerm (‘1’ : ValuationTerm))
         binderArityTerm)
 
-private theorem tripleFailureFormula_eq_disjunction
+theorem tripleFailureFormula_eq_disjunction
     (consumedTerm tagTerm argumentTerm binderArityTerm : ValuationTerm) :
     tripleFailureFormula consumedTerm tagTerm argumentTerm binderArityTerm =
       tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
@@ -811,23 +835,62 @@ private theorem tripleFailureFormula_eq_disjunction
   simp [tripleFailureFormula, tripleFailureDisjunctionFormula,
     nativeImpFormula, nativeNeFormula, DeMorgan.imply]
 
-private theorem tripleFailureCertificate_nonempty
+inductive TripleFailureCheckedData
+    (consumedCount tag argument binderArity : Nat) : Type
+  | consumed (hconsumed : consumedCount ≠ 2)
+  | tag (hconsumed : consumedCount = 2) (htag : tag ≠ 0)
+  | argument
+      (hconsumed : consumedCount = 2)
+      (htag : tag = 0)
+      (hargument : argument + 1 ≠ binderArity)
+
+def tripleFailureCheckedDataOfFailure
     (consumedCount tag argument binderArity : Nat)
     (hfailure : ¬(consumedCount = 2 ∧ tag = 0 ∧
       argument + 1 = binderArity)) :
-    Nonempty (HybridCertificate
+    TripleFailureCheckedData consumedCount tag argument binderArity := by
+  by_cases hconsumed : consumedCount = 2
+  · by_cases htag : tag = 0
+    · exact .argument hconsumed htag (by
+        intro hargument
+        exact hfailure ⟨hconsumed, htag, hargument⟩)
+    · exact .tag hconsumed htag
+  · exact .consumed hconsumed
+
+noncomputable def tripleFailureCertificateFromData
+    (consumedCount tag argument binderArity : Nat)
+    (data : TripleFailureCheckedData consumedCount tag argument binderArity) :
+    HybridCertificate
       (tripleFailureFormula (shortBinaryNumeralTerm consumedCount)
         (shortBinaryNumeralTerm tag) (shortBinaryNumeralTerm argument)
-        (shortBinaryNumeralTerm binderArity))) := by
+        (shortBinaryNumeralTerm binderArity)) := by
   let consumedTerm := shortBinaryNumeralTerm consumedCount
   let tagTerm := shortBinaryNumeralTerm tag
   let argumentTerm := shortBinaryNumeralTerm argument
   let binderArityTerm := shortBinaryNumeralTerm binderArity
-  by_cases hconsumed : consumedCount = 2
-  · by_cases htag : tag = 0
-    · have hargument : argument + 1 ≠ binderArity := by
-        intro hargument
-        exact hfailure ⟨hconsumed, htag, hargument⟩
+  cases data with
+  | consumed hconsumed =>
+      let core : HybridCertificate
+          (tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
+            binderArityTerm) :=
+        .disjunctionLeft
+          (shortNumeralLiteralNeCertificate consumedCount 2
+            (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation)
+            hconsumed)
+      exact .cast
+        (tripleFailureFormula_eq_disjunction consumedTerm tagTerm argumentTerm
+          binderArityTerm).symm core
+  | tag _ htag =>
+      let core : HybridCertificate
+          (tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
+            binderArityTerm) :=
+        .disjunctionRight (.disjunctionLeft
+          (shortNumeralLiteralNeCertificate tag 0 (‘0’ : ValuationTerm)
+            (termValue_arithmeticZero zeroValuation) htag))
+      exact .cast
+        (tripleFailureFormula_eq_disjunction consumedTerm tagTerm argumentTerm
+          binderArityTerm).symm core
+  | argument _ _ hargument =>
       let core : HybridCertificate
           (tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
             binderArityTerm) :=
@@ -839,30 +902,11 @@ private theorem tripleFailureCertificate_nonempty
                 nativeAddTerm, termValue_arithmeticAdd,
                 termValue_arithmeticOne, termValue_shortBinaryNumeralTerm]
                 using hargument)))
-      exact ⟨.cast
+      exact .cast
         (tripleFailureFormula_eq_disjunction consumedTerm tagTerm argumentTerm
-          binderArityTerm).symm core⟩
-    · let core : HybridCertificate
-          (tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
-            binderArityTerm) :=
-        .disjunctionRight (.disjunctionLeft
-          (shortNumeralLiteralNeCertificate tag 0 (‘0’ : ValuationTerm)
-            (termValue_arithmeticZero zeroValuation) htag))
-      exact ⟨.cast
-        (tripleFailureFormula_eq_disjunction consumedTerm tagTerm argumentTerm
-          binderArityTerm).symm core⟩
-  · let core : HybridCertificate
-        (tripleFailureDisjunctionFormula consumedTerm tagTerm argumentTerm
-          binderArityTerm) :=
-      .disjunctionLeft
-        (shortNumeralLiteralNeCertificate consumedCount 2
-          (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation)
-          hconsumed)
-    exact ⟨.cast
-      (tripleFailureFormula_eq_disjunction consumedTerm tagTerm argumentTerm
-        binderArityTerm).symm core⟩
+          binderArityTerm).symm core
 
-private noncomputable def tripleFailureCertificate
+noncomputable def tripleFailureCertificate
     (consumedCount tag argument binderArity : Nat)
     (hfailure : ¬(consumedCount = 2 ∧ tag = 0 ∧
       argument + 1 = binderArity)) :
@@ -870,59 +914,73 @@ private noncomputable def tripleFailureCertificate
       (tripleFailureFormula (shortBinaryNumeralTerm consumedCount)
         (shortBinaryNumeralTerm tag) (shortBinaryNumeralTerm argument)
         (shortBinaryNumeralTerm binderArity)) :=
-  Classical.choice (tripleFailureCertificate_nonempty consumedCount tag
-    argument binderArity hfailure)
+  tripleFailureCertificateFromData consumedCount tag argument binderArity
+    (tripleFailureCheckedDataOfFailure consumedCount tag argument binderArity
+      hfailure)
 
-private def doubleFailureDisjunctionFormula
+def doubleFailureDisjunctionFormula
     (consumedTerm tagTerm : ValuationTerm) : ValuationFormula :=
   nativeNeFormula consumedTerm (‘2’ : ValuationTerm) ⋎
     nativeNeFormula tagTerm (‘1’ : ValuationTerm)
 
-private theorem doubleFailureFormula_eq_disjunction
+theorem doubleFailureFormula_eq_disjunction
     (consumedTerm tagTerm : ValuationTerm) :
     doubleFailureFormula consumedTerm tagTerm =
       doubleFailureDisjunctionFormula consumedTerm tagTerm := by
   simp [doubleFailureFormula, doubleFailureDisjunctionFormula,
     nativeImpFormula, nativeNeFormula, DeMorgan.imply]
 
-private theorem doubleFailureCertificate_nonempty
+inductive DoubleFailureCheckedData (consumedCount tag : Nat) : Type
+  | consumed (hconsumed : consumedCount ≠ 2)
+  | tag (hconsumed : consumedCount = 2) (htag : tag ≠ 1)
+
+def doubleFailureCheckedDataOfFailure
     (consumedCount tag : Nat)
     (hfailure : ¬(consumedCount = 2 ∧ tag = 1)) :
-    Nonempty (HybridCertificate
+    DoubleFailureCheckedData consumedCount tag := by
+  by_cases hconsumed : consumedCount = 2
+  · exact .tag hconsumed (by
+      intro htag
+      exact hfailure ⟨hconsumed, htag⟩)
+  · exact .consumed hconsumed
+
+noncomputable def doubleFailureCertificateFromData
+    (consumedCount tag : Nat)
+    (data : DoubleFailureCheckedData consumedCount tag) :
+    HybridCertificate
       (doubleFailureFormula (shortBinaryNumeralTerm consumedCount)
-        (shortBinaryNumeralTerm tag))) := by
+        (shortBinaryNumeralTerm tag)) := by
   let consumedTerm := shortBinaryNumeralTerm consumedCount
   let tagTerm := shortBinaryNumeralTerm tag
-  by_cases hconsumed : consumedCount = 2
-  · have htag : tag ≠ 1 := by
-      intro htag
-      exact hfailure ⟨hconsumed, htag⟩
-    let core : HybridCertificate
-        (doubleFailureDisjunctionFormula consumedTerm tagTerm) :=
-      .disjunctionRight
-        (shortNumeralLiteralNeCertificate tag 1 (‘1’ : ValuationTerm)
-          (termValue_arithmeticOne zeroValuation) htag)
-    exact ⟨.cast
-      (doubleFailureFormula_eq_disjunction consumedTerm tagTerm).symm core⟩
-  · let core : HybridCertificate
-        (doubleFailureDisjunctionFormula consumedTerm tagTerm) :=
-      .disjunctionLeft
-        (shortNumeralLiteralNeCertificate consumedCount 2
-          (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation)
-          hconsumed)
-    exact ⟨.cast
-      (doubleFailureFormula_eq_disjunction consumedTerm tagTerm).symm core⟩
+  cases data with
+  | consumed hconsumed =>
+      let core : HybridCertificate
+          (doubleFailureDisjunctionFormula consumedTerm tagTerm) :=
+        .disjunctionLeft
+          (shortNumeralLiteralNeCertificate consumedCount 2
+            (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation)
+            hconsumed)
+      exact .cast
+        (doubleFailureFormula_eq_disjunction consumedTerm tagTerm).symm core
+  | tag _ htag =>
+      let core : HybridCertificate
+          (doubleFailureDisjunctionFormula consumedTerm tagTerm) :=
+        .disjunctionRight
+          (shortNumeralLiteralNeCertificate tag 1 (‘1’ : ValuationTerm)
+            (termValue_arithmeticOne zeroValuation) htag)
+      exact .cast
+        (doubleFailureFormula_eq_disjunction consumedTerm tagTerm).symm core
 
-private noncomputable def doubleFailureCertificate
+noncomputable def doubleFailureCertificate
     (consumedCount tag : Nat)
     (hfailure : ¬(consumedCount = 2 ∧ tag = 1)) :
     HybridCertificate
       (doubleFailureFormula (shortBinaryNumeralTerm consumedCount)
         (shortBinaryNumeralTerm tag)) :=
-  Classical.choice
-    (doubleFailureCertificate_nonempty consumedCount tag hfailure)
+  doubleFailureCertificateFromData consumedCount tag
+    (doubleFailureCheckedDataOfFailure consumedCount tag hfailure)
 
-private noncomputable def otherModesWithTailCertificate
+noncomputable def otherModesWithTailCertificate
     (mode : Nat)
     (hzero : mode ≠ 0) (hone : mode ≠ 1) (htwo : mode ≠ 2)
     (hfour : mode ≠ 4) (hfive : mode ≠ 5)
@@ -946,7 +1004,7 @@ private noncomputable def otherModesWithTailCertificate
               (termValue_arithmeticFive zeroValuation) hfive)
             tailCertificate))))
 
-private noncomputable def compactFormulaTransformTermResidualExistsCertificate
+noncomputable def compactFormulaTransformTermResidualExistsCertificate
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
     (argument witnessCount residual : Nat)
@@ -999,6 +1057,214 @@ private noncomputable def compactFormulaTransformTermResidualExistsCertificate
   exact .existsWitness
     (compactFormulaTransformTermResidualWitnessBody tokenTable width tokenCount
       current next argument witnessCount) residual bodyCertificate
+
+inductive CompactFormulaTransformTermOutputRowsCheckedBranchData
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat) : Type
+  | zero
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : consumedCount = 0)
+      (hsame : CompactFormulaTransformOutputSameRows
+        tokenTable width tokenCount current next)
+  | modeZeroLower
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 0)
+      (hguard : consumedCount = 2 ∧ tag = 0 ∧
+        argument + 1 = binderArity)
+      (hrows : CompactFormulaTransformOutputTwoValuesRows
+        tokenTable width tokenCount current next 1 0)
+  | modeZeroShifted
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 0)
+      (failure : TripleFailureCheckedData consumedCount tag argument binderArity)
+      (hguard : consumedCount = 2 ∧ tag = 1)
+      (hrows : CompactFormulaTransformOutputTwoValuesRows
+        tokenTable width tokenCount current next 1 (argument + 1))
+  | modeZeroRaw
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 0)
+      (lowerFailure : TripleFailureCheckedData
+        consumedCount tag argument binderArity)
+      (shiftFailure : DoubleFailureCheckedData consumedCount tag)
+      (hrows : CompactFormulaTransformOutputRawPrefixRows
+        tokenTable width tokenCount current next consumedCount)
+  | modeOneShifted
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 1)
+      (hguard : consumedCount = 2 ∧ tag = 1)
+      (hrows : CompactFormulaTransformOutputTwoValuesRows
+        tokenTable width tokenCount current next 1 (argument + 1))
+  | modeOneRaw
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 1)
+      (failure : DoubleFailureCheckedData consumedCount tag)
+      (hrows : CompactFormulaTransformOutputRawPrefixRows
+        tokenTable width tokenCount current next consumedCount)
+  | modeTwoLower
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 2)
+      (hguard : consumedCount = 2 ∧ tag = 0 ∧
+        argument + 1 = binderArity)
+      (hrows : CompactFormulaTransformOutputWitnessRows tokenTable width
+        tokenCount current next witnessStart witnessFinish witnessCount)
+  | modeTwoRaw
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 2)
+      (failure : TripleFailureCheckedData consumedCount tag argument binderArity)
+      (hrows : CompactFormulaTransformOutputRawPrefixRows
+        tokenTable width tokenCount current next consumedCount)
+  | modeFourOne
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 4)
+      (hguard : consumedCount = 2 ∧ tag = 1)
+      (hrows : CompactFormulaTransformOutputOneValueRows
+        tokenTable width tokenCount current next argument)
+  | modeFourSame
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 4)
+      (failure : DoubleFailureCheckedData consumedCount tag)
+      (hrows : CompactFormulaTransformOutputSameRows
+        tokenTable width tokenCount current next)
+  | modeFiveCaptured
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 5)
+      (hguard : consumedCount = 2 ∧ tag = 1 ∧ argument < witnessCount)
+      (hrows : CompactFormulaTransformOutputTwoValuesRows tokenTable width
+        tokenCount current next 0 (binderArity + argument))
+  | modeFiveResidual
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 5)
+      (hguard : consumedCount = 2 ∧ tag = 1 ∧ witnessCount ≤ argument)
+      (residual : Nat)
+      (hresidual : residual ≤ argument)
+      (hequality : argument = witnessCount + residual)
+      (hrows : CompactFormulaTransformOutputTwoValuesRows
+        tokenTable width tokenCount current next 1 residual)
+  | modeFiveRaw
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hmode : mode = 5)
+      (failure : DoubleFailureCheckedData consumedCount tag)
+      (hrows : CompactFormulaTransformOutputRawPrefixRows
+        tokenTable width tokenCount current next consumedCount)
+  | other
+      (hcount : current.parserTokensCount =
+        consumedCount + next.parserTokensCount)
+      (hconsumed : 1 ≤ consumedCount)
+      (hzero : mode ≠ 0)
+      (hone : mode ≠ 1)
+      (htwo : mode ≠ 2)
+      (hfour : mode ≠ 4)
+      (hfive : mode ≠ 5)
+      (hrows : CompactFormulaTransformOutputRawPrefixRows
+        tokenTable width tokenCount current next consumedCount)
+
+theorem compactFormulaTransformTermOutputRowsCheckedBranchData_nonempty
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    (hgraph : CompactFormulaTransformTermOutputRows tokenTable width tokenCount
+      current next mode binderArity tag argument consumedCount witnessStart
+      witnessFinish witnessCount) :
+    Nonempty (CompactFormulaTransformTermOutputRowsCheckedBranchData tokenTable
+      width tokenCount current next mode binderArity tag argument consumedCount
+      witnessStart witnessFinish witnessCount) := by
+  rcases hgraph with ⟨hcount, hzero | hpositive⟩
+  · rcases hzero with ⟨hconsumed, hsame⟩
+    exact ⟨.zero hcount hconsumed hsame⟩
+  · rcases hpositive with ⟨hconsumed, hbranches⟩
+    rcases hbranches with hmodeZero | hmodeOne | hmodeTwo | hmodeFour |
+        hmodeFive | hother
+    · rcases hmodeZero with ⟨hmode, hlower | hshifted | hraw⟩
+      · rcases hlower with ⟨hguard, hrows⟩
+        exact ⟨.modeZeroLower hcount hconsumed hmode hguard hrows⟩
+      · rcases hshifted with ⟨hfailure, hguard, hrows⟩
+        exact ⟨.modeZeroShifted hcount hconsumed hmode
+          (tripleFailureCheckedDataOfFailure consumedCount tag argument
+            binderArity hfailure) hguard hrows⟩
+      · rcases hraw with ⟨hlowerFailure, hshiftFailure, hrows⟩
+        exact ⟨.modeZeroRaw hcount hconsumed hmode
+          (tripleFailureCheckedDataOfFailure consumedCount tag argument
+            binderArity hlowerFailure)
+          (doubleFailureCheckedDataOfFailure consumedCount tag hshiftFailure)
+          hrows⟩
+    · rcases hmodeOne with ⟨hmode, hshifted | hraw⟩
+      · rcases hshifted with ⟨hguard, hrows⟩
+        exact ⟨.modeOneShifted hcount hconsumed hmode hguard hrows⟩
+      · rcases hraw with ⟨hfailure, hrows⟩
+        exact ⟨.modeOneRaw hcount hconsumed hmode
+          (doubleFailureCheckedDataOfFailure consumedCount tag hfailure)
+          hrows⟩
+    · rcases hmodeTwo with ⟨hmode, hlower | hraw⟩
+      · rcases hlower with ⟨hguard, hrows⟩
+        exact ⟨.modeTwoLower hcount hconsumed hmode hguard hrows⟩
+      · rcases hraw with ⟨hfailure, hrows⟩
+        exact ⟨.modeTwoRaw hcount hconsumed hmode
+          (tripleFailureCheckedDataOfFailure consumedCount tag argument
+            binderArity hfailure) hrows⟩
+    · rcases hmodeFour with ⟨hmode, hone | hsame⟩
+      · rcases hone with ⟨hguard, hrows⟩
+        exact ⟨.modeFourOne hcount hconsumed hmode hguard hrows⟩
+      · rcases hsame with ⟨hfailure, hrows⟩
+        exact ⟨.modeFourSame hcount hconsumed hmode
+          (doubleFailureCheckedDataOfFailure consumedCount tag hfailure)
+          hrows⟩
+    · rcases hmodeFive with ⟨hmode, hcaptured | hresidual | hraw⟩
+      · rcases hcaptured with ⟨hguard, hrows⟩
+        exact ⟨.modeFiveCaptured hcount hconsumed hmode hguard hrows⟩
+      · rcases hresidual with
+          ⟨hguard, residual, hresidual, hequality, hrows⟩
+        exact ⟨.modeFiveResidual hcount hconsumed hmode hguard residual
+          hresidual hequality hrows⟩
+      · rcases hraw with ⟨hfailure, hrows⟩
+        exact ⟨.modeFiveRaw hcount hconsumed hmode
+          (doubleFailureCheckedDataOfFailure consumedCount tag hfailure)
+          hrows⟩
+    · rcases hother with ⟨hzero, hone, htwo, hfour, hfive, hrows⟩
+      exact ⟨.other hcount hconsumed hzero hone htwo hfour hfive hrows⟩
+
+noncomputable def compactFormulaTransformTermOutputRowsCheckedBranchDataOfGraph
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    (hgraph : CompactFormulaTransformTermOutputRows tokenTable width tokenCount
+      current next mode binderArity tag argument consumedCount witnessStart
+      witnessFinish witnessCount) :
+    CompactFormulaTransformTermOutputRowsCheckedBranchData tokenTable width
+      tokenCount current next mode binderArity tag argument consumedCount
+      witnessStart witnessFinish witnessCount :=
+  Classical.choice
+    (compactFormulaTransformTermOutputRowsCheckedBranchData_nonempty tokenTable
+      width tokenCount current next mode binderArity tag argument consumedCount
+      witnessStart witnessFinish witnessCount hgraph)
 
 private theorem compactFormulaTransformTermOutputRowsCertificate_nonempty
     (tokenTable width tokenCount : Nat)
@@ -1284,6 +1550,321 @@ private theorem compactFormulaTransformTermOutputRowsCertificate_nonempty
             (.disjunctionRight (.disjunctionRight otherCertificate)))))))⟩
 
 noncomputable def
+    compactFormulaTransformTermOutputRowsExplicitHybridCertificateFromData
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    (data : CompactFormulaTransformTermOutputRowsCheckedBranchData tokenTable
+      width tokenCount current next mode binderArity tag argument consumedCount
+      witnessStart witnessFinish witnessCount) :
+    HybridCertificate
+      (compactFormulaTransformTermOutputRowsExplicitFormula tokenTable width
+        tokenCount current next mode binderArity tag argument consumedCount
+        witnessStart witnessFinish witnessCount) := by
+  cases data with
+  | zero hcount hconsumed hsame =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let zeroCertificate :=
+        consumedCountZeroCertificate consumedCount hconsumed
+      let sameCertificate :=
+        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hsame
+      exact .conjunction countCertificate
+        (.disjunctionLeft (.conjunction zeroCertificate sameCertificate))
+  | modeZeroLower hcount hconsumed hmode hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 0
+        (‘0’ : ValuationTerm) (termValue_arithmeticZero zeroValuation) hmode
+      let guardCertificate := zeroTagGuardCertificate consumedCount tag
+        argument binderArity hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount next.parserFinish next.finish next.outputBoundary
+          next.outputCount 1 0 (‘1’ : ValuationTerm) (‘0’ : ValuationTerm)
+          (termValue_arithmeticOne zeroValuation)
+          (termValue_arithmeticZero zeroValuation) hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionLeft (.conjunction modeCertificate
+            (.disjunctionLeft
+              (.conjunction guardCertificate rowsCertificate))))))
+  | modeZeroShifted hcount hconsumed hmode failure hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 0
+        (‘0’ : ValuationTerm) (termValue_arithmeticZero zeroValuation) hmode
+      let failureCertificate := tripleFailureCertificateFromData consumedCount
+        tag argument binderArity failure
+      let guardCertificate := oneTagGuardCertificate consumedCount tag hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount next.parserFinish next.finish next.outputBoundary
+          next.outputCount 1 (argument + 1) (‘1’ : ValuationTerm)
+          (nativeAddTerm (shortBinaryNumeralTerm argument)
+            (‘1’ : ValuationTerm))
+          (termValue_arithmeticOne zeroValuation)
+          (by
+            simp [nativeAddTerm, termValue_arithmeticAdd,
+              termValue_arithmeticOne, termValue_shortBinaryNumeralTerm]) hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionLeft (.conjunction modeCertificate
+            (.disjunctionRight (.disjunctionLeft
+              (.conjunction failureCertificate
+                (.conjunction guardCertificate rowsCertificate))))))))
+  | modeZeroRaw hcount hconsumed hmode lowerFailure shiftFailure hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 0
+        (‘0’ : ValuationTerm) (termValue_arithmeticZero zeroValuation) hmode
+      let lowerFailureCertificate := tripleFailureCertificateFromData
+        consumedCount tag argument binderArity lowerFailure
+      let shiftFailureCertificate :=
+        doubleFailureCertificateFromData consumedCount tag shiftFailure
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionLeft (.conjunction modeCertificate
+            (.disjunctionRight (.disjunctionRight
+              (.conjunction lowerFailureCertificate
+                (.conjunction shiftFailureCertificate rowsCertificate))))))))
+  | modeOneShifted hcount hconsumed hmode hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 1
+        (‘1’ : ValuationTerm) (termValue_arithmeticOne zeroValuation) hmode
+      let guardCertificate := oneTagGuardCertificate consumedCount tag hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount next.parserFinish next.finish next.outputBoundary
+          next.outputCount 1 (argument + 1) (‘1’ : ValuationTerm)
+          (nativeAddTerm (shortBinaryNumeralTerm argument)
+            (‘1’ : ValuationTerm))
+          (termValue_arithmeticOne zeroValuation)
+          (by
+            simp [nativeAddTerm, termValue_arithmeticAdd,
+              termValue_arithmeticOne, termValue_shortBinaryNumeralTerm]) hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionLeft
+            (.conjunction modeCertificate
+              (.disjunctionLeft
+                (.conjunction guardCertificate rowsCertificate)))))))
+  | modeOneRaw hcount hconsumed hmode failure hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 1
+        (‘1’ : ValuationTerm) (termValue_arithmeticOne zeroValuation) hmode
+      let failureCertificate :=
+        doubleFailureCertificateFromData consumedCount tag failure
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionLeft
+            (.conjunction modeCertificate
+              (.disjunctionRight
+                (.conjunction failureCertificate rowsCertificate)))))))
+  | modeTwoLower hcount hconsumed hmode hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 2
+        (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation) hmode
+      let guardCertificate := zeroTagGuardCertificate consumedCount tag
+        argument binderArity hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSlicesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount witnessStart witnessFinish witnessCount
+          next.parserFinish next.finish next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionLeft
+            (.conjunction modeCertificate
+              (.disjunctionLeft
+                (.conjunction guardCertificate rowsCertificate))))))))
+  | modeTwoRaw hcount hconsumed hmode failure hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 2
+        (‘2’ : ValuationTerm) (termValue_arithmeticTwo zeroValuation) hmode
+      let failureCertificate := tripleFailureCertificateFromData consumedCount
+        tag argument binderArity failure
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionLeft
+            (.conjunction modeCertificate
+              (.disjunctionRight
+                (.conjunction failureCertificate rowsCertificate))))))))
+  | modeFourOne hcount hconsumed hmode hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 4
+        (‘4’ : ValuationTerm) (termValue_arithmeticFour zeroValuation) hmode
+      let guardCertificate := oneTagGuardCertificate consumedCount tag hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendOneValueExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount next.parserFinish next.finish next.outputBoundary
+          next.outputCount argument hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionLeft (.conjunction modeCertificate
+              (.disjunctionLeft
+                (.conjunction guardCertificate rowsCertificate)))))))))
+  | modeFourSame hcount hconsumed hmode failure hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 4
+        (‘4’ : ValuationTerm) (termValue_arithmeticFour zeroValuation) hmode
+      let failureCertificate :=
+        doubleFailureCertificateFromData consumedCount tag failure
+      let rowsCertificate :=
+        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.outputBoundary current.outputCount
+          next.outputBoundary next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionLeft (.conjunction modeCertificate
+              (.disjunctionRight
+                (.conjunction failureCertificate rowsCertificate)))))))))
+  | modeFiveCaptured hcount hconsumed hmode hguard hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 5
+        (‘5’ : ValuationTerm) (termValue_arithmeticFive zeroValuation) hmode
+      let guardCertificate := capturedGuardCertificate consumedCount tag
+        argument witnessCount hguard
+      let rowsCertificate :=
+        compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount next.parserFinish next.finish next.outputBoundary
+          next.outputCount 0 (binderArity + argument) (‘0’ : ValuationTerm)
+          (nativeAddTerm (shortBinaryNumeralTerm binderArity)
+            (shortBinaryNumeralTerm argument))
+          (termValue_arithmeticZero zeroValuation)
+          (by
+            simp [nativeAddTerm, termValue_arithmeticAdd,
+              termValue_shortBinaryNumeralTerm]) hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionRight (.disjunctionLeft
+              (.conjunction modeCertificate
+                (.disjunctionLeft
+                  (.conjunction guardCertificate rowsCertificate))))))))))
+  | modeFiveResidual hcount hconsumed hmode hguard residual hresidual hequality
+      hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 5
+        (‘5’ : ValuationTerm) (termValue_arithmeticFive zeroValuation) hmode
+      let guardCertificate := residualGuardCertificate consumedCount tag
+        argument witnessCount hguard
+      let residualCertificate :=
+        compactFormulaTransformTermResidualExistsCertificate tokenTable width
+          tokenCount current next argument witnessCount residual hresidual
+          hequality hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionRight (.disjunctionLeft
+              (.conjunction modeCertificate
+                (.disjunctionRight (.disjunctionLeft
+                  (.conjunction guardCertificate
+                    residualCertificate)))))))))))
+  | modeFiveRaw hcount hconsumed hmode failure hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let modeCertificate := shortNumeralLiteralEqCertificate mode 5
+        (‘5’ : ValuationTerm) (termValue_arithmeticFive zeroValuation) hmode
+      let failureCertificate :=
+        doubleFailureCertificateFromData consumedCount tag failure
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hrows
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionRight (.disjunctionLeft
+              (.conjunction modeCertificate
+                (.disjunctionRight (.disjunctionRight
+                  (.conjunction failureCertificate rowsCertificate)))))))))))
+  | other hcount hconsumed hzero hone htwo hfour hfive hrows =>
+      let countCertificate :=
+        consumedCountEqualityCertificate current next consumedCount hcount
+      let positiveCertificate :=
+        consumedCountPositiveCertificate consumedCount hconsumed
+      let rowsCertificate :=
+        compactAdditiveNatListAppendSourcePrefixExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current.parserFinish current.finish
+          current.outputCount current.start current.parserTokensFinish
+          current.parserTokensCount consumedCount next.parserFinish next.finish
+          next.outputCount hrows
+      let otherCertificate := otherModesWithTailCertificate mode hzero hone htwo
+        hfour hfive
+        (compactAdditiveNatListAppendSourcePrefixClosedFormula tokenTable width
+          tokenCount current.parserFinish current.finish current.outputCount
+          current.start current.parserTokensFinish current.parserTokensCount
+          consumedCount next.parserFinish next.finish next.outputCount)
+        rowsCertificate
+      exact .conjunction countCertificate
+        (.disjunctionRight (.conjunction positiveCertificate
+          (.disjunctionRight (.disjunctionRight (.disjunctionRight
+            (.disjunctionRight (.disjunctionRight otherCertificate)))))))
+
+noncomputable def
     compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
@@ -1300,9 +1881,11 @@ noncomputable def
     (compactFormulaTransformTermOutputRowsClosedFormula_alignment tokenTable width
       tokenCount current next mode binderArity tag argument consumedCount
       witnessStart witnessFinish witnessCount).symm
-    (Classical.choice
-      (compactFormulaTransformTermOutputRowsCertificate_nonempty tokenTable width
-        tokenCount current next mode binderArity tag argument consumedCount
+    (compactFormulaTransformTermOutputRowsExplicitHybridCertificateFromData
+      tokenTable width tokenCount current next mode binderArity tag argument
+      consumedCount witnessStart witnessFinish witnessCount
+      (compactFormulaTransformTermOutputRowsCheckedBranchDataOfGraph tokenTable
+        width tokenCount current next mode binderArity tag argument consumedCount
         witnessStart witnessFinish witnessCount hgraph))
 
 noncomputable def

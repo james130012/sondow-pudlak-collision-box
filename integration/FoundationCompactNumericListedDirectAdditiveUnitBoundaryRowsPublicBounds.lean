@@ -517,6 +517,257 @@ theorem
       (compactAdditiveUnitBoundaryRowDataOfGraph
         tokenCount count boundaryTable hrows)
 
+/-! ## Removing row-data dependence by a finite public envelope -/
+
+def compactAdditiveUnitBoundaryRowsTerminalStructuralPayloadEnvelopeOfValues
+    (tokenCount boundaryTable index left right : Nat) : Nat :=
+  let valuation := extendValuation index unitZeroValuation
+  let tableTerm := shortBinaryNumeralTerm boundaryTable
+  let widthTerm := shortBinaryNumeralTerm tokenCount
+  let leftIndexTerm : ValuationTerm := &0
+  let rightIndexTerm : ValuationTerm := ‘&0 + 1’
+  let leftValueTerm := shortBinaryNumeralTerm left
+  let rightValueTerm := shortBinaryNumeralTerm right
+  let leftFormula := compactFixedWidthEntryAtValuationFormula
+    tableTerm widthTerm leftIndexTerm leftValueTerm
+  let rightFormula := compactFixedWidthEntryAtValuationFormula
+    tableTerm widthTerm rightIndexTerm rightValueTerm
+  let successorFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm right) =
+      !!(shortBinaryNumeralTerm left) + 1”
+  let leftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation tableTerm widthTerm leftIndexTerm leftValueTerm
+  let rightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation tableTerm widthTerm rightIndexTerm rightValueTerm
+  let successorResource := unitBoundarySuccessorStructuralPayloadResource
+    valuation left right
+  let rightSuccessorResource := hybridConjunctionStructuralPayloadEnvelope
+    valuation rightFormula successorFormula rightResource successorResource
+  hybridConjunctionStructuralPayloadEnvelope valuation leftFormula
+    (rightFormula ⋏ successorFormula) leftResource rightSuccessorResource
+
+def compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+    (tokenCount boundaryTable index left right : Nat) : Nat :=
+  let valuation := extendValuation index unitZeroValuation
+  let values : Fin 2 -> Nat := ![right, left]
+  explicitBoundedWitnessHybridStructuralPayloadEnvelope valuation tokenCount
+    (compactAdditiveUnitBoundaryRowsBranchTerminal tokenCount boundaryTable)
+    values
+    (compactAdditiveUnitBoundaryRowsTerminalStructuralPayloadEnvelopeOfValues
+      tokenCount boundaryTable index left right)
+
+theorem
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope_eq_values
+    (tokenCount boundaryTable index : Nat)
+    (data : CompactAdditiveUnitBoundaryRowData
+      tokenCount boundaryTable index) :
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope
+        tokenCount boundaryTable index data =
+      compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+        tokenCount boundaryTable index data.left data.right := by
+  rfl
+
+def compactAdditiveUnitBoundaryRowsPublicFiniteBranchEnvelope
+    (tokenCount boundaryTable index : Nat) : Nat :=
+  (Finset.range (tokenCount + 1)).sum fun left =>
+    (Finset.range (tokenCount + 1)).sum fun right =>
+      compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+        tokenCount boundaryTable index left right
+
+theorem
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope_le_publicFinite
+    (tokenCount boundaryTable index : Nat)
+    (data : CompactAdditiveUnitBoundaryRowData
+      tokenCount boundaryTable index) :
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope
+        tokenCount boundaryTable index data <=
+      compactAdditiveUnitBoundaryRowsPublicFiniteBranchEnvelope
+        tokenCount boundaryTable index := by
+  rw [
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope_eq_values]
+  have hright :
+      compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+          tokenCount boundaryTable index data.left data.right <=
+        (Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+            tokenCount boundaryTable index data.left right := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        (compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+          tokenCount boundaryTable index data.left candidate))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.right_le))
+  have hleft :
+      ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+            tokenCount boundaryTable index data.left right) <=
+        compactAdditiveUnitBoundaryRowsPublicFiniteBranchEnvelope
+          tokenCount boundaryTable index := by
+    unfold compactAdditiveUnitBoundaryRowsPublicFiniteBranchEnvelope
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelopeOfValues
+            tokenCount boundaryTable index candidate right))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.left_le))
+  exact hright.trans hleft
+
+def compactAdditiveUnitBoundaryRowsPublicFiniteLeafPayloadResourceSum
+    (tokenCount count boundaryTable : Nat) : Nat :=
+  ∑ index : Fin count,
+    compactAdditiveUnitBoundaryRowsPublicFiniteBranchEnvelope
+      tokenCount boundaryTable index
+
+theorem
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadResourceSum_le_publicFinite
+    (tokenCount count boundaryTable : Nat)
+    (rows : (index : Fin count) ->
+      CompactAdditiveUnitBoundaryRowData tokenCount boundaryTable index) :
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadResourceSum
+        tokenCount count boundaryTable rows <=
+      compactAdditiveUnitBoundaryRowsPublicFiniteLeafPayloadResourceSum
+        tokenCount count boundaryTable := by
+  unfold compactAdditiveUnitBoundaryRowsBranchStructuralPayloadResourceSum
+    compactAdditiveUnitBoundaryRowsPublicFiniteLeafPayloadResourceSum
+  exact Finset.sum_le_sum fun index _ =>
+    compactAdditiveUnitBoundaryRowsBranchStructuralPayloadEnvelope_le_publicFinite
+      tokenCount boundaryTable index (rows index)
+
+private theorem hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf
+    (totalBound : Nat) (outerVariables : Finset Nat)
+    (valuation : Nat -> Nat)
+    (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
+    {small large : Nat} (hresource : small <= large) :
+    forall bound,
+      hybridBranchesUniformStructuralPayloadEnvelope totalBound outerVariables
+          valuation body small bound <=
+        hybridBranchesUniformStructuralPayloadEnvelope totalBound
+          outerVariables valuation body large bound
+  | 0 => by rfl
+  | bound + 1 => by
+      simp only [hybridBranchesUniformStructuralPayloadEnvelope]
+      have hinduction :=
+        hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf totalBound
+          outerVariables valuation body hresource bound
+      omega
+
+def compactAdditiveUnitBoundaryRowsBranchesPublicFiniteStructuralEnvelope
+    (tokenCount count boundaryTable : Nat) : Nat :=
+  let body := compactAdditiveUnitBoundaryRowsBody tokenCount boundaryTable
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift (shortBinaryNumeralTerm count)) body
+  let outerVariables := outerFormula.freeVariables
+  let bound := termValue unitZeroValuation (shortBinaryNumeralTerm count)
+  hybridBranchesUniformStructuralPayloadEnvelope bound outerVariables
+    unitZeroValuation body
+    (compactAdditiveUnitBoundaryRowsPublicFiniteLeafPayloadResourceSum
+      tokenCount count boundaryTable)
+    bound
+
+theorem
+    compactAdditiveUnitBoundaryRowsBranchesTransparentStructuralEnvelope_le_publicFinite
+    (tokenCount count boundaryTable : Nat)
+    (rows : (index : Fin count) ->
+      CompactAdditiveUnitBoundaryRowData tokenCount boundaryTable index) :
+    compactAdditiveUnitBoundaryRowsBranchesTransparentStructuralEnvelope
+        tokenCount count boundaryTable rows <=
+      compactAdditiveUnitBoundaryRowsBranchesPublicFiniteStructuralEnvelope
+        tokenCount count boundaryTable := by
+  unfold compactAdditiveUnitBoundaryRowsBranchesTransparentStructuralEnvelope
+    compactAdditiveUnitBoundaryRowsBranchesPublicFiniteStructuralEnvelope
+  exact hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf
+    (termValue unitZeroValuation (shortBinaryNumeralTerm count))
+    (∀⁰ termBoundedUniversalBody
+      (Rew.bShift (shortBinaryNumeralTerm count))
+      (compactAdditiveUnitBoundaryRowsBody tokenCount boundaryTable)).freeVariables
+    unitZeroValuation
+    (compactAdditiveUnitBoundaryRowsBody tokenCount boundaryTable)
+    (compactAdditiveUnitBoundaryRowsBranchStructuralPayloadResourceSum_le_publicFinite
+      tokenCount count boundaryTable rows)
+    (termValue unitZeroValuation (shortBinaryNumeralTerm count))
+
+def compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
+    (tokenCount count boundaryTable : Nat) : Nat :=
+  let body := compactAdditiveUnitBoundaryRowsBody tokenCount boundaryTable
+  let boundTerm := shortBinaryNumeralTerm count
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift boundTerm) body
+  let outerVariables := outerFormula.freeVariables
+  let Gamma := valuationContext outerVariables unitZeroValuation
+  let bound := termValue unitZeroValuation boundTerm
+  let branchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body)
+    (compactAdditiveUnitBoundaryRowsBranchesPublicFiniteStructuralEnvelope
+      tokenCount count boundaryTable)
+  compileContextualTermBoundedUniversalPayloadEnvelope
+    Gamma bound (Rew.bShift boundTerm) body
+    (compileShiftedBoundEqualityPayloadResource unitZeroValuation
+      outerVariables boundTerm)
+    branchResource
+
+theorem
+    compactAdditiveUnitBoundaryRowsUniversalStructuralPayloadEnvelope_le_publicFinite
+    (tokenCount count boundaryTable : Nat)
+    (rows : (index : Fin count) ->
+      CompactAdditiveUnitBoundaryRowData tokenCount boundaryTable index) :
+    compactAdditiveUnitBoundaryRowsUniversalStructuralPayloadEnvelope
+        tokenCount count boundaryTable rows <=
+      compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
+        tokenCount count boundaryTable := by
+  let body := compactAdditiveUnitBoundaryRowsBody tokenCount boundaryTable
+  let boundTerm := shortBinaryNumeralTerm count
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift boundTerm) body
+  let outerVariables := outerFormula.freeVariables
+  let Gamma := valuationContext outerVariables unitZeroValuation
+  let bound := termValue unitZeroValuation boundTerm
+  let oldCore :=
+    compactAdditiveUnitBoundaryRowsBranchesTransparentStructuralEnvelope
+      tokenCount count boundaryTable rows
+  let newCore :=
+    compactAdditiveUnitBoundaryRowsBranchesPublicFiniteStructuralEnvelope
+      tokenCount count boundaryTable
+  let oldBranchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body) oldCore
+  let newBranchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body) newCore
+  let boundResource := compileShiftedBoundEqualityPayloadResource
+    unitZeroValuation outerVariables boundTerm
+  have hcore : oldCore <= newCore := by
+    exact
+      compactAdditiveUnitBoundaryRowsBranchesTransparentStructuralEnvelope_le_publicFinite
+        tokenCount count boundaryTable rows
+  have hbranch : oldBranchResource <= newBranchResource :=
+    contextualBranchesUnderBoundPayloadEnvelope_mono
+      (Gamma.image Rewriting.shift) bound (Rewriting.free body)
+      oldCore newCore hcore
+  have htotal := compileContextualTermBoundedUniversalPayloadEnvelope_mono
+    Gamma bound (Rew.bShift boundTerm) body
+    boundResource oldBranchResource boundResource newBranchResource
+    le_rfl hbranch
+  simpa only [
+    compactAdditiveUnitBoundaryRowsUniversalStructuralPayloadEnvelope,
+    compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope,
+    body, boundTerm, outerFormula, outerVariables, Gamma, bound, oldCore,
+    newCore, oldBranchResource, newBranchResource, boundResource] using htotal
+
+theorem
+    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope_le_publicFinite
+    (tokenCount count boundaryTable : Nat)
+    (hrows : CompactAdditiveUnitBoundaryRows
+      tokenCount count boundaryTable) :
+    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope
+        tokenCount count boundaryTable hrows <=
+      compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
+        tokenCount count boundaryTable := by
+  unfold compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope
+  exact
+    compactAdditiveUnitBoundaryRowsUniversalStructuralPayloadEnvelope_le_publicFinite
+      tokenCount count boundaryTable
+      (compactAdditiveUnitBoundaryRowDataOfGraph
+        tokenCount count boundaryTable hrows)
+
 #print axioms
   successorEqualityCertificate_structuralPayloadBound_le_transparent
 #print axioms
@@ -529,5 +780,9 @@ theorem
   compactAdditiveUnitBoundaryRowsFromRowDataExplicitHybridCertificate_structuralPayloadBound_le_transparent
 #print axioms
   compactAdditiveUnitBoundaryRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactAdditiveUnitBoundaryRowsBranchStructuralPayloadResourceSum_le_publicFinite
+#print axioms
+  compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope_le_publicFinite
 
 end FoundationCompactNumericListedDirectAdditiveUnitBoundaryRowsPublicBounds

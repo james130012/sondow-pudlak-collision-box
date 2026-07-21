@@ -1,5 +1,5 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedAtValuationIndexExplicitHybridCertificate
-import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedUniformDirectCompiler
+import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedPublicDirectCompiler
 import integration.FoundationCompactPAExplicitHybridUniversalBranches
 import integration.FoundationCompactPAExplicitDirectUniversalBranches
 import integration.FoundationCompactPAExplicitDirectUniversalBranchesPolynomialBounds
@@ -31,7 +31,7 @@ namespace FoundationCompactNumericListedDirectFormulaTransformAdjacentRowsBounde
 
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedAtValuationIndexExplicitHybridCertificate
-open FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedUniformDirectCompiler
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedPublicDirectCompiler
 open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 open FoundationCompactPABinaryNumeralAddition
 open FoundationCompactPAFiniteCaseSyntax
@@ -363,7 +363,7 @@ private noncomputable def
       mode witnessStart witnessFinish witnessCount valueBound := by
     simpa [adjacentRowsBranchValuation, zeroValuation] using hrow
   let raw :=
-    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexUniformDirectOfGraph
+    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectOfGraph
       (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
       stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
       witnessFinish witnessCount valueBound hcurrent
@@ -379,7 +379,7 @@ noncomputable def
     (hrow : CompactFormulaTransformAdjacentCurrentBounded
       tokenTable width tokenCount stateBoundary stateCount rowIndex mode
       witnessStart witnessFinish witnessCount valueBound) : Nat :=
-  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexUniformDirectPayloadEnvelopeOfGraph
+  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph
     (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
     stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
     witnessFinish witnessCount valueBound (by
@@ -402,7 +402,7 @@ theorem
     compactFormulaTransformAdjacentRowsBoundedDirectBranchPayloadResource
   rw [castValuationContextProof_payloadLength_eq]
   exact
-    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexUniformDirectOfGraph_payloadLength_le
+    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le
       (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
       stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
       witnessFinish witnessCount valueBound _
