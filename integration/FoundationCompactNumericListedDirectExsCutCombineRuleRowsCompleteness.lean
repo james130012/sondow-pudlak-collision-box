@@ -21,6 +21,7 @@ open FoundationCompactNumericSuccIndSentence
 open FoundationCompactNumericListedRuleChecks
 open FoundationCompactNumericListedTaskMachine
 open FoundationCompactNumericListedDirectAdditiveTypeCanonical
+open FoundationCompactNumericListedDirectAdditiveCodecGraph
 open FoundationCompactNumericListedDirectAtomicListLayouts
 open FoundationCompactNumericListedDirectVerifierValueLayouts
 open FoundationCompactNumericListedDirectNatListBoundaryRigidity
@@ -34,8 +35,47 @@ open FoundationCompactNumericListedDirectExsRuleCheck
 open FoundationCompactNumericListedDirectCutRuleCheck
 open FoundationCompactNumericListedDirectExsCutCombineRuleRows
 open FoundationCompactNumericListedDirectFormulaTransformStateLayout
+open FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformTotalExactFormula
 open FoundationCompactNumericListedDirectFormulaTransformTotalExactCompleteness
+
+def compactNumericExsCutFormulaTransformPublicFuelBound
+    (tokenCount : Nat) : Nat :=
+  16 * (tokenCount + 1) * (tokenCount + 1) + 8
+
+def compactNumericExsCutCriticalCoordinateSizeBound
+    (width tokenCount : Nat) : Nat :=
+  let fuel := compactNumericExsCutFormulaTransformPublicFuelBound tokenCount
+  compactFormulaTransformAdjacentStepPublicWidth width tokenCount +
+    (tokenCount + 1) * tokenCount +
+    (fuel + 2) * tokenCount +
+    (fuel + 1) +
+    compactFormulaTransformCanonicalTableWidthBound
+      width tokenCount fuel + 8
+
+structure CompactNumericExsCutCriticalCoordinateBounds
+    (width tokenCount transformStateBoundary
+      transformTableWidth transformValueBound : Nat) : Prop where
+  transformStateBoundary_size : Nat.size transformStateBoundary ≤
+    compactNumericExsCutCriticalCoordinateSizeBound width tokenCount
+  transformTableWidth_size : Nat.size transformTableWidth ≤
+    compactNumericExsCutCriticalCoordinateSizeBound width tokenCount
+  transformValueBound_size : Nat.size transformValueBound ≤
+    compactNumericExsCutCriticalCoordinateSizeBound width tokenCount
+
+theorem compactSyntaxRunFuelBound_le_exsCutPublicFuelBound
+    {formula : List Nat} {tokenCount : Nat}
+    (hformulaCount : formula.length ≤ tokenCount) :
+    compactSyntaxRunFuelBound formula ≤
+      compactNumericExsCutFormulaTransformPublicFuelBound tokenCount := by
+  have hlength := Nat.add_le_add_right hformulaCount 1
+  have hsquare := Nat.mul_le_mul hlength hlength
+  have hscaled := Nat.mul_le_mul_left 16 hsquare
+  have htotal := Nat.add_le_add_right hscaled 8
+  simpa [compactSyntaxRunFuelBound,
+    compactNumericExsCutFormulaTransformPublicFuelBound, Nat.mul_assoc] using
+      htotal
 
 theorem CompactNumericExsCutCombineRuleRows.exists_of_exs
     {tokenTable width tokenCount taskTag gammaFinish gammaBoundary firstFinish
@@ -57,11 +97,17 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_exs
         ((compactFormulaSubstitutionExact 1 (witness, formula)).getD []))
     (hempty : CompactAdditiveNatListDirectLayout
       tokenTable width tokenCount emptyStart emptyFinish [])
-    (htraceRows : CompactFormulaTransformStateListRowLayouts
-      tokenTable width tokenCount transformStateBoundary
-        (compactFormulaTransformStateTrace (2, witness)
-          (compactSyntaxRunFuelBound formula)
-          (compactFormulaTransformInitialState 1 formula)))
+    (htraceRows :
+      CompactFormulaTransformStateListRowLayouts
+          tokenTable width tokenCount transformStateBoundary
+          (compactFormulaTransformStateTrace (2, witness)
+            (compactSyntaxRunFuelBound formula)
+            (compactFormulaTransformInitialState 1 formula)) ∧
+        Nat.size transformStateBoundary ≤
+          ((compactFormulaTransformStateTrace (2, witness)
+              (compactSyntaxRunFuelBound formula)
+              (compactFormulaTransformInitialState 1 formula)).length + 1) *
+            tokenCount)
     (hright : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
         rightGammaBoundary rightConclusion)
@@ -106,7 +152,10 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_exs
         (compactAdditiveBoolTag
           (compactExsRuleCheck
             (Gamma, (formula,
-              (witness, (rightConclusion, rightValid)))))) := by
+              (witness, (rightConclusion, rightValid)))))) ∧
+      CompactNumericExsCutCriticalCoordinateBounds
+        width tokenCount transformStateBoundary
+          transformTableWidth (2 ^ transformTableWidth) := by
   rcases hformula with
     ⟨formulaBoundary, hformulaStructure, hformulaRows, hformulaSize⟩
   rcases htransformed with
@@ -149,10 +198,54 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_exs
       CompactAdditiveStructuredListElementRowLayouts.natUnitBoundaryRows
         hemptyRows,
       rfl, hemptySize⟩
-  rcases CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace
-      htraceRows hwitness rfl hformulaRows htransformedRows hemptyRows
+  rcases
+      CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace_with_width_bound
+      htraceRows.1 hwitness rfl hformulaRows htransformedRows hemptyRows
       (by simp [compactFormulaSubstitutionExact]) with
-    ⟨transformTableWidth, htransform⟩
+    ⟨transformTableWidth, htransform, htransformTableWidthRaw⟩
+  have hformulaCount :
+      formula.length ≤ tokenCount :=
+    structuredListLayout_count_le_tokenCount hformulaStructure
+  have hfuel : compactSyntaxRunFuelBound formula ≤
+      compactNumericExsCutFormulaTransformPublicFuelBound tokenCount :=
+    compactSyntaxRunFuelBound_le_exsCutPublicFuelBound hformulaCount
+  have htransformStateBoundaryRaw :
+      Nat.size transformStateBoundary ≤
+        (compactSyntaxRunFuelBound formula + 2) * tokenCount := by
+    simpa using htraceRows.2
+  have htransformStateBoundaryPublic :
+      Nat.size transformStateBoundary ≤
+        (compactNumericExsCutFormulaTransformPublicFuelBound tokenCount + 2) *
+          tokenCount :=
+    htransformStateBoundaryRaw.trans
+      (Nat.mul_le_mul_right tokenCount (Nat.add_le_add_right hfuel 2))
+  have htransformTableWidth :
+      transformTableWidth ≤
+        compactFormulaTransformCanonicalTableWidthBound width tokenCount
+          (compactNumericExsCutFormulaTransformPublicFuelBound tokenCount) :=
+    htransformTableWidthRaw.trans
+      (compactFormulaTransformCanonicalTableWidthBound_mono_fuel
+        width tokenCount hfuel)
+  have htransformStateBoundarySize :
+      Nat.size transformStateBoundary ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount :=
+    htransformStateBoundaryPublic.trans (by
+      simp [compactNumericExsCutCriticalCoordinateSizeBound]
+      omega)
+  have htransformTableWidthSize :
+      Nat.size transformTableWidth ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount :=
+    ((natSize_le_of_le (Nat.le_refl transformTableWidth)).trans
+      htransformTableWidth).trans (by
+        simp [compactNumericExsCutCriticalCoordinateSizeBound]
+        omega)
+  have htransformValueBoundSize :
+      Nat.size (2 ^ transformTableWidth) ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount := by
+    rw [Nat.size_pow]
+    exact (Nat.add_le_add_right htransformTableWidth 1).trans (by
+      simp [compactNumericExsCutCriticalCoordinateSizeBound]
+      omega)
   let result := compactExsRuleCheck
     (Gamma, (formula, (witness, (rightConclusion, rightValid))))
   have hcheck : CompactAdditiveExsRuleCheck
@@ -189,13 +282,17 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_exs
     simpa only [hrightBool] using hrightHeadCanonical
   refine ⟨formulaBoundary, Nat.size formulaBoundary,
     transformedBoundary, Nat.size transformedBoundary,
-    emptyBoundary, Nat.size emptyBoundary, transformTableWidth,
-    hformulaWitness, htransformedWitness, hemptyWitness, ?_⟩
-  left
-  exact ⟨htag, hsourceCount,
-    CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
-      hright,
-    hrightHead, hcheck, hpush⟩
+    emptyBoundary, Nat.size emptyBoundary, transformTableWidth, ?_, ?_⟩
+  · refine ⟨hformulaWitness, htransformedWitness, hemptyWitness, ?_⟩
+    left
+    exact ⟨htag, hsourceCount,
+      CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
+        hright,
+      hrightHead, hcheck, hpush⟩
+  · exact
+      { transformStateBoundary_size := htransformStateBoundarySize
+        transformTableWidth_size := htransformTableWidthSize
+        transformValueBound_size := htransformValueBoundSize }
 
 #print axioms CompactNumericExsCutCombineRuleRows.exists_of_exs
 
@@ -219,11 +316,17 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_cut
         ((compactFormulaNegationExact 0 formula).getD []))
     (hempty : CompactAdditiveNatListDirectLayout
       tokenTable width tokenCount emptyStart emptyFinish [])
-    (htraceRows : CompactFormulaTransformStateListRowLayouts
-      tokenTable width tokenCount transformStateBoundary
-        (compactFormulaTransformStateTrace (3, [])
-          (compactSyntaxRunFuelBound formula)
-          (compactFormulaTransformInitialState 0 formula)))
+    (htraceRows :
+      CompactFormulaTransformStateListRowLayouts
+          tokenTable width tokenCount transformStateBoundary
+          (compactFormulaTransformStateTrace (3, [])
+            (compactSyntaxRunFuelBound formula)
+            (compactFormulaTransformInitialState 0 formula)) ∧
+        Nat.size transformStateBoundary ≤
+          ((compactFormulaTransformStateTrace (3, [])
+              (compactSyntaxRunFuelBound formula)
+              (compactFormulaTransformInitialState 0 formula)).length + 1) *
+            tokenCount)
     (hright : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
         rightGammaBoundary rightConclusion)
@@ -275,7 +378,10 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_cut
           (compactCutRuleCheck
             (Gamma, (formula,
               ((leftConclusion, leftValid),
-                (rightConclusion, rightValid)))))) := by
+                (rightConclusion, rightValid)))))) ∧
+      CompactNumericExsCutCriticalCoordinateBounds
+        width tokenCount transformStateBoundary
+          transformTableWidth (2 ^ transformTableWidth) := by
   rcases hformula with
     ⟨formulaBoundary, hformulaStructure, hformulaRows, hformulaSize⟩
   rcases hnegated with
@@ -317,10 +423,54 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_cut
       CompactAdditiveStructuredListElementRowLayouts.natUnitBoundaryRows
         hemptyRows,
       rfl, hemptySize⟩
-  rcases CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace
-      htraceRows hemptyLayout rfl hformulaRows htransformedRows hemptyRows
+  rcases
+      CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace_with_width_bound
+      htraceRows.1 hemptyLayout rfl hformulaRows htransformedRows hemptyRows
       (by simp [compactFormulaNegationExact]) with
-    ⟨transformTableWidth, htransform⟩
+    ⟨transformTableWidth, htransform, htransformTableWidthRaw⟩
+  have hformulaCount :
+      formula.length ≤ tokenCount :=
+    structuredListLayout_count_le_tokenCount hformulaStructure
+  have hfuel : compactSyntaxRunFuelBound formula ≤
+      compactNumericExsCutFormulaTransformPublicFuelBound tokenCount :=
+    compactSyntaxRunFuelBound_le_exsCutPublicFuelBound hformulaCount
+  have htransformStateBoundaryRaw :
+      Nat.size transformStateBoundary ≤
+        (compactSyntaxRunFuelBound formula + 2) * tokenCount := by
+    simpa using htraceRows.2
+  have htransformStateBoundaryPublic :
+      Nat.size transformStateBoundary ≤
+        (compactNumericExsCutFormulaTransformPublicFuelBound tokenCount + 2) *
+          tokenCount :=
+    htransformStateBoundaryRaw.trans
+      (Nat.mul_le_mul_right tokenCount (Nat.add_le_add_right hfuel 2))
+  have htransformTableWidth :
+      transformTableWidth ≤
+        compactFormulaTransformCanonicalTableWidthBound width tokenCount
+          (compactNumericExsCutFormulaTransformPublicFuelBound tokenCount) :=
+    htransformTableWidthRaw.trans
+      (compactFormulaTransformCanonicalTableWidthBound_mono_fuel
+        width tokenCount hfuel)
+  have htransformStateBoundarySize :
+      Nat.size transformStateBoundary ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount :=
+    htransformStateBoundaryPublic.trans (by
+      simp [compactNumericExsCutCriticalCoordinateSizeBound]
+      omega)
+  have htransformTableWidthSize :
+      Nat.size transformTableWidth ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount :=
+    ((natSize_le_of_le (Nat.le_refl transformTableWidth)).trans
+      htransformTableWidth).trans (by
+        simp [compactNumericExsCutCriticalCoordinateSizeBound]
+        omega)
+  have htransformValueBoundSize :
+      Nat.size (2 ^ transformTableWidth) ≤
+        compactNumericExsCutCriticalCoordinateSizeBound width tokenCount := by
+    rw [Nat.size_pow]
+    exact (Nat.add_le_add_right htransformTableWidth 1).trans (by
+      simp [compactNumericExsCutCriticalCoordinateSizeBound]
+      omega)
   let result := compactCutRuleCheck
     (Gamma, (formula,
       ((leftConclusion, leftValid), (rightConclusion, rightValid))))
@@ -366,15 +516,19 @@ theorem CompactNumericExsCutCombineRuleRows.exists_of_cut
     simpa only [hleftBool] using hleftHeadCanonical
   refine ⟨formulaBoundary, Nat.size formulaBoundary,
     transformedBoundary, Nat.size transformedBoundary,
-    emptyBoundary, Nat.size emptyBoundary, transformTableWidth,
-    hformulaWitness, htransformedWitness, hemptyWitness, ?_⟩
-  right
-  exact ⟨htag, hsourceCount,
-    CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
-      hright,
-    CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
-      hleft,
-    hrightHead, hleftHead, hcheck, hpush⟩
+    emptyBoundary, Nat.size emptyBoundary, transformTableWidth, ?_, ?_⟩
+  · refine ⟨hformulaWitness, htransformedWitness, hemptyWitness, ?_⟩
+    right
+    exact ⟨htag, hsourceCount,
+      CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
+        hright,
+      CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
+        hleft,
+      hrightHead, hleftHead, hcheck, hpush⟩
+  · exact
+      { transformStateBoundary_size := htransformStateBoundarySize
+        transformTableWidth_size := htransformTableWidthSize
+        transformValueBound_size := htransformValueBoundSize }
 
 #print axioms CompactNumericExsCutCombineRuleRows.exists_of_cut
 

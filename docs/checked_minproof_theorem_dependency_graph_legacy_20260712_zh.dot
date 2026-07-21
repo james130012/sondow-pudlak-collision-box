@@ -1,0 +1,778 @@
+digraph CheckedMinProofDependencies {
+  graph [
+    rankdir=TB,
+    bgcolor="white",
+    compound=true,
+    newrank=true,
+    outputorder=edgesfirst,
+    splines=polyline,
+    ratio=compress,
+    size="36,54",
+    pad="0.18",
+    nodesep="0.14",
+    ranksep="0.32",
+    fontname="Noto Sans CJK SC",
+    fontsize=24,
+    label="Checked min-proof growth（已检查最短证明增长）定理依赖图",
+    labelloc="t",
+    labeljust="c"
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Noto Sans CJK SC",
+    fontsize=10.5,
+    color="#526d75",
+    fillcolor="#eef3f4",
+    margin="0.14,0.09",
+    penwidth=1.2
+  ];
+  edge [
+    fontname="Noto Sans CJK SC",
+    fontsize=8.5,
+    color="#65777d",
+    arrowsize=0.68,
+    penwidth=1.05
+  ];
+
+  subgraph cluster_legend {
+    label="图例（status / 状态）";
+    color="#c8d1d4";
+    style="rounded";
+    done [label="Lean kernel checked\nLean 内核已检查", fillcolor="#dff2e8", color="#3f7c66"];
+    active [label="Active proof obligation\n当前证明义务", fillcolor="#fff0c9", color="#b37a12", penwidth=2.2];
+    pending [label="Pending root theorem\n待闭合根定理", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    audit [label="Axiom/dependency audit\n公理/依赖审计", fillcolor="#e9e3f5", color="#76639a"];
+    rejected [label="Rejected route\n经审计弃用的路线", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+  }
+
+  subgraph cluster_coordinate {
+    label="A. Honest proof coordinate（诚实证明坐标）";
+    color="#8fb7aa";
+    style="rounded";
+
+    natcode [label="binaryNatCode / decodeBinaryNat\n自然数前缀码 / 自然数前缀解码\nescaped-bit prefix serialization（转义位前缀序列化）", fillcolor="#dff2e8"];
+    syntaxcode [label="binaryTermCode + binaryFormulaCode\n项二进制码 + 公式二进制码\ntyped syntax serialization（类型化语法序列化）", fillcolor="#dff2e8"];
+    sequentcode [label="binarySequentCode\n序列二进制码\nfinite sequent payload（有限序列载荷）", fillcolor="#dff2e8"];
+    prooftree [label="CheckedPAProofTree.binaryCode\n已检查 PA 证明树二进制码\n10 sequent-calculus rules（十条相继式规则）", fillcolor="#dff2e8"];
+    axiomcert [label="PAAxiomCertificate\nPA 公理证书\n23 constructors incl. induction（含归纳的 23 个构造）", fillcolor="#dff2e8"];
+    structcert [label="StructuralValidityCertificate\n结构有效性证书\nall local witnesses counted（全部局部见证计长）", fillcolor="#dff2e8"];
+    certifiedcode [label="binaryCertifiedPAProofCode\n带证书 PA 证明二进制码\nproof + certificate（证明 + 证书）", fillcolor="#dff2e8"];
+    packedcode [label="packBinaryString / packedPayloadLength\n位串打包 / 有效载荷长度\nNat.size = payload + 1（自然数位长等式）", fillcolor="#dff2e8"];
+
+    natcode -> syntaxcode [label="labels / 标签"];
+    syntaxcode -> sequentcode;
+    sequentcode -> prooftree;
+    axiomcert -> structcert;
+    prooftree -> certifiedcode;
+    structcert -> certifiedcode;
+    certifiedcode -> packedcode;
+  }
+
+  subgraph cluster_decoder {
+    label="B. Decoder integrity（解码完整性）";
+    color="#8fb7aa";
+    style="rounded";
+
+    typeddecoder [label="decodeCompactTerm / Formula / Sequent\n紧凑项 / 公式 / 序列解码器\nFoundationCompactPAProofVerifier.lean", fillcolor="#dff2e8"];
+    proofdecoder [label="decodeCompactProof\n紧凑证明树解码器\nall 10 constructors（全部十个构造）", fillcolor="#dff2e8"];
+    certdecoder [label="decodePAAxiomCertificate\ndecodeStructuralValidityCertificate\nPA 公理证书 / 结构证书解码器", fillcolor="#dff2e8"];
+    packeddecoder [label="decodeCompactPackedCertifiedPAProof\n打包带证书证明解码器\nno hidden auxiliary witness（无隐藏辅助见证）", fillcolor="#dff2e8"];
+
+    typeddecoder -> proofdecoder;
+    certdecoder -> packeddecoder;
+    proofdecoder -> packeddecoder;
+  }
+
+  subgraph cluster_size {
+    label="C. Non-inflation and canonical length（不膨胀与规范长度）";
+    color="#8fb7aa";
+    style="rounded";
+
+    structural [label="decodeCompactProof_parseWeight_le\n证明解码结构量界\nstructural non-inflation（结构不膨胀）\nFoundationCompactProofDecoderStructuralBound.lean", fillcolor="#dff2e8"];
+    syntaxcanonical [label="decodeCompactTerm/Formula/Sequent_canonical_length_le\n项/公式/序列规范重编码长度界\nFoundationCompactCanonicalDecodeLength.lean", fillcolor="#dff2e8"];
+    proofcanonical [label="decodeCompactProof_binaryLength_le\n完整证明树规范重编码长度界\nFoundationCompactProofCanonicalDecodeLengthComplete.lean", fillcolor="#dff2e8"];
+    certcanonical [label="decodeStructuralValidityCertificate_binaryLength_le\n结构证书规范重编码长度界\nFoundationCompactCertificateCanonicalDecodeLength.lean", fillcolor="#dff2e8"];
+    totalcanonical [label="compactCertifiedPAProofVerifier_canonical_length_bound\n公开验证器规范载荷总界\naccepted output <= honest input（接受输出不长于诚实输入）", fillcolor="#dff2e8"];
+    transformsize [label="shift/free/neg/substitution size bounds\n移位/自由变量嵌入/否定/代入大小界\nsubstitution <= formula × term（代入至多公式乘项）", fillcolor="#dff2e8"];
+
+    typeddecoder -> syntaxcanonical;
+    proofdecoder -> structural;
+    syntaxcanonical -> proofcanonical;
+    certdecoder -> certcanonical;
+    proofcanonical -> totalcanonical;
+    certcanonical -> totalcanonical;
+    syntaxcode -> transformsize;
+  }
+
+  subgraph cluster_explicit_local {
+    label="D. Explicit local costed verifier（显式带成本局部验证器）";
+    color="#8fb7aa";
+    style="rounded";
+
+    biteq [label="bitStringEqTrace / natEqTrace\n位串相等轨迹 / 自然数相等轨迹\nresult correctness + explicit cost（结果正确 + 显式成本）", fillcolor="#dff2e8"];
+    bitset [label="bitStringMemTrace / SubsetTrace / SetEqTrace\n位串成员 / 包含 / 集合等价轨迹\nquadratic-style explicit bounds（二次型显式界）", fillcolor="#dff2e8"];
+    formulalist [label="formulaEq/Mem/Subset/SetEqTrace\n公式相等/成员/包含/集合等价轨迹\ncode emission charged（公式码生成已计费）", fillcolor="#dff2e8"];
+    listedtree [label="ListedCheckedPAProofTree\n列表序列 PA 证明树\npreserves decoded lists（保留解码列表）", fillcolor="#dff2e8"];
+    listedcert [label="listedCertificateValidTrace\n列表证书有效性成本轨迹\nno Finset decide black box（无有限集判定黑箱）", fillcolor="#dff2e8"];
+
+    biteq -> bitset;
+    bitset -> formulalist;
+    listedtree -> listedcert;
+    formulalist -> listedcert;
+    transformsize -> listedcert [label="local transforms\n局部变换"];
+  }
+
+  subgraph cluster_same_system {
+    label="E. Same-system soundness and completeness（同系统可靠性与完备性）";
+    color="#8fb7aa";
+    style="rounded";
+
+    listdecoder [label="decodeCompactListedProof\n列表保持证明解码器\nFoundationCompactListedProofDecoder.lean", fillcolor="#dff2e8"];
+    projection [label="decodeCompactListedProof_toChecked\n列表解码投影到原检查器\n10-rule fuel induction（十规则燃料归纳）", fillcolor="#dff2e8"];
+    localiff [label="listedCertificateValidTrace_toChecked_iff\n新局部轨迹 <-> 原 certificateValid\n语义精确等价", fillcolor="#dff2e8"];
+    publiciff [label="listedCompactCertifiedPAProofVerifier_eq_true_iff\n新公开验证器接受 <-> 精确检查关系\nFoundationCompactListedCertifiedVerifier.lean", fillcolor="#dff2e8"];
+    soundness [label="listedCompactCertifiedPAProofVerifier_toDerivation\nsoundness（可靠性）\naccepted code -> real PA Derivation2\n接受码 -> 真实 PA 推导", fillcolor="#dff2e8"];
+    listencoder [label="decodeCompactListedProof_canonicalBinaryCode_append\n列表证明规范编码往返\nFoundationCompactListedProofEncoder.lean", fillcolor="#dff2e8"];
+    completeness [label="derivation_to_listedCompactCertifiedPAProofVerifier\ncompleteness（完备性）\nreal PA derivation -> accepted canonical code\n真实 PA 推导 -> 规范接受码", fillcolor="#dff2e8"];
+    predicate [label="Concrete P(x,y) / ListedCompactCertifiedPAProofChecks\n具体证明谓词 P(x,y) / 列表带证书检查关系\nsame formula + same checker + honest length\n同一公式 + 同一检查器 + 诚实长度", fillcolor="#dff2e8", penwidth=2.0];
+    minmeasure [
+      label="minListedCertifiedPAProofPayloadLength(formula)\n具体检查器诱导的最短完整载荷长度\n真实 PA 推导 -> 最小值由某个接受码实现\n任意接受码 -> minimum <= packedPayloadLength(code)\n接受码 -> 同公式真实 Derivation2（推导树）\n无项目级 proof_length；无 sorryAx\nFoundationCompactListedMinProofLength.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    canonicalnormalize [
+      label="P_canon(code, formulaCode) + canonical Bool verifier\n纯数值规范证明关系 + 规范布尔验证器\nBool verifier = true <-> P_canon，由 Lean 精确证明\n任意公开接受码 -> 同公式码规范码，完整载荷不增长\n最短完整载荷必由真实规范 proof + certificate 码实现\n全体码有限一致性 <-> 同 cutoff 的纯数值规范码有限一致性\n非规范/冗余编码不能人为压低 minimum（最小值）\nFoundationCompactListedCanonicalNormalization.lean\n无 sorryAx；仅三个 Lean 标准公理",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+
+    typeddecoder -> listdecoder;
+    listdecoder -> projection;
+    proofdecoder -> projection;
+    listedcert -> localiff;
+    projection -> publiciff;
+    localiff -> publiciff;
+    packeddecoder -> publiciff;
+    publiciff -> soundness;
+    prooftree -> listencoder;
+    listdecoder -> listencoder;
+    listencoder -> completeness;
+    listedcert -> completeness;
+    soundness -> predicate;
+    completeness -> predicate;
+    predicate -> minmeasure [label="minimum over accepted codes\n对接受码取最小值"];
+    completeness -> minmeasure [label="nonempty accepted set\n接受集合非空"];
+    publiciff -> canonicalnormalize [label="decode every accepted code\n解码任意接受码"];
+    listencoder -> canonicalnormalize [label="canonical re-encoding\n规范重编码"];
+    totalcanonical -> canonicalnormalize [label="no payload growth\n载荷不增长"];
+    minmeasure -> canonicalnormalize [label="minimum realized canonically\n最小值由规范码实现"];
+  }
+
+  subgraph cluster_cost_active {
+    label="F. Active total bit-cost proof（当前总位成本证明）";
+    color="#c18a27";
+    style="rounded,bold";
+
+    nattrace [label="decodeBinaryNatTrace_result\ndecodeBinaryNatTrace_cost_le\n自然数解码轨迹结果等价 + 二次位成本界\nNat.bit charged by Nat.size（按自然数位长收费）", fillcolor="#dff2e8", color="#3f7c66"];
+    tracebind [label="OptionTrace + traceBind\n可选结果成本轨迹 + 轨迹绑定\nevery bind/failure charged（每次绑定/失败均计费）", fillcolor="#dff2e8", color="#3f7c66"];
+    vectortrace [label="decodeManyVectorTrace_result\n向量解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    termtrace [label="decodeCompactTermTrace_result\n项解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    formulatrace [label="decodeCompactFormulaTrace_result\n公式解码轨迹结果等价\nLean kernel checked（Lean 内核已检查）", fillcolor="#dff2e8", color="#3f7c66"];
+    prooftrace [label="decodeCompactListedProofTrace_result\n列表证明解码轨迹结果等价\nall 10 rules（全部十条规则）", fillcolor="#dff2e8", color="#3f7c66"];
+    certtrace [label="PA/structural certificate decoder traces\nPA / 结构证书解码轨迹\n23 axiom tags + 4 recursive nodes\n23 个公理标签 + 4 种递归节点", fillcolor="#dff2e8", color="#3f7c66"];
+    publictrace [label="listedCompactCertifiedPAProofVerifierTrace_result\n公开验证器轨迹结果等价\npacked envelope + formula + local checks\n打包外壳 + 公式 + 局部检查", fillcolor="#dff2e8", color="#3f7c66"];
+    natpotential [label="decodeBinaryNatTrace_success/failure_potential\n自然数解码成功/失败势能界\nquartic consumed-prefix invariant\n四次已消费前缀不变量", fillcolor="#dff2e8", color="#3f7c66"];
+    vectorpotential [label="decodeManyVectorTrace_potential\n任意长度向量解码摊还势能定理\ndisjoint consumed prefixes（互不重叠的已消费前缀）", fillcolor="#dff2e8", color="#3f7c66"];
+    symbolcharge [label="arithmeticFunc/Rel_decode_charge_le\n算术函数/关系符号解码收费界\nfinite ORing language（有限有序环语言）", fillcolor="#dff2e8", color="#3f7c66"];
+    termpotential [label="decodeCompactTermTrace_parserCostBound\n紧凑项解码器全路径摊还成本界\nsuccess + every failure path\n成功路径 + 全部失败路径", fillcolor="#dff2e8", color="#3f7c66"];
+    formulapotential [label="decodeCompactFormulaTrace_parserCostBound\n紧凑公式解码器全路径摊还成本界\natoms / connectives / quantifiers\n原子式 / 联结词 / 量词", fillcolor="#dff2e8", color="#3f7c66"];
+    proofpotential [
+      label="decodeCompactListedProofTrace_parserCostBound\n列表证明树全路径四次势能成本界\n十条 PA 相继式规则全部通过\nand/cut 二叉子证明势能已望远镜相消\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#3f7c66"
+    ];
+    certpotential [
+      label="decodePAAxiomCertificateTrace_parserCostBound\ndecodeStructuralValidityCertificateTrace_parserCostBound\n23 种 PA 公理标签 + 4 种递归证书节点全路径四次势能界\n归纳公理体和二元证书树已摊还闭合\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#3f7c66", penwidth=2.2
+    ];
+    packedcost [
+      label="packed proof/formula decoder cost bounds\n打包证明/公式解码器成本界\n证明+证书串联、末位哨兵、dropLast、空后缀全部闭合\n两个公开打包解码器均不超过 2 × decoderPotential(Nat.size code)\n成功/失败路径全覆盖；无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    transformcode [
+      label="transformation binary-code length bounds\n语法变换完整二进制码长界\nshift/free/neg 均至多线性膨胀\nsubstitution：|phi[t]| <= 3(F+1)(W+1)F\n含 qpow 量词深度预算；无隐藏参数；无 sorryAx\nFoundationCompactSyntaxTransformationCodeBounds.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    negtrace [
+      label="binaryFormulaNegTrace_result / _cost_le\n否定变换真实递归轨迹\n结果精确等于 ∼formula\n每个公式构造收费一步；原子项向量不重复遍历\n执行成本 <= formulaSymbolCount <= |binaryFormulaCode(formula)|\n单文件探针已通过；无 sorryAx\nFoundationCompactSyntaxNegationTrace.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    axmjoint [
+      label="axm comparator input <= 2 * jointWeight + 1\n公理比较器输入联合坐标界\n上下文、候选句子、完整 PA 公理证书均落在同一诚实位权\ncertificateBits + sentenceBits + 1 <= 2 * jointWeight + 1\n四个坐标引理已通过；无 sorryAx\nFoundationCompactListedAxiomJointWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    honestproof [
+      label="decodeCompactListedProof_honestWeight_le\n列表保持证明树诚实位权界\nweight(tree) + 8|suffix| <= 8|input|\n十条 PA 规则全部闭合；重复公式逐个计费\n覆盖任意成功解码，不只是规范编码\n公理画像仅 propext / Classical.choice / Quot.sound\nFoundationCompactListedProofHonestWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    honestcert [
+      label="decodeCompactPackedListedCertifiedPAProof_honestWeight_le\n证明树+完整结构证书联合诚实位权界\njointWeight(tree,cert) <= 8 * packedPayloadLength(code)\nPA 公理证书 23 标签及递归证书全部由实际输入位计费\n无辅助见证和隐藏长度参数；无 sorryAx\nFoundationCompactListedCertifiedHonestWeight.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localprimitives [
+      label="formulaEq/Mem/Subset/SetEqTrace_cost_le_polynomial\n公式相等/成员/包含/集合等价统一位成本界\nP(w) = 4 + 2(w+3)^2 + w\nw 是全部输入公式码位权，包含列表重复项\n四个端点全部通过；无 sorryAx\nFoundationCompactListedLocalCostPrimitives.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localbranches9 [
+      label="10/10 listedCertificateValidTrace cost branches\n十条证明规则局部成本分支全部闭合\nclosed / verum / and / or / all / exs / wk / shift / cut：\n由 P(G(w)) 及生成语法界统一计费\naxm：由 A(w)=K*(2w+1)^12 的真实 guarded comparator 计费\n最终每节点固定多项式包络已由 Lean 检查；无 haxm、无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    localinduction [
+      label="联合坐标内部归纳骨架 + 具体实例\nlistedCertificateValidTrace_jointCost_le_polynomial_of_axm\nguardedListedCertificateValidTrace_jointCost_le\n十规则证明树/证书同步统一归纳已通过\nb = proofWeight + certificateWeight（证明+证书联合位权）\n抽象 haxm 已由真实 guarded axm 成本定理具体消除\n公开实例无 haxm；公理画像仅标准 Lean 公理；无 sorryAx",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    publicskeleton [
+      label="公开总成本内部骨架 + 具体实例\nlistedCompactCertifiedPAProofVerifierTrace_cost_le_of_certificateTrace\ns = Nat.size(code) + Nat.size(formulaCode)\n合并：两个打包解码、局部证书检查、结论集合比较、公式码比较\nQ(s)=4*decoderPotential(s)+L(s)+1，L(s) 是显式固定多项式\n原先唯一内部证书成本义务现已由 guarded 联合成本定理消除\n公理画像仅标准 Lean 公理；无 sorryAx\nFoundationCompactListedPublicCostSkeleton.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    publiccost [
+      label="【主终端完成：具体带守卫检查器最终汇合】\nguardedListedCertificateValidTrace_jointCost_le\nguardedListedCompactCertifiedPAProofVerifierTrace_result\nguardedListedCompactCertifiedPAProofVerifierTrace_cost_le\n\n已由 Lean 内核检查：\n1. axm 的 23 标签、接受/拒绝路径和候选长度 guard 全部统一；\n2. axm 局部成本进入与证明树、结构证书相同的诚实联合位权；\n3. 十规则整树成本不再带 haxm；\n4. 公开轨迹结果精确等于公开验证器结果；\n5. 总位成本 <= listedPublicVerifierCostPolynomial(\n   Nat.size code + Nat.size formulaCode)。\n\n定向构建退出码 0；五个关键端点公理画像仅\npropext / Classical.choice / Quot.sound。\n无 haxm、无输入包、无项目公设、无 sorryAx。\nFoundationCompactListedGuardedAxiomCost.lean",
+      fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+    ];
+    amortized [label="Success/failure total potential bound\n成功/失败全路径总势能界\n两个打包解码器、语法变换、十规则局部检查和最终比较均已计费\n公开轨迹的所有输入对均满足同一固定多项式位成本界\n不是只分析接受路径；无隐藏辅助见证长度", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+    costnote [shape=note, label="关键注释：result equivalence（结果等价）\n只证明轨迹没有改掉验证结果；\n必须再证明成功/失败全路径的固定多项式界，\n才能声称 polynomial time（多项式时间）。", fillcolor="#e8f1f8", color="#4e7892"];
+    transformtrace [label="【共享终端完成：guarded axiom trace】\n移位 / 代入 / 带守卫公理比较轨迹\n\nLean 内核已检查：\n1. shift/free/substitution/list/fixitr 的真实 QTrace；\n2. fixitr 输出码长 <= 4*(L+1)^2；成本 <= 128*(m+L+1)^2*L；\n3. succInd 四次代入、三次否定、三个析取、两个全称量词全部真实执行；\n4. succInd 输出码长 <= 10^7*(L+1)^4；成本 <= 10^11*(L+1)^12；\n5. guard 完备：合法相等候选不会被提前拒绝；\n6. 接受分支 fixitr/allClosure/formulaEq 与拒绝分支总成本均闭合；\n7. 全部 23 标签统一：true iff certificate.sentence = candidate；\n8. 总成本 <= K*(certificateBits+sentenceBits+1)^12，\n   K=10^30+(3B+4)，B 为显式 26 句固定预算。\n\n两条验收命令退出码 0；关键公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx、无项目公设。\n\n边界：certificate-only 直接生成完整归纳句在稀疏变量编号下不可能多项式；\n本节点完成的是保持接受关系的 candidate-length guarded comparator。", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+    polytime [label="VerifierBitCost(x,y) <= p(|x|+|y|)\n公开验证器总位成本不超过一个显式固定多项式\nguardedListedCompactCertifiedPAProofVerifierTrace_cost_le\n对全部 code/formulaCode 成立，成功与失败路径均覆盖\n这里是项目 QTrace 位成本模型；PA 内短证明仍由下一簇单独完成", fillcolor="#dff2e8", color="#2f6f57", style="rounded,filled", penwidth=2.8];
+
+    natcode -> nattrace;
+    nattrace -> tracebind;
+    tracebind -> vectortrace;
+    vectortrace -> termtrace;
+    termtrace -> formulatrace;
+    formulatrace -> prooftrace;
+    certdecoder -> certtrace;
+    formulatrace -> certtrace;
+    prooftrace -> publictrace;
+    certtrace -> publictrace;
+    publictrace -> amortized [label="exact behavior first\n先固定精确行为"];
+    nattrace -> natpotential;
+    natpotential -> vectorpotential;
+    vectorpotential -> termpotential [label="argument vectors\n参数向量"];
+    symbolcharge -> termpotential [label="finite symbol decoding\n有限符号解码"];
+    termpotential -> formulapotential [label="terms inside atoms\n原子式中的项"];
+    formulapotential -> proofpotential [label="formulas inside sequents\n序列中的公式"];
+    proofpotential -> certpotential [label="proof/certificate alignment\n证明树/证书树对齐"];
+    formulapotential -> certpotential [label="induction body\n归纳公理体"];
+    certpotential -> packedcost [label="proof + certificate stream\n证明 + 证书串"];
+    publictrace -> packedcost [label="same executable result\n同一可执行结果"];
+    packedcost -> publiccost [label="decoded objects\n已解码对象"];
+    transformsize -> transformcode [label="from symbol count to full bits\n从符号数提升到完整位长"];
+    transformcode -> negtrace [label="input bit-length control\n输入位长控制"];
+    negtrace -> publiccost [label="closed/cut negation charge\n闭合/切规则否定计费"];
+    transformcode -> publiccost [label="generated-code bounds\n生成公式码长界"];
+    listdecoder -> honestproof [label="all successful parses\n全部成功解码"];
+    honestproof -> honestcert [label="proof-tree charge\n证明树计费"];
+    certcanonical -> honestcert [label="full certificate bits\n完整证书位"];
+    honestcert -> publiccost [label="joint decoded-data bound\n联合解码数据界"];
+    honestcert -> axmjoint [label="proof + certificate coordinate\n证明 + 证书坐标"];
+    axmjoint -> publiccost [label="guarded comparator input bound\n带守卫比较器输入界"];
+    listedcert -> localprimitives [label="exact trace costs\n精确轨迹成本"];
+    honestproof -> localprimitives [label="duplicate-preserving weights\n保留重复项位权"];
+    localprimitives -> publiccost [label="uniform quadratic bound\n统一二次界"];
+    localprimitives -> localbranches9 [label="per-rule instantiation\n逐规则实例化"];
+    transformcode -> localbranches9 [label="generated syntax bounds\n生成语法界"];
+    localbranches9 -> publiccost [label="nine checked branches\n九条已检查分支"];
+    localbranches9 -> localinduction [label="structural aggregation\n结构汇总"];
+    localinduction -> publiccost [label="haxm concretely discharged\nhaxm 已由具体定理消除"];
+    localinduction -> publicskeleton [label="local certificate polynomial\n局部证书多项式"];
+    packedcost -> publicskeleton [label="two packed decoder bounds\n两个打包解码界"];
+    honestcert -> publicskeleton [label="decoded joint weight\n解码联合位权"];
+    publicskeleton -> publiccost [label="concrete discharge checked\n具体消义务已检查"];
+    listedcert -> publiccost [label="explicit local checks\n显式局部检查"];
+    publiccost -> amortized;
+    totalcanonical -> amortized [label="consumed-length control\n消费长度控制"];
+    costnote -> amortized [style=dotted, arrowhead=none, constraint=false];
+    transformcode -> transformtrace;
+    transformtrace -> publiccost [label="guarded axm + shift/free/substitution costs\n带守卫公理 + 移位/自由化/代入成本"];
+    amortized -> polytime;
+    transformtrace -> polytime;
+    totalcanonical -> polytime [label="input/output length control\n输入输出长度控制"];
+    listedcert -> polytime [label="local cost bounds\n局部成本界"];
+    predicate -> polytime [label="exact executable relation\n精确可执行关系"];
+  }
+
+  subgraph cluster_internalization {
+    label="G. Arithmetic internalization（算术内部化）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    syntaxtermformula [label="26-variable Delta-zero syntax term-task branch\n26 变量语法项任务 Delta-zero 分支\n\nLean 内核已检查：\n1. 当前任务头由规范 UnconsRows 强制为 kind=0；\n2. 短输入、越界变量、短函数头、非法函数码及非法标签全部显式失败；\n3. 失败保持原 token，并把 next tasks 锁定为已弹出的同一尾栈；\n4. bound/free variable 成功精确消费两个 token；\n5. 合法函数成功精确消费三个 token；\n6. 函数分支只压入 (2,binderArity,functionArity)；\n7. tokenAt 0/1/2 均由同一公开 Nat 行表读取；\n8. 三种状态变换各有独立手写有界公式与双向规格；\n9. 26 自由变量总公式逐点 iff 真实 term step；\n10. 公式存在见证 iff 公开 syntax parser step；\n11. 最终定向构建 1371 jobs 通过；\n12. 全部端点仅依赖标准三项。\n\nkind=1 formula task 已由相邻绿色节点闭合；\n当前进入非法 task kind 的确定失败分支。\nFoundationCompactNumericListedDirectParserSyntaxTermRows.lean\nFoundationCompactNumericListedDirectParserSyntaxTermFormula.lean\nFoundationCompactNumericListedDirectParserSyntaxTermInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+
+    syntaxformulatask [label="26-variable Delta-zero syntax formula-task branch\n26 变量语法公式任务 Delta-zero 分支\n\nLean 内核已检查：\n1. 当前任务头由规范 UnconsRows 强制为 kind=1；\n2. tags 0/1 精确读取关系元数与关系码；\n3. 合法关系精确 drop 3 并压入 repeat-term task；\n4. 短关系头与非法关系码确定失败；\n5. tags 2/3 精确 drop 1 且保持尾栈；\n6. tags 4/5 精确压入两个同元数 formula tasks；\n7. tags 6/7 精确压入一个 binderArity+1 formula task；\n8. 其余标签全部确定失败，不消费 token；\n9. 失败只保留已弹出的同一尾栈；\n10. binary/quantifier 各有独立手写 Delta-zero 公式；\n11. 26 变量总公式逐点 iff 真实 formula step；\n12. 公式存在见证 iff 公开 syntax parser step；\n13. 最终定向构建 1374 jobs 通过；\n14. 无项目公设，全部端点仅依赖标准三项。\n\n非法 task kind 已由相邻绿色节点闭合；\nsyntax task-head dispatch 至此完整。\nFoundationCompactNumericListedDirectParserSyntaxFormulaRows.lean\nFoundationCompactNumericListedDirectParserSyntaxFormulaTaskFormula.lean\nFoundationCompactNumericListedDirectParserSyntaxFormulaTaskInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+
+    syntaxinvalidtask [label="25-variable Delta-zero invalid syntax-task branch\n25 变量非法语法任务 Delta-zero 分支\n\nLean 内核已检查：\n1. 规范 UnconsRows 读取真实 kind/binderArity/repeatCount；\n2. 明确要求 kind != 0、kind != 1、kind != 2；\n3. next status 精确为 failed；\n4. next tokens 逐行等于原 tokens；\n5. next tasks 精确等于弹头后的同一尾栈；\n6. 不读取或消费任何语法 token；\n7. 25 自由变量手写公式逐点 iff 纯数值行关系；\n8. 公式存在见证 iff 真实非法任务分支；\n9. 已安装到公开 compactSyntaxParserStep；\n10. 最终定向构建 1373 jobs 通过；\n11. 无项目公设，全部端点仅依赖标准三项。\n\nparser initial/final 已由相邻绿色节点闭合；\n下一义务是 proof/certificate 的任务头分支。\nFoundationCompactNumericListedDirectParserSyntaxInvalidRows.lean\nFoundationCompactNumericListedDirectParserSyntaxInvalidFormula.lean\nFoundationCompactNumericListedDirectParserSyntaxInvalidInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+
+    parserinitialfinal [label="Direct parser initial/final Delta-zero formulas\n解析器初态／终态直接 Delta-zero 公式\n\nLean 内核已检查：\n1. 16 变量 StateAtRows 绑定 index/index+1 与 13 变量状态核心；\n2. 任意公式见证反向恢复同一真实 typed state 布局；\n3. 三 token 任务边界刚性排除伪任务行表；\n4. 初态精确绑定输入 token、唯一任务头与 running status；\n5. 终态精确绑定 completed status 与指定输出；\n6. 36 变量组合公式强制 stateCount=fuel+1；\n7. 第 0 行和第 fuel 行分别满足指定初态／终态；\n8. proof 初态来自 certified input；\n9. formula 初态来自公开 formula input；\n10. proof 终态输出行直接成为 certificate 初态输入行；\n11. certificate/formula 终态均精确为空输出；\n12. 最终定向构建 1376 jobs 通过；\n13. 无项目公设，全部端点仅依赖标准三项。\n\n严格边界：尚未关闭 proof/certificate 非空任务头分支，\n也尚未汇总完整 parser-step 逐行公式。\nFoundationCompactNumericListedDirectParserStateAtRows.lean\nFoundationCompactNumericListedDirectSyntaxTaskBoundaryRigidity.lean\nFoundationCompactNumericListedDirectParserInitialFormula.lean\nFoundationCompactNumericListedDirectParserFinalFormula.lean\nFoundationCompactNumericListedDirectTraceNatListRowLayouts.lean\nFoundationCompactNumericListedDirectParserInitialFinalFormula.lean\nFoundationCompactNumericListedDirectParserInitialFinalInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+
+    nattokenrowops [label="Exact Nat-token lookup/drop and finite symbol-code formulas\n自然数 token 定点读取／精确后缀与有限符号码公式\n\nLean 内核已检查：\n1. 七变量 NatListAtRows 直接读取 index/index+1 边界；\n2. 在真实 Nat 行下 iff index 合法且 getI(index)=value；\n3. 八变量 NatListDropRows 逐行比较 consumed+index；\n4. 在真实行下 iff target=source.drop(consumed)；\n5. parser 的 tokenAt 0/1/2 与 drop 1/2/3 可直接算术核验；\n6. 函数符号合法性精确展开为四个有限码对；\n7. 关系符号合法性精确展开为两个有限码对；\n8. 两类符号码均为二变量手写 Delta-zero 公式；\n9. 不调用 decoder，不输入 typed symbol 或 suffix 结论；\n10. 两个 1352-job 定向构建及符号码探针通过；\n11. 全部端点仅依赖标准三项。\n\nkind=0 term task 与 kind=1 formula task\n均已在相邻绿色节点闭合。\nFoundationCompactNumericListedDirectNatListAtRows.lean\nFoundationCompactNumericListedDirectNatListDropRows.lean\nFoundationCompactNumericListedDirectArithmeticSymbolCodeFormula.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+
+    defaultlistcode [label="Rejected: default Primcodable list encoding\n弃用：默认 Primcodable 列表编码\n\n源码审计：\nencode [] = 0；\nencode (x::xs) = succ(pair(encode x, encode xs))。\nNat.pair 的位长界对 tail code 带约 2 倍因子；\n沿长度 m 的列表递推只能直接得到潜在 2^m 放大。\n\n结论：它足以证明 primitive recursive，\n但不能承担 polynomial-size trace witness。\n改用长度前缀 + binaryNatCode 自定界流，\n使总位长等于各字段位长之和加线性头部。", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed", penwidth=2.4];
+    additivecodecbase [label="Additive typed token codec base\n加法型类型化 token 编解码基础\n\nLean 内核已检查：\n1. Nat 用单 token；Bool 用显式 0/1 token；\n2. Option 只增加 0/1 标签；Product 直接拼接两段编码；\n3. List 使用 count :: flatMap encode，不使用嵌套 Nat.pair；\n4. 列表解码器按 count 迭代，保存反向累积表后恢复原顺序；\n5. Nat/Bool/Option/Product/List 均满足\n   decode(encode(x) ++ suffix)=some(x,suffix)；\n6. 全部 encode/decode/迭代函数为 primitive recursive；\n7. List 总位长精确等于 count 头位长 + 各元素位长之和。\n\n定向 Lean 探针退出码 0；关键端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactAdditiveTokenCodec.lean\n\n本节点闭合通用 codec；完整 DirectTrace 实例化由下一绿色节点关闭。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    additiveweightexact [label="Exact honest token weight and packed-code size\n诚实 token 位权与打包码长精确等式\n\n定义 structural weight（结构位权）：\nweight(tokens) = sum_token (Nat.size(token) + 1)。\n其中 +1 明确支付每个 token 的自定界结构成本，\n没有把列表结构或分隔符成本藏在常数中。\n\nLean 内核已检查：\n1. weight 对空表、cons 与 append 有精确递推；\n2. binaryNatCode 总长度 = 2 * weight；\n3. Nat/Bool/Option/Product/List 编码位权均有精确组合公式；\n4. List 位权 = count 头位权 + 各元素编码位权之和；\n5. 定义 typed valueWeight（类型化值位权），积类型严格相加；\n6. 若列表每个元素 valueWeight <= B，则整个列表位权 <=\n   Nat.size(length)+1 + length*B；该行数乘逐行预算桥已核验；\n7. 最终打包自然数满足\n   Nat.size(packedCode(tokens)) = 2 * weight(tokens) + 1；\n8. 关键端点无 sorryAx，公理画像仅标准三项或其子集。\n\n单模块 Lean 探针退出码 0。\nFoundationCompactAdditiveTokenCodec.lean\n\n边界：本节点闭合通用 token 流与列表汇总；完整 DirectTrace\n已实例化，当前需证明每一合法状态行的统一位权界。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    directtracecode [label="Packed additive code for the complete DirectTrace\n完整直接轨迹的加法型打包码\n\nLean 内核已检查：\n1. 分层实例覆盖 parser states、stream states、root traces、\n   verifier states 及完整 CompactNumericListedDirectTrace；\n2. 总 token decoder(encoder(trace) ++ suffix)=some(trace,suffix)；\n3. binaryNatCode 与 packBinaryString 均已证 primitive recursive；\n4. packed trace code 与其完整 decoder 均为 primitive recursive；\n5. decode(code(trace))=some trace，故 trace code 单射；\n6. Nat.size(code(trace)) = additiveTokenBitLength(traceTokens)+1；\n7. 定义完整轨迹诚实位权 traceWeight 后，进一步精确得到\n   Nat.size(code(trace)) = 2 * traceWeight(trace) + 1；\n8. 所有关键端点公理画像仅 propext / Classical.choice / Quot.sound。\n\n定向 Lean 探针退出码 0；无 sorryAx、无项目公设。\nFoundationCompactAdditiveTokenCodec.lean\nFoundationCompactNumericListedDirectTraceCode.lean\n\n边界：码长到结构位权的转换已完全闭合；尚需证明合法轨迹位权\n关于公开输入位长的统一多项式界。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    tracecomponentdecomp [label="Exact twelve-component DirectTrace weight decomposition\n完整轨迹位权的十二分量精确分解\n\nLean 内核已检查：总 traceWeight 严格等于以下分量之和：\n1-2. certified/formula 两份公开 token 流；\n3-4. 两份 packed-stream 解包轨迹；\n5-7. proof/certificate/formula 三份外层 parser 轨迹；\n8. certified parsed parts（已认证解析结果包）；\n9. root proof node（根证明节点）；\n10. root-field direct trace（根字段直接轨迹）；\n11. parsed formula value（解析公式值）；\n12. central verifier state tableau（中央验证器状态表）。\n\n证明只打开总见证骨架上的 11 个积节点，\n明确停在十二个语义审计边界，没有用 simp 继续隐藏展开。\n定向 Lean 探针退出码 0；公理画像仅标准三项；无 sorryAx。\nFoundationCompactNumericListedDirectTraceCode.lean\n\n当前最大分量是第 12 项：其行数已精确为 fuel+1，\n尚需证明每一合法状态行的统一结构位权界。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    statetableaggregation [label="Central state-row budget and tableau aggregation\n中央状态行预算与整表汇总\n\nLean 内核已检查：\n1. 单行 stateWeight 精确分成两条剩余 token 流、\n   task list、child-result list 与 Option Bool 状态；\n2. Option Bool 位权统一 <= 4；\n3. 若两条流各 <= streamBound，任务/结果表长度 <= itemCount，\n   且逐项分别 <= taskBound/childBound，则单行 <= 显式\n   stateBudget(streamBound,itemCount,taskBound,childBound)；\n4. 任意状态表由逐行界 rowBound 汇总为\n   Nat.size(rows)+1 + rows*rowBound；\n5. 对真实 CompactNumericVerifierLocalTraceValid，rows=fuel+1，故\n   tableWeight <= Nat.size(fuel+1)+1+(fuel+1)*rowBound；\n6. 全部端点公理画像仅标准三项；无 sorryAx。\n\nFoundationCompactAdditiveTokenCodec.lean\nFoundationCompactNumericListedDirectTraceCode.lean\n\n仍待证明的原子不变量：每行两条流是输入后缀；任务数/结果数\n线性有界；每个 task fields 与 child Gamma 来自输入节点字段。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    nodesuffixinversion [label="Exact node-parser suffix inversion\n节点解析器后缀精确反演\n\nLean 内核已检查：\n1. sequent-only、sequent+formula、sequent+two-formula、\n   sequent+formula+term、sequent+closed-formula 五类字段解析，\n   每次成功均证明最终 suffix 是原 tokens 的真实 List.IsSuffix；\n2. 证明使用各项/公式/序列 parser 的既有 soundness，\n   给出显式 prefix ++ suffix = input，而非仅比较长度；\n3. 十个公开 proof-node 标签统一分派已逐标签反演；\n4. 证书标签 0/2/3 直接消费标签，标签 1 通过真实\n   PA-axiom certificate inversion 恢复精确前缀；\n5. 全部端点公理画像仅标准三项；无 sorryAx、无项目公设。\n\nFoundationCompactNumericListedStateBounds.lean\n\n下一步：证明 node transition 保留这两个后缀，并提升到\nverifierStep、任意有限迭代及 LocalTraceValid 的每一行。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    streamsuffixinvariant [label="Whole-run stream-suffix invariant\n验证器全程输入流后缀不变量\n\nLean 内核已检查：\n1. nodeTransition 成功时，两条输出流精确等于 proof/certificate\n   两个节点解析器给出的 suffix；\n2. parse success 组合绿色 parser inversion；parse failure 保持原流；\n3. combine、finish、already-halted 三类分支均保持流不变；\n4. compactNumericVerifierStep 对任意状态保持“是初始流后缀”；\n5. 归纳提升到任意有限 iterate（迭代）和 canonical stateAt；\n6. 利用 LocalTraceValid 的逐行唯一性，对状态表任一成员行均得到\n   两条剩余流是各自初始输入流的真实 List.IsSuffix；\n7. 全部端点公理画像仅标准三项或其子集；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n下一步：把 List.IsSuffix 转成加法型 valueWeight 单调界，\n随后只剩 task stack 与 child-result stack 两类来源不变量。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    streamweightbound [label="Stream segments and additive weight bounds\n输入流片段的加法型位权界\n\nLean 内核已检查：\n1. 对任意 typed additive list（类型化加法列表），若\n   suffix <:+ values，则 valueWeight(suffix) <= valueWeight(values)；\n2. 若 part <:+: values（真实中缀），同样有\n   valueWeight(part) <= valueWeight(values)；\n3. 两个证明均显式展开 prefix/part/suffix：长度头按\n   Nat.size_le_size 单调，元素位权和只增加非负外部片段；\n4. 对 List Nat 另证 length(values) <= valueWeight(values)，\n   为公式片段数和字段列表长度提供诚实预算；\n5. 实例化到 LocalTraceValid 任一成员行，两条剩余流位权\n   分别不超过各自初始输入流位权；\n6. 公理画像仅标准三项；无 sorryAx、无项目公设。\n\nFoundationCompactAdditiveTokenCodec.lean\nFoundationCompactNumericListedStateBounds.lean\n\n中央单行预算的 streamBound 前提已经关闭；中缀与长度引理\n现用于证明每个 task fields / child Gamma 的逐项位权界。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    parsedvalueweight [label="Parsed syntax and sequent value-weight bounds\n解析语法片段与序列值的位权界\n\nLean 内核已检查：\n1. formula/term/closed-formula value parser 成功时，\n   返回值是真实输入 token 前缀，因此 valueWeight 不增；\n2. sequent parser 恢复真实 Gamma 及每个公式 token 片段；\n3. Gamma 中每个公式片段是原输入的真实 List.IsInfix，\n   其逐项位权不超过输入位权 W；\n4. Gamma.length <= token.length <= W；\n5. 整个嵌套 Gamma 值精确落入显式界\n   Nat.size(W)+1+W*W，外层长度头与逐项编码成本全部付清；\n6. 定向 Lean 探针退出码 0；无 sorryAx、无项目公设。\n\nFoundationCompactNumericListedStateBounds.lean\n\n这是逐字段界的已闭合基础；五种 NodeFields 整包\n已由下一绿色节点闭合，全程 task/child 不变量仍黄色。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    nodefieldweights [label="Five exact node-field package bounds\n五种节点字段包的精确来源界\n\n定义五分量不变量：\nGamma <= Nat.size(W)+1+W*W；\nfirstFormula / secondFormula / witness / suffix 均 <= W。\n\nLean 内核已检查：\n1. sequent-only（仅序列）；\n2. sequent+formula（序列加公式）；\n3. sequent+two-formula（序列加两公式）；\n4. sequent+formula+term（序列加公式与项）；\n5. sequent+closed-formula（序列加闭公式）；\n6. 后续 parser 输入位权由前一真实 suffix 界传递；\n7. 五重积编码精确相加，因此整包\n   fieldsWeight <= nestedBound(W)+4*W；\n8. 全部新端点公理画像仅标准三项；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n下一黄色义务：十标签 dispatcher 统一提升，然后证明\nverifierStep 对 task/child 逐项来源界的全程保持。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    dispatcherfieldweights [label="Ten-tag proof-node dispatcher field bounds\n十标签证明节点分派字段界\n\nLean 内核已检查：\n1. 公开标签 0..9 逐分支选择正确的五种 parser 形状；\n2. 标签头之后的 tail 是完整 token 流的真实 suffix；\n3. tailWeight <= fullInputWeight，嵌套序列界已证单调；\n4. 因此任意分派成功都统一得到同一五分量界；\n5. 并推出 fieldsWeight <= nestedBound(W)+4*W；\n6. 两个公开端点公理画像仅\n   propext / Classical.choice / Quot.sound；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n字段 parser 来源界至此全部闭合。下一黄色义务是\nverifierStep 对 task/child 逐项界的全程归纳保持。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    stackcountbound [label="Linear task/child stack-count invariant\n任务栈与子结果栈的线性数量不变量\n\n定义 stackCount = tasks.length + childResults.length。\nLean 内核已检查：\n1. node parse：二叉节点最多压入 3 个任务但先弹出 1 个，\n   故整步净增加最多 2；叶/一元节点更小；\n2. combine transition 的结果尾表长度不超过输入 values 长度；\n3. combine、finish、reject、already-halted 均不超过统一 +2 界；\n4. 任意状态满足 stackCount(step(state)) <= stackCount(state)+2；\n5. i 次迭代满足 <= initialStackCount+2*i；初态精确为 1；\n6. 对 LocalTraceValid 任一成员行，i<=fuel，故\n   tasks.length <= 1+2*fuel 且 childResults.length <= 1+2*fuel；\n7. 全部端点公理画像仅标准三项或其子集；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n中央 stateBudget 的 itemCount 前提已经关闭。\n只剩每个 task 与 child result 的逐项 valueWeight 来源界。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    itemsourceinvariant [label="Whole-run per-item source invariant\n任务与子结果的全程逐项来源不变量\n\nLean 内核已检查：\n1. taskWithin(W,task) := tag<=10 且 fields 满足五分量界；\n2. childWithin(W,value) := value.Gamma <= nestedBound(W)；\n3. payload 同时保存当前 proof-stream <= W 及两栈逐项界；\n4. 初始 empty fields 和 parseTask 满足该不变量；\n5. nodeTransition 十分支：leaf 只产生受控 child，\n   unary/binary 只压入受控 parse/combine task；\n6. combineTransition 的新 Gamma 精确取自 task.fields.Gamma，\n   tail/drop 2 的每个保留成员均来自旧 values 栈；\n7. parse/combine/finish/running/verifierStep 所有分支均保持；\n8. 归纳提升到任意 iterate、canonical stateAt 及\n   LocalTraceValid 任一成员行；\n9. 每个 taskWeight <= size(10)+1+fieldsBound(W)；\n   每个 childWeight <= nestedBound(W)+2；Bool 成本已付清；\n10. 总端点公理画像仅标准三项或其子集；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n中央 stateBudget 的逐项位权前提至此已全部闭合。", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.0];
+    stateexplicitbound [label="Explicit polynomial bound for the central state tableau\n中央验证器状态表的显式多项式界\n\n设 Wp/Wc 为两条初始 token 流的诚实位权，\nI=1+2*fuel，TB=size(10)+1+fieldsBound(Wp)，\nCB=nestedBound(Wp)+2，SB=Wp+Wc。\n\nLean 内核已检查：\n1. 任一合法成员行 state 满足\n   stateWeight(state) <= stateBudget(SB,I,TB,CB)；\n2. 证明直接代入已绿的两流界、栈数量界与逐项界；\n3. LocalTraceValid 精确给出 states.length=fuel+1；\n4. 因此整表位权 <=\n   Nat.size(fuel+1)+1+(fuel+1)*stateBudget(SB,I,TB,CB)；\n5. 列表长度头、逐行积、Bool 及所有嵌套字段成本已付清；\n6. 两个总端点公理画像仅标准三项；无 sorryAx。\n\nFoundationCompactNumericListedStateBounds.lean\n\n十二分量中最大的第 12 项至此无条件闭合。", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    roottraceintegration [label="Root branch trace integrated into public witness\n根分支轨迹已接入公开总见证\n\nLean 内核已检查：\n1. CompactNumericListedDirectTrace 显式新增 rootTrace 字段；\n2. root、rootTrace、formulaValue 与 machine states 投影精确对齐；\n3. DirectTraceValid 直接调用带 rootTrace 的 certified-parts residual；\n4. 总有效性谓词继续为 primitive recursive；\n5. publicVerifier=true iff exists DirectTraceValid 的正反方向均重建；\n6. 两个总端点公理画像仅 propext / Classical.choice / Quot.sound。\n\n定向 Lean 探针退出码 0；无 sorryAx、无项目公设。\nFoundationCompactNumericListedDirectTrace.lean\n\n根字段 parser 结果黑箱已从公开总见证中移除。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    rootfieldtrace [label="Five exact root-field branch direct traces\n五类根字段分支直接轨迹\n\nLean 内核已检查：\n1. 一个统一见证同时容纳 sequent、第一/第二公式、term 与 closed-formula 轨迹；\n2. sequent-only、sequent+formula、sequent+two-formula、\n   sequent+formula+term、sequent+closed-formula 五种真实字段形状全覆盖；\n3. 每个分支 parser = some fields iff 存在对应直接轨迹；\n4. 字段值由真实 consumedTokenPrefix 重建，未使用的轨迹分量必须为空；\n5. 五个直接轨迹有效性谓词全部为 primitive recursive；\n6. 五个语义端点公理画像仅 propext / Classical.choice / Quot.sound。\n\n独立 Lean 探针退出码 0；无 sorryAx、无项目公设。\nFoundationCompactNumericListedRootFieldsDirectTrace.lean\n\n本节点闭合五类分支内部；公开 0..9 标签统一由下一绿色节点关闭。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    rootdirectdispatch [label="Exact ten-tag root direct-trace dispatch\n十标签根节点直接轨迹精确分派\n\nLean 内核已检查：\n1. 关系显式列出标签 0..9，不借用 whole parser 结果等式；\n2. 每个标签选择正确字段形状及 binder arity（绑定元数）；\n3. 空 token 流及标签不在 0..9 时不存在合法见证；\n4. whole root parser = some root iff 存在 tag-selected direct trace；\n5. 十分支统一关系为 primitive recursive；\n6. 两个端点公理画像仅 propext / Classical.choice / Quot.sound。\n\n独立 Lean 探针退出码 0；无 sorryAx、无项目公设。\nFoundationCompactNumericListedRootFieldsDirectTrace.lean\n\n本节点闭合十标签分派；certified-parts 接线由下一绿色节点关闭。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    rootresidualtrace [label="Certified-parts residual with explicit root trace\n显式根轨迹的已认证部件剩余关系\n\nLean 内核已检查：\n1. residual 现在显式接收 root 与 rootTrace；\n2. 旧 CompactNumericProofRootBranchValid 已由直接轨迹关系替换；\n3. consumed proof prefix 与根结论字段仍保持同一精确等式；\n4. certified-parts parser 成功 iff 存在同一 root、rootTrace、\n   proof parser 结果、certificate 空后缀及新 residual；\n5. 新 residual 为 primitive recursive；\n6. 两个关键端点公理画像仅 propext / Classical.choice / Quot.sound。\n\n定向 Lean 探针退出码 0；无 sorryAx、无项目公设。\nFoundationCompactNumericListedParseDecomposition.lean\n\n本节点闭合 residual；公开总见证接入由下一绿色节点关闭。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    listedconmeta [label="ListedCertifiedFiniteConsistencyAt(k)\n同一列表保持验证器的有限一致性元层语义\n无长度 <= k 的完整载荷码被接受为 ⊥\n普通及 2^(A*n) 放大版本无条件为真\n接受反向恢复同公式真实 PA 推导；无 sorryAx\nFoundationCompactListedFiniteConsistencyTarget.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    arithinput [label="Primitive-recursive packed input layer\n公开验证器打包输入的原始递归算术层\n\nLean 内核已检查：\n1. Nat.bits（小端二进制展开）为 primitive recursive；\n2. getLast?/dropLast 与 sentinel payload peel 均为 primitive recursive；\n3. 剥离成功 iff 输入精确等于 packBinaryString(payload)；\n4. 新剥离器结果精确等于现有 packedPayloadTrace 结果；\n5. decodeBinaryNat 已由 right-fold state machine 重建；\n6. 新状态机逐输入精确等于原前缀解码器，二者均为 primitive recursive。\n\n无 typed syntax 假设、无输入包、无项目公设、无 sorryAx；\n公理画像仅 propext / Classical.choice / Quot.sound 或其子集。\nFoundationCompactListedVerifierArithmeticInput.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    tokenstream [label="Primitive-recursive binary-Nat token stream machine\n原始递归二进制自然数记号流机器\n\n具体 bounded iterator 已由 Lean 检查：\n1. 状态明确区分 running / failed / accepted；\n2. 每步调用同一个 decodeBinaryNat 并保留真实剩余位串；\n3. 总步数由 inputBits+1 明确限制；\n4. 最终结果逐位串等于 repeated-prefix reference parser；\n5. binaryNatCode token stream 的规范往返成立；\n6. step、run、output 和 reference parser 全部 primitive recursive。\n\n覆盖畸形和非规范输入；无 rawCode、无 sorryAx、无项目公设。\nFoundationCompactBinaryNatStreamMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    bitsync [label="Exact noncanonical bit/token stream synchronization\n非规范位流与 token 流精确同步\n\nLean 内核已检查：\n1. 定义 repeated decodeBinaryNat 的精确 token/位后缀关系；\n2. 关系可按任意 token 前后缀唯一切分并重新合成；\n3. 同一 token 前缀留下的位后缀唯一；\n4. 规范位编码只是特例，不把非规范高位零误判为规范码；\n5. bounded stream decoder 成功 iff 全部 token 恰好消费至空位后缀；\n6. 每个 token-list split 都对应真实 bit boundary。\n\n公理画像仅 propext / Classical.choice / Quot.sound 或其子集；\n无 canonical-input 假设、无 sorryAx。\nFoundationCompactBinaryNatStreamSynchronization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    syntaxparser [label="Primitive-recursive arithmetic term/formula parser\n原始递归算术项 / 公式解析器\n\nLean 内核已检查：\n1. 纯 Nat token 状态机覆盖 bvar/fvar/func 与全部公式构造；\n2. 有序环函数、关系符号码与 typed decoder 的 decode₂ 条件精确一致；\n3. repeat frame 逐项处理参数，不按稀疏 arity 一次展开巨型任务表；\n4. 每个真实项 / 公式都有精确执行步数定理；\n5. 执行步数不超过真实 token 长度，固定二次 fuel 必然足够；\n6. 公开 parser 对规范编码精确返回同一 suffix。\n\n定向 Lean 探针与目标构建退出码 0；公理画像仅\npropext / Classical.choice / Quot.sound；静态禁用项扫描为空。\nFoundationCompactSyntaxTokenMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    syntaxinversion [label="Exact arbitrary-input syntax inversion\n项 / 公式解析器任意输入精确反演\n\nLean 内核已检查：\n1. 每个纯数值任务栈都有类型化前缀语义；\n2. 每次数值状态转换反向保持该语义；\n3. 函数 / 关系符号有效码恢复同 arity 的真实有序环符号；\n4. repeat frame 恢复精确长度的 Fin 参数向量；\n5. 成功、失败及畸形输入统一由同一后向不变量覆盖；\n6. numeric parser 返回 suffix iff 输入等于某真实项 / 公式\n   的规范 token 前缀 ++ 同一 suffix。\n\n两个端点公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactSyntaxTokenMachineInversion.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    syntaxbitsync [label="Typed syntax decoder iff exact token prefix\n类型化语法解码器与精确 token 前缀双向等价\n\nLean 内核已检查任意成功位串：\n1. decodeCompactTerm 成功 iff 精确消费该项 token 前缀；\n2. decodeCompactFormula 成功 iff 精确消费该公式 token 前缀；\n3. 两方向均保留同一个真实 bit suffix；\n4. 函数/关系符号代码由 decode₂ 精确恢复；\n5. 任意有限参数向量逐项同步，不隐藏 arity 展开；\n6. 非规范 binaryNat 表示完全覆盖。\n\n端点公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactSyntaxBitTokenSynchronization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    closedformula [label="Primitive-recursive closed-formula token machine\n原始递归闭公式记号机\n\nLean 内核已检查：\n1. 复用同一紧凑公式语法，但所有 term 位置遇到 fvar 标签即拒绝；\n2. 每次成功恢复真实类型化公式及同一 suffix；\n3. 恢复公式的 freeVariables 严格等于空集；\n4. 每个真实闭公式及每个 ArithmeticSentence 的嵌入规范编码必被接受；\n5. 成功 iff 闭公式规范 token 前缀，双向精确；\n6. step / bounded run / public parser 全部 primitive recursive。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无额外闭性参数、无 rawCode、无 sorryAx。\nFoundationCompactClosedFormulaTokenMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    proofparser [label="Primitive-recursive listed-proof structural parser\n原始递归列表保持证明树结构解析器\n\nLean 内核已检查：\n1. 纯 Nat 任务栈覆盖 closed/axm/verum/and/or/all/exs/wk/shift/cut；\n2. axm 标签现调用独立闭公式机，不再把普通 proposition 当 sentence；\n3. sequent cardinality 由 repeat-formula frame 逐项消费；\n4. 每个真实 ListedCheckedPAProofTree 都有精确执行步数定理；\n5. and/cut 左右子证明按编码顺序消费同一 suffix；\n6. 总步数 <= 2*tokenLength，固定二次 fuel 必然足够；\n7. 十标签分派、闭句分支、总状态机和公开 parser 全部 primitive recursive。\n\n定向探针及目标构建通过；关键公理画像仅\npropext / Classical.choice / Quot.sound。\nFoundationCompactProofTokenMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    proofinversion [label="Exact arbitrary-input listed-proof inversion\n列表保持证明树任意输入精确反演\n\nLean 内核已检查：\n1. proof / formula / term / repeat-formula / sequent / closed-formula\n   六类任务统一具有类型化前缀语义；\n2. 十个节点标签的每条反向分支均恢复同一 typed proof tree；\n3. and/cut 严格恢复左右子树次序；\n4. axm 分支恢复真实 ArithmeticSentence，不接受含自由变量公式；\n5. 成功、失败及畸形输入由同一后向状态不变量覆盖；\n6. proof token parser 成功 iff 输入为某真实 ListedCheckedPAProofTree\n   的规范 token 前缀 ++ 同一 suffix。\n\n端点公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactProofTokenMachineInversion.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    certparser [label="Primitive-recursive PA/structural certificate parsers\n原始递归 PA 公理 / 结构证书解析器（规范完备方向）\n\nLean 内核已检查：\n1. 23 个 PA 公理标签全部覆盖；0..21 固定，3/4 校验函数/关系码；\n2. tag 22 调用同一 binder-arity-1 公式解析器；\n3. 新 PA 证书 token 编码逐证书等于旧 binary code 的 Nat 前缀流；\n4. leaf/axiomCert/unary/binary 四类结构证书由显式任务栈递归解析；\n5. binary 左右子证书按编码顺序消费同一 suffix；\n6. 线性步数界、固定二次 fuel 和两个规范往返端点均已闭合；\n7. PA 标签分派、结构节点、总状态机和公开 parser 全部 primitive recursive。\n\n七个关键端点公理画像仅 propext / Classical.choice / Quot.sound；\n静态禁用项扫描为空。\nFoundationCompactCertificateTokenMachine.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    certinversion [label="Exact arbitrary-input PA/structural certificate inversion\nPA 公理 / 结构证书任意输入精确反演\n\nLean 内核已检查：\n1. 固定标签 0..21 逐项恢复对应 PA 公理证书构造器；\n2. 标签 3/4 恢复同 arity、同编码的真实函数 / 关系符号；\n3. 标签 22 恢复 binder-arity-1 归纳公式；\n4. leaf / axiomCert / unary / binary 四类节点全部反向恢复；\n5. binary 严格恢复左右子证书顺序；\n6. 两个 parser 成功 iff 输入为真实证书规范 token 前缀 ++ 同一 suffix。\n\n两个端点公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactCertificateTokenMachineInversion.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    proofbitsync [label="Listed proof typed decoder iff exact token prefix\n列表保持证明解码器与 token 前缀双向等价\n\nLean 内核已检查：\n1. closed/axm/verum/and/or/all/exs/wk/shift/cut 十规则全覆盖；\n2. sequent、term、formula 与左右子证明保留同一真实 bit suffix；\n3. axm 分支恢复同一 ArithmeticSentence；\n4. 成功方向与完备方向均覆盖非规范 binaryNat 表示；\n5. and/cut 严格保留左右子树消费次序。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactProofBitTokenSynchronization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    certbitsync [label="PA/structural certificate typed decoder iff exact token prefix\nPA 公理 / 结构证书解码器与 token 前缀双向等价\n\nLean 内核已检查：\n1. 23 个 PA 公理标签及 induction 公式体全部覆盖；\n2. 函数/关系符号由 decode₂ 恢复同 arity 真实符号；\n3. leaf/axiomCert/unary/binary 四类递归证书全覆盖；\n4. binary 严格保留左右证书顺序及同一位后缀；\n5. 任意成功位串与精确 token 前缀双向等价。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactCertificateBitTokenSynchronization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    packedtokensync [label="Primitive-recursive packed stream + exact typed-decoder equivalence\n原始递归打包 token 流 + 类型化解码器精确等价\n\nLean 内核已检查：\n1. 公开 code 的 sentinel 哨兵位与 payload 剥离使用同一 packedPayloadBits；\n2. payload 逐前缀转为完整 Nat token 流，流函数已证 Primrec；\n3. listed proof tokens ++ structural certificate tokens 按公开解码顺序精确拼接；\n4. 证明码 token 流成功 iff 同一 typed proof + certificate 解码成功；\n5. formulaCode token 流成功 iff 同一 typed formula 解码成功；\n6. 两个等价均保留全载荷消费与非规范 binaryNat 表示。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 rawCode、无项目公设、无 sorryAx。\nFoundationCompactListedPackedBitTokenSynchronization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericvalues [label="Primitive-recursive term/formula/sequent value parsers\n原始递归项 / 公式 / 序列数值值解析器\n\nLean 内核已检查：\n1. 在结构判断同时保留精确 canonical token slice；\n2. term 与 formula 解析返回已消费值及同一 suffix；\n3. sequent 按首 token 的基数逐公式解析并保持原顺序；\n4. 规范输入精确往返；任意成功输入恢复真实 typed syntax；\n5. 单值、重复值、sequent 总解析器全部 primitive recursive。\n\n九个审计端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericSyntaxValueParser.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericchecks [label="Primitive-recursive numeric formula-list checks\n原始递归数值公式列表检查\n\nLean 内核已检查：\n1. canonical formula token 编码单射；\n2. token equality / membership / subset / set equality 全部 primitive recursive；\n3. 四个结果在任意规范公式列表上逐点等于 typed trace；\n4. 重复元素按 Finset 外延语义处理，与原检查器一致。\n\n九个审计端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFormulaListChecks.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericconstructors [label="Primitive-recursive direct formula constructors\n原始递归直接公式构造器\n\nLean 内核已检查：\n1. verum / falsum / and / or / all / exs 六种构造全为纯 token 函数；\n2. 六个函数全部 primitive recursive；\n3. 每个规范输入逐 token 精确等于真实 typed formula 编码。\n\n审计端点仅依赖 Lean 标准公理；无 sorryAx。\nFoundationCompactNumericFormulaConstructors.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericnegation [label="Primitive-recursive formula-negation token machine\n原始递归公式否定记号机\n\nLean 内核已检查：\n1. 运行状态只有 Nat 与 Nat 列表，不把 typed syntax 当输入；\n2. term 记号逐项原样复制，八种 formula 标签执行真实 De Morgan 对偶；\n3. term / term-list / formula 的完整任务执行语义均已闭合；\n4. step、bounded run 与公开 transform 全部 primitive recursive；\n5. 规范公式前缀精确返回 negated formula tokens + 同一 suffix。\n\n两个最终端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFormulaNegation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericshift [label="Primitive-recursive formula-shift token machine\n原始递归公式移位记号机\n\nLean 内核已检查：\n1. 运行状态只有 Nat 与 Nat 列表，逐任务消费同一 parser token 流；\n2. bound variable 与全部结构标签原样保留，free variable [1,i] 精确变为 [1,i+1]；\n3. term / term-list / formula 的完整执行语义逐点等于 Rewriting.shift；\n4. step、bounded run 与公开 transform 全部 primitive recursive；\n5. 规范公式前缀精确返回 shifted formula tokens + 同一 suffix。\n\n最终端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFormulaShift.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericfree [label="Primitive-recursive formula-free token machine\n原始递归公式自由化记号机\n\nLean 内核已检查：\n1. source arity n+1 精确降到 target arity n，任务栈携带量词下真实当前元数；\n2. 最后 bound variable 变为 &0，较早 bound variable 保持，旧 free variable 取后继；\n3. 仅消费长度为 2 的真实变量头，空消费、失败路径及函数头均不会误触发；\n4. term / term-list / formula 沿元数等式的完整语义逐点等于 Rewriting.free；\n5. step、bounded run、公开 transform 均 primitive recursive，规范输入保留同一 suffix。\n\n最终端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFormulaFree.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericsubstitution [label="Primitive-recursive one-variable substitution token machine\n原始递归单变量代入记号机\n\nLean 内核已检查：\n1. 运行状态只有 Nat 与 Nat 列表，见证项以固定 token 输入进入迭代；\n2. 任务栈精确跟踪量词下 source arity 1+d；\n3. 最后 bound variable 替换为完整闭见证 token，其余变量与结构头原样保留；\n4. term / term-list / formula 完整执行语义逐 token 等于 ((Rew.subst ![w]).qpow d)；\n5. step、bounded run、公开 transform 均 primitive recursive，规范公式前缀保留同一 suffix。\n\n最终端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFormulaSubstitution.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericfixitr [label="Primitive-recursive formula-fixitr token machine\n原始递归变量捕获记号机\n\nLean 内核已检查：\n1. 运行状态只有 Nat 与 Nat 列表，任意 base arity n、capture count m 与量词深度 d 均覆盖；\n2. bound variable 保持不变；free i<m 精确变为 bound n+d+i；其余 free i 变为 free (i-m)；\n3. term / term-list / formula 完整执行语义逐 token 等于 ((Rew.fixitr n m).qpow d)；\n4. step、bounded run 与公开 transform 全部 primitive recursive；\n5. 规范公式前缀返回同一 typed fixitr 结果并保留同一 suffix。\n\n十个审计端点公理画像至多为\npropext / Classical.choice / Quot.sound；无 sorryAx、无项目公设。\nFoundationCompactNumericFormulaFixitr.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericsuccind [label="Primitive-recursive succInd(body) token construction\n原始递归后继归纳公式记号构造\n\nLean 内核已检查：\n1. 每个 shift / substitution / fixitr / negation 子变换必须完整消费输入公式，禁止忽略畸形尾部；\n2. 零、开放零、开放后继三类见证均为固定纯数值 token；\n3. 四条代入执行、三次否定、三个析取与两个全称量词均在同一 Option 失败语义中组合；\n4. 整个函数输入/输出只有 Nat 与 List Nat，且已证 primitive recursive；\n5. 任意规范 body 的最终结果逐 token 精确等于原定义 succInd(body)。\n\n关键端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx、无项目公设。\nFoundationCompactNumericSuccIndSentence.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericfvsup [label="Primitive-recursive formula fvSup computation\n原始递归公式自由变量上确界计算\n\nLean 内核已检查：\n1. 复用同一数值语法任务栈，只在真正 term 位置识别 free-variable token；\n2. relation 标签、函数头、bound variable 与普通数字均不会误计；\n3. 单遍输出逐点等于 formula.fvarList，并保留同一未消费 suffix；\n4. listFvSup 的 max(index+1) fold 已独立证明 primitive recursive；\n5. 公开端点对任意规范公式精确返回 (formula.fvSup, suffix)。\n\n关键端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx、无项目公设。\nFoundationCompactNumericFormulaFvSup.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericallclosure [label="Primitive-recursive iterated universal closure\n原始递归迭代全称闭包\n\nLean 内核已检查：\n1. 每一步真实前置一个 universal token 6，不把整段闭包当作单位成本；\n2. depth 次迭代的输入/输出只有 Nat 与 List Nat；\n3. step 与 nat-iterate 整体均已证明 primitive recursive；\n4. 对任意 arity=depth 的规范公式，结果逐 token 精确等于 ∀⁰* formula。\n\n边界：本节点本身不宣称按二进制 depth 多项式时间；\n必须由黄色节点先证明 depth <= candidate bit length。\n公理画像仅 Lean 标准公理；无 sorryAx、无项目公设。\nFoundationCompactNumericAllClosure.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numerictokenbitlength [label="Primitive-recursive exact token bit length\n原始递归精确 token 位长\n\nLean 内核已检查：\n1. 每个 Nat token 用公开 binaryNatCode 重新编码；\n2. 任意 token 列表的总二进制位长函数已证 primitive recursive；\n3. 项与公式的规范 token 流重新编码后逐位等于原 binary code；\n4. 因而规范候选公式的 token 位长精确等于公开 formulaCode 位长。\n\n这关闭了把 token 数误当位长的坐标风险；\n公理画像仅 Lean 标准公理，无 sorryAx、无项目公设。\nFoundationCompactNumericTokenBitLength.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericguardedinduction [label="Primitive-recursive guarded induction comparator\n原始递归带守卫归纳句比较器\n\nLean 内核已检查：\n1. 先纯数值构造 succInd(body) 并精确计算 fvSup；\n2. 仅当 fvSup <= candidate formulaCode bit length 才执行 fixitr/allClosure；\n3. 生成句逐 token 等于标签 22 的真实 PA 归纳证书句；\n4. 对每个规范 body/candidate，布尔结果为 true iff 两个句子相等；\n5. 守卫拒绝分支由 typed guard completeness 排除漏接；\n6. 构造器、守卫及比较器均已证 primitive recursive。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无隐藏长度参数、无 sorryAx、无项目公设。\nFoundationCompactNumericGuardedInductionSentence.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericfixedaxioms [label="Primitive-recursive fixed PA-axiom sentence table\n原始递归固定 PA 公理句表\n\nLean 内核已检查：\n1. 证书标签 0..21 的 22 个非归纳分支全覆盖；\n2. 20 个无参数公理直接返回规范句 token 常量；\n3. 函数外延按 4 个合法 (arity,code) 分派，关系外延按 2 个合法对分派；\n4. 输入/输出只有 Nat、Nat×Nat 和 List Nat，整个查表函数 primitive recursive；\n5. 每个规范固定证书逐 token 精确等于 certificate.sentence。\n\n五个审计端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericFixedPAAxiomSentence.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericallaxioms [label="Primitive-recursive all-23-tag PA-axiom comparator\n原始递归全部 23 标签 PA 公理比较器\n\nLean 内核已检查：\n1. 证书 parser 必须精确消费到空 suffix，禁止多余垃圾尾部；\n2. 标签 0..21 进入固定表，标签 22 进入带守卫归纳比较器；\n3. 非法函数/关系码、畸形归纳体和未知标签均拒绝；\n4. 任意证书 token 对规范候选句返回 true iff 存在真实 PA 公理证书，\n   输入恰为其完整 token 且 certificate.sentence = candidate；\n5. 完整比较器已证 primitive recursive。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericPAAxiomComparator.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericrules [label="10/10 primitive-recursive listed local rule checks\n十条列表证明局部规则纯数值检查全部闭合\n\nLean 内核已检查：\n1. closed / axm / verum / and / or / all / exs / wk / shift / cut 全覆盖；\n2. 每个输入只有公式 token、序列 token 列表及子节点布尔结果；\n3. free / substitution / negation / sequent shift 均调用真实纯数值变换；\n4. axm 调用同一个全部 23 标签比较器；\n5. 每条函数均 primitive recursive，规范字段上逐点等于\n   listedCertificateValidTrace 对应分支结果；\n6. 子有效性是任务栈返回值，不是外部证明假设。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericListedRuleChecks.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericnodefields [label="Primitive-recursive synchronized node-field parsers\n原始递归证明 / 证书节点字段解析器\n\nLean 内核已检查：\n1. proof 标签 0..9 按真实编码顺序解析父序列、主公式和见证项；\n2. 每个节点只消费立即字段，完整保留后续子证明 token；\n3. structural certificate 的 leaf/axiom/unary/binary 四形状全覆盖；\n4. axiom 节点精确截取完整 PA 公理证书 token；\n5. 两侧 dispatcher 均 primitive recursive；\n6. 对每个真实树/证书及任意 suffix，返回精确字段和同一子流。\n\n公理画像仅 propext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericListedNodeFields.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    numericparser [label="Public local-check numeric graph\n公开局部检查纯数值图\n\nLean 内核已检查：\n1. 有限任务栈同步消费 proof/certificate 两条 token 流并核对节点形状；\n2. 子结论与子布尔结果自底向上送入十条真实局部合并器；\n3. 显式 fuel 覆盖完整规范树，形状错配、耗尽及畸形输入一律拒绝；\n4. 规范树结果逐点等于 listedCertificateValidTrace；\n5. 任意 packed code/formulaCode 上，新纯数值验证器与原公开验证器布尔值逐点相等。\n\n全部运行数据仅为 Nat / Bool / List；完整图已证 primitive recursive。\n定向探针与目标模块构建退出码 0；禁用项扫描为空；\n关键端点公理画像仅 propext / Classical.choice / Quot.sound。\nFoundationCompactNumericListedTaskMachine.lean\nFoundationCompactNumericListedPublicVerifier.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    localtableau [label="Local initial/step/final task-machine tableau\n任务机局部初态 / 单步 / 终态计算表\n\nLean 内核已检查：\n1. LocalTraceValid 要求行数精确 fuel+1；\n2. 第 0 行严格等于公开 initial state；\n3. 每个 i<fuel 的第 i+1 行严格等于 verifierStep(第 i 行)；\n4. 单步 transition relation、长度和初态关系均为 primitive recursive；\n5. canonical trace 满足局部表；任意合法局部表逐行等于 canonical trace；\n6. 因而 local validity iff canonical bounded run，\n   总局部谓词也是 primitive recursive。\n\n定向 Lean 探针退出码 0；相关端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactNumericListedDirectTrace.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    packedstreamtrace [label="Packed payload + binary-Nat stream local traces\n打包载荷 + 二进制自然数流局部子轨迹\n\nLean 内核已检查：\n1. 见证记录 sentinel peel 后的真实 payload bits；\n2. BinaryNatStreamLocalTraceValid 检查精确行数、初态和每个 stream step；\n3. 规范流轨迹满足局部表，任意合法表恢复同一 bounded run；\n4. 最终状态输出严格等于目标 token list；\n5. 对任意 code/tokens：compactPackedTokenStream code = some tokens\n   iff exists trace, PackedTokenStreamDirectTraceValid；\n6. proof code 与 formula code 的两份子轨迹均已接入总 DirectTraceValid。\n\n新子模块目标构建和总见证探针退出码 0；\n关键端点公理画像仅 propext / Classical.choice / Quot.sound。\nFoundationCompactPackedTokenStreamDirectTrace.lean\nFoundationCompactNumericListedDirectTrace.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    parseroutertrace [label="Proof/certificate/formula parser outer local traces\n证明 / 证书 / 公式解析器外层局部轨迹\n\nLean 内核已检查：\n1. 三类 parser 共用同一 initial/step/final 局部计算表框架；\n2. 每份轨迹要求精确 fuel+1 行、真实初态及逐行真实 parserStep；\n3. 合法局部表 iff 同一 canonical bounded run；\n4. 对任意 tokens/suffix，三个公开 parser 返回 some suffix\n   iff 存在对应局部轨迹；\n5. proof、certificate、formula 三份轨迹均已接入总 DirectTraceValid；\n6. 三个局部有效性谓词及总公开见证保持 primitive recursive。\n\n新模块目标构建与总见证探针退出码 0；关键端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactParserDirectTrace.lean\nFoundationCompactNumericListedDirectTrace.lean\n\n边界：各 parserStep 内部调用的原子字段 / 语法子过程，\n以及 certified parts / formula value 提取仍待继续展开。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    rootdispatchdecomp [label="Exact ten-tag root-field dispatch decomposition\n根节点字段十标签分派精确拆解\n\nLean 内核已检查：\n1. 输入空流与标签不在 0..9 时严格拒绝；\n2. 标签 0..9 分别选择真实 sequent-only、sequent+formula、\n   sequent+two-formula、closed-formula 或 formula+term 分支；\n3. root.1 必须严格等于所选公开标签；\n4. 分支 parser 必须精确返回 root.2，不存在替代结果；\n5. whole root parser = some root iff 十分支关系成立；\n6. 分支关系为 primitive recursive，已接入 certified-parts residual。\n\n目标构建、分解探针和总见证探针退出码 0；关键端点公理画像仅\npropext / Classical.choice / Quot.sound 或其子集；无 sorryAx。\nFoundationCompactNumericListedRootFieldsDecomposition.lean\nFoundationCompactNumericListedParseDecomposition.lean\n\n边界：所选分支内部的 sequent / formula / closed-formula / term\nvalue parser 仍以结果等式出现，下一步逐类打开。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    sequentvaluetrace [label="Sequent-value repeat + per-formula local traces\n序列值重复解析 + 逐公式局部轨迹\n\nLean 内核已检查：\n1. 首 token 精确作为 formula count，空输入严格拒绝；\n2. repeat 状态表行数精确 count+1，公式 parser 轨迹数精确 count；\n3. 第 i 份公式轨迹从第 i 行剩余 tokens 精确解析到第 i+1 行后缀；\n4. nextValues 严格等于 currentValues 追加真实 consumed prefix；\n5. 增强局部关系推出原 compactFormulaTokenValuesStep，不把它留作假设；\n6. 最终成功可逐行构造全部公式轨迹，反向恢复同一 repeat 结果；\n7. sequent value parser = some(values,suffix) iff 存在增强轨迹；\n8. 全部增强有效性谓词为 primitive recursive。\n\n单模块探针与目标构建退出码 0；全部端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactSequentValueDirectTrace.lean\n\n边界：增强序列轨迹尚待按 root 标签与后续 formula / term /\nclosed-formula 轨迹组合为统一节点字段见证。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    termclosedtrace [label="Term + closed-formula parser local traces\n项解析器 + 闭公式解析器局部轨迹\n\nLean 内核已检查：\n1. term parser 使用同一 compactSyntaxParserStep 与 term 初态；\n2. closed-formula parser 使用真实 compactClosedSyntaxParserStep；\n3. 两类轨迹均检查精确 fuel+1 行、初态、每个单步和最终 suffix；\n4. term parser = some suffix iff 存在 term local trace；\n5. closed-formula parser = some suffix iff 存在 closed local trace；\n6. 两类有效性谓词均为 primitive recursive。\n\n单模块探针与目标构建退出码 0；四个新端点公理画像仅\npropext / Classical.choice / Quot.sound；无 sorryAx。\nFoundationCompactParserDirectTrace.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    parseresultdecomp [label="Exact parse-result wrapper decomposition\n解析结果包装层精确拆解\n\nLean 内核已检查：\n1. certified-parts 成功 iff 同一 proof parser 结果、同一 certificate\n   parser 空后缀、精确 consumed prefix 和绿色 root branch relation；\n2. whole-formula value 成功 iff 同一 formula parser 空后缀，\n   且记录值严格等于原 formula token stream；\n3. 两个 residual relation 均为 primitive recursive；\n4. root-node 结果已成为总公开见证的显式字段；\n5. 两个整包装函数与 whole root parser 结果等式均已从\n   DirectTraceValid 删除；\n6. publicVerifier=true iff exists DirectTraceValid 保持逐点精确。\n\n目标构建及总见证探针退出码 0；关键端点公理画像仅\npropext / Classical.choice / Quot.sound 或其子集；无 sorryAx。\nFoundationCompactNumericListedParseDecomposition.lean\nFoundationCompactNumericListedDirectTrace.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    directtrace [label="Direct finite public-verifier trace semantics\n公开验证器直接有限运行轨迹语义\n\nLean 内核已检查：\n1. 公开见证记录 proof/formula token 流、三类 parser 局部轨迹、\n   显式 root-node、root branch trace、解析值和完整 task-machine 状态列表；\n2. 两个 packed 输入各携带 payload/token-stream 局部子轨迹；\n3. proof、certificate、formula 外层 parser 均携带绿色局部计算表；\n4. certified-parts、whole-formula 及 root 十标签 parser 结果黑箱均已移除；\n5. 中央检查直接要求绿色 local task-machine tableau；\n6. 对任意 code/formulaCode：publicVerifier=true\n   iff exists trace, DirectTraceValid(code,formulaCode,trace)；\n7. DirectTraceValid 为 primitive recursive，且不调用 projection/rfind。\n\n定向 Lean 探针退出码 0；关键端点公理画像仅\npropext / Classical.choice / Quot.sound。\nFoundationCompactNumericListedDirectTrace.lean\n\n边界：verifierStep 内部原子语法变换的局部算术图、\n显式 Nat 序列化及多项式位长界仍待闭合。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    resemanticprobe [label="Generic RE/rfind representation audit\n通用递归可枚举 / 最小化搜索表示审计\n\nLean 内核已检查：\n1. P(bound,y) 精确表示存在载荷长度 <= bound 的接受码；\n2. witness relation primitive recursive，P 为 RE predicate；\n3. 固定 Nat.ArithPart1.Code 并保留 Code.eval 求值证明；\n4. 二变量 Sigma-one 公式与有限一致性句的标准模型语义精确；\n5. 二进制数词实例具有线性于输入位长的公式符号数界；\n6. 接受实例在 PA 中定性可证并有真实 Derivation2。\n\n定量审计结论：构造链实际经过\nREPred.projection -> Partrec.projection -> rfindOpt -> Code.rfind；\n其算术公式含“所有更小搜索阶段失败”的 bounded minimality。\n目前没有该前缀证明长度关于载荷位长的多项式界，\n故它只保留为语义审计，不作为 suitable numeration。\n目标构建通过；公理画像仅标准三项。\nFoundationCompactNumericListedProofPredicate.lean", fillcolor="#e9e3f5", color="#76639a", penwidth=2.6];
+    boundedtracecode [label="Bounded direct trace-code certificate relation\n有界直接轨迹码证书关系\n\nLean 内核已检查：\n1. traceCode 由确定性加法型解码器恢复唯一 typed trace；\n2. 解码后调用已证明的 DirectTraceValid 判定器，\n   整个 CodeValid 检查为 primitive recursive；\n3. 完整 publicCodeSizeBound 由全部分量界逐层证明为 primitive recursive；\n4. Nat.size(traceCode) 的码长守卫与 CodeValid 合取后，\n   整体 bounded witness 仍为 primitive-recursive predicate；\n5. publicVerifier(code,y)=true 当且仅当存在该有界 traceCode；\n6. 全链不使用搜索、projection 或 rfind；六个关键端点公理画像仅\n   propext / Classical.choice / Quot.sound，无 sorryAx。\n\n边界：直接局部算术图及手写 Sigma-one 公式仍在黄色 compactformula。\nFoundationCompactNumericListedBoundedTraceCode.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    natsizegraph [label="Direct Delta-zero graph for Nat.size\nNat.size 的直接 Delta-zero 算术图\n\nLean 内核已检查：\n1. Foundation lengthDef 是不经搜索的 bounded binary-length graph；\n2. 对标准 Nat，以 binary recursion 逐位证明\n   binaryLength(n)=Nat.size(n)；\n3. compactNatSizeDef(size,n) iff size=Nat.size(n)；\n4. 公式层级严格为 Sigma-zero / Delta-zero；\n5. 三个端点公理画像仅\n   propext / Classical.choice / Quot.sound，无 sorryAx。\n\n下一原子：用 lengthDef + bitDef 打开打包码的终止哨兵、\n有效位前缀和 token-stream 局部算术图。\nFoundationCompactNumericListedDirectArithmeticPrimitives.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    packedpayloadgraph [label="Direct Delta-zero packed-payload sentinel graph\n打包载荷终止哨兵的直接 Delta-zero 图\n\nLean 内核已检查：\n1. payload bits 以 value + exact length 两个算术坐标表示；\n2. natOfBitsList(bits) < 2^(bits.length)；\n3. packBinaryString(bits) 精确等于\n   natOfBitsList(bits) + 2^(bits.length)；\n4. compactPackedPayloadDef 用 expDef 直接表达\n   payloadValue < sentinel and code = payloadValue + sentinel；\n5. 公式语义逐点 iff 真实 packBinaryString，层级严格为 Delta-zero；\n6. 全部端点仅依赖标准三项，无 sorryAx / projection / rfind。\n\n下一原子已由绿色 binarynattokengraph 闭合。\nFoundationCompactNumericListedDirectArithmeticPrimitives.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    binarynattokengraph [label="Direct Delta-zero binaryNatCode token-segment graph\nbinaryNatCode 单 token 段的直接 Delta-zero 图\n\nLean 内核已检查：\n1. Foundation Bit(index,value) 逐点 iff Nat.testBit value index；\n2. size 由绿色 compactNatSizeDef 精确给出；\n3. offset 后每个 token 位对应真实 (1,dataBit) 二位组；\n4. token 尾部两个 payload 位被强制为 00 terminator；\n5. next 精确等于 offset + 2*Nat.size(token) + 2；\n6. compactBinaryNatTokenSegmentDef 的标准模型语义逐点\n   iff 同一真实 token 段关系，公式层级严格为 Delta-zero；\n7. 正式探针退出码 0，全部新端点仅依赖标准三项，\n   无 sorryAx / projection / rfind。\n\n下一原子：用 offsets + tokens 的有界序列见证汇总全部段，\n建立完整 token-stream tableau（记号流计算表）的直接算术图。\nFoundationCompactNumericListedDirectArithmeticPrimitives.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    fixedwidthtablegraph [label="Direct fixed-width packed tableau graph\n直接定宽打包计算表算术图\n\nLean 内核已检查：\n1. 每个 value 以 width 个低位按 row-major 顺序平铺；\n2. compactFixedWidthEntryDef 直接检查 size(value) <= width\n   及 table[index*width+bit] iff value[bit]；\n3. 公式标准模型语义逐点 iff 真实 Nat.testBit 随机读取；\n4. 规范 tableCode 对每个合法 index 精确恢复原列表条目；\n5. Nat.size(tableCode) <= count*width，见证面积保持多项式；\n6. 不使用 HFS 序列、搜索、projection 或 rfind；\n7. 正式探针退出码 0，全部端点仅依赖标准三项，无 sorryAx。\n\n下一原子正向部分已由绿色 tokenstreamforward 闭合。\nFoundationCompactNumericListedDirectArithmeticPrimitives.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tokenstreamforward [label="Canonical direct token-stream tableau: forward direction\n规范直接 token 流计算表：正向构造\n\nLean 内核已检查：\n1. compactBinaryNatTokenStreamTableauDef 是直接 Delta-zero 公式；\n2. 两表分别保存 token 值与累计 bit offset；\n3. 首 offset=0，末 offset=完整 payloadLength；\n4. 每一行直接调用绿色 binaryNatTokenSegment 图；\n5. 对任意真实 token 列表，以列表归纳逐位构造全部合法行；\n6. tokenTable 位长 <= count*payloadLength；\n7. offsetTable 位长 <= (count+1)*payloadLength；\n8. 五个正式端点探针退出码 0，仅依赖标准三项，无 sorryAx。\n\n公开 decodeBinaryNat 接受冗余高零位，故本节点不作错误的\n任意原始 code 与规范段逐码 iff 声明；该边界由下一绿色节点\n以规范码双向等价和不增大的规范化精确处理。\nFoundationCompactNumericListedDirectTokenStreamTableau.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tokenstreaminverse [label="Canonical inverse and non-inflating normalization\n规范反向提取与不增大的规范化\n\nLean 内核已检查：\n1. 任意合法定宽表逐项唯一恢复 token 与累计 offset；\n2. 每个 offset 等于规范累计偏移，全部 payload 位均被唯一覆盖；\n3. payload 精确等于恢复 token 列表的规范重编码；\n4. canonical tableau iff 同一 canonical packed token stream；\n5. 规范 tableau 可由当前公开 compactPackedTokenStream 解码回来；\n6. 任意公开解码成功的非规范 code 可换成同 token 的规范 code，\n   且 Nat.size(canonicalCode) <= Nat.size(originalCode)；\n7. 因此冗余高零位不能压低有界存在谓词的 cutoff；\n8. 十三个正式端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n严格结论不是错误的 raw-code pointwise iff，而是规范码精确 iff\n加保持 cutoff 的存在量词规范化。\nFoundationCompactNumericListedDirectTokenStreamInverse.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    directinputtableau [label="Canonical two-input arithmetic tableaux\n公开验证器双输入规范算术计算表\n\nLean 内核已检查：\n1. proofCode 与 formulaCode 共用同一直接 Delta-zero token 图；\n2. 两份规范计算表合并为显式八变量 Sigma-zero 关系；\n3. 任意接受的 proofCode 可替换为同 token 的规范码；\n4. 替换后 public verifier 结果逐点不变；\n5. Nat.size 与 packedPayloadLength 均不增加；\n6. formulaCode 的规范性由检查器自身 payload-match 条件推出；\n7. 有界接受码存在谓词与携带双表的规范版本保持同 cutoff iff；\n8. 九个正式端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n至此两条公开输入流已接入直接算术路线。\nFoundationCompactNumericListedDirectInputTableau.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    additivecursorgraph [label="Direct additive-code cursor and slice graph\n加法型编码的直接游标与切片图\n\nLean 内核已检查：\n1. token cell 直接随机读取一行并强制 next=cursor+1；\n2. list header 精确读取 count 并约束剩余 token 数；\n3. List Nat slice 精确占用一个头 token 加 count 个值 token；\n4. structured boundary table 保存每个复合分量的首尾游标；\n5. 首尾值、逐行随机读取和严格递增均由 Delta-zero 公式检查；\n6. 任意显式严格边界列表可构造规范 row-major 表；\n7. boundaryTable 码长 <= rows*tokenCount，保持多项式面积；\n8. 十三个正式端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n该层允许后续直接解析复合 trace，不调用 typed decoder。\nFoundationCompactNumericListedDirectAdditiveCodecGraph.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tracecomponenttableau [label="Exact twelve-component trace boundary tableau\n完整轨迹十二分量精确边界计算表\n\nLean 内核已检查：\n1. 显式列出 certified/formula streams、三 parser traces、parts、\n   root、root branch、formula value、states 共十二分量；\n2. 完整 trace token 串精确等于十二分量编码依次 flatten；\n3. Nat/Bool/Option/Prod/List 组合编码全部证明至少含一个 token；\n4. 因而十三个累计边界严格递增，末端精确等于 tokenCount；\n5. 全部边界不超过完整串长度并可构造规范定宽表；\n6. 通用八变量 Sigma-zero 公式同时检查 packed token 表与边界表；\n7. 规范 typed trace 无条件产生该算术见证；\n8. boundaryTable 码长 <= 13*tokenCount；\n9. 十二个审计端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n严格边界：本节点只关闭顶层十二段，不宣称段内类型语法已反演。\nFoundationCompactNumericListedDirectTraceComponentTableau.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    additivetypelayouts [label="Direct Bool/Option/Prod/List codec layouts\nBool、Option、Prod、List 的直接编码布局\n\nLean 内核已检查：\n1. Bool 精确占一个 token，值只能为 0 或 1；\n2. Option 标签 0 强制空载荷，标签 1 强制非空载荷区间；\n3. Prod 的左右编码在 middle cursor 处严格非空分割；\n4. structured List 由 count header 与 count 个非空元素边界组成；\n5. 所有游标和终点均受同一 tokenCount 约束；\n6. 四个布局公式均为手写 Sigma-zero / Delta-zero；\n7. 绑定变量环境通过显式有限坐标等式接到已绿内层公式；\n8. 十二个审计端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n边界：本节点给出通用类型构造子；具体 trace 分量实例化仍在黄色节点。\nFoundationCompactNumericListedDirectAdditiveTypeLayouts.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tracenatlistslices [label="Exact List Nat slices for components 1, 3, and 11\n第 1、3、11 分量的精确自然数列表切片\n\nLean 内核已检查：\n1. List Nat 的加法编码精确等于 length :: values；\n2. 任意顶层分量可按 take/drop 分解出真实前缀、本段和后缀；\n3. 累计边界第 i+1 项精确等于第 i 项加本段 token 长度；\n4. 任意等于 List Nat 编码的分量在两边界间满足直接 Nat-list slice；\n5. certifiedTokens 对应索引 0，formulaTokens 对应索引 2，\n   formulaValue 对应索引 10，三者均已实例化；\n6. token header 随机读取、count 和终点全部精确，无自由切分；\n7. 六个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n三个最外层列表分量的段内语法至此关闭。\nFoundationCompactNumericListedDirectTraceNatListSlices.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    packedstreamsplits [label="Exact product splits for packed-stream traces\n两份打包流轨迹的精确积类型分割\n\nLean 内核已检查：\n1. 任意等于 additive pair 编码的顶层分量都有唯一中间游标；\n2. middle = start + encoded(left).length；\n3. finish = middle + encoded(right).length；\n4. 两侧编码由非空 codec 定理保证严格非空；\n5. finish 精确等于该顶层分量的下一累计边界并受 tokenCount 约束；\n6. certifiedStreamTrace 对应索引 1，formulaStreamTrace 对应索引 3；\n7. 两个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n左右字段现已分离；字段内部列表语法由后续节点继续关闭。\nFoundationCompactNumericListedDirectTracePackedStreamSplits.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    structuredlistcanonical [label="Canonical shifted tableau for every structured List\n任意结构化列表的规范移位计算表\n\nLean 内核已检查：\n1. elementComponents 精确等于逐元素加法编码列表；\n2. list encoding = count token :: flatten(elementComponents)；\n3. 每个非空元素编码贡献至少一个 token，故 count 受列表体长度约束；\n4. 以 bodyStart 为基准平移全部累计边界；\n5. 平移后首项、末项、严格递增与 tokenCount 上界全部保持；\n6. 规范 elementBoundaryTable 满足直接 structured List 公式；\n7. 表码长 <= (count+1)*tokenCount，保持多项式面积；\n8. 八个审计端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n该通用构造可复用于 payload、stream/parser/verifier states。\nFoundationCompactNumericListedDirectStructuredListCanonical.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    packedstreamlistlayouts [label="Four concrete list layouts inside packed-stream traces\n两份打包流轨迹内部的四个具体列表布局\n\nLean 内核已检查：\n1. 通用 pair-of-lists 定理在同一完整 trace token 表上工作；\n2. 左列表终点与右列表起点精确等于已绿 product middle；\n3. 右列表终点精确等于顶层下一分量边界；\n4. proof stream 的 payload List Bool 与 state list 均有元素边界表；\n5. formula stream 的 payload List Bool 与 state list 均有元素边界表；\n6. 四张表分别满足直接 structured List 布局；\n7. 每张表保留 (count+1)*tokenCount 显式码长界；\n8. 两个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n四个字段边界已固定；元素内部语法由下一节点关闭。\nFoundationCompactNumericListedDirectTracePackedStreamListLayouts.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    additivetypecanonical [label="Canonical witnesses for Bool/Option/Prod layouts\nBool、Option、Prod 布局的规范见证\n\nLean 内核已检查：\n1. 任意前后缀中的真实 Bool 编码精确产生一个 0/1 cell；\n2. 任意真实 product 编码按左右编码长度产生严格 middle split；\n3. Option none 的 0 标签精确强制空 payload；\n4. Option some 的 1 标签精确界定非空 payload；\n5. 所有 start/middle/payloadStart/finish 均由真实编码长度确定；\n6. 全部见证使用同一规范 tokenTable 与诚实 tokenCount；\n7. 三个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n类型布局的公式、语义和规范构造三方向至此齐全。\nFoundationCompactNumericListedDirectAdditiveTypeCanonical.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    atomiclistlayouts [label="Canonical atomic Bool/Nat list row layouts\nBool 与 Nat 原子列表的规范逐行布局\n\nLean 内核已检查：\n1. 一个通用构造把 structured-list 每行接到真实 typed element；\n2. 同一边界表同时满足列表公式、行读取与元素关系；\n3. Bool 行精确读取真实 0/1 tag，并满足直接 Bool slice；\n4. Nat 行精确读取真实自然数 token，并占唯一单元格；\n5. 每行左右游标由 fixed-width boundary table 无歧义读取；\n6. 表码长统一 <= (valueCount+1)*tokenCount；\n7. 单状态 bits/decoded 两张表已升级为这些强逐行关系；\n8. 六个端点及三层回归探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n下一用途：直接构造位串后缀、decoded cons/reverse 与流单步四分支。\nFoundationCompactNumericListedDirectAtomicListLayouts.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstatuslayout [label="Exact nested Option(Option(List Nat)) status layout\n流状态双层可选输出的精确布局\n\nLean 内核已检查：\n1. 外层 none 产生 0 标签并在 payloadStart 立即结束；\n2. 外层 some 产生 1 标签并把同一 finish 交给内层 Option；\n3. 内层 none 再次产生 0 标签和空 payload；\n4. 内层 some 产生 1 标签并精确进入输出 List Nat；\n5. 输出列表具有真实 structured-list 边界表；\n6. 输出列表每个 Nat 原子行精确读取真实 token；\n7. 输出表码长 <= (outputCount+1)*tokenCount；\n8. 两层 tag/start/payloadStart/finish 全部在同一规范 token 表对齐；\n9. status、单状态回归探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n三种运行状态及完成输出的全部原子行均已打开。\nFoundationCompactNumericListedDirectBinaryNatStreamStatusLayout.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    statuscases [label="Direct arithmetic cases for nested status tags\n双层状态标签的直接算术分支\n\nLean 内核已检查：\n1. running 精确为单标签 0；\n2. failed 精确为双标签 1,0；\n3. completed prefix 精确为双标签 1,1；\n4. 三个关系均为手写 Delta-zero 公式；\n5. 同一 tokenTable/cursor 上标签值由行读取唯一确定；\n6. 在完整 status layout 下分别 iff\n   none / some none / some (some output)；\n7. completed 的 outputStart 精确等于 start+2；\n8. 十个端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectBinaryNatStatusCases.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstatelayout [label="Complete layout of one BinaryNatStreamState\n单个二进制自然数流状态的完整布局\n\nLean 内核已检查：\n1. 状态精确拆成 List Bool、List Nat 与嵌套 status；\n2. 两层 product 均有由真实编码长度决定的唯一中间游标；\n3. bits 每行精确读取真实 Bool 0/1 单元；\n4. decoded 每行精确读取真实 Nat token 单元；\n5. status 接入已绿双层 Option/输出列表布局；\n6. 全部 start/middle/finish 对齐同一个状态区间；\n7. 两张内部边界表保留显式多项式面积界；\n8. 升级后单状态、状态列表和完整 trace 回归均通过，\n   仅依赖标准三项，无项目公设或 sorryAx。\n\n状态的结构和原子字段至此全见光；跨状态运算关系仍在黄色节点。\nFoundationCompactNumericListedDirectBinaryNatStreamStateLayout.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    statelistrowlayout [label="Canonical row layouts for every stream-state list\n任意流状态列表的规范逐行布局\n\nLean 内核已检查：\n1. 规范边界表第 i、i+1 行精确包围 states.getI i；\n2. 两行均由同一 fixed-width table 无歧义读取；\n3. 每个行区间接入完整 BinaryNatStreamState 布局；\n4. 列表 header、bodyStart、finish 与全部元素切片严格对齐；\n5. 每个元素编码非空，边界严格递增并受 tokenCount 约束；\n6. 同一张表同时满足 structured-list 公式和逐行状态语义；\n7. 表码长 <= (states.length+1)*tokenCount；\n8. 两个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n边界：尚须安装到完整 trace 的 proof/formula 两个具体状态字段。\nFoundationCompactNumericListedDirectBinaryNatStreamStateListLayout.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tracestatelayouts [label="Concrete proof/formula stream-state row layouts\n证明码与公式码流的具体状态逐行布局\n\nLean 内核已检查：\n1. 通用逐行定理安装到顶层第 2、4 个 packed-stream 分量；\n2. 两个状态列表起点精确等于各自 payload 之后的游标；\n3. 两个终点精确等于对应下一顶层分量边界；\n4. 全部行共享完整 trace 的同一 tokenTable、width、tokenCount；\n5. proof/formula 每个真实状态行均携带完整状态布局；\n6. 两张边界表分别保留 (stateCount+1)*tokenCount 界；\n7. 顶层 pair 编码、列表编码和行编码没有坐标转换损失；\n8. 两个审计端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n当前边界：把相邻状态行连接到 binaryNatStreamStep 局部算术图。\nFoundationCompactNumericListedDirectTracePackedStreamStateLayouts.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepcases [label="Exact four-branch normal form of binaryNatStreamStep\n二进制自然数流单步的精确四分支正常形\n\nLean 内核已检查：\n1. done：status=some result 时下一状态原样不动；\n2. empty：status=none 且 bits=[] 时输出 decoded.reverse；\n3. decode failure：非空 bits 解码失败时保留两列表并置 some none；\n4. decode success：得到 token/suffix，前插 token 并继续运行；\n5. 四分支析取逐点 iff next=binaryNatStreamStep current；\n6. 真实 decodeBinaryNat 保留非规范冗余高零编码行为；\n7. 未把成功段偷换为 canonical binaryNatCode 长度；\n8. 两个端点探针退出码 0，仅依赖 propext / Quot.sound，\n   无 sorryAx / projection / rfind / 项目公设。\n\n边界：四个语义分支中的解码、suffix、cons、reverse 尚须直接算术化。\nFoundationCompactNumericListedDirectBinaryNatStreamStepCases.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    flexibledecode [label="Flexible noncanonical decode segment: full equivalence\n允许非规范编码的解码段：完整双向等价\n\nLean 内核已检查：\n1. 成功解码精确分解为若干 10/11 数据对、00 与 suffix；\n2. 独立 digitCount 允许任意冗余高零数据对；\n3. 六变量 FlexibleDecodeSegment 为手写 Delta-zero 公式，\n   标准模型语义逐点 iff 直接 bit-test 关系；\n4. 真实成功解码构造 segment 与精确 drop suffix；\n5. 任意合法 segment 从奇数位重建全部数据位和 token；\n6. 偶数/奇数位逐点外延证明输入前缀正是数据对加 00；\n7. segment 加精确 suffix 反推真实 decodeBinaryNat 成功；\n8. 最终定理给出成功解码 iff 存在 flexible segment；\n9. 全部端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\n\n同坐标接入已由 Bool decode-success rows 节点闭合。\nFoundationCompactNumericListedDirectFlexibleBinaryNatDecode.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    boolpackedvalue [label="Exact packed value of Boolean-list rows\n布尔列表逐行表的精确打包值\n\nLean 内核已检查：\n1. 六变量 BoolListPackedValue 为手写 Delta-zero 公式；\n2. 每一位使用同一 boundaryTable 的相邻两行读取游标；\n3. 每个真实 Bool 行直接读取固定 0/1 token cell；\n4. payload.size <= bitCount 禁止高位垃圾；\n5. 真实 rows 构造 payload=natOfBitsList(values)；\n6. 任意合法 payload 由同一行值逐位反推该等式；\n7. 最终 iff 锁定 typed list 与算术 packed value 同一坐标；\n8. 探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\n\n源/目标行表安装已由 Bool decode-success rows 节点闭合。\nFoundationCompactNumericListedDirectBoolListPackedValue.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    atomicroweq [label="Direct equality of one-token atomic rows\n单 token 原子行的直接相等关系\n\nLean 内核已检查：\n1. 七变量 AtomicRowEq 为手写 Delta-zero 公式；\n2. 两行均强制为同一 tokenTable 内的一格区间；\n3. width 内全部位逐点相等；\n4. 同值 token cells 直接构造该关系；\n5. 反向利用 Nat.size 界排除 width 外差异；\n6. 分别推出真实 Bool 值及 Nat 值相等；\n7. 六个端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectAtomicRowEquality.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    booldropdecode [label="Exact Boolean suffix rows and decode-success graph\n精确 Bool 后缀行与成功解码图\n\nLean 内核已检查：\n1. 八变量 BoolListDropRows 为手写 Delta-zero 公式；\n2. consumed 不越界且 sourceCount=consumed+targetCount；\n3. 每个目标行等于源表 consumed+index 行；\n4. 在真实 rows 下公式 iff target=source.drop(consumed)；\n5. 十一变量 DecodeSuccessRows 合并 packed payload、\n   flexible segment 与精确 target suffix；\n6. 三个引用公式的 Fin 参数向量逐项校准；\n7. 最终 iff 恢复真实 decodeBinaryNat source=some(token,target)；\n8. 全部端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectBoolListDropRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    natconsrows [label="Exact direct rows for Nat-list cons\nNat 列表前插的精确直接行关系\n\nLean 内核已检查：\n1. 八变量 NatListConsRows 为手写 Delta-zero 公式；\n2. targetCount=sourceCount+1；\n3. 目标第 0 行精确承载新 head token；\n4. 每个后续目标行等于前一源行；\n5. 正向从真实 head::source 构造全部游标和行；\n6. 反向由边界唯一性和 AtomicRowEq 恢复全部值；\n7. 最终公式 iff target=head::source；\n8. 五个端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectNatListConsRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    natreverserows [label="Exact direct rows for Nat-list reversal\nNat 列表反转的精确直接行关系\n\nLean 内核已检查：\n1. 七变量 NatListReverseRows 为手写 Delta-zero 公式；\n2. sourceCount=targetCount；\n3. 每个目标下标显式给出 sourceIndex，满足\n   sourceIndex+targetIndex+1=sourceCount；\n4. 对应单 token 行由 AtomicRowEq 逐位比较；\n5. 正向构造 reverse 的全部镜像行；\n6. 反向恢复每个真实 Nat 值及完整列表；\n7. 最终公式 iff target=source.reverse；\n8. 五个端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectNatListReverseRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    natsamerows [label="Exact direct equality of two Nat-list row tables\n两张 Nat 列表行表的精确直接同一性\n\nLean 内核已检查：\n1. 七变量 NatListSameRows 为手写 Delta-zero 公式；\n2. sourceCount=targetCount；\n3. 同下标源/目标边界表行逐位相等；\n4. 正向从真实列表相等构造全部行关系；\n5. 反向由边界行唯一性恢复每个 Nat 值；\n6. 最终公式 iff target=source；\n7. 用于 done/failure 的 decoded 不变字段；\n8. 五个端点探针退出码 0，仅依赖标准三项或其子集，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectNatListSameRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    decodefailure [label="Constructive bounded decoder-failure graph\n构造型有界解码失败图\n\nLean 内核已检查：\n1. DecodeShape 精确表示若干 marker 后出现 00；\n2. NoDecodeShape 对每个候选位置显式给出四类阻断：\n   越界、某 marker=0、终止首位=1、终止次位=1；\n3. 两者均为手写 Delta-zero 公式；\n4. 局部阻断 iff 不存在任何成功 shape；\n5. shape 可构造真实 flexible segment 和成功解码；\n6. 真实 decode=none iff 全部候选位置均被阻断；\n7. packed-value 公式与 failure 公式束的合取\n   iff 同一 Bool 行表上的真实解码失败；\n8. 全部端点探针退出码 0，仅依赖标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectBinaryNatDecodeFailure.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    completedreverse [label="Completed-status output boundary rigidity and reversal\n完成状态输出边界刚性与反转桥\n\nLean 内核已检查：\n1. 单 token Nat 行强制 boundary[i]=outputStart+1+i；\n2. 列表终点因此强制为 outputStart+1+count；\n3. 排除指向不同 token 行的伪输出边界表；\n4. 完成标签、输出列表布局与 NatListReverseRows 组成直接公式束；\n5. 真实 status 输出表与公式输出表逐行游标精确对齐；\n6. 存在该直接关系 iff status=some(some source.reverse)；\n7. 正反两向均由真实 typed 行构造或恢复，不输入 reverse 结论；\n8. 定向探针退出码 0，公理画像仅标准三项，\n   无 sorryAx / projection / rfind / 项目公设。\nFoundationCompactNumericListedDirectNatListBoundaryRigidity.lean\nFoundationCompactNumericListedDirectCompletedStatusReverseRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    completedstatussame [label="Exact equality of two completed statuses\n两个完成状态的精确同一性\n\nLean 内核已检查：\n1. 两侧均强制为 11 完成标签；\n2. 两份输出列表使用同一 outputCount；\n3. NatListSameRows 逐项比较真实输出 token；\n4. 边界刚性排除两侧伪输出表；\n5. 关系存在 iff 两个 status=some(some sameOutput)；\n6. 两张输出边界表均携带精确 Nat.size 字段；\n7. 两个 size 均 <= (outputCount+1)*tokenCount；\n8. 全部端点仅依赖标准三项，无项目公设或 sorryAx。\nFoundationCompactNumericListedDirectCompletedStatusSameRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepgraph [label="31-variable Delta-zero stream-step graph + trace installation\n31 变量有界流单步图与轨迹安装\n\nLean 内核已检查：\n1. 状态布局精确展开为 start/finish、bits/decoded 边界与计数；\n2. done / empty / decode-failure / decode-success 四关系逐项 iff 真实语义；\n3. 四分支总析取 iff next=binaryNatStreamStep(current)；\n4. 分支见证显式记录 payload/digitCount/token/consumed；\n5. 完成输出边界记录精确 Nat.size 与多项式面积界；\n6. 四个分支及总图均为手写 31 自由变量 Delta-zero 公式；\n7. 每个子公式 Fin 环境向量均逐项证明，禁止 projection/rfind；\n8. 公式存在见证 iff 真实流单步；\n9. 任意合法本地流轨迹的每对相邻状态行均产生该见证；\n10. 已安装到完整验证轨迹的 proof/formula 两张状态表；\n11. 定向探针退出码 0，全部端点仅依赖标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepRows.lean\nFoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean\nFoundationCompactNumericListedDirectBinaryNatStreamStepInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    atomicrowrealization [label="Deterministic realization of atomic list rows\n原子列表行的确定性实现\n\nLean 内核已检查：\n1. 定宽边界表确定性读取每个游标和 token；\n2. Bool 行的 0/1 有效性写成手写 Delta-zero 公式；\n3. 单 token Nat 边界行写成手写 Delta-zero 公式；\n4. 两种纯数值关系均构造真实 typed list rows；\n5. 列表长度精确等于数值 count；\n6. 端点仅依赖标准三项，无 sorryAx。\nFoundationCompactNumericListedDirectAtomicListRowRealization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstatecore [label="13-variable pure numeric stream-state core\n13 变量纯数值流状态核心公式\n\nLean 内核已检查：\n1. bits/decoded 的 split、layout、边界与 count 全显式；\n2. 两张边界表均记录精确 Nat.size 与面积界；\n3. 手写 13 自由变量 Delta-zero 公式逐点 iff 数值核心图；\n4. 数值核心图确定性恢复 Bool/Nat 两个真实列表；\n5. typed fixed layout 也反向产生同一核心图；\n6. 无 typed state 输入、无项目公设、无 sorryAx。\nFoundationCompactNumericListedDirectBinaryNatStreamStateFormula.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamsteprealization [label="Numeric step graph realizes the actual stream step\n纯数值单步图实现真实流单步\n\nLean 内核已检查：\n1. 0 / 10 / 11 数值标签分别构造运行、失败、完成布局；\n2. 完成输出由数值边界行确定性恢复；\n3. 四分支均构造真实 current/next typed states；\n4. 数值图推出 next=binaryNatStreamStep(current)；\n5. 反方向由真实布局与 step 构造数值图；\n6. 两方向精确等价，仅依赖标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepRealization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepstateformula [label="35-variable realized stream-step Delta-zero formula\n35 变量真实流单步有界公式\n\nLean 内核已检查：\n1. 两份 13 变量状态核心共享同一 token table；\n2. 与 31 变量四分支 step 图共享全部状态坐标；\n3. 状态 size 坐标与分支见证各自显式且不重复量化；\n4. 全部 Fin 环境向量逐项校准；\n5. 手写 35 自由变量公式逐点 iff 已实现单步图；\n6. 公式层级为 Delta-zero，公理画像仅标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepStateFormula.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepwitnesstable [label="Canonical 32-column bounded stream-step witness tables\n规范 32 列有界流单步见证表\n\nLean 内核已检查：\n1. current / next / branch witness 固定为 10+10+12 列；\n2. 规范 row-major 表支持任意行列精确读取；\n3. 表码位长 <= rowCount * 32 * tableWidth；\n4. 状态核心推出全部状态坐标公开位长界；\n5. 未使用分支字段规范化为 0，保留字段无隐藏上界；\n6. 统一 tableWidth=(tokenCount+1)*tokenCount+8；\n7. 每个真实相邻步构造一行；\n8. proof/formula 两张规范表逐行满足 35 变量图；\n9. 全部端点仅依赖标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTable.lean\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound.lean\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepwitnessformula [label="Handwritten Delta-zero formula for the bounded witness table\n有界见证表的手写 Delta-zero 公式\n\nLean 内核已检查：\n1. 每行 32 个定宽条目全部进入公式；\n2. 条目与 35 变量单步图在同一 rowIndex 对齐；\n3. valueBound 精确固定为 2^tableWidth；\n4. 32 个见证按 10/10/6/6 四级连续子公式引入；\n5. 外层对全部 rowIndex 作有界全称量化；\n6. 标准模型规格逐点 iff 分层 BoundedGraph；\n7. 完整公式层级为 Delta-zero；\n8. 无项目公设、无 sorryAx，仅标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormula.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    streamstepwitnessbridge [label="Canonical-table equivalence and proof/formula installation\n规范表等价与 proof/formula 公式安装\n\nLean 内核已检查：\n1. 表位确定每列唯一规范值；\n2. 每列值由 Nat.size 界落入 2^tableWidth；\n3. 任意公式见证由条目唯一性强制回规范 32 列行；\n4. BoundedGraph(valueBound) iff\n   valueBound=2^tableWidth and TableGraph；\n5. 手写公式求值 iff 原有逐行表图；\n6. proof/formula 两张规范表直接满足手写公式；\n7. 表码长界原样保留；\n8. 最终目标构建 1379 jobs 通过；\n9. 全部端点仅依赖标准三项。\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaBridge.lean\nFoundationCompactNumericListedDirectBinaryNatStreamStepWitnessTableFormulaInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parserstatelayouts [label="Canonical syntax-task and parser-state row layouts\n语法任务与解析器状态的规范逐行布局\n\nLean 内核已检查：\n1. CompactSyntaxTask 精确展开为 kind / binderArity / count 三格；\n2. 解析器状态精确拆成 token 列表、任务栈与嵌套返回状态；\n3. 两层 product split 与全部内部游标对齐同一状态区间；\n4. token 列表每个 Nat 行直接读取真实值；\n5. 任务栈每行接入三字段任务布局；\n6. Option(Option(List Nat)) 返回状态沿用已绿完整布局；\n7. 任意状态列表有唯一规范边界表及逐行真实状态布局；\n8. 内部表码长均有 (count+1)*tokenCount 公开界；\n9. 全部端点仅依赖标准三项。\nFoundationCompactNumericListedDirectSyntaxTaskLayout.lean\nFoundationCompactNumericListedDirectParserStateLayout.lean\nFoundationCompactNumericListedDirectParserStateListLayout.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    traceparserlayouts [label="Proof/certificate/formula parser components installed\n证明／证书／公式解析器分量已安装\n\nLean 内核已检查：\n1. 通用状态列表定理安装到顶层分量 4、5、6；\n2. 三段终点分别精确为边界 5、6、7；\n3. 三张边界表共享完整轨迹的 tokenTable/width/tokenCount；\n4. 每个真实 parser state 行均携带完整字段布局；\n5. 三张表均保留 (stateCount+1)*tokenCount 码长界；\n6. 组件切分、状态切分和行坐标无转换损失；\n7. 定向构建 1354 jobs 通过；\n8. 全部端点仅依赖标准三项。\n\n初态／终态已由后续绿色节点算术化；\n严格边界只剩尚未闭合的 step 任务头分支与逐行汇总。\nFoundationCompactNumericListedDirectTraceParserStateLayouts.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parsertaskrowformula [label="Three-cell syntax-task Delta-zero row formula\n语法任务三格 Delta-zero 行公式\n\nLean 内核已检查：\n1. 每个任务边界行直接强制 right=left+3；\n2. 边界左右值由同一 fixed-width table 读取；\n3. 正向从真实 kind/binderArity/count 三单元推出公式；\n4. 反向在 left、left+1、left+2 读取公共 token 表；\n5. 三个读取值确定性恢复同一 CompactSyntaxTask；\n6. 任务列表长度精确等于公开 count；\n7. 公式层级严格为 Delta-zero；\n8. 无 typed task 输入、无项目公设或 sorryAx。\nFoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parserstatecoreformula [label="13-variable pure numeric parser-state core\n13 变量纯数值解析器状态核心\n\nLean 内核已检查：\n1. 两层 product split 与 start/finish 全部显式；\n2. 剩余 Nat token 列表使用单位宽边界行；\n3. 任务栈使用已绿三格任务行公式；\n4. 两张边界表均记录精确 Nat.size 与面积界；\n5. 手写 13 自由变量 Delta-zero 公式逐点 iff 核心图；\n6. 真实 typed state 布局无条件产生公式见证；\n7. 反向仅从表位恢复真实 tokens/tasks；\n8. 再给 status 布局即可重建完整解析器状态；\n9. 全部端点仅依赖标准三项。\nFoundationCompactNumericListedDirectParserStateFormula.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parserstatecoreinstall [label="Parser-state core formula installed on all three traces\n解析器状态核心公式已安装到三条轨迹\n\nLean 内核已检查：\n1. proof/certificate/formula 每个状态行均读取精确左右边界；\n2. 每行构造自己的 13 坐标与两项 size witness；\n3. 实际 compactUnifiedParserStateCoreGraphDef Evalb 成立；\n4. 同一行保留真实 status 布局供下一步标签消元；\n5. 三条轨迹继续共享完整 trace token 表；\n6. 规范边界表及其公开码长界原样保留；\n7. 定向构建 1359 jobs 通过；\n8. 全部端点仅依赖标准三项。\n\n严格边界：相邻两行尚未由纯数值 parser step 公式连接。\nFoundationCompactNumericListedDirectParserStateFormulaInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parserouterstepcases [label="Exact common three-way parser-step normal form\n解析器单步共有三分支精确正常形\n\nLean 内核已检查：\n1. status 已结束时 next=current；\n2. 运行中且任务栈为空时以剩余 token 完成；\n3. 运行中且任务栈非空时只执行任务头；\n4. 三分支由 status/tasks 穷举，互不遗漏；\n5. 统一外层定理实例化到 syntax parser；\n6. 同一定理实例化到 proof parser；\n7. 同一定理实例化到 certificate parser；\n8. 四个端点仅依赖 propext / Quot.sound。\n\n严格边界：任务头内部标签分支仍须直接算术化。\nFoundationCompactNumericListedDirectParserStepCases.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    tasklistrowops [label="Delta-zero same/drop/cons operations on syntax-task rows\n语法任务行的保持／删前缀／前插 Delta-zero 运算\n\nLean 内核已检查：\n1. 完整八变量任务布局公式绑定 kind/binderArity/count；\n2. 三格任务相等由三份 AtomicRowEq 精确合成；\n3. 任务列表 SameRows iff 两列表相等；\n4. DropRows 比较 source[consumed+i] 与 target[i]；\n5. DropRows iff target=source.drop consumed；\n6. consumed=1 精确实现弹出任务头；\n7. ConsRows 第零行绑定给定任务，其余行右移；\n8. ConsRows iff target=head::source；\n9. 所有公式严格为 Delta-zero；\n10. 联合定向构建 1362 jobs 通过，仅标准三项。\nFoundationCompactNumericListedDirectSyntaxTaskRowRealization.lean\nFoundationCompactNumericListedDirectSyntaxTaskListSameRows.lean\nFoundationCompactNumericListedDirectSyntaxTaskListDropRows.lean\nFoundationCompactNumericListedDirectSyntaxTaskListConsRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parserdoneformula [label="26-variable Delta-zero finished-parser branch\n26 变量解析器已结束分支 Delta-zero 公式\n\nLean 内核已检查：\n1. 当前/下一剩余 Nat token 列表由 SameRows 比较；\n2. 当前/下一任务栈由三格 Task SameRows 比较；\n3. failed 分支强制两侧精确 10 status 标签；\n4. completed 分支逐行比较同一输出列表；\n5. completed 的两张输出表记录精确 Nat.size；\n6. 两张表均受 (outputCount+1)*tokenCount 面积界；\n7. 手写 26 自由变量公式逐点 iff 纯数值行关系；\n8. 存在公式见证 iff 当前已结束且 next=current；\n9. 分别安装到 syntax/proof/certificate 三个真实公开 step；\n10. 最终定向构建 1369 jobs 通过，仅标准三项。\nFoundationCompactNumericListedDirectParserDoneRows.lean\nFoundationCompactNumericListedDirectParserDoneFormula.lean\nFoundationCompactNumericListedDirectParserDoneInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    parseremptyformula [label="22-variable Delta-zero empty-task parser branch\n22 变量解析器空任务分支 Delta-zero 公式\n\nLean 内核已检查：\n1. 当前与下一任务计数均被强制为零；\n2. 当前 status 精确为单标签 0 的运行状态；\n3. 当前/下一剩余 Nat token 行由 SameRows 保持；\n4. 下一 status 精确为 11 完成标签；\n5. 完成输出逐行等于当前剩余 token 列表；\n6. 单位边界刚性排除指向其他 token 行的伪输出表；\n7. 输出边界记录精确 Nat.size 与公开面积界；\n8. 手写 22 自由变量公式逐点 iff 纯数值行关系；\n9. 存在公式见证 iff 真实 empty-task completion；\n10. 分别安装到 syntax/proof/certificate 三个公开 step；\n11. 最终定向构建 1369 jobs 通过，仅标准三项。\nFoundationCompactNumericListedDirectCompletedOutputSameRows.lean\nFoundationCompactNumericListedDirectParserEmptyRows.lean\nFoundationCompactNumericListedDirectParserEmptyFormula.lean\nFoundationCompactNumericListedDirectParserEmptyInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    taskunconsformula [label="Canonical bounded uncons formula for task stacks\n任务栈规范有界拆头公式\n\nLean 内核已检查：\n1. 读取当前边界表第 1..taskCount 个游标；\n2. 将这些游标重打包为规范 tail boundary table；\n3. 尾表逐行精确承载 tasks.drop 1；\n4. DropRows(consumed=1) 证明真实弹出任务头；\n5. ConsRows 反向重建指定三字段任务头加尾栈；\n6. 任务头 kind/binderArity/repeatCount 全部直接绑定；\n7. 尾表记录精确 Nat.size 与公开面积界；\n8. 手写 11 自由变量 Delta-zero 公式逐点 iff 关系；\n9. 存在公式见证 iff 真实列表为指定 head::tail；\n10. 定向构建 1360 jobs 通过，仅标准三项。\nFoundationCompactNumericListedDirectSyntaxTaskListTailTable.lean\nFoundationCompactNumericListedDirectSyntaxTaskListUnconsRows.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    syntaxrepeatformula [label="25-variable Delta-zero repeated-term task branch\n25 变量语法重复项任务 Delta-zero 分支\n\nLean 内核已检查：\n1. 九变量 TaskAtRows 精确绑定任意任务行三字段；\n2. 当前任务头由 UnconsRows 强制为 kind=2；\n3. 当前与下一 token 列表逐行保持不变；\n4. 两侧 status 均强制为运行标签 0；\n5. repeatCount=0 时 next tasks 精确等于同一尾栈；\n6. 正数时 next 第 0 行为 term task；\n7. next 第 1 行为递减后的 repeat task；\n8. next.drop 2 精确等于同一有界尾栈；\n9. 显式 predecessor 满足 repeatCount=predecessor+1；\n10. 25 自由变量公式逐点 iff 真实 repeat step；\n11. 已安装到公开 syntax parser step；\n12. 定向构建 1369 jobs 通过，仅标准三项。\nFoundationCompactNumericListedDirectSyntaxTaskListAtRows.lean\nFoundationCompactNumericListedDirectParserSyntaxRepeatRows.lean\nFoundationCompactNumericListedDirectParserSyntaxRepeatFormula.lean\nFoundationCompactNumericListedDirectParserSyntaxRepeatInstallation.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    compactformula [label="【主终端当前：Explicitly coded direct CompactProof】\n显式编码的直接紧凑证明算术公式\n\n目标：\nP_direct(bound,y) := exists proofCode,\n  payloadLength(proofCode) <= bound and\n  exists traceCode, DirectVerifierTraceCode(proofCode,y,traceCode)。\n\nLean 内核已关闭：\n1. 十二个 trace 分量、公开输入及流单步均有同坐标有界公式；\n2. 三条 parser trace 有规范状态表与 13 变量状态核心；\n3. done 26 变量、empty 22 变量分支已安装到三个公开 step；\n4. 任务栈 same/drop/cons、规范拆头与任意行读取已闭合；\n5. syntax kind=2 repeat task 的 25 变量公式已完整安装；\n6. Nat token 定点读取、drop 1/2/3 与有限符号码公式已闭合；\n7. syntax kind=0 term task 的全部成功／失败控制流已穷举；\n8. syntax kind=1 的 tags 0..7 及全部拒绝分支已穷举；\n9. 非法 kind 的 25 变量确定失败公式已安装；\n10. syntax 非空任务头分派全部逐点 iff 真实公开执行；\n11. 三条 parser 的初态／终态由 36 变量公式锁定；\n12. proof 终态输出与 certificate 初态输入共享同一行表；\n13. 最新定向构建 1376 jobs 通过，仅标准三项。\n\n当前必须关闭：\n1. proof parser kinds 3..8 的任务头分支；\n2. certificate parser kinds 8/9 及非法 kind 分支；\n3. 汇总三个 parser 的完整逐行 step 公式；\n4. 其余 verifier 分量与 DirectVerifierTraceCode 汇总；\n5. 最终二变量 Sigma-one 公式及同一 P_direct 的逐点 iff。\n\n当前第一义务：proof/certificate task-head dispatch。\nproof 侧须直接覆盖 proof node、formula、term、repeat-formula、\nsequent、closed-formula 六类任务；certificate 侧须覆盖\nstructural node、PA-axiom certificate 与非法 kind。\n每个成功／失败分支必须连接同一 token/task/status 行坐标，\n不得使用 projection / rfind 或任何项目级公设。\nFoundationCompactNumericListedDirectParserInitialFinalInstallation.lean\nFoundationCompactNumericListedDirectParserStateFormulaInstallation.lean\nFoundationCompactNumericListedDirectTraceParserStateLayouts.lean\nFoundationCompactNumericListedBoundedTraceCode.lean", fillcolor="#fff0c9", color="#b37a12", penwidth=3.2];
+    patrace [label="PA proof compiler for the direct trace formula\n直接轨迹公式的 PA 短证明编译器\n\n等待黄色 direct CompactProof 公式闭合后启动：\n给定 proofCode 与合法接受轨迹，构造同一公式实例的真实\nPA Derivation2，并证明公式生成、见证、逐步核验及拼接的\n完整证明载荷长度为输入位长的固定多项式。\n\n禁止逐实例调用 Sigma-one completeness / Classical.choice\n来声称任何长度结论。", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    suitable [label="suitable numeration（合适枚举）\nbit graph representability（位图可表示性）\npolynomial proof construction（多项式证明构造）", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond0 [label="Pudlak condition (0)（普德拉克条件 0）\nPA 内证明 proof-bound monotonicity（证明长度界单调性）\nP 的较紧/较松 cutoff 可在同一公式中转换", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond1 [label="Pudlak condition (1)（普德拉克条件 1）\nexternal short proof -> internal P(n, code(phi))\n外部短证明以多项式开销内部化为 P 实例", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond2 [label="Pudlak condition (2)（普德拉克条件 2）\nP(n,m) -> P(q1(n), code(P(n,m)))\n证明谓词实例自身的定量内部化", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    cond3 [label="Pudlak condition (3)（普德拉克条件 3）\nbounded modus ponens composition（有界肯定前件合成）\nP(n,phi) 与 P(n,phi->psi) -> P(q2(n),psi)", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    mpcompiler [label="Accepted-code bounded modus ponens compiler\n接受码有界肯定前件编译器（外部语义层已闭合）\n\n同一公开列表保持验证器：\naccept(codeImp, A->B) + accept(codeA, A)\n  -> exists codeB, accept(codeB, B)\n完整载荷界：\n|codeB| <= |codeImp| + |codeA| + 240 + 34*S(A,B)\n两份输入 proof tree + certificate 原样复用\n树级、证书级、规范码级及任意接受码端点均已通过\n无隐藏长度参数；无 sorryAx\nFoundationCompactCertifiedModusPonens.lean\n\n注意：这里只关闭外部码合成；\nPA 内部 condition (3) 仍须由 arithmetic trace 内化。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    conjcompiler [label="Accepted-code bounded conjunction compiler\n接受码有界合取编译器（外部语义层已闭合）\n\naccept(codeA,A) + accept(codeB,B)\n  -> exists codeAnd, accept(codeAnd,A and B)\n完整载荷界：\n|codeAnd| <= |codeA| + |codeB| + 144 + 11*S(A,B)\n两棵输入树与两份完整证书原样复用\n任意接受码端点及 axiom profile 已通过\n无 sorryAx\nFoundationCompactCertifiedConjunction.lean\n\n注意：固定重言式与原文拼接步骤 (i)-(v)\n以及 PA 内部化仍未闭合。", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    qdiagonal [label="Quantitative parameterized diagonalization\n定量参数化对角化（同一完整载荷坐标已闭合）\nFoundation parameterized_diagonal₁：固定 P 的全称证明为常数\n真实 Derivation2 实例化：cut + wk + exs + closed\n显式结构证书：binary(unary(baseCert), unary(leaf))\n公开列表保持验证器接受完整 proof+certificate 打包码\n短二进制数码项：2*previous+bit\n码长 O(Nat.size m)，标准模型值严格为 m\n最终完整载荷界：baseProof+baseCert+192\n + 2048*(formulaConstant+stepConstant*|m|+1)^3\n同一公式实例的精确最短载荷也不超过该界\n具体 CompactProof 谓词仍由灰色算术化节点提供\nFoundationCompactDerivationSpecialization.lean\nFoundationCompactCertifiedDerivationSpecialization.lean\nFoundationCompactBinaryNumeralTerm.lean\nFoundationCompactParameterizedDiagonalSpecialization.lean\n端点无 sorryAx", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+    proofassembly [label="Bounded proof-calculus assembly (i)-(v)\n有界证明演算拼接（原文步骤 i-v）\n固定命题重言式 + (0)-(3) + MP/conjunction composition\n逐步得到 not P(q5(m), bottom) -> D(m)\n每次拼接与公式实例化均须显式多项式长度", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    paconsistency [label="PA consistency in the standard model\nPA 在标准模型中的一致性\naccepted falsum proof -> real Derivation2 -> contradiction\n项目已有 noListedCertifiedPAProofOfFalsum；无 sorryAx", fillcolor="#dff2e8", color="#2f6f57", penwidth=2.4];
+    exponentextract [label="Consistency contradiction + exponent extraction\n一致性反证 + 指数提取\n短 D(m) 证明与一致性冲突\nq5(m) 的多项式重标定 -> 存在 epsilon > 0\n推出 Con_A(n) 无 n^epsilon 长度证明", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    diagonal [label="Pudlak 1986 Theorem 3.1\n普德拉克 1986 定理 3.1\ndiagonal proof-length lower bound\n对角证明长度下界", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
+    internalnote [shape=note, label="关键注释：外部运行时间界不能自动变成 PA 内部短证明。\n必须构造 accepted computation trace（接受计算轨迹），\n并在同一算术编码中逐步验证。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    predicate -> resemanticprobe [label="exact standard-model relation\n精确标准模型关系"];
+    minmeasure -> resemanticprobe [label="same honest payload length\n同一诚实载荷长度"];
+    canonicalnormalize -> resemanticprobe [style=dotted, label="normalization audit only\n仅作规范化审计"];
+    predicate -> listedconmeta [label="same accepted-code relation\n同一接受码关系"];
+    minmeasure -> listedconmeta [label="same payload coordinate\n同一载荷坐标"];
+    listedconmeta -> resemanticprobe [label="generic semantic representation\n通用定性语义表示"];
+    canonicalnormalize -> listedconmeta [label="pointwise same-cutoff equivalence\n逐点同截断值等价"];
+    polytime -> arithinput [label="same packed inputs and bit-cost coordinate\n同一打包输入与位成本坐标"];
+    arithinput -> tokenstream [label="primitive-recursive payload and Nat-prefix base\n原始递归载荷与自然数前缀基础"];
+    tokenstream -> bitsync [label="exact arbitrary-input stream semantics\n任意输入流精确语义"];
+    tokenstream -> syntaxparser [label="bounded exact tokenization\n有界精确记号化"];
+    bitsync -> syntaxbitsync [label="exact bit suffix invariant\n精确位后缀不变量"];
+    syntaxparser -> syntaxbitsync [label="same term/formula token grammar\n同一项/公式 token 文法"];
+    syntaxparser -> syntaxinversion [label="backward typed realization invariant\n反向类型化实现不变量"];
+    syntaxinversion -> numericvalues [label="arbitrary syntax success is canonical\n任意语法成功均为真实规范前缀"];
+    syntaxinversion -> closedformula [label="typed prefix recovery + no-fvar invariant\n类型化前缀恢复 + 无自由变量不变量"];
+    closedformula -> proofparser [label="axm sentence task\n公理叶闭句任务"];
+    syntaxparser -> proofparser [label="checked syntax-task machine\n已检查语法任务机"];
+    syntaxparser -> certparser [label="induction-body formula parser\n归纳公理体公式解析"];
+    syntaxinversion -> proofinversion [label="term / formula arbitrary inversion\n项 / 公式任意反演"];
+    proofparser -> proofinversion [label="ten-rule numeric state machine\n十规则纯数值状态机"];
+    closedformula -> proofinversion [label="real sentence recovery\n真实闭句恢复"];
+    proofinversion -> numericnodefields [label="arbitrary proof success is canonical\n任意证明成功均为真实规范前缀"];
+    syntaxinversion -> certinversion [label="induction-formula arbitrary inversion\n归纳公式任意反演"];
+    certparser -> certinversion [label="23+4 certificate numeric machines\n23+4 类证书纯数值机"];
+    certinversion -> numericnodefields [label="arbitrary certificate success is canonical\n任意证书成功均为真实规范前缀"];
+    syntaxbitsync -> numericparser [label="term/formula typed-bit equivalence closed\n项/公式类型化位级等价已闭合"];
+    bitsync -> proofbitsync [label="same exact bit suffix\n同一精确位后缀"];
+    syntaxbitsync -> proofbitsync [label="typed sequent/term/formula components\n类型化序列/项/公式部件"];
+    proofparser -> proofbitsync [label="same ten-rule token grammar\n同一十规则 token 文法"];
+    bitsync -> certbitsync [label="same exact bit suffix\n同一精确位后缀"];
+    syntaxbitsync -> certbitsync [label="induction-body formula synchronization\n归纳公式体同步"];
+    certparser -> certbitsync [label="same 23+4 token grammar\n同一 23+4 类 token 文法"];
+    proofbitsync -> numericparser [label="typed proof bit equivalence closed\n证明树类型化位级等价已闭合"];
+    certbitsync -> numericparser [label="typed certificate bit equivalence closed\n证书类型化位级等价已闭合"];
+    arithinput -> packedtokensync [label="same sentinel-packed inputs\n同一哨兵位打包输入"];
+    tokenstream -> packedtokensync [label="primitive-recursive full tokenization\n原始递归完整 token 化"];
+    proofbitsync -> packedtokensync [label="proof segment equivalence\n证明段等价"];
+    certbitsync -> packedtokensync [label="certificate segment equivalence\n证书段等价"];
+    packedtokensync -> numericvalues [label="same public token streams\n同一公开 token 流"];
+    numericvalues -> numericchecks [label="exact numeric syntax values\n精确数值语法值"];
+    numericvalues -> numericnodefields [label="sequent / formula / term immediate fields\n序列 / 公式 / 项立即字段"];
+    numericchecks -> numericrules [label="same local list decisions\n同一局部列表判定"];
+    numericvalues -> numericconstructors [label="canonical token values\n规范 token 值"];
+    numericconstructors -> numericrules [label="six direct formula constructors\n六种直接公式构造"];
+    numericvalues -> numericnegation [label="same parser task semantics\n同一解析任务语义"];
+    numericnegation -> numericrules [label="exact De Morgan token transform\n精确 De Morgan 记号变换"];
+    numericvalues -> numericshift [label="same parser task semantics\n同一解析任务语义"];
+    numericshift -> numericrules [label="exact free-index successor transform\n精确自由变量后继变换"];
+    numericvalues -> numericfree [label="same parser task and binder arity\n同一解析任务与绑定元数"];
+    numericfree -> numericrules [label="exact arity-lowering free transform\n精确降元自由化变换"];
+    numericvalues -> numericsubstitution [label="same parser task and witness tokens\n同一解析任务与见证记号"];
+    numericsubstitution -> numericrules [label="exact qpow substitution transform\n精确量词下代入变换"];
+    numericvalues -> numericfixitr [label="same parser task and binder arity\n同一解析任务与绑定元数"];
+    numericfixitr -> numericparser [label="exact qpow fixitr transform\n精确量词下变量捕获变换"];
+    numericconstructors -> numericsuccind [label="or / all token constructors\n析取 / 全称量词记号构造"];
+    numericnegation -> numericsuccind [label="three exact negations\n三次精确否定"];
+    numericshift -> numericsuccind [label="open-substitution namespace shift\n开放代入命名空间移位"];
+    numericsubstitution -> numericsuccind [label="four exact substitution executions\n四条精确代入执行"];
+    numericfixitr -> numericsuccind [label="capture open witnesses\n捕获开放见证"];
+    numericsuccind -> numericguardedinduction [label="exact succInd(body) tokens\n精确后继归纳公式记号"];
+    numericvalues -> numericfvsup [label="same checked syntax-task stack\n同一已检查语法任务栈"];
+    numericsuccind -> numericfvsup [label="compute closure depth of succInd(body)\n计算归纳公式闭包深度"];
+    numericfvsup -> numericguardedinduction [label="exact formula.fvSup value\n精确公式自由变量上确界"];
+    numericfixitr -> numericallclosure [label="capture depth free variables first\n先捕获 depth 个自由变量"];
+    numericfvsup -> numericallclosure [label="same exact closure depth\n同一精确闭包深度"];
+    numericallclosure -> numericguardedinduction [label="guarded exact all-closure tokens\n带守卫精确全称闭包记号"];
+    numericvalues -> numerictokenbitlength [label="candidate canonical token stream\n候选公式规范记号流"];
+    numerictokenbitlength -> numericguardedinduction [label="actual candidate formulaCode bit length\n候选公式码真实位长"];
+    numericfixitr -> numericguardedinduction [label="capture only after guard\n仅在守卫通过后捕获变量"];
+    certbitsync -> numericguardedinduction [label="tag 22 induction body\n标签 22 归纳公式体"];
+    numericguardedinduction -> numericallaxioms [label="guarded tag 22 exact result\n带守卫标签 22 精确结果"];
+    certbitsync -> numericfixedaxioms [label="same PA-certificate tags and parameters\n同一 PA 证书标签与参数"];
+    numericfixedaxioms -> numericallaxioms [label="tags 0..21 exact sentence tokens\n标签 0..21 精确公理句记号"];
+    certinversion -> numericallaxioms [label="exact arbitrary certificate-token inversion\n任意证书记号精确反演"];
+    numericallaxioms -> numericrules [label="axm branch comparator\n公理叶比较器"];
+    numericrules -> numericparser [label="all ten local Boolean combiners closed\n十条局部布尔合并器全部闭合"];
+    numericnodefields -> numericparser [label="exact child-stream scheduling inputs\n精确子流调度输入"];
+    numericparser -> resemanticprobe [label="exact semantics audit\n精确语义审计"];
+    numericparser -> localtableau [label="same bounded verifierStep\n同一有界验证器单步"];
+    tokenstream -> packedstreamtrace [label="same bounded binary-Nat stream machine\n同一有界二进制自然数流机器"];
+    arithinput -> packedstreamtrace [label="same sentinel payload peel\n同一哨兵位载荷剥离"];
+    proofparser -> parseroutertrace [label="same proof parserStep\n同一证明解析单步"];
+    certparser -> parseroutertrace [label="same certificate parserStep\n同一证书解析单步"];
+    syntaxparser -> parseroutertrace [label="same formula parserStep\n同一公式解析单步"];
+    parseroutertrace -> parseresultdecomp [label="exact parser outputs\n解析输出精确结果"];
+    numericvalues -> parseresultdecomp [label="exact consumed token prefix\n精确已消费 token 前缀"];
+    numericnodefields -> rootdispatchdecomp [label="same ten public root tags\n同一十个公开根标签"];
+    rootdispatchdecomp -> parseresultdecomp [label="explicit branch-selected root result\n显式分支选择根结果"];
+    numericvalues -> sequentvaluetrace [label="same counted formula-value repeat\n同一按数目公式值重复解析"];
+    syntaxparser -> sequentvaluetrace [label="one exact formula local trace per repeat step\n每个重复单步一份精确公式局部轨迹"];
+    syntaxparser -> termclosedtrace [label="same term parser state machine\n同一项解析状态机"];
+    closedformula -> termclosedtrace [label="same closed-formula parser state machine\n同一闭公式解析状态机"];
+    rootdispatchdecomp -> rootfieldtrace [label="same five field shapes selected by ten tags\n十标签选择同一五类字段形状"];
+    sequentvaluetrace -> rootfieldtrace [label="checked sequent and per-formula traces\n已检查序列及逐公式轨迹"];
+    termclosedtrace -> rootfieldtrace [label="checked term and closed-formula traces\n已检查项及闭公式轨迹"];
+    localtableau -> directtrace [label="public witness uses local validity\n公开见证使用局部有效性"];
+    packedstreamtrace -> directtrace [label="two public input subtraces\n两份公开输入子轨迹"];
+    parseroutertrace -> directtrace [label="three parser local subtraces\n三份解析器局部子轨迹"];
+    parseresultdecomp -> directtrace [label="wrapper-free explicit parse data\n无包装黑箱的显式解析数据"];
+    predicate -> directtrace [label="exact accepted-code equivalence\n接受码关系精确等价"];
+    directtrace -> roottraceintegration [label="same public total witness semantics\n同一公开总见证语义"];
+    rootfieldtrace -> rootdirectdispatch [label="five shapes selected by exact public tags\n五类形状由公开标签精确选择"];
+    rootdirectdispatch -> rootresidualtrace [label="replace old branch-result relation\n替换旧分支结果关系"];
+    parseresultdecomp -> rootresidualtrace [label="same certified-parts exact decomposition\n同一已认证部件精确分解"];
+    rootresidualtrace -> roottraceintegration [label="explicit residual field\n显式剩余关系字段"];
+    roottraceintegration -> additivecodecbase [label="typed public trace data\n类型化公开轨迹数据"];
+    defaultlistcode -> additivecodecbase [style=dotted, arrowhead=none, constraint=false, label="rejected default; motivates additive codec\n否决默认编码；改用加法型编码"];
+    additivecodecbase -> additiveweightexact [label="charge every token payload and delimiter\n逐 token 支付载荷与分隔成本"];
+    additiveweightexact -> directtracecode [label="instantiate exact additive measure on the full trace\n把精确加法度量实例化到完整轨迹"];
+    directtracecode -> tracecomponentdecomp [label="open the public witness at semantic component boundaries\n在语义分量边界打开公开见证"];
+    tracecomponentdecomp -> statetableaggregation [label="isolate and aggregate the largest component\n隔离并汇总最大的状态表分量"];
+    statetableaggregation -> nodesuffixinversion [label="first atomic row invariant: parser suffixes\n第一项逐行原子不变量：解析后缀"];
+    nodesuffixinversion -> streamsuffixinvariant [label="lift through every control branch and iterate\n提升到全部控制分支与迭代"];
+    streamsuffixinvariant -> streamweightbound [label="convert exact suffixes to honest additive weights\n把精确后缀转为诚实加法位权"];
+    streamweightbound -> parsedvalueweight [label="bound every parsed syntax segment and nested sequent\n约束每个解析语法片段与嵌套序列"];
+    streamweightbound -> stackcountbound [label="bound the number of stored items along every run\n约束全程存储项目数量"];
+    parsedvalueweight -> nodefieldweights [label="assemble each concrete parser shape\n组装每种具体解析形状"];
+    nodefieldweights -> dispatcherfieldweights [label="lift five shapes through public tags 0..9\n把五种形状提升到公开标签 0..9"];
+    dispatcherfieldweights -> itemsourceinvariant [label="new parsed fields enter the task/child stacks\n新解析字段进入任务/子结果栈"];
+    stackcountbound -> itemsourceinvariant [label="same two runtime stacks\n同两条运行栈"];
+    itemsourceinvariant -> stateexplicitbound [label="discharge every per-item premise in the row budget\n消去单行预算的全部逐项前提"];
+    statetableaggregation -> stateexplicitbound [label="instantiate the generic row/table aggregation\n实例化通用行/表汇总引理"];
+    remainingtracebounds [label="Bounds for trace components 1..11\n直接轨迹前十一个分量的位权界\n\nLean 内核已检查，完成 11/11：\n1/3/8/9/11 五个数据值分量；\n2/4 两份 packed-stream trace；\n5/6/7 proof/certificate/formula 三份 parser state trace；\n10. root-field nested direct trace。\n\n第 10 项进一步打开：\n1. sequent count 由成功解析推出 count <= token weight，\n   排除二进制 count 导致的指数表长；\n2. count+1 个外层状态与 count 个逐公式 parser 轨迹逐项有界；\n3. term 与真实 closed-formula 执行机分别建立来源/栈高/整表界；\n4. 五种字段形状及标签 0..9 全部分派到同一公开预算；\n5. 最终只依赖 Nat.size(code)。\n\n全部关键端点公理画像仅\npropext / Classical.choice / Quot.sound；\n无 sorryAx、无项目公设。\nFoundationCompactNumericListedDirectTraceBounds.lean", fillcolor="#dff2e8", color="#2f6f57", penwidth=3.2];
+    stateexplicitbound -> remainingtracebounds [label="continue with components 1..11\n继续关闭前十一个分量"];
+    remainingtracebounds -> boundedtracecode [label="encode the bounded complete trace as one Nat certificate\n把有界完整轨迹编码为单一自然数证书"];
+    boundedtracecode -> natsizegraph [label="arithmetize the honest binary-size guard\n算术化诚实二进制码长守卫"];
+    natsizegraph -> packedpayloadgraph [label="separate exact payload length from the terminal sentinel\n分离精确载荷长度与终止哨兵"];
+    packedpayloadgraph -> binarynattokengraph [label="one exact self-delimiting Nat segment\n一个精确自定界自然数段"];
+    binarynattokengraph -> fixedwidthtablegraph [label="store token values and offsets in polynomial-size rows\n把 token 值与偏移存入多项式大小行"];
+    fixedwidthtablegraph -> tokenstreamforward [label="construct canonical token and offset tables\n构造规范 token 表与偏移表"];
+    tokenstreamforward -> tokenstreaminverse [label="unique inverse extraction\n唯一反向提取"];
+    tokenstreaminverse -> directinputtableau [label="normalize both public inputs at the bounded predicate\n在有界谓词层规范化两条公开输入"];
+    directinputtableau -> additivecursorgraph [label="read canonical token tables by bounded cursors\n用有界游标读取规范 token 表"];
+    additivecursorgraph -> tracecomponenttableau [label="construct thirteen exact top-level boundaries\n构造十三个精确顶层边界"];
+    tracecomponenttableau -> additivetypelayouts [label="supply recursive codec constructors\n提供递归编码构造子"];
+    additivetypelayouts -> tracenatlistslices [label="instantiate the three top-level Nat lists\n实例化三个顶层自然数列表"];
+    tracenatlistslices -> packedstreamsplits [label="split the two stream-trace products\n分割两份流轨迹积类型"];
+    packedstreamsplits -> structuredlistcanonical [label="construct shifted element-boundary tables\n构造移位元素边界表"];
+    structuredlistcanonical -> packedstreamlistlayouts [label="instantiate four stream-trace list fields\n实例化四个流轨迹列表字段"];
+    packedstreamlistlayouts -> additivetypecanonical [label="construct exact element-layout witnesses\n构造精确元素布局见证"];
+    additivetypecanonical -> atomiclistlayouts [label="lift atomic witnesses to every list row\n把原子见证提升到全部列表行"];
+    additivetypecanonical -> streamstatuslayout [label="open the nested status options and output list\n打开双层状态选项与输出列表"];
+    streamstatuslayout -> statuscases [label="classify exact 0 / 10 / 11 tag prefixes\n分类精确 0 / 10 / 11 标签前缀"];
+    streamstatuslayout -> streamstatelayout [label="assemble one complete stream state\n汇总单个完整流状态"];
+    atomiclistlayouts -> streamstatelayout [label="read every bits/decoded atom\n读取 bits/decoded 的每个原子"];
+    streamstatelayout -> statelistrowlayout [label="tie each canonical row to its real state\n把每个规范行接到真实状态"];
+    statelistrowlayout -> tracestatelayouts [label="install both concrete trace state fields\n安装完整轨迹中的两个状态字段"];
+    tracestatelayouts -> streamstepcases [label="fix the exact next-state case split\n固定下一状态的精确分支"];
+    streamstepcases -> flexibledecode [label="arithmeticize real noncanonical decode iff\n算术化真实非规范解码双向等价"];
+    atomiclistlayouts -> boolpackedvalue [label="aggregate exact Boolean rows into one payload\n把精确 Bool 行汇总成同一 payload"];
+    atomiclistlayouts -> atomicroweq [label="compare atomic rows in one token table\n在同一 token 表比较原子行"];
+    atomicroweq -> booldropdecode [label="shift and compare every suffix row\n移位并比较全部后缀行"];
+    flexibledecode -> booldropdecode [label="supply the exact noncanonical segment\n提供精确非规范解码段"];
+    boolpackedvalue -> booldropdecode [label="identify the source packed payload\n锁定源行表的打包载荷"];
+    booldropdecode -> streamstepgraph [label="install success bits transition\n安装成功位流转移"];
+    atomicroweq -> natconsrows [label="shift Nat rows after a new head\n前插 head 后移位 Nat 行"];
+    atomicroweq -> natreverserows [label="match mirrored Nat rows\n匹配镜像 Nat 行"];
+    atomicroweq -> natsamerows [label="compare unchanged Nat rows\n比较保持不变的 Nat 行"];
+    natconsrows -> streamstepgraph [label="install decoded cons\n安装 decoded 前插"];
+    natreverserows -> completedreverse [label="supply exact mirrored Nat rows\n提供精确镜像 Nat 行"];
+    natsamerows -> completedstatussame [label="compare completed outputs\n比较完成输出"];
+    natsamerows -> streamstepgraph [label="install unchanged decoded fields\n安装 decoded 不变字段"];
+    flexibledecode -> decodefailure [label="prove every success shape really decodes\n证明每个成功形状确实可解码"];
+    boolpackedvalue -> decodefailure [label="use the same exact source payload\n使用同一精确源载荷"];
+    decodefailure -> streamstepgraph [label="install the complete failure branch\n安装完整失败分支"];
+    statuscases -> streamstepgraph [label="install exact status transitions\n安装精确状态标签转移"];
+    streamstatuslayout -> completedreverse [label="supply the real completed output rows\n提供真实完成输出行"];
+    statuscases -> completedreverse [label="fix the completed 11 prefix and output start\n固定完成 11 前缀及输出起点"];
+    completedreverse -> completedstatussame [label="reuse rigid output-boundary alignment\n复用刚性输出边界对齐"];
+    completedreverse -> streamstepgraph [label="install exact completed reversal\n安装精确完成反转"];
+    completedstatussame -> streamstepgraph [label="close done-status identity\n关闭完成状态不变"];
+    streamstepcases -> streamstepgraph [label="same exact four semantic branches\n同一精确四语义分支"];
+    tracestatelayouts -> streamstepgraph [label="install every adjacent proof/formula state row\n安装 proof/formula 全部相邻状态行"];
+    tracestatelayouts -> atomicrowrealization [label="deterministic rows on the same boundaries\n同一边界表确定性恢复行"];
+    atomicrowrealization -> streamstatecore [label="realize both typed list fields\n恢复两个类型化列表字段"];
+    streamstepgraph -> streamstatecore [label="reuse named state coordinates\n复用命名状态坐标"];
+    streamstatecore -> streamsteprealization [label="construct current and next cores\n构造当前与下一状态核心"];
+    streamstepgraph -> streamsteprealization [label="same exact four numeric branches\n同一四个精确数值分支"];
+    streamsteprealization -> streamstepstateformula [label="semantic realization equivalence\n语义实现双向等价"];
+    streamstatecore -> streamstepstateformula [label="two shared state-core formulas\n两份共享状态核心公式"];
+    streamstepstateformula -> streamstepwitnesstable [label="aggregate every adjacent witness row\n聚合全部相邻步见证行"];
+    streamstepwitnesstable -> streamstepwitnessformula [label="bind all 32 table values in bounded arithmetic\n在有界算术中绑定全部 32 列值"];
+    streamstepwitnessformula -> streamstepwitnessbridge [label="prove exact canonical-table semantics\n证明精确规范表语义"];
+    streamstepwitnessbridge -> compactformula [label="install proof/formula witness-table formulas\n安装 proof/formula 见证表公式"];
+    streamstatuslayout -> parserstatelayouts [label="reuse the exact nested parser status\n复用精确双层解析状态"];
+    atomiclistlayouts -> parserstatelayouts [style=dotted, constraint=false, label="reuse exact Nat rows\n复用精确自然数行"];
+    parserstatelayouts -> traceparserlayouts [label="lift every parser state to canonical trace rows\n把每个解析状态提升到规范轨迹行"];
+    tracecomponenttableau -> traceparserlayouts [style=dotted, constraint=false, label="exact component boundaries 4..7\n精确分量边界 4..7"];
+    parserstatelayouts -> parsertaskrowformula [label="eliminate typed task rows\n消去类型化任务行输入"];
+    parsertaskrowformula -> parserstatecoreformula [label="supply exact three-cell task rows\n提供精确三格任务行"];
+    atomicrowrealization -> parserstatecoreformula [style=dotted, constraint=false, label="realize remaining Nat tokens\n恢复剩余自然数词元"];
+    parserstatecoreformula -> parserstatecoreinstall [label="evaluate the actual core formula on every row\n在每行求值真实核心公式"];
+    traceparserlayouts -> parserstatecoreinstall [label="supply the three canonical state tables\n提供三张规范状态表"];
+    parserstatecoreinstall -> parserouterstepcases [label="split adjacent parser states by real outer control flow\n按真实外层控制流拆分相邻解析状态"];
+    parsertaskrowformula -> tasklistrowops [label="bind all three task fields\n绑定全部三个任务字段"];
+    parserouterstepcases -> tasklistrowops [label="supply same/pop/push stack obligations\n给出保持／弹出／压栈义务"];
+    tasklistrowops -> parserdoneformula [label="compare unchanged task stacks\n比较保持不变的任务栈"];
+    parserstatecoreinstall -> parserdoneformula [style=dotted, constraint=false, label="two fixed parser-state cores\n两份固定解析状态核心"];
+    completedstatussame -> parserdoneformula [style=dotted, constraint=false, label="same failed/completed status\n同一失败／完成状态"];
+    parserdoneformula -> parseremptyformula [label="reuse completed-output rigidity for the empty branch\n复用完成输出刚性并闭合空任务分支"];
+    parseremptyformula -> taskunconsformula [label="enter the nonempty task-stack branch\n进入非空任务栈分支"];
+    tasklistrowops -> taskunconsformula [style=dotted, constraint=false, label="reuse exact drop/cons row formulas\n复用精确删前缀／前插行公式"];
+    taskunconsformula -> syntaxrepeatformula [label="bind kind 2 and the shared tail\n绑定 kind 2 与共有尾栈"];
+    syntaxrepeatformula -> nattokenrowops [label="open exact token-head and suffix operations\n打开精确 token 头读取与后缀操作"];
+    atomicroweq -> nattokenrowops [style=dotted, constraint=false, label="reuse one-token row equality\n复用单 token 行相等"];
+    nattokenrowops -> syntaxtermformula [label="bind exact term tags, suffixes and function codes\n绑定精确项标签、后缀与函数码"];
+    syntaxtermformula -> syntaxformulatask [label="reuse exact failure/continue/push rows\n复用精确失败／继续／压栈行关系"];
+    nattokenrowops -> syntaxformulatask [style=dotted, constraint=false, label="bind relation tags and drop 1/3\n绑定关系标签与 drop 1/3"];
+    syntaxformulatask -> syntaxinvalidtask [label="close the remaining task-kind branch\n关闭剩余任务种类分支"];
+    taskunconsformula -> syntaxinvalidtask [style=dotted, constraint=false, label="read the exact three-field head\n读取精确三字段任务头"];
+    traceparserlayouts -> parserinitialfinal [label="supply the three exact state tables\n提供三张精确状态表"];
+    parserstatecoreformula -> parserinitialfinal [style=dotted, constraint=false, label="reuse the realized state-row core\n复用已实现状态行核心"];
+    tasklistrowops -> parserinitialfinal [style=dotted, constraint=false, label="supply exact three-token task boundaries\n提供精确三 token 任务边界"];
+    syntaxtermformula -> compactformula [label="install complete kind 0 execution\n安装完整 kind 0 执行分支"];
+    syntaxformulatask -> compactformula [label="install complete kind 1 execution\n安装完整 kind 1 执行分支"];
+    syntaxinvalidtask -> compactformula [label="install deterministic invalid-kind failure\n安装非法种类确定失败分支"];
+    parserinitialfinal -> compactformula [label="install exact initial/final formulas and proof-to-certificate interface\n安装精确初终态公式与证明到证书接口"];
+    predicate -> compactformula [label="same accepted-code target\n同一接受码目标"];
+    minmeasure -> compactformula [label="same honest payload cutoff\n同一诚实载荷截断"];
+    listedconmeta -> compactformula [label="same finite-consistency target\n同一有限一致性目标"];
+    resemanticprobe -> compactformula [style=dotted, arrowhead=none, constraint=false, label="semantic specification only; rfind program is not reused\n只保留语义规格；不复用最小化程序"];
+    compactformula -> patrace [label="fixed formula and binary numerals\n固定公式与二进制数词"];
+    internalnote -> patrace [style=dotted, arrowhead=none, constraint=false];
+    patrace -> suitable;
+    suitable -> cond0;
+    suitable -> cond1;
+    suitable -> cond2;
+    suitable -> cond3;
+    predicate -> mpcompiler [label="same public verifier\n同一公开验证器"];
+    canonicalnormalize -> mpcompiler [label="decoded payload never grows\n解码规范化不增长"];
+    mpcompiler -> cond3 [style=dotted, label="external compiler closed; PA internal proof remains\n外部编译已闭合；仍需 PA 内部短证明"];
+    predicate -> conjcompiler [label="same public verifier\n同一公开验证器"];
+    canonicalnormalize -> conjcompiler [label="decoded payload never grows\n解码规范化不增长"];
+    conjcompiler -> proofassembly [style=dotted, label="external conjunction primitive closed\n外部合取原语已闭合"];
+    compactformula -> qdiagonal [style=dotted, arrowhead=none, constraint=false, label="later instantiate the closed generic compiler at concrete P\n后续把已闭合通用编译器实例化到具体 P"];
+    suitable -> qdiagonal [style=dotted, arrowhead=none, constraint=false, label="concrete P conditions belong to later assembly\n具体 P 条件属于后续拼接"];
+    transformcode -> qdiagonal [label="formula-instance size bound already checked\n公式实例大小界已检查"];
+    cond0 -> proofassembly;
+    cond1 -> proofassembly;
+    cond2 -> proofassembly;
+    cond3 -> proofassembly;
+    qdiagonal -> proofassembly;
+    proofassembly -> exponentextract;
+    paconsistency -> exponentextract;
+    exponentextract -> diagonal;
+  }
+
+  subgraph cluster_buss {
+    label="H. Buss-Pudlak lower bound（布斯-普德拉克下界）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    family [label="F_n = Con_T((f(n))^c)\n有限一致性公式族\nsame T / proof system / symbol length\n同一理论 / 证明系统 / 符号长度", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    rescale [label="Buss 1994 Theorem 5\n布斯 1994 第 5 定理\ntime-constructible rescaling\n时间可构造重标定", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.0];
+    lower [label="minProofLength(F_n) > U(n) eventually\n最短证明长度最终大于 U(n)\nsuper-polynomial lower bound（超多项式下界）", fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed", penwidth=2.0];
+    lowernote [shape=note, label="关键注释：文献下界只能用于原文满足条件的\nformula family（公式族）、proof system（证明系统）\n和 symbol length（符号长度）；名字相似不能替代对象恒等。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    compactformula -> family [label="same CompactProof predicate\n同一紧凑证明谓词"];
+    minmeasure -> family [label="exact minimum length coordinate\n精确最短长度坐标"];
+    diagonal -> rescale [label="power lower-bound seed\n幂下界种子"];
+    family -> rescale;
+    rescale -> lower [label="explicit time-constructible f\n显式时间可构造函数 f"];
+    lowernote -> rescale [style=dotted, arrowhead=none, constraint=false];
+  }
+
+  subgraph cluster_collision {
+    label="I. Same-object upper bound and collision（同对象上界与碰撞）";
+    color="#9a9a9a";
+    style="rounded,dashed";
+
+    sondowcert [label="Sondow checked certificates\n索多已检查证书\nassume gamma rational（假设欧拉常数有理）\n本节点只表示证书已检查，不等于同对象上界已完成", fillcolor="#dff2e8", color="#3f7c66"];
+    samecompiler [label="Sondow same-object compiler\n索多同对象编译器\ncertificate -> real proof of the same F_n\n证书 -> 同一 F_n 的真实证明", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    upper [label="minProofLength(F_n) <= U(n)\n最短证明长度不超过多项式 U(n)\npolynomial upper bound（多项式上界）\n等待 same-object compiler（同对象编译器）", fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed"];
+    collision [label="U(N) < minProofLength(F_N) <= U(N)\n同一 N、同一公式、同一检查器、同一长度的矛盾\ncollision theorem（碰撞定理）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed", penwidth=2.5];
+    final [label="not is_rational euler_mascheroni\n欧拉-马歇罗尼常数非有理\n仅在全部上游根定理闭合后成立", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed", penwidth=2.5];
+    samenote [shape=note, label="关键注释：碰撞必须是同一 N、同一 F_N、\n同一 checker（检查器）和同一 length measure（长度度量）。\n只证明两个抽象接口各自存在不能形成碰撞。", fillcolor="#e8f1f8", color="#4e7892"];
+
+    sondowcert -> samecompiler;
+    family -> samecompiler [label="formula identity\n公式恒等"];
+    predicate -> samecompiler [label="same checker/length\n同一检查器/长度"];
+    minmeasure -> samecompiler [label="same minimum payload measure\n同一最短载荷度量"];
+    samecompiler -> upper [label="canonical accepted proof code\n规范且被接受的证明码"];
+    upper -> collision [label="same F_N / same length\n同一 F_N / 同一长度"];
+    lower -> collision [label="same F_N / same length\n同一 F_N / 同一长度"];
+    samenote -> collision [style=dotted, arrowhead=none, constraint=false];
+    collision -> final;
+  }
+
+  subgraph cluster_audit {
+    label="J. Submission-grade audit gates（投稿级审计门）";
+    color="#76639a";
+    style="rounded";
+
+    axioms [label="#print axioms audit（公理画像审计）\n已完成节点仅依赖：\npropext（命题外延）\nClassical.choice（经典选择）\nQuot.sound（商类型可靠性）", fillcolor="#e9e3f5", color="#76639a"];
+    forbidden [label="Forbidden project assumptions（禁止项目级假设）\nno tail_gap（无尾部间隙参数）\nno upper_provider（无上界提供者参数）\nno project proof_length（无项目证明长度公设）\nno sorryAx（无未完成证明公设）", fillcolor="#e9e3f5", color="#76639a"];
+    gate [label="Final dependency audit（最终依赖审计）\nsame formula / parameter / checker / measure\n同一公式 / 参数 / 检查器 / 度量", fillcolor="#e9e3f5", color="#76639a", penwidth=2.0];
+
+    totalcanonical -> axioms [style=dotted];
+    publiciff -> axioms [style=dotted];
+    completeness -> axioms [style=dotted];
+    nattrace -> axioms [style=dotted];
+    streamstepwitnessbridge -> axioms [style=dotted];
+    polytime -> forbidden [style=dashed];
+    diagonal -> forbidden [style=dashed];
+    samecompiler -> forbidden [style=dashed];
+    lower -> gate;
+    upper -> gate;
+    axioms -> gate;
+    forbidden -> gate;
+    gate -> collision [style=dashed, label="audit pass\n审计通过"];
+  }
+
+  subgraph cluster_rejected_routes {
+    label="K. Rejected historical routes（经审计弃用的历史路线；不通向主结论）";
+    color="#a8443d";
+    style="rounded,dashed";
+
+    rawgodel [label="Nat.size(rawProofCode) lower bound\n原始哥德尔证明码位长下界\nunary-numeral encoding artifact（一元数词编码伪影）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    postfixraw [label="Postfix checker rebuilding rawCode\n重建 rawCode 的后缀检查器\nprimitive recursive != polynomial time\n原始递归不等于多项式时间", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    abstractgap [label="tail_gap / computable_gap input\n尾部间隙 / 可计算间隙输入\nassumes the lower bound（预设下界）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    abstractupper [label="upper_provider input\n上界提供者输入\nassumes the Sondow bridge（预设索多桥）", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    unsimulated [label="Unproved Hilbert-system simulation\n未证明的 Hilbert 系统模拟\nwrong/uncalibrated proof measure\n错误或未校准的证明度量", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    graft [label="strengthened_to_partial / transfer_to_graft\n加强到部分 / 嫁接转移接口\ninterface packaging without source theorem\n只有接口包装、没有源定理", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
+    rejectednote [shape=note, label="弃用判据：编码伪影、循环输入、对象错位，\n或只给接口而没有根定理。\n本区域没有任何边连接最终碰撞定理。", fillcolor="#fff1f0", color="#a8443d"];
+
+    rawgodel -> postfixraw [style=dotted, color="#a8443d"];
+    abstractgap -> graft [style=dotted, color="#a8443d"];
+    abstractupper -> graft [style=dotted, color="#a8443d"];
+    unsimulated -> graft [style=dotted, color="#a8443d"];
+    rejectednote -> graft [style=dotted, arrowhead=none, color="#a8443d"];
+  }
+}

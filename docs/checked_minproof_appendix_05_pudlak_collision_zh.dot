@@ -1,0 +1,78 @@
+digraph PudlakCollisionAppendix {
+  graph [rankdir=TB, bgcolor="white", splines=polyline, nodesep="0.28",
+    ranksep="0.44", pad="0.18", size="10,15!", ratio=compress,
+    fontname="Noto Sans CJK SC", fontsize=21,
+    label="附图 05：Pudlak-Buss 下界、索多桥与对撞", labelloc="t"];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+    fontsize=10.5, color="#777777", fillcolor="#f3f3f3",
+    margin="0.14,0.09", penwidth=1.2];
+  edge [fontname="Noto Sans CJK SC", fontsize=8.5, color="#65777d",
+    arrowsize=0.68];
+
+  predicate [node_id="A05.01", status="done",
+    endpoint_theorem="compactListedPADirectProofFormula_iff_exists_publicVerifier",
+    source="integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
+    appendix="05", next_obligation="none",
+    label="A05.01 固定 P_direct\n显式二变量 Sigma-one 公式已闭合\n同一 formulaCode、公开检查器和完整载荷度量\n逐点 iff 及公理画像探针通过",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+  accepted [node_id="A05.02", status="pending", endpoint_theorem="accepted trace short PA proof",
+    source="docs/checked_minproof_appendix_04_pa_quantitative_compiler_zh.dot", appendix="05",
+    next_obligation="wait for appendix 04", label="A05.02 接受计算短证明编译器\n真实证明对象 + 统一多项式界",
+    style="rounded,filled,dashed"];
+  conditions [node_id="A05.03", status="pending", endpoint_theorem="Pudlak conditions (0)-(3)",
+    source="planned", appendix="05", next_obligation="wait for A05.01/A05.02",
+    label="A05.03 Pudlak 定量条件 (0)-(3)\n固定 p1,p2,p3,q1,q2",
+    style="rounded,filled,dashed"];
+  diagonal [node_id="A05.04", status="partial_done", endpoint_theorem="quantitative diagonal specialization",
+    source="integration/FoundationCompactParameterizedDiagonalSpecialization.lean", appendix="05",
+    next_obligation="instantiate at concrete P_direct",
+    label="A05.04 参数化对角实例化\n通用固定证明与短数词实例化已检查",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  assembly [node_id="A05.05", status="pending", endpoint_theorem="bounded proof assembly",
+    source="planned", appendix="05", next_obligation="wait for A05.03/A05.04",
+    label="A05.05 有界证明拼接\n原文固定重言式与每次 MP 均计长",
+    style="rounded,filled,dashed"];
+  exponent [node_id="A05.06", status="pending", endpoint_theorem="Pudlak exponent extraction",
+    source="planned", appendix="05", next_obligation="wait for A05.05",
+    label="A05.06 一致性反证与指数提取\nPudlak 1986 Theorem 3.1",
+    style="rounded,filled,dashed"];
+  buss [node_id="A05.07", status="pending", endpoint_theorem="Buss 1994 Theorem 5",
+    source="planned", appendix="05", next_obligation="wait for A05.06",
+    label="A05.07 time-constructible 重标定\n得到同一有限一致性族超多项式下界",
+    style="rounded,filled,dashed"];
+  lower [node_id="A05.08", status="pending", endpoint_theorem="eventual lower bound",
+    source="planned", appendix="05", next_obligation="wait for A05.07",
+    label="A05.08 minProof(F_n) > U(n) eventually",
+    style="rounded,filled,dashed"];
+  sondow [node_id="A05.09", status="done_boundary", endpoint_theorem="checked Sondow certificates",
+    source="existing Sondow route", appendix="05", next_obligation="same-object bridge",
+    label="A05.09 索多证书层已检查\n不自动等于同对象短 PA 证明",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  bridge [node_id="A05.10", status="pending", endpoint_theorem="Sondow same-object compiler",
+    source="planned", appendix="05", next_obligation="wait for A05.01/A05.02",
+    label="A05.10 索多同对象编译器\n证书 -> 同一 F_n 的真实规范证明",
+    style="rounded,filled,dashed"];
+  upper [node_id="A05.11", status="pending", endpoint_theorem="polynomial upper bound",
+    source="planned", appendix="05", next_obligation="wait for A05.10",
+    label="A05.11 minProof(F_n) <= U(n)",
+    style="rounded,filled,dashed"];
+  audit [node_id="A05.12", status="pending", endpoint_theorem="same-object audit gate",
+    source="planned", appendix="05", next_obligation="wait for lower/upper",
+    label="A05.12 同一 n、F_n、检查器、载荷度量\n无 tail_gap / upper_provider / proof_length",
+    fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed"];
+  collision [node_id="A05.13", status="pending", endpoint_theorem="collision contradiction",
+    source="planned", appendix="05", next_obligation="wait for A05.12",
+    label="A05.13 U(N) < minProof(F_N) <= U(N)\n最终对撞",
+    style="rounded,filled,dashed", penwidth=2.2];
+
+  predicate -> conditions;
+  accepted -> conditions;
+  conditions -> assembly;
+  diagonal -> assembly -> exponent -> buss -> lower;
+  predicate -> bridge;
+  accepted -> bridge;
+  sondow -> bridge -> upper;
+  lower -> audit;
+  upper -> audit;
+  audit -> collision;
+}

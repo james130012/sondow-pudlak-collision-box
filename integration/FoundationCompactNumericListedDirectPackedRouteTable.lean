@@ -198,6 +198,32 @@ theorem compactPackedFormulaTransformStateRows_canonical
   rw [htokens] at hraw
   exact hraw.2.1
 
+theorem compactPackedFormulaTransformStateRows_canonical_with_size
+    (chunks : List (List Nat)) (index : Nat)
+    (states : List CompactFormulaTransformState)
+    (hindex : index < chunks.length)
+    (hchunk : chunks[index] = compactAdditiveEncode states) :
+    let tokens := chunks.flatten
+    let width := (compactBinaryNatPayloadBits tokens).length
+    let tokenTable := compactFixedWidthTableCode width tokens
+    let boundary := compactPackedFormulaTransformStateBoundary
+      chunks index states
+    CompactFormulaTransformStateListRowLayouts
+        tokenTable width tokens.length boundary states ∧
+      Nat.size boundary ≤ (states.length + 1) * tokens.length := by
+  let front := compactPackedChunkPrefix chunks index
+  let back := compactPackedChunkSuffix chunks index
+  have htokens : front ++ compactAdditiveEncode states ++ back =
+      chunks.flatten := by
+    rw [← hchunk]
+    exact compactPackedChunkPrefix_append_getElem_append_suffix
+      chunks index hindex
+  have hraw := compactFormulaTransformStateListDirectLayout_canonical
+    front states back
+  dsimp only at hraw
+  rw [htokens] at hraw
+  exact hraw.2
+
 theorem compactPackedNatListListLayout_canonical
     (chunks : List (List Nat)) (index : Nat)
     (values : List (List Nat))
@@ -226,6 +252,7 @@ theorem compactPackedNatListListLayout_canonical
 #print axioms compactPackedChunkPrefix_append_getElem_append_suffix
 #print axioms compactPackedNatListSlot_canonical
 #print axioms compactPackedFormulaTransformStateRows_canonical
+#print axioms compactPackedFormulaTransformStateRows_canonical_with_size
 #print axioms compactPackedNatListListLayout_canonical
 
 end FoundationCompactNumericListedDirectPackedRouteTable

@@ -68,12 +68,14 @@ def CompactNumericVerifierCanonicalFinishGraph
     currentCoordinates.finish = currentTokens.length ∧
     nextCoordinates.start = currentTokens.length ∧
     nextCoordinates.finish = currentTokens.length + nextTokens.length ∧
-    CompactNumericVerifierStateCoreGraph
+    CompactNumericVerifierStateCanonicalCorePackage
       (compactFixedWidthTableCode width tokens) width tokens.length
+      0 currentTokens.length currentState
       currentCoordinates currentSizeWitness ∧
-    CompactNumericVerifierStateCoreGraph
+    CompactNumericVerifierStateCanonicalCorePackage
       (compactFixedWidthTableCode width tokens) width tokens.length
-      nextCoordinates nextSizeWitness ∧
+      currentTokens.length (currentTokens.length + nextTokens.length)
+      nextState nextCoordinates nextSizeWitness ∧
     CompactNumericVerifierFinishRows
       (compactFixedWidthTableCode width tokens) width tokens.length
       currentCoordinates.start currentCoordinates.valuesFinish
@@ -118,6 +120,8 @@ theorem CompactNumericVerifierCanonicalFinishGraph.exists
   rcases CompactNumericVerifierStateDirectLayout.toCanonicalCorePackage
       hnextLayout with
     ⟨nextCoordinates, nextSizeWitness, hnextPackage⟩
+  have hcurrentPackageOutput := hcurrentPackage
+  have hnextPackageOutput := hnextPackage
   dsimp only [currentState, payload] at hcurrentPackage
   have hnextStateShape : nextState =
       (((proofTokens, certificateTokens),
@@ -161,8 +165,6 @@ theorem CompactNumericVerifierCanonicalFinishGraph.exists
   dsimp only at hnextValueRows
   dsimp only at hnextTaskCount
   dsimp only at hnextValueCount
-  have hcurrentCoreSaved := hcurrentCore
-  have hnextCoreSaved := hnextCore
   rcases hcurrentCore with
     ⟨hcurrentProofSlice, hcurrentCertificateSlice,
       _hcurrentTaskStructure, _hcurrentTaskGraph,
@@ -344,7 +346,7 @@ theorem CompactNumericVerifierCanonicalFinishGraph.exists
       currentSizeWitness, nextSizeWitness,
       hcurrentPackageSaved.1, hcurrentPackageSaved.2.1,
       hnextPackageSaved.1, hnextPackageSaved.2.1,
-      hcurrentCoreSaved, hnextCoreSaved, hfinish⟩
+      hcurrentPackageOutput, hnextPackageOutput, hfinish⟩
   · have hnextStateEq : nextState = (payload, some false) := by
       have hfullGuard :
           ¬(payload.1.1 = [] ∧ payload.1.2 = [] ∧
@@ -389,7 +391,7 @@ theorem CompactNumericVerifierCanonicalFinishGraph.exists
       currentSizeWitness, nextSizeWitness,
       hcurrentPackageSaved.1, hcurrentPackageSaved.2.1,
       hnextPackageSaved.1, hnextPackageSaved.2.1,
-      hcurrentCoreSaved, hnextCoreSaved, hfinish⟩
+      hcurrentPackageOutput, hnextPackageOutput, hfinish⟩
 
 #print axioms CompactNumericVerifierCanonicalFinishGraph.exists
 

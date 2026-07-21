@@ -492,13 +492,13 @@ theorem CompactNumericVerifierCanonicalStepFormula.exists_of_halted
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       hcurrentStart, hcurrentFinish, hnextStart, hnextFinish,
-      hcurrentCore, hnextCore, hhalted⟩
+      hcurrentPackage, hnextPackage, hhalted⟩
   let arguments := compactNumericVerifierStepUnusedArguments
   have hgraph : arguments.Graph
       (compactFixedWidthTableCode width tokens) width tokens.length
       currentCoordinates nextCoordinates
       currentSizeWitness nextSizeWitness := by
-    exact Or.inl ⟨hcurrentCore, hnextCore, hhalted⟩
+    exact Or.inl ⟨hcurrentPackage.core, hnextPackage.core, hhalted⟩
   refine ⟨[], ?_⟩
   simp only [List.append_nil]
   change Nonempty (CompactNumericVerifierStepFormulaWitness
@@ -531,13 +531,13 @@ theorem CompactNumericVerifierCanonicalStepFormula.exists_of_finish
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       hcurrentStart, hcurrentFinish, hnextStart, hnextFinish,
-      hcurrentCore, hnextCore, hfinish⟩
+      hcurrentPackage, hnextPackage, hfinish⟩
   let arguments := compactNumericVerifierStepUnusedArguments
   have hgraph : arguments.Graph
       (compactFixedWidthTableCode width tokens) width tokens.length
       currentCoordinates nextCoordinates
       currentSizeWitness nextSizeWitness := by
-    exact Or.inr (Or.inl ⟨hcurrentCore, hnextCore, hfinish⟩)
+    exact Or.inr (Or.inl ⟨hcurrentPackage.core, hnextPackage.core, hfinish⟩)
   refine ⟨[], ?_⟩
   simp only [List.append_nil]
   change Nonempty (CompactNumericVerifierStepFormulaWitness
@@ -647,7 +647,8 @@ theorem CompactNumericVerifierCanonicalStepFormula.exists_of_combine
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       taskCoordinates, taskSizeWitness, ruleWitness,
-      hcurrentStart, hcurrentFinish, hnextStart, hnextFinish, hcombine⟩
+      hcurrentStart, hcurrentFinish, hnextStart, hnextFinish,
+      _hcurrentPackage, _hnextPackage, hcombine⟩
   let arguments := CompactNumericVerifierStepArguments.ofCombine
     taskCoordinates taskSizeWitness ruleWitness
   have hgraph : arguments.Graph

@@ -25,12 +25,13 @@ open FoundationCompactNumericListedDirectVerifierStateFormula
 open FoundationCompactNumericListedDirectVerifierTaskFormula
 open FoundationCompactNumericListedDirectVerifierCombineFailureRows
 open FoundationCompactNumericListedDirectVerifierCombineBranchRows
+open FoundationCompactNumericListedDirectVerifierCombineRuleWitnessBounds
 open FoundationCompactNumericListedDirectVerifierCombineStateGraph
 open FoundationCompactNumericListedDirectVerifierStateCoreCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineStateFrameRowsCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineStateGraphCompleteness
 
-theorem CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
+theorem CompactNumericVerifierCombineStateGraph.of_failure_frame
     {tokenTable width tokenCount currentStart currentFinish
       nextStart nextFinish : Nat}
     {proofTokens certificateTokens : List Nat}
@@ -49,11 +50,10 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
       source source (some false) currentCoordinates nextCoordinates
       currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness)
     (htransition : compactNumericCombineTransition task source = none) :
-    ∃ ruleWitness : CompactNumericVerifierCombineRuleWitness,
-      CompactNumericVerifierCombineStateGraph
-        tokenTable width tokenCount currentCoordinates nextCoordinates
-        currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
-        ruleWitness := by
+    CompactNumericVerifierCombineStateGraph
+      tokenTable width tokenCount currentCoordinates nextCoordinates
+      currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
+      compactNumericVerifierFailureCombineRuleWitness := by
   have hframeSaved := hframePackage
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, _hhead, _hframe,
@@ -114,9 +114,38 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
       currentSizeWitness.valueValueBound 1 0 := by
     simpa only [hsourceCount, htargetCount, hnextStatusTag,
       hnextStatusBoolZero] using hlocal
-  exact CompactNumericVerifierCombineStateGraph.exists_of_failure_rows
+  exact CompactNumericVerifierCombineStateGraph.of_failure_rows
     hframeSaved hlocalAligned
 
+theorem CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
+    {tokenTable width tokenCount currentStart currentFinish
+      nextStart nextFinish : Nat}
+    {proofTokens certificateTokens : List Nat}
+    {task : CompactNumericVerifierTask}
+    {tasks : List CompactNumericVerifierTask}
+    {source : List CompactNumericChildResult}
+    {currentCoordinates nextCoordinates :
+      CompactNumericVerifierStateRowCoordinates}
+    {currentSizeWitness nextSizeWitness :
+      CompactNumericVerifierStateSizeWitness}
+    {taskCoordinates : CompactNumericVerifierTaskRowCoordinates}
+    {taskSizeWitness : CompactNumericVerifierTaskSizeWitness}
+    (hframePackage : CompactNumericVerifierCombineCanonicalFramePackage
+      tokenTable width tokenCount currentStart currentFinish
+      nextStart nextFinish proofTokens certificateTokens task tasks
+      source source (some false) currentCoordinates nextCoordinates
+      currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness)
+    (htransition : compactNumericCombineTransition task source = none) :
+    ∃ ruleWitness : CompactNumericVerifierCombineRuleWitness,
+      CompactNumericVerifierCombineStateGraph
+        tokenTable width tokenCount currentCoordinates nextCoordinates
+        currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
+        ruleWitness := by
+  exact ⟨compactNumericVerifierFailureCombineRuleWitness,
+    CompactNumericVerifierCombineStateGraph.of_failure_frame
+      hframePackage htransition⟩
+
+#print axioms CompactNumericVerifierCombineStateGraph.of_failure_frame
 #print axioms CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
 
 end FoundationCompactNumericListedDirectVerifierCombineFailureStateGraphCompleteness

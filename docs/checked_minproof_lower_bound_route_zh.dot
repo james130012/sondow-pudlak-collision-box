@@ -1,0 +1,91 @@
+digraph LowerBoundRoute {
+  graph [
+    rankdir=TB,
+    bgcolor="white",
+    pad="0.28",
+    nodesep="0.30",
+    ranksep="0.46",
+    fontname="Noto Sans CJK SC",
+    label="最短证明增长下界：当前工作如何接入最终碰撞",
+    labelloc="t",
+    fontsize=22
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Noto Sans CJK SC",
+    fontsize=12,
+    color="#4f6f78",
+    penwidth=1.2,
+    margin="0.16,0.10"
+  ];
+  edge [
+    fontname="Noto Sans CJK SC",
+    fontsize=10,
+    color="#60747a",
+    penwidth=1.2,
+    arrowsize=0.75
+  ];
+
+  code [
+    fillcolor="#dff2ea",
+    label="已完成：诚实证明坐标\n完整 proof + certificate 位串\n同一公式、同一 PA 系统、全部见证计入长度"
+  ];
+  sound [
+    fillcolor="#dff2ea",
+    label="已完成：验证器可靠且非空\n接受码 -> 真实 PA Derivation2\n真实 PA 推导 -> 规范接受码"
+  ];
+  local [
+    fillcolor="#dff2ea",
+    label="已完成：局部黑箱打开\n位串相等、成员、包含、集合等价\n同步返回结果与显式 step cost"
+  ];
+  decoder [
+    fillcolor="#fff0c9",
+    color="#b47a13",
+    penwidth=2.0,
+    label="当前工作：总解码与变换成本\nNat 解码二次界已完成\n正在做 term / formula / proof / certificate trace"
+  ];
+  poly [
+    fillcolor="#f4f4f4",
+    label="待完成 A：统一固定多项式时间界\nVerifierTime(x,y) <= p(|x|+|y|)\n不是“可执行”或 primitive recursive 就算完成"
+  ];
+  paTrace [
+    fillcolor="#f4f4f4",
+    label="待完成 B：PA 内部计算轨迹\n接受计算 -> 同一 P(x,y) 的短 PA 证明\n证明长度 <= q(|x|+|y|)"
+  ];
+  pudlak [
+    fillcolor="#f4f4f4",
+    label="待完成 C：Pudlak 1986 条件 (0)-(3)\n对同一 proof predicate、公式族和长度度量\n形式化对角 proof-length lower bound"
+  ];
+  buss [
+    fillcolor="#f4f4f4",
+    label="待完成 D：Buss 1994 Theorem 5\ntime-constructible rescaling\n得到有限一致性公式族的超多项式下界"
+  ];
+  lower [
+    fillcolor="#e6e0f3",
+    color="#76609a",
+    label="Pudlak/Buss 侧结论\n同一 F_n 的 minProofLength(F_n)\n最终超过任意给定多项式"
+  ];
+  sondow [
+    fillcolor="#dceaf7",
+    color="#4779a5",
+    label="Sondow 侧（另一路）\n假设 gamma 有理 -> 构造同一 F_n 的真实证明\nminProofLength(F_n) <= U(n)，U 为多项式"
+  ];
+  collision [
+    fillcolor="#f8d9d6",
+    color="#a8443d",
+    penwidth=2.0,
+    label="同一 n、同一公式、同一检查器、同一长度上的碰撞\nminProofLength(F_n) <= U(n) < minProofLength(F_n)\n推出矛盾；这里才得到目标结论"
+  ];
+
+  code -> sound [label="编码/解码往返 + certificate soundness"];
+  sound -> local [label="改用列表序列，不走 Finset decide 黑箱"];
+  local -> decoder [label="把每个实际执行步骤计费"];
+  decoder -> poly [label="汇总所有局部与递归成本"];
+  poly -> paTrace [label="把外部运行界内部化到 PA"];
+  paTrace -> pudlak [label="建立 suitable numeration / derivability 条件"];
+  pudlak -> buss [label="对角下界 + 重标定"];
+  buss -> lower;
+  sondow -> collision [label="多项式上界"];
+  lower -> collision [label="超多项式下界"];
+}

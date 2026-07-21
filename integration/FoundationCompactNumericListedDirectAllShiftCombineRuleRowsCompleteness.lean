@@ -23,6 +23,7 @@ open FoundationCompactNumericSuccIndSentence
 open FoundationCompactNumericListedRuleChecks
 open FoundationCompactNumericListedTaskMachine
 open FoundationCompactNumericListedDirectAdditiveTypeCanonical
+open FoundationCompactNumericListedDirectAdditiveCodecGraph
 open FoundationCompactNumericListedDirectArithmeticPrimitives
 open FoundationCompactNumericListedDirectTokenStreamInverse
 open FoundationCompactNumericListedDirectAtomicListLayouts
@@ -34,6 +35,8 @@ open FoundationCompactNumericListedDirectVerifierChildResultListRowsFormula
 open FoundationCompactNumericListedDirectChildResultBoundedHeadEquality
 open FoundationCompactNumericListedDirectChildResultListPushDropRows
 open FoundationCompactNumericListedDirectFormulaTransformStateLayout
+open FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformTotalExactFormula
 open FoundationCompactNumericListedDirectFormulaTransformTotalExactCompleteness
 open FoundationCompactNumericListedDirectFormulaShiftExactListRows
@@ -41,6 +44,22 @@ open FoundationCompactNumericListedDirectFormulaShiftExactListRowsCompleteness
 open FoundationCompactNumericListedDirectAllShiftRuleCheck
 open FoundationCompactNumericListedDirectAllShiftRuleCheckCompleteness
 open FoundationCompactNumericListedDirectAllShiftCombineRuleRows
+
+def compactNumericAllShiftCriticalCoordinateSizeBound
+    (width tokenCount : Nat) : Nat :=
+  compactFormulaShiftExactListCoordinateSizeBound width tokenCount + 6
+
+structure CompactNumericAllShiftCriticalCoordinateBounds
+    (width tokenCount shiftWitnessBound freeStateBoundary
+      freeTableWidth freeValueBound : Nat) : Prop where
+  shiftWitnessBound_size : Nat.size shiftWitnessBound ≤
+    compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount
+  freeStateBoundary_size : Nat.size freeStateBoundary ≤
+    compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount
+  freeTableWidth_size : Nat.size freeTableWidth ≤
+    compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount
+  freeValueBound_size : Nat.size freeValueBound ≤
+    compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount
 
 def compactFormulaShiftSuccessValues
     (formulas : List (List Nat)) : List Nat :=
@@ -103,7 +122,12 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
       tokenTable width tokenCount freeStateBoundary
         (compactFormulaTransformStateTrace (0, [])
           (compactSyntaxRunFuelBound formula)
-          (compactFormulaTransformInitialState 1 formula)))
+          (compactFormulaTransformInitialState 1 formula)) ∧
+      Nat.size freeStateBoundary ≤
+        ((compactFormulaTransformStateTrace (0, [])
+            (compactSyntaxRunFuelBound formula)
+            (compactFormulaTransformInitialState 1 formula)).length + 1) *
+          tokenCount)
     (hcandidate : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
         shiftCandidateBoundary
@@ -118,7 +142,12 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
           tokenTable width tokenCount stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (Gamma.getI index))
-            (compactFormulaTransformInitialState 0 (Gamma.getI index))))
+            (compactFormulaTransformInitialState 0 (Gamma.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (Gamma.getI index))
+              (compactFormulaTransformInitialState 0
+                (Gamma.getI index))).length + 1) * tokenCount)
     (hpremise : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
         premiseGammaBoundary premise)
@@ -165,7 +194,10 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
         tableWidth valueBound
         (compactAdditiveBoolTag
           (compactAllRuleCheck
-            (Gamma, (formula, (premise, premiseValid))))) := by
+            (Gamma, (formula, (premise, premiseValid))))) ∧
+      CompactNumericAllShiftCriticalCoordinateBounds
+        width tokenCount shiftWitnessBound freeStateBoundary
+          freeTableWidth (2 ^ freeTableWidth) := by
   rcases hformula with
     ⟨formulaBoundary, hformulaStructure, hformulaRows, hformulaSize⟩
   rcases hfreed with
@@ -204,10 +236,56 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
       CompactAdditiveStructuredListElementRowLayouts.natUnitBoundaryRows
         hemptyRows,
       rfl, hemptySize⟩
-  rcases CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace
-      hfreeTrace hemptyLayout rfl hformulaRows hfreedRows hemptyRows
+  rcases
+      CompactFormulaTransformTotalExactBoundedGraph.of_canonical_trace_with_width_bound
+      hfreeTrace.1 hemptyLayout rfl hformulaRows hfreedRows hemptyRows
       (by simp [compactFormulaFreeExact]) with
-    ⟨freeTableWidth, hfreeTransform⟩
+    ⟨freeTableWidth, hfreeTransform, hfreeTableWidthRaw⟩
+  have hformulaCount : formula.length ≤ tokenCount :=
+    structuredListLayout_count_le_tokenCount hformulaStructure
+  have hfreeFuel : compactSyntaxRunFuelBound formula ≤
+      compactFormulaShiftExactListPublicFuelBound tokenCount := by
+    have hlength := Nat.add_le_add_right hformulaCount 1
+    have hsquare := Nat.mul_le_mul hlength hlength
+    have hscaled := Nat.mul_le_mul_left 16 hsquare
+    have htotal := Nat.add_le_add_right hscaled 8
+    simpa [compactSyntaxRunFuelBound,
+      compactFormulaShiftExactListPublicFuelBound, Nat.mul_assoc] using htotal
+  have hfreeStateBoundaryRaw : Nat.size freeStateBoundary ≤
+      (compactFormulaShiftExactListPublicFuelBound tokenCount + 2) *
+        tokenCount := by
+    have hraw : Nat.size freeStateBoundary ≤
+        (compactSyntaxRunFuelBound formula + 2) * tokenCount := by
+      simpa using hfreeTrace.2
+    exact hraw.trans (Nat.mul_le_mul_right tokenCount
+      (Nat.add_le_add_right hfreeFuel 2))
+  have hfreeTableWidth : freeTableWidth ≤
+      compactFormulaTransformCanonicalTableWidthBound width tokenCount
+        (compactFormulaShiftExactListPublicFuelBound tokenCount) :=
+    hfreeTableWidthRaw.trans
+      (compactFormulaTransformCanonicalTableWidthBound_mono_fuel
+        width tokenCount hfreeFuel)
+  have hfreeStateBoundarySize : Nat.size freeStateBoundary ≤
+      compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount := by
+    exact hfreeStateBoundaryRaw.trans (by
+      simp [compactNumericAllShiftCriticalCoordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega)
+  have hfreeTableWidthSize : Nat.size freeTableWidth ≤
+      compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount := by
+    have hsize := (natSize_le_of_le (Nat.le_refl freeTableWidth)).trans
+      hfreeTableWidth
+    exact hsize.trans (by
+      simp [compactNumericAllShiftCriticalCoordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega)
+  have hfreeValueBoundSize : Nat.size (2 ^ freeTableWidth) ≤
+      compactNumericAllShiftCriticalCoordinateSizeBound width tokenCount := by
+    rw [Nat.size_pow]
+    exact (Nat.add_le_add_right hfreeTableWidth 1).trans (by
+      simp [compactNumericAllShiftCriticalCoordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega)
   have hsuccess : ∀ index (hindex : index < Gamma.length),
       CompactFixedWidthEntry
         (compactFormulaShiftSuccessTable tokenCount Gamma)
@@ -218,7 +296,7 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
       compactFormulaShiftSuccessTable_entry Gamma htokenCount index hindex
   rcases CompactFormulaShiftExactListRows.of_canonical_rows
       hGamma hcandidate hshifted hemptyWitness hsuccess hshiftTraces with
-    ⟨shiftWitnessBound, hshiftTransform⟩
+    ⟨shiftWitnessBound, hshiftTransform, hshiftWitnessBoundSize⟩
   let result := compactAllRuleCheck
     (Gamma, (formula, (premise, premiseValid)))
   have hcheck : CompactAdditiveAllRuleCheck
@@ -256,12 +334,19 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_all
   refine ⟨formulaBoundary, Nat.size formulaBoundary,
     freedBoundary, Nat.size freedBoundary,
     emptyBoundary, Nat.size emptyBoundary,
-    shiftWitnessBound, freeTableWidth, ?_⟩
-  left
-  exact ⟨htag, hsourceCount, hformulaWitness, hfreedWitness,
-    CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
-      hpremise,
-    hpremiseHead, hcheck, hpush⟩
+    shiftWitnessBound, freeTableWidth, ?_, ?_⟩
+  · left
+    exact ⟨htag, hsourceCount, hformulaWitness, hfreedWitness,
+      CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
+        hpremise,
+      hpremiseHead, hcheck, hpush⟩
+  · exact
+      { shiftWitnessBound_size := by
+          simpa [compactNumericAllShiftCriticalCoordinateSizeBound] using
+            hshiftWitnessBoundSize
+        freeStateBoundary_size := hfreeStateBoundarySize
+        freeTableWidth_size := hfreeTableWidthSize
+        freeValueBound_size := hfreeValueBoundSize }
 
 theorem CompactNumericAllShiftCombineRuleRows.exists_of_shift
     {tokenTable width tokenCount taskTag gammaFinish firstFinish
@@ -289,7 +374,12 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_shift
           tokenTable width tokenCount stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (premise.getI index))
-            (compactFormulaTransformInitialState 0 (premise.getI index))))
+            (compactFormulaTransformInitialState 0 (premise.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (premise.getI index))
+              (compactFormulaTransformInitialState 0
+                (premise.getI index))).length + 1) * tokenCount)
     (hpremise : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
         premiseGammaBoundary premise)
@@ -329,7 +419,9 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_shift
         emptyStart emptyFinish emptyBoundary emptyBoundarySize
         shiftWitnessBound 0 0 tableWidth valueBound
         (compactAdditiveBoolTag
-          (compactShiftRuleCheck (Gamma, (premise, premiseValid)))) := by
+          (compactShiftRuleCheck (Gamma, (premise, premiseValid)))) ∧
+      CompactNumericAllShiftCriticalCoordinateBounds
+        width tokenCount shiftWitnessBound 0 0 0 := by
   rcases hempty with
     ⟨emptyBoundary, hemptyStructure, hemptyRows, hemptySize⟩
   have hemptyWitness : CompactAdditiveNatListWitnessRows
@@ -349,7 +441,7 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_shift
       compactFormulaShiftSuccessTable_entry premise htokenCount index hindex
   rcases CompactFormulaShiftExactListRows.of_canonical_rows
       hpremise hcandidate hshifted hemptyWitness hsuccess hshiftTraces with
-    ⟨shiftWitnessBound, hshiftTransform⟩
+    ⟨shiftWitnessBound, hshiftTransform, hshiftWitnessBoundSize⟩
   let result := compactShiftRuleCheck (Gamma, (premise, premiseValid))
   have hcheck : CompactAdditiveShiftRuleCheck
       tokenTable width tokenCount
@@ -377,12 +469,20 @@ theorem CompactNumericAllShiftCombineRuleRows.exists_of_shift
       tokenTable width tokenCount sourceBoundary
       premiseGammaBoundary premise.length valueBound 0 premiseBoolValue := by
     simpa only [hpremiseBool] using hpremiseHeadCanonical
-  refine ⟨emptyBoundary, Nat.size emptyBoundary, shiftWitnessBound, ?_⟩
-  right
-  exact ⟨htag, hsourceCount,
-    CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
-      hpremise,
-    hpremiseHead, hcheck, hpush⟩
+  refine ⟨emptyBoundary, Nat.size emptyBoundary, shiftWitnessBound,
+    ?_, ?_⟩
+  · right
+    exact ⟨htag, hsourceCount,
+      CompactAdditiveStructuredListElementRowLayouts.natListListRowsWellFormed
+        hpremise,
+      hpremiseHead, hcheck, hpush⟩
+  · exact
+      { shiftWitnessBound_size := by
+          simpa [compactNumericAllShiftCriticalCoordinateSizeBound] using
+            hshiftWitnessBoundSize
+        freeStateBoundary_size := by simp
+        freeTableWidth_size := by simp
+        freeValueBound_size := by simp }
 
 #print axioms compactFormulaShiftSuccessTable_entry
 #print axioms CompactNumericAllShiftCombineRuleRows.exists_of_all

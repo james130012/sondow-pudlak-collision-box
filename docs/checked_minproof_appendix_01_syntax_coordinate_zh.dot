@@ -1,0 +1,56 @@
+digraph HonestCoordinateAppendix {
+  graph [rankdir=TB, bgcolor="white", splines=polyline, nodesep="0.28",
+    ranksep="0.44", pad="0.18", size="10,13!", ratio=compress,
+    fontname="Noto Sans CJK SC", fontsize=21,
+    label="附图 01：诚实证明坐标与最短长度", labelloc="t"];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+    fontsize=10.5, color="#3f7c66", fillcolor="#dff2e8",
+    margin="0.14,0.09", penwidth=1.2];
+  edge [fontname="Noto Sans CJK SC", fontsize=8.5, color="#65777d",
+    arrowsize=0.68];
+
+  nat [node_id="A01.01", status="done", endpoint_theorem="binaryNatCode round trip",
+    source="integration/FoundationSuccinctFiniteConsistencyTarget.lean", appendix="01",
+    next_obligation="none", label="A01.01 自定界自然数码\n规范往返与精确位长"];
+  syntax [node_id="A01.02", status="done", endpoint_theorem="term/formula binary codecs",
+    source="integration/FoundationCompactPAProofVerifier.lean", appendix="01",
+    next_obligation="none", label="A01.02 类型化项与公式码\n规范解码不膨胀"];
+  tree [node_id="A01.03", status="done", endpoint_theorem="CheckedPAProofTree",
+    source="integration/FoundationSuccinctFiniteConsistencyTarget.lean", appendix="01",
+    next_obligation="none", label="A01.03 真实 PA 证明树\n十条相继式规则"];
+  certificate [node_id="A01.04", status="done", endpoint_theorem="StructuralValidityCertificate",
+    source="integration/FoundationCompactPAAxiomCertificate.lean", appendix="01",
+    next_obligation="none", label="A01.04 完整结构证书\n归纳体和全部局部见证计长"];
+  payload [node_id="A01.05", status="done", endpoint_theorem="packedPayloadLength exactness",
+    source="integration/FoundationComputableCompactPAProofEncoder.lean", appendix="01",
+    next_obligation="none", label="A01.05 proof + certificate 载荷\nNat.size(code)=payload+1"];
+  verifier [node_id="A01.06", status="done", endpoint_theorem="listed verifier iff checks",
+    source="integration/FoundationCompactListedCertifiedVerifier.lean", appendix="01",
+    next_obligation="none", label="A01.06 列表保持公开检查器\n接受关系逐点精确"];
+  sound [node_id="A01.07", status="done", endpoint_theorem="accepted code -> Derivation2",
+    source="integration/FoundationCompactListedCertifiedVerifier.lean", appendix="01",
+    next_obligation="none", label="A01.07 检查器可靠性\n接受码恢复同公式真实推导"];
+  complete [node_id="A01.08", status="done", endpoint_theorem="Derivation2 -> accepted code",
+    source="integration/FoundationCompactListedCertifiedEncoder.lean", appendix="01",
+    next_obligation="none", label="A01.08 检查器完备性\n真实推导产生规范接受码"];
+  canonical [node_id="A01.09", status="done", endpoint_theorem="canonical normalization",
+    source="integration/FoundationCompactListedCanonicalNormalization.lean", appendix="01",
+    next_obligation="none", label="A01.09 规范化不增长\n畸形码不能压低最短长度"];
+  minimum [node_id="A01.10", status="done", endpoint_theorem="minListedCertifiedPAProofPayloadLength",
+    source="integration/FoundationCompactListedMinProofLength.lean", appendix="01",
+    next_obligation="none", label="A01.10 检查器诱导最短长度\n无项目级 proof_length", penwidth=2.6];
+
+  nat -> syntax -> tree;
+  tree -> payload;
+  certificate -> payload;
+  payload -> verifier;
+  verifier -> sound;
+  tree -> complete;
+  certificate -> complete;
+  complete -> verifier;
+  verifier -> canonical;
+  payload -> canonical;
+  canonical -> minimum;
+  sound -> minimum;
+  complete -> minimum;
+}

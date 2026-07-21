@@ -103,8 +103,26 @@ theorem CompactFormulaTransformTraceListRowLayouts.trace_rows
   rcases hlayout with ⟨stateBoundary, _hstructure, hstateRows, _hsize⟩
   exact ⟨stateBoundary, hstateRows⟩
 
+theorem CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
+    {tokenTable width tokenCount boundaryTable : Nat}
+    {traces : List (List CompactFormulaTransformState)}
+    (hrows : CompactFormulaTransformTraceListRowLayouts
+      tokenTable width tokenCount boundaryTable traces)
+    (index : Nat) (hindex : index < traces.length) :
+    ∃ stateBoundary,
+      CompactFormulaTransformStateListRowLayouts
+          tokenTable width tokenCount stateBoundary (traces.getI index) ∧
+        Nat.size stateBoundary ≤
+          ((traces.getI index).length + 1) * tokenCount := by
+  rcases hrows index hindex with
+    ⟨_start, _hstart, _finish, _hfinish,
+      _hstartEntry, _hfinishEntry, hlayout⟩
+  rcases hlayout with ⟨stateBoundary, _hstructure, hstateRows, hsize⟩
+  exact ⟨stateBoundary, hstateRows, hsize⟩
+
 #print axioms compactFormulaTransformTraceDirectLayout_canonical
 #print axioms compactFormulaTransformTraceListDirectLayout_canonical
 #print axioms CompactFormulaTransformTraceListRowLayouts.trace_rows
+#print axioms CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
 
 end FoundationCompactNumericListedDirectFormulaTransformTraceListLayout

@@ -80,18 +80,24 @@ digraph DirectVerifierPredicateAppendix {
     next_obligation="none",
     label="A03.05e4 完整 verifierStep 图\n固定 429 列 Sigma-zero 公式统一 halted / finish / parse / combine\n任意满足行精确实现公开 verifierStep；任意公开单步规范构造公式见证\n状态表与前后切片四端点显式锁定；探针、定向构建与禁用扫描通过\n公理画像仅 propext / Classical.choice / Quot.sound",
     fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
-  direct_trace [node_id="A03.06", status="active", endpoint_theorem="DirectVerifierTraceCode exact formula",
-    source="planned", appendix="03", next_obligation="join initial, every 429-column step, and final rows",
-    label="A03.06【当前】完整验证轨迹公式\n把初态、每个 verifierStep 有界行和终态汇入同一轨迹表\n目标：轨迹公式与同一公开 bounded run 逐行一致",
-    fillcolor="#fff0c9", color="#b37a12", penwidth=3.0];
-  predicate [node_id="A03.07", status="pending", endpoint_theorem="P_direct(bound,y)",
-    source="planned", appendix="03", next_obligation="wait for A03.06",
-    label="A03.07 二变量 Sigma-one 谓词 P_direct\n标准模型 iff 同一公开检查器接受",
-    style="rounded,filled,dashed", color="#777777", penwidth=2.2];
-  identity [node_id="A03.08", status="pending", endpoint_theorem="same formula/checker/measure identity",
-    source="planned", appendix="03", next_obligation="wait for A03.07",
-    label="A03.08 对象恒等审计\n同一公式码、检查器与完整载荷长度",
-    fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed"];
+  direct_trace [node_id="A03.06", status="done",
+    endpoint_theorem="exists_publicAcceptedTraceFormula_iff_verifierResult_true",
+    source="integration/FoundationCompactNumericListedDirectVerifierAcceptedTraceFormula.lean + integration/FoundationCompactNumericListedDirectVerifierAcceptedTraceExactness.lean",
+    appendix="03", next_obligation="none",
+    label="A03.06 完整验证轨迹公式\n同一表绑定初态、全部 429 列单步、跨行状态和接受末态\n任意公式表严格恢复公开运行；任意真实接受运行规范生成公式表\n同一 public fuel 下 iff compactNumericVerifierResult = true\n探针通过；公理画像仅 propext / Classical.choice / Quot.sound",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.5];
+  predicate [node_id="A03.07", status="done",
+    endpoint_theorem="directProofPredicate_iff_exists_publicVerifier",
+    source="integration/FoundationCompactNumericListedDirectProofPredicate.lean + integration/FoundationCompactNumericListedTaskMachineSyntaxInversion.lean + integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
+    appendix="03", next_obligation="none",
+    label="A03.07 二变量 Sigma-one 谓词 P_direct\n22 坐标直接矩阵绑定完整输入、接受轨迹与唯一结论\n十类证明节点与结构证书均可从接受执行反演为规范语法\n标准模型中逐点 iff 同一公开检查器接受\n探针与禁用扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
+  identity [node_id="A03.08", status="done",
+    endpoint_theorem="compactListedPADirectProofFormula_iff_exists_publicVerifier",
+    source="integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
+    appendix="03", next_obligation="none",
+    label="A03.08 对象恒等审计\n显式二变量 Sigma-one 公式逐点等价于公开检查器接受\n同一 formulaCode、同一 proof + certificate 载荷码\n同一 packedPayloadLength 完整载荷度量与 bound\n探针通过；无项目公设、无 sorryAx、公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
 
   verifier -> bitcost;
   verifier -> trace_code;

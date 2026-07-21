@@ -1,0 +1,187 @@
+digraph PAQuantitativeCompilerAppendix {
+  graph [
+    rankdir=TB,
+    bgcolor="white",
+    splines=polyline,
+    nodesep="0.28",
+    ranksep="0.44",
+    pad="0.18",
+    size="11,16!",
+    ratio=compress,
+    fontname="Noto Sans CJK SC",
+    fontsize=21,
+    label="附图 04：真实 PA 定量证明编译器",
+    labelloc="t"
+  ];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+    fontsize=10.5, color="#526d75", fillcolor="#f3f3f3",
+    margin="0.14,0.09", penwidth=1.2];
+  edge [fontname="Noto Sans CJK SC", fontsize=8.5, color="#65777d",
+    arrowsize=0.68, penwidth=1.05];
+
+  honest [
+    node_id="A04.01", status="done",
+    endpoint_theorem="CertifiedPAProof.payloadLength_eq",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.01 CertifiedPAProof\n真实 Derivation2 + 显式结构证书\n完整载荷 = proof bits + certificate bits",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  axiom_node [
+    node_id="A04.02", status="done",
+    endpoint_theorem="CertifiedPAProof.ofAxiom_payloadLength_le",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.02 PA 公理证明产生器\nPAAxiomCertificate -> 一节点真实 PA 证明\n公式和证书全部计长",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  specialize_node [
+    node_id="A04.03", status="done",
+    endpoint_theorem="CertifiedPAProof.specialize_payloadLength_le_cost",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.03 全称实例化\n真实 cut/wk/exs/closed 推导\n完整载荷固定三次界",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  mp_node [
+    node_id="A04.04", status="done",
+    endpoint_theorem="CertifiedPAProof.modusPonens_payloadLength_le",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.04 肯定前件 MP\n复用两份真实证明和证书\n载荷加法界 + 显式语法预算",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  conjunction_node [
+    node_id="A04.05", status="done",
+    endpoint_theorem="CertifiedPAProof.conjunction_payloadLength_le",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.05 合取引入\n两棵真实推导组成同一 PA 证明\n完整载荷界已检查",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  exists_node [
+    node_id="A04.06", status="done",
+    endpoint_theorem="CertifiedPAProof.existsIntro_payloadLength_le",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.06 存在量词引入\n显式见证项 + wk + exs\n证明和两层证书标签均计长",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  verifier_node [
+    node_id="A04.07", status="done",
+    endpoint_theorem="CertifiedPAProof.verifier_eq_true",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="none",
+    label="A04.07 公开检查器端点\n每个生成对象均编码为规范完整载荷\nlisted verifier = true",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  equality_node [
+    node_id="A04.08", status="done",
+    endpoint_theorem="proveEqualityReflexivity / proveEqualitySymmetry",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="transitivity and function congruence",
+    label="A04.08 等式基元\n任意项 t=t 与对称性均产生真实 PA 证明\n语法 transport 不改变码或长度",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.4
+  ];
+  zero_node [
+    node_id="A04.09", status="done",
+    endpoint_theorem="proveAddZero / proveMulZero / proveMulOne",
+    source="integration/FoundationCompactPAQuantitativeCompilerCore.lean",
+    appendix="04", next_obligation="nontrivial arithmetic normalization",
+    label="A04.09 固定算术公理实例\nt+0=t、t*0=0、t*1=t\n公开验证与完整载荷界",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.4
+  ];
+  binary_syntax [
+    node_id="A04.10", status="done",
+    endpoint_theorem="binaryNumeralTerm_code_length_le_size",
+    source="integration/FoundationCompactBinaryNumeralTerm.lean",
+    appendix="04", next_obligation="none",
+    label="A04.10 短二进制数词\nterm code <= C0 + C1 * Nat.size(n)\n标准模型值精确为 n",
+    fillcolor="#dff2e8", color="#3f7c66"
+  ];
+  binary_bound [
+    node_id="A04.11", status="done",
+    endpoint_theorem="proveBinaryNumeralReflexivity_payloadLength_le",
+    source="integration/FoundationCompactPABinaryNumeralCompiler.lean",
+    appendix="04", next_obligation="binary add/mul normalization",
+    label="A04.11 二进制数词证明载荷\n公开检查器接受\n显式 cubic(Nat.size n) 上界\n公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  transitivity [
+    node_id="A04.12", status="done",
+    endpoint_theorem="proveEqualityTransitivity + full payload bound",
+    source="integration/FoundationCompactPAQuantitativeEqualityTransitivity.lean",
+    appendix="04", next_obligation="none",
+    label="A04.12 等式传递性\n输入 p:a=b 与 q:b=c，输出真实 PA 证明 a=c\nEq.trans 三次实例化 + 两次 MP\n公开验证、完整载荷界、标准三项公理画像均通过",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  congruence [
+    node_id="A04.13", status="done",
+    endpoint_theorem="proveAddCongruence / proveMulCongruence + verifier + full payload bounds",
+    source="integration/FoundationCompactPAQuantitativeFunctionCongruence.lean",
+    appendix="04", next_obligation="none",
+    label="A04.13 加法/乘法函数合同性\nEq.funcExt 四次实例化 + 两层合取 + MP\n真实 PA 证明、公开验证与完整载荷界均通过\n公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  binary_add [
+    node_id="A04.14", status="done",
+    endpoint_theorem="FoundationCompactPABinaryNumeralAdditionBounds.proveBinaryNumeralAddition_checked_polynomial",
+    source="integration/FoundationCompactPABinaryNumeralAdditionBounds.lean",
+    appendix="04", next_obligation="none",
+    label="A04.14 二进制加法归一化\n按位递归产生 bn(a)+bn(b)=bn(a+b) 的真实 PA 证明\n奇偶分支、进位、合同性与传递性全部闭合\n公开检查器接受 + 总输入位宽固定多项式载荷界\n定向构建通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  binary_mul [
+    node_id="A04.15", status="done",
+    endpoint_theorem="FoundationCompactPABinaryNumeralMultiplicationBounds.proveBinaryNumeralMultiplication_checked_polynomial",
+    source="integration/FoundationCompactPABinaryNumeralMultiplicationBounds.lean",
+    appendix="04", next_obligation="none",
+    label="A04.15 二进制乘法归一化\n按右乘数的二进制位递归产生 bn(a)*bn(b)=bn(a*b)\n偶位翻倍；奇位用分配律并调用已检查加法归一化\n真实 PA 证明 + 公开检查器接受 + 总输入位宽固定多项式界\n直接探针和定向构建通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  atomic [
+    node_id="A04.16", status="done",
+    endpoint_theorem="FoundationCompactPAClosedAtomicCompilerBounds.ClosedPATerm.ClosedPAAtomicLiteralBounds.compile_checked_polynomial",
+    source="integration/FoundationCompactPAClosedAtomicCompiler.lean + integration/FoundationCompactPAClosedAtomicCompilerBounds.lean",
+    appendix="04",
+    next_obligation="none",
+    label="A04.16 闭算术原子文字编译器\nClosedPATerm 由短二进制数词、加法和乘法组成\n统一覆盖 =、≠、<、¬<、≤、¬≤ 的可判定真值证书\n输出同公式真实 CertifiedPAProof；六分支均有公开检查器与固定多项式载荷界\n直接探针、定向构建、清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  bounded [
+    node_id="A04.17", status="done",
+    endpoint_theorem="FoundationCompactPABoundedFormulaCompilerBounds.CheckedClosedBoundedFormulaCertificate.compile_checked_polynomial",
+    source="integration/FoundationCompactPABoundedFormulaCompiler.lean + integration/FoundationCompactPABoundedFormulaCompilerBounds.lean + integration/FoundationCompactPABoundedUniversalPolynomialBounds.lean + integration/FoundationCompactPAFiniteExhaustionPayloadPolynomialBounds.lean",
+    appendix="04", next_obligation="none",
+    label="A04.17 有界公式见证编译器\nproof-free 证书递归覆盖原子、合取、析取、存在见证与有限有界全称\n全称分支由真实有限穷举、归纳、分支输运、切割与全称引入产生\n节点数和全部局部组装成本压入证书编码长度的统一固定多项式\n公开检查器接受；定向构建与清洁扫描通过；公理画像仅标准三项",
+    fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
+  ];
+  accepted [
+    node_id="A04.18", status="active",
+    endpoint_theorem="accepted direct verifier trace -> short PA proof",
+    source="integration/FoundationCompactPABoundedFormulaCompiler.lean + integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
+    appendix="04", next_obligation="instantiate A04.17 at the fixed P_direct bounded matrix",
+    label="A04.18【当前】接受轨迹短证明编译器\nP_direct 的同一公式、检查器与完整载荷度量已闭合\n当前将显式有界矩阵实例化到 A04.17\n目标输出真实 PA proof object 及固定多项式完整载荷界",
+    fillcolor="#fff0c9", color="#b37a12", penwidth=3.0
+  ];
+
+  honest -> axiom_node -> specialize_node;
+  honest -> mp_node;
+  honest -> conjunction_node;
+  honest -> exists_node;
+  axiom_node -> equality_node;
+  specialize_node -> equality_node;
+  mp_node -> equality_node;
+  specialize_node -> zero_node;
+  honest -> verifier_node;
+  equality_node -> verifier_node [style=dotted];
+  zero_node -> verifier_node [style=dotted];
+  binary_syntax -> binary_bound;
+  equality_node -> binary_bound;
+  zero_node -> binary_bound;
+  binary_bound -> transitivity -> congruence -> binary_add -> binary_mul -> atomic -> bounded -> accepted;
+  mp_node -> transitivity [style=dotted];
+  conjunction_node -> bounded [style=dotted];
+  exists_node -> bounded [style=dotted];
+  verifier_node -> accepted [style=dotted];
+}

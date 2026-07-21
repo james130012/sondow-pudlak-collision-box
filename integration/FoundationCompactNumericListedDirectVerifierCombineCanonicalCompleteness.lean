@@ -31,27 +31,54 @@ def CompactNumericVerifierCanonicalCombineStateGraph
       proofTokens certificateTokens task tasks source target
         nextStatus backTokens
 
-theorem CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+def CompactNumericVerifierCanonicalCombineBoundedStateGraph
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source : List CompactNumericChildResult) : Prop :=
+  ∃ target nextStatus backTokens ruleCoordinateBound,
+    compactNumericCombineState task
+        ((proofTokens, certificateTokens), (tasks, source)) =
+      (((proofTokens, certificateTokens), (tasks, target)), nextStatus) ∧
+    CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens task tasks source target
+        nextStatus backTokens ruleCoordinateBound
+
+theorem CompactNumericVerifierCanonicalCombineBoundedStateGraph.toStateGraph
+    {proofTokens certificateTokens : List Nat}
+    {task : CompactNumericVerifierTask}
+    {tasks : List CompactNumericVerifierTask}
+    {source : List CompactNumericChildResult}
+    (hgraph : CompactNumericVerifierCanonicalCombineBoundedStateGraph
+      proofTokens certificateTokens task tasks source) :
+    CompactNumericVerifierCanonicalCombineStateGraph
+      proofTokens certificateTokens task tasks source := by
+  rcases hgraph with
+    ⟨target, nextStatus, backTokens, _ruleCoordinateBound,
+      hstep, hbounded⟩
+  exact ⟨target, nextStatus, backTokens, hstep, hbounded.toGraph⟩
+
+theorem CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
     (proofTokens certificateTokens : List Nat)
     (task : CompactNumericVerifierTask)
     (tasks : List CompactNumericVerifierTask)
     (source : List CompactNumericChildResult)
     (htaskNe : task.1 ≠ 10)
     (htransition : compactNumericCombineTransition task source = none) :
-    CompactNumericVerifierCanonicalCombineStateGraph
+    CompactNumericVerifierCanonicalCombineBoundedStateGraph
       proofTokens certificateTokens task tasks source := by
-  refine ⟨source, some false, [], ?_,
-    CompactNumericVerifierCanonicalCombineGraph.exists_of_failure
+  refine ⟨source, some false, [], 0, ?_,
+    CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_failure
       proofTokens certificateTokens task tasks source htaskNe htransition⟩
   simp [compactNumericCombineState, htransition]
 
-theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
+theorem CompactNumericVerifierCanonicalCombineBoundedStateGraph.exists_of_public_step
     (proofTokens certificateTokens : List Nat)
     (task : CompactNumericVerifierTask)
     (tasks : List CompactNumericVerifierTask)
     (source : List CompactNumericChildResult)
     (htaskNe : task.1 ≠ 10) :
-    CompactNumericVerifierCanonicalCombineStateGraph
+    CompactNumericVerifierCanonicalCombineBoundedStateGraph
       proofTokens certificateTokens task tasks source := by
   rcases task with
     ⟨tag, ⟨Gamma,
@@ -60,7 +87,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (3, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -70,7 +98,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
         rcases right with ⟨rightConclusion, rightValid⟩
         cases rest with
         | nil =>
-            apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+            apply
+              CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
               proofTokens certificateTokens
               (3, (Gamma,
                 (firstFormula, (secondFormula, (witness, suffix)))))
@@ -83,11 +112,20 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
                 (Gamma, firstFormula, secondFormula,
                   (leftConclusion, leftValid),
                   rightConclusion, rightValid)) :: tail
-            refine ⟨target, none, [], ?_, ?_⟩
+            refine ⟨target, none, [],
+              compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+                proofTokens certificateTokens
+                (3, (Gamma,
+                  (firstFormula, (secondFormula, (witness, suffix)))))
+                tasks
+                ((rightConclusion, rightValid) ::
+                  (leftConclusion, leftValid) :: tail)
+                target none [],
+              ?_, ?_⟩
             · simp [compactNumericCombineState,
                 compactNumericCombineTransition, target]
             · simpa only [target] using
-                CompactNumericVerifierCanonicalCombineGraph.exists_of_and
+                CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_and
                   proofTokens certificateTokens Gamma firstFormula
                   secondFormula witness suffix tasks rightConclusion
                   leftConclusion rightValid leftValid tail
@@ -95,7 +133,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (4, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -107,11 +146,18 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
           (Gamma, compactOrRuleCheck
             (Gamma, firstFormula, secondFormula,
               rightConclusion, rightValid)) :: tail
-        refine ⟨target, none, [], ?_, ?_⟩
+        refine ⟨target, none, [],
+          compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+            proofTokens certificateTokens
+            (4, (Gamma,
+              (firstFormula, (secondFormula, (witness, suffix)))))
+            tasks ((rightConclusion, rightValid) :: tail)
+            target none [],
+          ?_, ?_⟩
         · simp [compactNumericCombineState,
             compactNumericCombineTransition, target]
         · simpa only [target] using
-            CompactNumericVerifierCanonicalCombineGraph.exists_of_or
+            CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_or
               proofTokens certificateTokens Gamma firstFormula
               secondFormula witness suffix tasks rightConclusion
               rightValid tail
@@ -119,7 +165,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (5, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -132,18 +179,26 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
             (Gamma, firstFormula, premise, premiseValid)) :: tail
         refine ⟨target, none,
           compactNumericAllCombineAuxiliaryTokens Gamma firstFormula,
+          compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+            proofTokens certificateTokens
+            (5, (Gamma,
+              (firstFormula, (secondFormula, (witness, suffix)))))
+            tasks ((premise, premiseValid) :: tail)
+            target none
+            (compactNumericAllCombineAuxiliaryTokens Gamma firstFormula),
           ?_, ?_⟩
         · simp [compactNumericCombineState,
             compactNumericCombineTransition, target]
         · simpa only [target] using
-            CompactNumericVerifierCanonicalCombineGraph.exists_of_all
+            CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_all
               proofTokens certificateTokens Gamma firstFormula
               secondFormula witness suffix tasks premise premiseValid tail
   by_cases htag6 : tag = 6
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (6, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -157,11 +212,19 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
               rightConclusion, rightValid)) :: tail
         refine ⟨target, none,
           compactNumericExsCombineAuxiliaryTokens firstFormula witness,
+          compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound
+            proofTokens certificateTokens
+            (6, (Gamma,
+              (firstFormula, (secondFormula, (witness, suffix)))))
+            tasks ((rightConclusion, rightValid) :: tail)
+            target none
+            (compactNumericExsCombineAuxiliaryTokens
+              firstFormula witness),
           ?_, ?_⟩
         · simp [compactNumericCombineState,
             compactNumericCombineTransition, target]
         · simpa only [target] using
-            CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
+            CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_exs
               proofTokens certificateTokens Gamma firstFormula
               secondFormula witness suffix tasks rightConclusion
               rightValid tail
@@ -169,7 +232,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (7, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -180,11 +244,18 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
         let target : List CompactNumericChildResult :=
           (Gamma, compactWkRuleCheck
             (Gamma, rightConclusion, rightValid)) :: tail
-        refine ⟨target, none, [], ?_, ?_⟩
+        refine ⟨target, none, [],
+          compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+            proofTokens certificateTokens
+            (7, (Gamma,
+              (firstFormula, (secondFormula, (witness, suffix)))))
+            tasks ((rightConclusion, rightValid) :: tail)
+            target none [],
+          ?_, ?_⟩
         · simp [compactNumericCombineState,
             compactNumericCombineTransition, target]
         · simpa only [target] using
-            CompactNumericVerifierCanonicalCombineGraph.exists_of_wk
+            CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_wk
               proofTokens certificateTokens Gamma firstFormula
               secondFormula witness suffix tasks rightConclusion
               rightValid tail
@@ -192,7 +263,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (8, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -204,18 +276,27 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
           (Gamma, compactShiftRuleCheck
             (Gamma, premise, premiseValid)) :: tail
         refine ⟨target, none,
-          compactNumericShiftCombineAuxiliaryTokens premise, ?_, ?_⟩
+          compactNumericShiftCombineAuxiliaryTokens premise,
+          compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+            proofTokens certificateTokens
+            (8, (Gamma,
+              (firstFormula, (secondFormula, (witness, suffix)))))
+            tasks ((premise, premiseValid) :: tail)
+            target none
+            (compactNumericShiftCombineAuxiliaryTokens premise),
+          ?_, ?_⟩
         · simp [compactNumericCombineState,
             compactNumericCombineTransition, target]
         · simpa only [target] using
-            CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
+            CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_shift
               proofTokens certificateTokens Gamma firstFormula
               secondFormula witness suffix tasks premise premiseValid tail
   by_cases htag9 : tag = 9
   · subst tag
     cases source with
     | nil =>
-        apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+        apply
+          CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
           proofTokens certificateTokens
           (9, (Gamma,
             (firstFormula, (secondFormula, (witness, suffix)))))
@@ -225,7 +306,8 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
         rcases right with ⟨rightConclusion, rightValid⟩
         cases rest with
         | nil =>
-            apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+            apply
+              CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
               proofTokens certificateTokens
               (9, (Gamma,
                 (firstFormula, (secondFormula, (witness, suffix)))))
@@ -239,15 +321,25 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
                   rightConclusion, rightValid)) :: tail
             refine ⟨target, none,
               compactNumericCutCombineAuxiliaryTokens firstFormula,
+              compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound
+                proofTokens certificateTokens
+                (9, (Gamma,
+                  (firstFormula, (secondFormula, (witness, suffix)))))
+                tasks
+                ((rightConclusion, rightValid) ::
+                  (leftConclusion, leftValid) :: tail)
+                target none
+                (compactNumericCutCombineAuxiliaryTokens firstFormula),
               ?_, ?_⟩
             · simp [compactNumericCombineState,
                 compactNumericCombineTransition, target]
             · simpa only [target] using
-                CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
+                CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_cut
                   proofTokens certificateTokens Gamma firstFormula
                   secondFormula witness suffix tasks rightConclusion
                   leftConclusion rightValid leftValid tail
-  apply CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+  apply
+    CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
     proofTokens certificateTokens
     (tag, (Gamma,
       (firstFormula, (secondFormula, (witness, suffix)))))
@@ -255,6 +347,36 @@ theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
   simp [compactNumericCombineTransition, htag3, htag4, htag5,
     htag6, htag7, htag8, htag9]
 
+theorem CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source : List CompactNumericChildResult)
+    (htaskNe : task.1 ≠ 10)
+    (htransition : compactNumericCombineTransition task source = none) :
+    CompactNumericVerifierCanonicalCombineStateGraph
+      proofTokens certificateTokens task tasks source := by
+  exact
+    (CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
+      proofTokens certificateTokens task tasks source htaskNe
+        htransition).toStateGraph
+
+theorem CompactNumericVerifierCanonicalCombineStateGraph.exists_of_public_step
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source : List CompactNumericChildResult)
+    (htaskNe : task.1 ≠ 10) :
+    CompactNumericVerifierCanonicalCombineStateGraph
+      proofTokens certificateTokens task tasks source := by
+  exact
+    (CompactNumericVerifierCanonicalCombineBoundedStateGraph.exists_of_public_step
+      proofTokens certificateTokens task tasks source htaskNe).toStateGraph
+
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedStateGraph.of_transition_none
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedStateGraph.exists_of_public_step
 #print axioms
   CompactNumericVerifierCanonicalCombineStateGraph.of_transition_none
 #print axioms

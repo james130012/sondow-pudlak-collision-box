@@ -176,6 +176,36 @@ theorem CompactFixedWidthCrossTableSlicesEq.entryValue_eq_at_offset
     rw [hsource.2 bitIndex hsourceWidth] at hsourceTableTrue
     exact hsourceTableTrue
 
+/-- Two slices are cross-table equal when their rows carry the same explicit
+list of values.  This is the entry-level constructor used when one table omits
+an additive list header and the other table stores the same values as a list
+body. -/
+theorem CompactFixedWidthCrossTableSlicesEq.of_entry_values
+    {sourceTable sourceWidth sourceTokenCount sourceStart sourceFinish
+      targetTable targetWidth targetTokenCount targetStart targetFinish : Nat}
+    {values : List Nat}
+    (hsourceFinish : sourceFinish = sourceStart + values.length)
+    (htargetFinish : targetFinish = targetStart + values.length)
+    (hsourceBound : sourceFinish ≤ sourceTokenCount)
+    (htargetBound : targetFinish ≤ targetTokenCount)
+    (hsourceEntry : ∀ index, index < values.length →
+      CompactFixedWidthEntry sourceTable sourceWidth
+        (sourceStart + index) (values.getI index))
+    (htargetEntry : ∀ index, index < values.length →
+      CompactFixedWidthEntry targetTable targetWidth
+        (targetStart + index) (values.getI index)) :
+    CompactFixedWidthCrossTableSlicesEq
+      sourceTable sourceWidth sourceTokenCount sourceStart sourceFinish
+      targetTable targetWidth targetTokenCount targetStart targetFinish := by
+  refine ⟨values.length, ?_, ?_, hsourceFinish, htargetFinish,
+    hsourceBound, htargetBound, ?_⟩
+  · omega
+  · omega
+  · intro offset hoffset bitIndex _hbitIndex
+    exact fixedWidthEntry_cross_true_iff
+      (hsourceEntry offset hoffset) (htargetEntry offset hoffset)
+      (bitIndex := bitIndex)
+
 theorem CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
     {sourceTable sourceWidth sourceTokenCount sourceStart sourceFinish
       targetTable targetWidth targetTokenCount targetStart targetFinish : Nat}
@@ -279,6 +309,7 @@ theorem CompactFixedWidthCrossTableSlicesEq.natListValues_eq
 #print axioms compactFixedWidthCrossTableSlicesEqDef_spec
 #print axioms compactFixedWidthCrossTableSlicesEqDef_sigmaZero
 #print axioms CompactFixedWidthCrossTableSlicesEq.entryValue_eq_at_offset
+#print axioms CompactFixedWidthCrossTableSlicesEq.of_entry_values
 #print axioms CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
 #print axioms CompactFixedWidthCrossTableSlicesEq.natListValues_eq
 

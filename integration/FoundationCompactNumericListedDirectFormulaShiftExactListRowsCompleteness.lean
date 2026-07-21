@@ -19,6 +19,7 @@ open FoundationCompactNumericFormulaTransformTrace
 open FoundationCompactNumericSuccIndSentence
 open FoundationCompactNumericListedRuleChecks
 open FoundationCompactNumericListedDirectAdditiveTypeCanonical
+open FoundationCompactNumericListedDirectAdditiveCodecGraph
 open FoundationCompactNumericListedDirectArithmeticPrimitives
 open FoundationCompactNumericListedDirectTokenStreamInverse
 open FoundationCompactNumericListedDirectAtomicListLayouts
@@ -27,7 +28,9 @@ open FoundationCompactNumericListedDirectNatListBoundaryRigidity
 open FoundationCompactNumericListedDirectNatListWitnessRows
 open FoundationCompactNumericListedDirectFormulaTransformStateLayout
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformTotalOutcomeFormula
+open FoundationCompactNumericListedDirectBinaryNatStreamStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaShiftListRow
 open FoundationCompactNumericListedDirectNatListListSameRows
 open FoundationCompactNumericListedDirectFormulaShiftExactListRows
@@ -78,6 +81,41 @@ private theorem compactFormulaShiftExactList_eq_none_of_failure
         rw [hi]
         cases hshift : compactFormulaShiftExact 0 formula <;>
           simp [compactShiftedFormulaCons, hshift]
+
+def compactFormulaShiftExactListPublicFuelBound
+    (tokenCount : Nat) : Nat :=
+  16 * (tokenCount + 1) * (tokenCount + 1) + 8
+
+def compactFormulaShiftExactListCoordinateSizeBound
+    (width tokenCount : Nat) : Nat :=
+  let fuel := compactFormulaShiftExactListPublicFuelBound tokenCount
+  compactFormulaTransformAdjacentStepPublicWidth width tokenCount +
+    (tokenCount + 1) * tokenCount +
+    (fuel + 2) * tokenCount +
+    (fuel + 1) +
+    compactFormulaTransformCanonicalTableWidthBound
+      width tokenCount fuel + 2
+
+def compactFormulaShiftExactListPublicWitnessBound
+    (width tokenCount : Nat) : Nat :=
+  2 ^ (compactFormulaShiftExactListCoordinateSizeBound width tokenCount + 5)
+
+private theorem list_sum_le_length_mul_of_le
+    {values : List Nat} {bound : Nat}
+    (hbound : ∀ value ∈ values, value ≤ bound) :
+    values.sum ≤ values.length * bound := by
+  induction values with
+  | nil => simp
+  | cons head tail ih =>
+      have hhead : head ≤ bound := hbound head (by simp)
+      have htail : ∀ value ∈ tail, value ≤ bound := by
+        intro value hvalue
+        exact hbound value (by simp [hvalue])
+      simp only [List.sum_cons, List.length_cons]
+      calc
+        head + tail.sum ≤ bound + tail.length * bound :=
+          Nat.add_le_add hhead (ih htail)
+        _ = (tail.length + 1) * bound := by ring
 
 structure CompactFormulaShiftExactListRowWitness
     (tokenTable width tokenCount sourceBoundary candidateBoundary
@@ -131,6 +169,9 @@ structure CompactFormulaShiftExactListRowWitness
     finalSizeWitness.parserTokensBoundarySize ≤ coordinateBound ∧
     finalSizeWitness.parserTasksBoundarySize ≤ coordinateBound ∧
     finalSizeWitness.outputBoundarySize ≤ coordinateBound
+  coordinateBound_le_public :
+    coordinateBound ≤
+      compactFormulaShiftExactListPublicWitnessBound width tokenCount
   row : CompactFormulaShiftListRow
     tokenTable width tokenCount
     sourceBoundary candidateBoundary successTable formulaCount index
@@ -172,13 +213,20 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (source.getI index))
             (compactFormulaTransformInitialState 0
-              (source.getI index)))) :
+              (source.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (source.getI index))
+              (compactFormulaTransformInitialState 0
+                (source.getI index))).length + 1) * tokenCount) :
     ∃ witnessBound,
       CompactFormulaShiftExactListRows
         tokenTable width tokenCount
         sourceBoundary source.length candidateBoundary successTable
         expectedBoundary ((compactFormulaShiftExactList source).getD []).length
-        emptyStart emptyFinish emptyBoundary emptyBoundarySize witnessBound := by
+        emptyStart emptyFinish emptyBoundary emptyBoundarySize witnessBound ∧
+      Nat.size witnessBound ≤
+        compactFormulaShiftExactListCoordinateSizeBound width tokenCount + 6 := by
   rcases hemptyWitness.realize with
     ⟨emptyValue, hemptyLength, hemptyLayout, hemptyRows⟩
   have hemptyValue : emptyValue = [] :=
@@ -209,7 +257,7 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
       ⟨candidateInnerBoundary, hcandidateStructure,
         hcandidateRows, hcandidateSize⟩
     rcases htraceRows index hindex with
-      ⟨stateBoundary, hstateRows⟩
+      ⟨stateBoundary, hstateRows, hstateBoundarySizeRaw⟩
     have hsourceWitness : CompactAdditiveNatListWitnessRows
         tokenTable width tokenCount sourceStart
           (source.getI index).length sourceFinish
@@ -242,10 +290,12 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
           (compactFormulaTransformResult
             (1, []) (0, source.getI index))).getD [] := by
       simpa [compactFormulaShiftExact] using hcandidateValue
-    rcases CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
+    rcases
+        CompactFormulaTransformTotalOutcomeRows.of_canonical_trace_with_width_bound
         hstateRows hemptyLayout rfl hsourceRows hcandidateRows hemptyRows
         hcandidateResult with
-      ⟨tableWidth, finalCoordinates, finalSizeWitness, houtcome⟩
+      ⟨tableWidth, finalCoordinates, finalSizeWitness,
+        houtcome, htableWidthRaw⟩
     have houtcome' : CompactFormulaTransformTotalOutcomeRows
         tokenTable width tokenCount stateBoundary
           (compactSyntaxRunFuelBound (source.getI index) + 1) 1
@@ -259,6 +309,135 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
           (compactFormulaShiftExact 0 (source.getI index)).isSome)
         finalCoordinates finalSizeWitness := by
       simpa [compactFormulaShiftExact] using houtcome
+    have hsourceCount : (source.getI index).length ≤ tokenCount :=
+      structuredListLayout_count_le_tokenCount hsourceStructure
+    have hcandidateCount :
+        ((source.map fun formula =>
+          (compactFormulaShiftExact 0 formula).getD []).getI index).length ≤
+          tokenCount :=
+      structuredListLayout_count_le_tokenCount hcandidateStructure
+    have hsourceBoundaryArea : Nat.size sourceInnerBoundary ≤
+        (tokenCount + 1) * tokenCount :=
+      hsourceSize.trans (listBoundaryArea_le_publicArea hsourceCount)
+    have hcandidateBoundaryArea : Nat.size candidateInnerBoundary ≤
+        (tokenCount + 1) * tokenCount :=
+      hcandidateSize.trans (listBoundaryArea_le_publicArea hcandidateCount)
+    have hfuel : compactSyntaxRunFuelBound (source.getI index) ≤
+        compactFormulaShiftExactListPublicFuelBound tokenCount := by
+      have hlength := Nat.add_le_add_right hsourceCount 1
+      have hsquare := Nat.mul_le_mul hlength hlength
+      have hscaled := Nat.mul_le_mul_left 16 hsquare
+      have htotal := Nat.add_le_add_right hscaled 8
+      simpa [compactSyntaxRunFuelBound,
+        compactFormulaShiftExactListPublicFuelBound, Nat.mul_assoc] using htotal
+    have hstateBoundarySize : Nat.size stateBoundary ≤
+        (compactFormulaShiftExactListPublicFuelBound tokenCount + 2) *
+          tokenCount := by
+      have hraw : Nat.size stateBoundary ≤
+          (compactSyntaxRunFuelBound (source.getI index) + 2) *
+            tokenCount := by
+        simpa using hstateBoundarySizeRaw
+      exact hraw.trans (Nat.mul_le_mul_right tokenCount
+        (Nat.add_le_add_right hfuel 2))
+    have htableWidth : tableWidth ≤
+        compactFormulaTransformCanonicalTableWidthBound width tokenCount
+          (compactFormulaShiftExactListPublicFuelBound tokenCount) :=
+      htableWidthRaw.trans
+        (compactFormulaTransformCanonicalTableWidthBound_mono_fuel
+          width tokenCount hfuel)
+    have hfinalFits :=
+      CompactFormulaTransformStateAtRows.coordinateFits houtcome'.2.1
+    let coordinateSizeBound :=
+      compactFormulaShiftExactListCoordinateSizeBound width tokenCount
+    have hpublicWidthLe :
+        compactFormulaTransformAdjacentStepPublicWidth width tokenCount ≤
+          coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega
+    have hareaLe : (tokenCount + 1) * tokenCount ≤
+        coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega
+    have hstateBoundaryLe :
+        (compactFormulaShiftExactListPublicFuelBound tokenCount + 2) *
+            tokenCount ≤ coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega
+    have hfuelLe :
+        compactFormulaShiftExactListPublicFuelBound tokenCount + 1 ≤
+          coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega
+    have htableLe :
+        compactFormulaTransformCanonicalTableWidthBound width tokenCount
+            (compactFormulaShiftExactListPublicFuelBound tokenCount) + 1 ≤
+          coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+      omega
+    have honeLe : 1 ≤ coordinateSizeBound := by
+      simp [coordinateSizeBound,
+        compactFormulaShiftExactListCoordinateSizeBound]
+    have hsourceStartSize : Nat.size sourceStart ≤ coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount _hsourceStart).trans
+        hpublicWidthLe
+    have hsourceFinishSize : Nat.size sourceFinish ≤ coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount _hsourceFinish).trans
+        hpublicWidthLe
+    have hsourceCountSize : Nat.size (source.getI index).length ≤
+        coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount hsourceCount).trans
+        hpublicWidthLe
+    have hsourceBoundarySize : Nat.size sourceInnerBoundary ≤
+        coordinateSizeBound := hsourceBoundaryArea.trans hareaLe
+    have hsourceBoundarySizeSize : Nat.size (Nat.size sourceInnerBoundary) ≤
+        coordinateSizeBound :=
+      (natSize_le_of_le (Nat.le_refl _)).trans
+        (hsourceBoundaryArea.trans hareaLe)
+    have hcandidateStartSize : Nat.size candidateStart ≤
+        coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount
+        _hcandidateStart).trans hpublicWidthLe
+    have hcandidateFinishSize : Nat.size candidateFinish ≤
+        coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount
+        _hcandidateFinish).trans hpublicWidthLe
+    have hcandidateCountSize : Nat.size
+        ((source.map fun formula =>
+          (compactFormulaShiftExact 0 formula).getD []).getI index).length ≤
+          coordinateSizeBound :=
+      (natSize_le_transformStepWidth_of_le_tokenCount
+        hcandidateCount).trans hpublicWidthLe
+    have hcandidateBoundarySize : Nat.size candidateInnerBoundary ≤
+        coordinateSizeBound := hcandidateBoundaryArea.trans hareaLe
+    have hcandidateBoundarySizeSize :
+        Nat.size (Nat.size candidateInnerBoundary) ≤ coordinateSizeBound :=
+      (natSize_le_of_le (Nat.le_refl _)).trans
+        (hcandidateBoundaryArea.trans hareaLe)
+    have hstateBoundarySize' : Nat.size stateBoundary ≤
+        coordinateSizeBound := hstateBoundarySize.trans hstateBoundaryLe
+    have hstateCountSize : Nat.size
+        (compactSyntaxRunFuelBound (source.getI index) + 1) ≤
+          coordinateSizeBound :=
+      (natSize_le_of_le (Nat.le_refl _)).trans
+        ((Nat.add_le_add_right hfuel 1).trans hfuelLe)
+    have htableWidthSize : Nat.size tableWidth ≤ coordinateSizeBound :=
+      (natSize_le_of_le (Nat.le_refl _)).trans
+        (htableWidth.trans (Nat.le_trans (Nat.le_succ _) htableLe))
+    have hvalueBoundSize : Nat.size (2 ^ tableWidth) ≤
+        coordinateSizeBound := by
+      rw [Nat.size_pow]
+      exact (Nat.add_le_add_right htableWidth 1).trans htableLe
+    have hsuccessValueSize : Nat.size
+        (compactAdditiveBoolTag
+          (compactFormulaShiftExact 0 (source.getI index)).isSome) ≤
+          coordinateSizeBound :=
+      (natSize_le_of_le (Nat.le_refl _)).trans
+        (houtcome'.2.2.2.1.trans honeLe)
     let coordinateValues : List Nat :=
       [sourceStart, sourceFinish, (source.getI index).length,
         sourceInnerBoundary, Nat.size sourceInnerBoundary,
@@ -282,6 +461,46 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
         finalSizeWitness.parserTokensBoundarySize,
         finalSizeWitness.parserTasksBoundarySize,
         finalSizeWitness.outputBoundarySize]
+    have hcoordinateSizes : ∀ value ∈ coordinateValues,
+        Nat.size value ≤ coordinateSizeBound := by
+      intro value hvalue
+      simp only [coordinateValues, List.mem_cons] at hvalue
+      rcases hvalue with
+        h | h | h | h | h | h | h | h | h | h | h | h | h | h |
+        h | h | h | h | h | h | h | h | h | h | h | h | h | h | h
+      · simpa [h] using hsourceStartSize
+      · simpa [h] using hsourceFinishSize
+      · simpa [h] using hsourceCountSize
+      · simpa [h] using hsourceBoundarySize
+      · simpa [h] using hsourceBoundarySizeSize
+      · simpa [h] using hcandidateStartSize
+      · simpa [h] using hcandidateFinishSize
+      · simpa [h] using hcandidateCountSize
+      · simpa [h] using hcandidateBoundarySize
+      · simpa [h] using hcandidateBoundarySizeSize
+      · simpa [h] using hstateBoundarySize'
+      · simpa [h] using hstateCountSize
+      · simpa [h] using htableWidthSize
+      · simpa [h] using hvalueBoundSize
+      · simpa [h] using hsuccessValueSize
+      · simpa [h] using hfinalFits.start.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.finish.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserFinish.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTokensFinish.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTasksFinish.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTokensBoundary.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTokensCount.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTasksBoundary.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.parserTasksCount.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.outputBoundary.trans hpublicWidthLe
+      · simpa [h] using hfinalFits.outputCount.trans hpublicWidthLe
+      · simpa [h] using
+          hfinalFits.parserTokensBoundarySize.trans hpublicWidthLe
+      · simpa [h] using
+          hfinalFits.parserTasksBoundarySize.trans hpublicWidthLe
+      · rcases h with h | h
+        · simpa [h] using hfinalFits.outputBoundarySize.trans hpublicWidthLe
+        · simp at h
     let coordinateBound := coordinateValues.sum
     refine ⟨{
       sourceStart := sourceStart
@@ -311,13 +530,33 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
         all_goals
           apply List.le_sum_of_mem
           simp [coordinateValues]
+      coordinateBound_le_public := by
+        dsimp only [coordinateBound]
+        unfold compactFormulaShiftExactListPublicWitnessBound
+        change coordinateValues.sum ≤ 2 ^ (coordinateSizeBound + 5)
+        have hvalues : ∀ value ∈ coordinateValues,
+            value ≤ 2 ^ coordinateSizeBound := by
+          intro value hvalue
+          exact (Nat.size_le.mp (hcoordinateSizes value hvalue)).le
+        calc
+          coordinateValues.sum ≤
+              coordinateValues.length * 2 ^ coordinateSizeBound :=
+            list_sum_le_length_mul_of_le hvalues
+          _ = 29 * 2 ^ coordinateSizeBound := by
+            simp [coordinateValues]
+          _ ≤ 32 * 2 ^ coordinateSizeBound := by
+            exact Nat.mul_le_mul_right (2 ^ coordinateSizeBound) (by omega)
+          _ = 2 ^ (coordinateSizeBound + 5) := by
+            rw [pow_add]
+            norm_num
+            ring
       row := ⟨hindex, hsourceStartEntry, hsourceFinishEntry,
         hsourceWitness, hcandidateStartEntry, hcandidateFinishEntry,
         hcandidateWitness, hsuccess index hindex, houtcome'⟩ }⟩
   let witnesses (index : Fin source.length) :=
     Classical.choice (hexists index.1 index.2)
-  let witnessBound := Finset.univ.sup fun index : Fin source.length =>
-    (witnesses index).coordinateBound
+  let witnessBound :=
+    compactFormulaShiftExactListPublicWitnessBound width tokenCount
   have hboundedRows : ∀ index < source.length,
       ∃ sourceStart, sourceStart ≤ witnessBound ∧
       ∃ sourceFinish, sourceFinish ≤ witnessBound ∧
@@ -379,9 +618,7 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
     let boundedIndex : Fin source.length := ⟨index, hindex⟩
     let rowWitness := witnesses boundedIndex
     have hrowBound : rowWitness.coordinateBound ≤ witnessBound := by
-      exact Finset.le_sup
-        (f := fun i : Fin source.length => (witnesses i).coordinateBound)
-        (Finset.mem_univ boundedIndex)
+      exact rowWitness.coordinateBound_le_public
     refine ⟨rowWitness.sourceStart, ?_,
       rowWitness.sourceFinish, ?_,
       rowWitness.sourceInnerCount, ?_,
@@ -412,54 +649,58 @@ theorem CompactFormulaShiftExactListRows.of_canonical_rows
       try (have hcoordinates := rowWitness.coordinateBounds; omega)
     simpa [boundedIndex, rowWitness,
       compactFormulaTransformStateRowCoordinatesOf] using rowWitness.row
-  refine ⟨witnessBound, hemptyWitness, hboundedRows, ?_⟩
-  by_cases hall : ∀ index (hindex : index < source.length),
-      (compactFormulaShiftExact 0 (source.getI index)).isSome = true
-  · left
-    refine ⟨?_, ?_⟩
-    · intro index hindex
-      simpa [compactAdditiveBoolTag, hall index hindex] using
-        hsuccess index hindex
-    · have hsame : CompactAdditiveNatListListSameRows
-          tokenTable width tokenCount candidateBoundary
-          (source.map fun formula =>
-            (compactFormulaShiftExact 0 formula).getD []).length
-          expectedBoundary
-          ((compactFormulaShiftExactList source).getD []).length := by
-        apply (compactAdditiveNatListListSameRows_iff_eq
-          hcandidate hexpected).mpr
-        have hallMem : ∀ formula ∈ source,
-            (compactFormulaShiftExact 0 formula).isSome = true := by
-          intro formula hformula
-          rcases List.mem_iff_getElem.mp hformula with
-            ⟨index, hindex, rfl⟩
-          simpa [List.getI_eq_getElem source hindex] using hall index hindex
-        have hlist := compactFormulaShiftExactList_eq_some_map_of_all
-          source hallMem
-        simp [hlist]
-      simpa using hsame
-  · right
-    push Not at hall
-    rcases hall with ⟨failedIndex, hfailedIndex, hfailed⟩
-    have hfailedFalse :
-        (compactFormulaShiftExact 0
-          (source.getI failedIndex)).isSome = false := by
-      cases hvalue :
+  refine ⟨witnessBound, ?_, ?_⟩
+  · refine ⟨hemptyWitness, hboundedRows, ?_⟩
+    by_cases hall : ∀ index (hindex : index < source.length),
+        (compactFormulaShiftExact 0 (source.getI index)).isSome = true
+    · left
+      refine ⟨?_, ?_⟩
+      · intro index hindex
+        simpa [compactAdditiveBoolTag, hall index hindex] using
+          hsuccess index hindex
+      · have hsame : CompactAdditiveNatListListSameRows
+            tokenTable width tokenCount candidateBoundary
+            (source.map fun formula =>
+              (compactFormulaShiftExact 0 formula).getD []).length
+            expectedBoundary
+            ((compactFormulaShiftExactList source).getD []).length := by
+          apply (compactAdditiveNatListListSameRows_iff_eq
+            hcandidate hexpected).mpr
+          have hallMem : ∀ formula ∈ source,
+              (compactFormulaShiftExact 0 formula).isSome = true := by
+            intro formula hformula
+            rcases List.mem_iff_getElem.mp hformula with
+              ⟨index, hindex, rfl⟩
+            simpa [List.getI_eq_getElem source hindex] using hall index hindex
+          have hlist := compactFormulaShiftExactList_eq_some_map_of_all
+            source hallMem
+          simp [hlist]
+        simpa using hsame
+    · right
+      push Not at hall
+      rcases hall with ⟨failedIndex, hfailedIndex, hfailed⟩
+      have hfailedFalse :
           (compactFormulaShiftExact 0
-            (source.getI failedIndex)).isSome
-      · rfl
-      · exact (hfailed hvalue).elim
-    have hfailedEntry : CompactFixedWidthEntry
-        successTable tokenCount failedIndex 0 := by
-      simpa [compactAdditiveBoolTag, hfailedFalse] using
-        hsuccess failedIndex hfailedIndex
-    have hfailedMem : source.getI failedIndex ∈ source := by
-      rw [List.getI_eq_getElem source hfailedIndex]
-      exact List.getElem_mem hfailedIndex
-    have hlistNone := compactFormulaShiftExactList_eq_none_of_failure source
-      ⟨source.getI failedIndex, hfailedMem, hfailedFalse⟩
-    refine ⟨⟨failedIndex, by omega, hfailedIndex, hfailedEntry⟩, ?_⟩
-    simp [hlistNone]
+            (source.getI failedIndex)).isSome = false := by
+        cases hvalue :
+            (compactFormulaShiftExact 0
+              (source.getI failedIndex)).isSome
+        · rfl
+        · exact (hfailed hvalue).elim
+      have hfailedEntry : CompactFixedWidthEntry
+          successTable tokenCount failedIndex 0 := by
+        simpa [compactAdditiveBoolTag, hfailedFalse] using
+          hsuccess failedIndex hfailedIndex
+      have hfailedMem : source.getI failedIndex ∈ source := by
+        rw [List.getI_eq_getElem source hfailedIndex]
+        exact List.getElem_mem hfailedIndex
+      have hlistNone := compactFormulaShiftExactList_eq_none_of_failure source
+        ⟨source.getI failedIndex, hfailedMem, hfailedFalse⟩
+      refine ⟨⟨failedIndex, by omega, hfailedIndex, hfailedEntry⟩, ?_⟩
+      simp [hlistNone]
+  · dsimp [witnessBound,
+      compactFormulaShiftExactListPublicWitnessBound]
+    rw [Nat.size_pow]
 
 #print axioms CompactFormulaShiftExactListRows.of_canonical_rows
 

@@ -23,6 +23,7 @@ open FoundationCompactNumericListedDirectFormulaTransformStateLayout
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformStateAtRows
 open FoundationCompactNumericListedDirectFormulaTransformTraceInstallation
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformTotalTraceFormula
 
 def CompactFormulaTransformTotalExactBoundedGraph
@@ -271,6 +272,92 @@ theorem CompactFormulaTransformTotalExactBoundedGraph.finalLayout_selfContained
   · simpa [compactFormulaTransformResult, compactFormulaTransformRun,
       compactFormulaTransformStateAt, fuel] using hresult
 
+theorem totalResult_exists_compactFormulaTransformTotalExactBoundedFormula_with_width_bound
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount
+      inputBoundary expectedOutputBoundary emptyBoundary binderArity : Nat}
+    {witness input expectedOutput : List Nat}
+    (hrows : CompactFormulaTransformStateListRowLayouts
+      tokenTable width tokenCount stateBoundary
+        (compactFormulaTransformStateTrace (mode, witness)
+          (compactSyntaxRunFuelBound input)
+          (compactFormulaTransformInitialState binderArity input)))
+    (hwitness : CompactAdditiveNatListDirectLayout
+      tokenTable width tokenCount witnessStart witnessFinish witness)
+    (hwitnessCount : witnessCount = witness.length)
+    (hinput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        inputBoundary input)
+    (hexpectedOutput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        expectedOutputBoundary expectedOutput)
+    (hempty : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        emptyBoundary [])
+    (hresult : expectedOutput =
+      (compactExactFormulaTransformResult
+        (compactFormulaTransformResult
+          (mode, witness) (binderArity, input))).getD []) :
+    ∃ tableWidth,
+      compactFormulaTransformTotalExactBoundedGraphDef.val.Evalb
+        ![tokenTable, width, tokenCount, stateBoundary,
+          (compactSyntaxRunFuelBound input) + 1, mode,
+          witnessStart, witnessFinish, witnessCount,
+          inputBoundary, input.length,
+          expectedOutputBoundary, expectedOutput.length,
+          emptyBoundary, binderArity,
+          tableWidth, 2 ^ tableWidth] ∧
+      tableWidth ≤ compactFormulaTransformCanonicalTableWidthBound
+        width tokenCount (compactSyntaxRunFuelBound input) := by
+  let fuel := compactSyntaxRunFuelBound input
+  let start := compactFormulaTransformInitialState binderArity input
+  let states := compactFormulaTransformStateTrace
+    (mode, witness) fuel start
+  have hlocal : CompactFormulaTransformLocalTraceValid
+      (mode, witness) fuel start states :=
+    compactFormulaTransformStateTrace_localValid
+      (mode, witness) fuel start
+  have hfinalEq : states.getI fuel =
+      compactFormulaTransformRun
+        (mode, witness) (binderArity, input) := by
+    simpa [states, start, compactFormulaTransformRun,
+      compactFormulaTransformStateAt, fuel] using
+      (CompactFormulaTransformLocalTraceValid.getI_eq_stateAt
+        hlocal (Nat.le_refl fuel))
+  have hfinalResult : expectedOutput =
+      (compactExactFormulaTransformResult
+        (compactFormulaTransformStateOutput
+          (states.getI fuel))).getD [] := by
+    simpa [hfinalEq, compactFormulaTransformResult] using hresult
+  have hrows' : CompactFormulaTransformStateListRowLayouts
+      tokenTable width tokenCount stateBoundary states := by
+    simpa [states, start, fuel] using hrows
+  rcases
+      localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula_with_width_bound
+      hrows' hwitness hwitnessCount hinput hexpectedOutput hempty
+      hlocal hfinalResult with
+    ⟨tableWidth, htrace, htableWidth⟩
+  refine ⟨tableWidth, ?_, ?_⟩
+  · exact (compactFormulaTransformTotalExactBoundedGraphDef_spec
+      tokenTable width tokenCount stateBoundary
+      (compactSyntaxRunFuelBound input + 1) mode
+      witnessStart witnessFinish witnessCount
+      inputBoundary input.length
+      expectedOutputBoundary expectedOutput.length
+      emptyBoundary binderArity tableWidth
+      (2 ^ tableWidth)).mpr (by
+        have htraceGraph :=
+          (compactFormulaTransformTotalTraceBoundedGraphDef_spec
+            tokenTable width tokenCount stateBoundary states.length fuel mode
+            witnessStart witnessFinish witnessCount
+            inputBoundary input.length
+            expectedOutputBoundary expectedOutput.length
+            emptyBoundary binderArity tableWidth
+            (2 ^ tableWidth)).mp htrace
+        simpa [CompactFormulaTransformTotalExactBoundedGraph, states, fuel,
+          compactSyntaxRunFuelBound] using htraceGraph)
+  · simpa [fuel] using htableWidth
+
 theorem totalResult_exists_compactFormulaTransformTotalExactBoundedFormula
     {tokenTable width tokenCount stateBoundary mode
       witnessStart witnessFinish witnessCount
@@ -306,58 +393,18 @@ theorem totalResult_exists_compactFormulaTransformTotalExactBoundedFormula
           expectedOutputBoundary, expectedOutput.length,
           emptyBoundary, binderArity,
           tableWidth, 2 ^ tableWidth] := by
-  let fuel := compactSyntaxRunFuelBound input
-  let start := compactFormulaTransformInitialState binderArity input
-  let states := compactFormulaTransformStateTrace
-    (mode, witness) fuel start
-  have hlocal : CompactFormulaTransformLocalTraceValid
-      (mode, witness) fuel start states :=
-    compactFormulaTransformStateTrace_localValid
-      (mode, witness) fuel start
-  have hfinalEq : states.getI fuel =
-      compactFormulaTransformRun
-        (mode, witness) (binderArity, input) := by
-    simpa [states, start, compactFormulaTransformRun,
-      compactFormulaTransformStateAt, fuel] using
-      (CompactFormulaTransformLocalTraceValid.getI_eq_stateAt
-        hlocal (Nat.le_refl fuel))
-  have hfinalResult : expectedOutput =
-      (compactExactFormulaTransformResult
-        (compactFormulaTransformStateOutput
-          (states.getI fuel))).getD [] := by
-    simpa [hfinalEq, compactFormulaTransformResult] using hresult
-  have hrows' : CompactFormulaTransformStateListRowLayouts
-      tokenTable width tokenCount stateBoundary states := by
-    simpa [states, start, fuel] using hrows
-  rcases localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
-      hrows' hwitness hwitnessCount hinput hexpectedOutput hempty
-      hlocal hfinalResult with
-    ⟨tableWidth, htrace⟩
-  refine ⟨tableWidth,
-    (compactFormulaTransformTotalExactBoundedGraphDef_spec
-      tokenTable width tokenCount stateBoundary
-      (compactSyntaxRunFuelBound input + 1) mode
-      witnessStart witnessFinish witnessCount
-      inputBoundary input.length
-      expectedOutputBoundary expectedOutput.length
-      emptyBoundary binderArity tableWidth
-      (2 ^ tableWidth)).mpr ?_⟩
-  have htraceGraph :=
-    (compactFormulaTransformTotalTraceBoundedGraphDef_spec
-      tokenTable width tokenCount stateBoundary states.length fuel mode
-      witnessStart witnessFinish witnessCount
-      inputBoundary input.length
-      expectedOutputBoundary expectedOutput.length
-      emptyBoundary binderArity tableWidth
-      (2 ^ tableWidth)).mp htrace
-  simpa [CompactFormulaTransformTotalExactBoundedGraph, states, fuel,
-    compactSyntaxRunFuelBound] using htraceGraph
+  rcases
+      totalResult_exists_compactFormulaTransformTotalExactBoundedFormula_with_width_bound
+        hrows hwitness hwitnessCount hinput hexpectedOutput hempty hresult with
+    ⟨tableWidth, hformula, _htableWidth⟩
+  exact ⟨tableWidth, hformula⟩
 
 #print axioms compactFormulaTransformTotalExactBoundedGraphDef_spec
 #print axioms compactFormulaTransformTotalExactBoundedGraphDef_sigmaZero
 #print axioms CompactFormulaTransformTotalExactBoundedGraph.sound
 #print axioms CompactFormulaTransformTotalExactBoundedGraph.sound_selfContained
 #print axioms CompactFormulaTransformTotalExactBoundedGraph.finalLayout_selfContained
+#print axioms totalResult_exists_compactFormulaTransformTotalExactBoundedFormula_with_width_bound
 #print axioms totalResult_exists_compactFormulaTransformTotalExactBoundedFormula
 
 end FoundationCompactNumericListedDirectFormulaTransformTotalExactFormula

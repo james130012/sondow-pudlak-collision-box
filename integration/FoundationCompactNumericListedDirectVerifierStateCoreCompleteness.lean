@@ -62,7 +62,8 @@ def CompactNumericVerifierStateCanonicalCorePackage
       compactNumericChildResultRowTableWidth width tokenCount ∧
     sizeWitness.valueValueBound =
       2 ^ compactNumericChildResultRowTableWidth width tokenCount ∧
-    ((state.2 = none ∧ coordinates.statusTag = 0) ∨
+    ((state.2 = none ∧ coordinates.statusTag = 0 ∧
+        coordinates.statusBool = 0) ∨
       ∃ result : Bool,
         state.2 = some result ∧ coordinates.statusTag = 1 ∧
         coordinates.statusBool = compactAdditiveBoolTag result) ∧
@@ -119,7 +120,7 @@ theorem CompactNumericVerifierStateDirectLayout.toCanonicalCorePackage
     refine ⟨coordinates, sizeWitness,
       rfl, rfl, hproof, hcertificate, htaskLayout, htaskRows,
       hvalueLayout, hvalueRows, rfl, rfl, rfl, rfl, rfl, rfl,
-      Or.inl ⟨hstate, htag⟩, ?_⟩
+      Or.inl ⟨hstate, htag, rfl⟩, ?_⟩
     exact ⟨CompactAdditiveNatListDirectLayout.toSlice hproof,
       CompactAdditiveNatListDirectLayout.toSlice hcertificate,
       htaskLayout,
@@ -167,6 +168,25 @@ theorem CompactNumericVerifierStateDirectLayout.toCanonicalCorePackage
         hvalueRows,
       rfl, hvalueSize, hoption, Or.inr ⟨htag, hbool⟩⟩
 
+theorem CompactNumericVerifierStateCanonicalCorePackage.core
+    {tokenTable width tokenCount start finish : Nat}
+    {state : CompactNumericVerifierState}
+    {coordinates : CompactNumericVerifierStateRowCoordinates}
+    {sizeWitness : CompactNumericVerifierStateSizeWitness}
+    (hpackage : CompactNumericVerifierStateCanonicalCorePackage
+      tokenTable width tokenCount start finish state
+      coordinates sizeWitness) :
+    CompactNumericVerifierStateCoreGraph
+      tokenTable width tokenCount coordinates sizeWitness := by
+  rcases hpackage with
+    ⟨_hstart, _hfinish, _hproof, _hcertificate,
+      _htaskLayout, _htaskRows, _hvalueLayout, _hvalueRows,
+      _htaskCount, _hvalueCount,
+      _htaskTableWidth, _htaskValueBound,
+      _hvalueTableWidth, _hvalueValueBound,
+      _hstatusCase, hcore⟩
+  exact hcore
+
 theorem CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
     {tokenTable width tokenCount start finish : Nat}
     {state : CompactNumericVerifierState}
@@ -185,7 +205,7 @@ theorem CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
       _hvalueTableWidth, _hvalueValueBound,
       hstatusCase, _hcore⟩
   rcases hstatusCase with hnone | hsome
-  · exact hnone.2
+  · exact hnone.2.1
   · rcases hsome with ⟨result, hsome, _htag, _hbool⟩
     rw [hstatus] at hsome
     simp at hsome
@@ -219,6 +239,7 @@ theorem CompactNumericVerifierStateCanonicalCorePackage.statusTagBool_eq_some
     exact ⟨htag, hbool⟩
 
 #print axioms CompactNumericVerifierStateDirectLayout.toCanonicalCorePackage
+#print axioms CompactNumericVerifierStateCanonicalCorePackage.core
 #print axioms
   CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
 #print axioms

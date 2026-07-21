@@ -62,6 +62,14 @@ structure CompactNumericVerifierParseStateGraphWitness
   currentFinish_eq : currentCoordinates.finish = currentFinish
   nextStart_eq : nextCoordinates.start = nextStart
   nextFinish_eq : nextCoordinates.finish = nextFinish
+  currentPackage : exists currentState : CompactNumericVerifierState,
+    CompactNumericVerifierStateCanonicalCorePackage
+      stateTable stateWidth stateTokenCount currentStart currentFinish
+      currentState currentCoordinates currentSizeWitness
+  nextPackage : exists nextState : CompactNumericVerifierState,
+    CompactNumericVerifierStateCanonicalCorePackage
+      stateTable stateWidth stateTokenCount nextStart nextFinish
+      nextState nextCoordinates nextSizeWitness
   taskCoordinates : CompactNumericVerifierTaskRowCoordinates
   taskSizeWitness : CompactNumericVerifierTaskSizeWitness
   proofTable : Nat
@@ -201,7 +209,7 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_failure
       axiomStart, axiomFinish, formulaStart, formulaFinish,
       suffixStart, suffixFinish, certificateTag, certificateEndpointBound,
       hcurrentStartEq, hcurrentFinishEq, hnextStartEq, hnextFinishEq,
-      hfailure⟩
+      hcurrentPackage, hnextPackage, hfailure⟩
   exact ⟨{
     currentCoordinates := currentCoordinates
     nextCoordinates := nextCoordinates
@@ -211,6 +219,8 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_failure
     currentFinish_eq := hcurrentFinishEq
     nextStart_eq := hnextStartEq
     nextFinish_eq := hnextFinishEq
+    currentPackage := ⟨_, hcurrentPackage⟩
+    nextPackage := ⟨_, hnextPackage⟩
     taskCoordinates := taskCoordinates
     taskSizeWitness := taskSizeWitness
     proofTable := proofTable
@@ -459,6 +469,8 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_success
       currentFinish_eq := hcurrentPackageSaved.2.1
       nextStart_eq := hnextPackageSaved.1
       nextFinish_eq := hnextPackageSaved.2.1
+      currentPackage := ⟨_, hcurrentPackageSaved⟩
+      nextPackage := ⟨_, hnextPackageSaved⟩
       taskCoordinates := taskCoordinates
       taskSizeWitness := taskSizeWitness
       proofTable := proofTable
@@ -572,6 +584,8 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_success
       currentFinish_eq := hcurrentPackageSaved.2.1
       nextStart_eq := hnextPackageSaved.1
       nextFinish_eq := hnextPackageSaved.2.1
+      currentPackage := ⟨_, hcurrentPackageSaved⟩
+      nextPackage := ⟨_, hnextPackageSaved⟩
       taskCoordinates := taskCoordinates
       taskSizeWitness := taskSizeWitness
       proofTable := proofTable
@@ -685,6 +699,8 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_success
       currentFinish_eq := hcurrentPackageSaved.2.1
       nextStart_eq := hnextPackageSaved.1
       nextFinish_eq := hnextPackageSaved.2.1
+      currentPackage := ⟨_, hcurrentPackageSaved⟩
+      nextPackage := ⟨_, hnextPackageSaved⟩
       taskCoordinates := taskCoordinates
       taskSizeWitness := taskSizeWitness
       proofTable := proofTable
@@ -808,6 +824,8 @@ theorem exists_compactNumericVerifierParseStateGraphWitness_of_success
       currentFinish_eq := hcurrentPackageSaved.2.1
       nextStart_eq := hnextPackageSaved.1
       nextFinish_eq := hnextPackageSaved.2.1
+      currentPackage := ⟨_, hcurrentPackageSaved⟩
+      nextPackage := ⟨_, hnextPackageSaved⟩
       taskCoordinates := taskCoordinates
       taskSizeWitness := taskSizeWitness
       proofTable := proofTable

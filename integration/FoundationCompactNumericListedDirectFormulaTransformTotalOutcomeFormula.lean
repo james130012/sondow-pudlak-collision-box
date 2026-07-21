@@ -29,6 +29,7 @@ open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformStateAtRows
 open FoundationCompactNumericListedDirectFormulaTransformStateDeterminacy
 open FoundationCompactNumericListedDirectFormulaTransformFinalDefaultFormula
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformTotalTraceFormula
 open FoundationCompactNumericListedDirectFormulaTransformTotalExactFormula
 
@@ -226,7 +227,7 @@ private theorem exactStateOutput_isSome_eq_true_iff
           · simp [compactFormulaTransformStateOutput,
               compactExactFormulaTransformResult, hsuffix]
 
-theorem CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
+theorem CompactFormulaTransformTotalOutcomeRows.of_canonical_trace_with_width_bound
     {tokenTable width tokenCount stateBoundary mode
       witnessStart witnessFinish witnessCount
       inputBoundary expectedOutputBoundary emptyBoundary binderArity : Nat}
@@ -263,10 +264,13 @@ theorem CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
           (compactExactFormulaTransformResult
             (compactFormulaTransformResult
               (mode, witness) (binderArity, input))).isSome)
-        finalCoordinates finalSizeWitness := by
-  rcases totalResult_exists_compactFormulaTransformTotalExactBoundedFormula
+        finalCoordinates finalSizeWitness ∧
+      tableWidth ≤ compactFormulaTransformCanonicalTableWidthBound
+        width tokenCount (compactSyntaxRunFuelBound input) := by
+  rcases
+      totalResult_exists_compactFormulaTransformTotalExactBoundedFormula_with_width_bound
       hrows hwitness hwitnessCount hinput hexpectedOutput hempty hresult with
-    ⟨tableWidth, hformula⟩
+    ⟨tableWidth, hformula, htableWidth⟩
   have htransform : CompactFormulaTransformTotalExactBoundedGraph
       tokenTable width tokenCount stateBoundary
         (compactSyntaxRunFuelBound input + 1) mode
@@ -329,7 +333,51 @@ theorem CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
         simp [successValue, compactAdditiveBoolTag, hsome]
     exact htag.trans (hresultStatus.trans hemptyStatus.symm)
   exact ⟨tableWidth, finalCoordinates, finalSizeWitness,
-    htransform, hfinalAt, hstatus, hsuccessBound, hsuccess⟩
+    ⟨htransform, hfinalAt, hstatus, hsuccessBound, hsuccess⟩,
+    htableWidth⟩
+
+theorem CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount
+      inputBoundary expectedOutputBoundary emptyBoundary binderArity : Nat}
+    {witness input expectedOutput : List Nat}
+    (hrows : CompactFormulaTransformStateListRowLayouts
+      tokenTable width tokenCount stateBoundary
+        (compactFormulaTransformStateTrace (mode, witness)
+          (compactSyntaxRunFuelBound input)
+          (compactFormulaTransformInitialState binderArity input)))
+    (hwitness : CompactAdditiveNatListDirectLayout
+      tokenTable width tokenCount witnessStart witnessFinish witness)
+    (hwitnessCount : witnessCount = witness.length)
+    (hinput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        inputBoundary input)
+    (hexpectedOutput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        expectedOutputBoundary expectedOutput)
+    (hempty : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        emptyBoundary [])
+    (hresult : expectedOutput =
+      (compactExactFormulaTransformResult
+        (compactFormulaTransformResult
+          (mode, witness) (binderArity, input))).getD []) :
+    ∃ tableWidth finalCoordinates finalSizeWitness,
+      CompactFormulaTransformTotalOutcomeRows
+        tokenTable width tokenCount stateBoundary
+          (compactSyntaxRunFuelBound input + 1) mode
+        witnessStart witnessFinish witnessCount
+        inputBoundary input.length expectedOutputBoundary expectedOutput.length
+        emptyBoundary binderArity tableWidth (2 ^ tableWidth)
+        (compactAdditiveBoolTag
+          (compactExactFormulaTransformResult
+            (compactFormulaTransformResult
+              (mode, witness) (binderArity, input))).isSome)
+        finalCoordinates finalSizeWitness := by
+  rcases CompactFormulaTransformTotalOutcomeRows.of_canonical_trace_with_width_bound
+      hrows hwitness hwitnessCount hinput hexpectedOutput hempty hresult with
+    ⟨tableWidth, finalCoordinates, finalSizeWitness, houtcome, _htableWidth⟩
+  exact ⟨tableWidth, finalCoordinates, finalSizeWitness, houtcome⟩
 
 theorem CompactFormulaTransformTotalOutcomeRows.sound
     {tokenTable width tokenCount stateBoundary stateCount mode
@@ -433,6 +481,7 @@ theorem CompactFormulaTransformTotalOutcomeRows.sound
 
 #print axioms compactFormulaTransformTotalOutcomeRowsDef_spec
 #print axioms compactFormulaTransformTotalOutcomeRowsDef_sigmaZero
+#print axioms CompactFormulaTransformTotalOutcomeRows.of_canonical_trace_with_width_bound
 #print axioms CompactFormulaTransformTotalOutcomeRows.of_canonical_trace
 #print axioms CompactFormulaTransformTotalOutcomeRows.sound
 

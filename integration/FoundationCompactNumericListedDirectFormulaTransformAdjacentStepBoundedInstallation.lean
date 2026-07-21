@@ -1,5 +1,7 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessTable
+import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
+import integration.FoundationCompactNumericListedDirectFormulaTransformTraceBounds
 
 /-!
 # Installation of the bounded adjacent-step formula
@@ -24,6 +26,8 @@ open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessTable
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
+open FoundationCompactNumericListedDirectFormulaTransformTraceBounds
 open FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout
 open FoundationCompactNumericListedDirectBinaryNatStatusValidity
 
@@ -140,6 +144,166 @@ theorem compactFormulaTransformFittingAdjacentStepRows_valid
   simpa [compactFormulaTransformFittingAdjacentStepRows] using
     compactFormulaTransformFittingAdjacentStepRowAt_graph
       hadjacent hindex
+
+noncomputable def compactFormulaTransformPublicFittingAdjacentStepRowAt
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states)
+    (index : Nat) : CompactFormulaTransformAdjacentStepRow :=
+  if hindex : index < states.length - 1 then
+    Classical.choose (hfit index hindex)
+  else
+    default
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRowAt_graph
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states)
+    {index : Nat} (hindex : index < states.length - 1) :
+    CompactFormulaTransformAdjacentStepRowGraph
+      tokenTable width tokenCount stateBoundary states.length index mode
+        witnessStart witnessFinish witnessCount
+        (compactFormulaTransformPublicFittingAdjacentStepRowAt hfit index) := by
+  rw [compactFormulaTransformPublicFittingAdjacentStepRowAt, dif_pos hindex]
+  exact (Classical.choose_spec (hfit index hindex)).1
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRowAt_currentStatusLayout
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states)
+    {index : Nat} (hindex : index < states.length - 1) :
+    CompactBinaryNatStreamStatusDirectLayout
+      tokenTable width tokenCount
+        (compactFormulaTransformPublicFittingAdjacentStepRowAt
+          hfit index).currentCoordinates.parserTasksFinish
+        (compactFormulaTransformPublicFittingAdjacentStepRowAt
+          hfit index).currentCoordinates.parserFinish
+        (states.getI index).1.2.2 := by
+  rw [compactFormulaTransformPublicFittingAdjacentStepRowAt, dif_pos hindex]
+  exact (Classical.choose_spec (hfit index hindex)).2.1
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRowAt_nextStatusLayout
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states)
+    {index : Nat} (hindex : index < states.length - 1) :
+    CompactBinaryNatStreamStatusDirectLayout
+      tokenTable width tokenCount
+        (compactFormulaTransformPublicFittingAdjacentStepRowAt
+          hfit index).nextCoordinates.parserTasksFinish
+        (compactFormulaTransformPublicFittingAdjacentStepRowAt
+          hfit index).nextCoordinates.parserFinish
+        (states.getI (index + 1)).1.2.2 := by
+  rw [compactFormulaTransformPublicFittingAdjacentStepRowAt, dif_pos hindex]
+  exact (Classical.choose_spec (hfit index hindex)).2.2.1
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRowAt_fit
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states)
+    {index : Nat} (hindex : index < states.length - 1) :
+    CompactFormulaTransformAdjacentStepRowFits
+      (compactFormulaTransformAdjacentStepPublicWidth width tokenCount)
+      (compactFormulaTransformPublicFittingAdjacentStepRowAt hfit index) := by
+  rw [compactFormulaTransformPublicFittingAdjacentStepRowAt, dif_pos hindex]
+  exact (Classical.choose_spec (hfit index hindex)).2.2.2
+
+noncomputable def compactFormulaTransformPublicFittingAdjacentStepRows
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states) :
+    List CompactFormulaTransformAdjacentStepRow :=
+  (List.range (states.length - 1)).map
+    (compactFormulaTransformPublicFittingAdjacentStepRowAt hfit)
+
+@[simp] theorem compactFormulaTransformPublicFittingAdjacentStepRows_length
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states) :
+    (compactFormulaTransformPublicFittingAdjacentStepRows hfit).length =
+      states.length - 1 := by
+  simp [compactFormulaTransformPublicFittingAdjacentStepRows]
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRows_valid
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states) :
+    CompactFormulaTransformAdjacentStepRowsValid
+      tokenTable width tokenCount stateBoundary states.length mode
+        witnessStart witnessFinish witnessCount
+        (compactFormulaTransformPublicFittingAdjacentStepRows hfit) := by
+  intro rowIndex hrowIndex
+  have hindex : rowIndex < states.length - 1 := by
+    simpa using hrowIndex
+  rw [List.getI_eq_getElem _ hrowIndex]
+  simpa [compactFormulaTransformPublicFittingAdjacentStepRows] using
+    compactFormulaTransformPublicFittingAdjacentStepRowAt_graph hfit hindex
+
+theorem compactFormulaTransformPublicFittingAdjacentStepRows_fit
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states) :
+    CompactFormulaTransformAdjacentStepRowsFit
+      (compactFormulaTransformAdjacentStepPublicWidth width tokenCount)
+      (compactFormulaTransformPublicFittingAdjacentStepRows hfit) := by
+  intro row hrow
+  rcases List.mem_map.mp hrow with ⟨index, hindex, rfl⟩
+  exact compactFormulaTransformPublicFittingAdjacentStepRowAt_fit hfit
+    (List.mem_range.mp hindex)
+
+theorem compactFormulaTransformPublicFittingAdjacentStepDynamicWidth_le
+    {tokenTable width tokenCount stateBoundary mode
+      witnessStart witnessFinish witnessCount : Nat}
+    {states : List CompactFormulaTransformState}
+    (hfit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
+      tokenTable width tokenCount stateBoundary mode
+        witnessStart witnessFinish witnessCount states) :
+    compactFormulaTransformAdjacentStepDynamicWidth
+        (compactFormulaTransformPublicFittingAdjacentStepRows hfit) ≤
+      (states.length - 1) *
+        compactFormulaTransformAdjacentStepWitnessColumnCount *
+        compactFormulaTransformAdjacentStepPublicWidth width tokenCount := by
+  calc
+    compactFormulaTransformAdjacentStepDynamicWidth
+          (compactFormulaTransformPublicFittingAdjacentStepRows hfit) ≤
+        (compactFormulaTransformPublicFittingAdjacentStepRows hfit).length *
+          compactFormulaTransformAdjacentStepWitnessColumnCount *
+          compactFormulaTransformAdjacentStepPublicWidth width tokenCount := by
+      apply compactFormulaTransformAdjacentStepDynamicWidth_le
+      intro row hrow value hvalue
+      exact (compactFormulaTransformPublicFittingAdjacentStepRows_fit
+        hfit row hrow).value_size_le hvalue
+    _ = (states.length - 1) *
+          compactFormulaTransformAdjacentStepWitnessColumnCount *
+          compactFormulaTransformAdjacentStepPublicWidth width tokenCount := by
+      rw [compactFormulaTransformPublicFittingAdjacentStepRows_length]
 
 theorem CompactFormulaTransformAdjacentStepRowGraph.toCurrentBounded
     {tokenTable width tokenCount stateBoundary stateCount rowIndex mode

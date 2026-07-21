@@ -62,6 +62,15 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
       currentCoordinates.finish = currentFinish ∧
       nextCoordinates.start = nextStart ∧
       nextCoordinates.finish = nextFinish ∧
+      CompactNumericVerifierStateCanonicalCorePackage
+        stateTable stateWidth stateTokenCount currentStart currentFinish
+        (((proofTokens, certificateTokens),
+          (currentTask :: restTasks, values)), none)
+        currentCoordinates currentSizeWitness ∧
+      CompactNumericVerifierStateCanonicalCorePackage
+        stateTable stateWidth stateTokenCount nextStart nextFinish
+        (((proofTokens, certificateTokens), (restTasks, values)), some false)
+        nextCoordinates nextSizeWitness ∧
       CompactNumericVerifierParseFailureSeparatedTablesStateGraph
         stateTable stateWidth stateTokenCount
         currentCoordinates nextCoordinates
@@ -81,6 +90,8 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
       taskCoordinates, taskSizeWitness, hframePackage⟩
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, hhead, hframe, hfailureRows⟩
+  have hcurrentPackageSaved := hcurrentPackage
+  have hnextPackageSaved := hnextPackage
   have hcurrentStartEq := hcurrentPackage.1
   have hcurrentFinishEq := hcurrentPackage.2.1
   have hnextStartEq := hnextPackage.1
@@ -126,6 +137,7 @@ theorem exists_compactNumericVerifierParseFailureSeparatedTablesStateGraph_of_la
     suffixStart, suffixFinish, certificateTag, certificateEndpointBound, ?_⟩
   exact ⟨hcurrentStartEq, hcurrentFinishEq,
     hnextStartEq, hnextFinishEq,
+    hcurrentPackageSaved, hnextPackageSaved,
     hcurrentCore, hnextCore, hhead, hframe,
     ⟨hpayload, hfailureRows⟩⟩
 

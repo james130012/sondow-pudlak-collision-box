@@ -1,5 +1,7 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformInitialDefaultFinalBoundedFormula
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedInstallation
+import integration.FoundationCompactNumericListedDirectFormulaTransformEndpointWitnessBound
+import integration.FoundationCompactNumericListedDirectFormulaTransformTraceBounds
 import integration.FoundationCompactNumericListedDirectFormulaTransformStateDeterminacy
 
 /-!
@@ -36,7 +38,10 @@ open FoundationCompactNumericListedDirectFormulaTransformFinalDefaultFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessTable
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBound
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedInstallation
+open FoundationCompactNumericListedDirectFormulaTransformEndpointWitnessBound
+open FoundationCompactNumericListedDirectFormulaTransformTraceBounds
 open FoundationCompactNumericListedDirectBinaryNatStreamStatusLayout
 open FoundationCompactNumericListedDirectBinaryNatStatusValidity
 
@@ -391,7 +396,7 @@ theorem CompactFormulaTransformTotalTraceBoundedGraph.sound_selfContained
       _hfinalLayout, hresult⟩
   exact hresult
 
-theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
+theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula_with_width_bound
     {tokenTable width tokenCount stateBoundary fuel mode
       witnessStart witnessFinish witnessCount
       inputBoundary expectedOutputBoundary emptyBoundary binderArity : Nat}
@@ -424,7 +429,9 @@ theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
           fuel, mode, witnessStart, witnessFinish, witnessCount,
           inputBoundary, input.length,
           expectedOutputBoundary, expectedOutput.length,
-          emptyBoundary, binderArity, tableWidth, 2 ^ tableWidth] := by
+          emptyBoundary, binderArity, tableWidth, 2 ^ tableWidth] ∧
+      tableWidth ≤ compactFormulaTransformCanonicalTableWidthBound
+        width tokenCount fuel := by
   have hinitial : states.getI 0 =
       compactFormulaTransformInitialState binderArity input := by
     simpa [compactFormulaTransformStateAt] using
@@ -461,12 +468,14 @@ theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
       finalParserOutputStart := 0
       finalParserOutputBoundary := 0
       finalParserOutputBoundarySize := 0 }
-  have hadjacent : CompactFormulaTransformStateListAdjacentStepRows
+  have hadjacentFit : CompactFormulaTransformStateListAdjacentStepRowsWithFit
       tokenTable width tokenCount stateBoundary mode
         witnessStart witnessFinish witnessCount states :=
-    stateListAdjacentStepRows_of_initialLocalTrace
+    stateListAdjacentStepRowsWithFit_of_localTrace
       hrows hwitness hwitnessCount hvalid
-  let rows := compactFormulaTransformFittingAdjacentStepRows hadjacent
+        (compactFormulaTransformInitialState_task_fields_well_formed
+          binderArity input)
+  let rows := compactFormulaTransformPublicFittingAdjacentStepRows hadjacentFit
   let tableWidth :=
     compactFormulaTransformAdjacentStepDynamicWidth rows +
       (tokenCount + 1) * tokenCount +
@@ -474,7 +483,7 @@ theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
   have hrowsValid : CompactFormulaTransformAdjacentStepRowsValid
       tokenTable width tokenCount stateBoundary states.length mode
         witnessStart witnessFinish witnessCount rows :=
-    compactFormulaTransformFittingAdjacentStepRows_valid hadjacent
+    compactFormulaTransformPublicFittingAdjacentStepRows_valid hadjacentFit
   have hfit : CompactFormulaTransformAdjacentStepRowsFit
       tableWidth rows := by
     have hdynamic := compactFormulaTransformAdjacentStepRowsFit_dynamic rows
@@ -499,6 +508,40 @@ theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
       endpointWitness := by
     refine ⟨hvalid.1, hinitialAt, hinitialParser,
       hinitialOutputCount, hfinalAt, hfinalDefault, rfl, rfl, rfl⟩
+  have hrowFields : ∀ row ∈ rows,
+      ∀ value ∈ compactFormulaTransformAdjacentStepRowValues row,
+        Nat.size value ≤
+          compactFormulaTransformAdjacentStepPublicWidth width tokenCount := by
+    intro row hrow value hvalue
+    exact (compactFormulaTransformPublicFittingAdjacentStepRows_fit
+      hadjacentFit row hrow).value_size_le hvalue
+  have hendpointFields : ∀ value ∈
+      compactFormulaTransformInitialFinalWitnessValues endpointWitness,
+      Nat.size value ≤
+        compactFormulaTransformAdjacentStepPublicWidth width tokenCount :=
+    CompactFormulaTransformInitialDefaultFinalRows.endpointValuesFit
+      hendpointRows
+  have htableWidth : tableWidth ≤
+      compactFormulaTransformCanonicalTableWidthBound
+        width tokenCount fuel := by
+    have hwidthRaw :=
+      compactFormulaTransformTableWidth_le_of_fieldSizeBounds
+        (tokenCount := tokenCount) hrowFields hendpointFields
+    dsimp only [tableWidth]
+    calc
+      compactFormulaTransformAdjacentStepDynamicWidth rows +
+            (tokenCount + 1) * tokenCount +
+            compactFormulaTransformInitialFinalWitnessDynamicWidth
+              endpointWitness ≤
+          rows.length * compactFormulaTransformAdjacentStepWitnessColumnCount *
+              compactFormulaTransformAdjacentStepPublicWidth width tokenCount +
+            (tokenCount + 1) * tokenCount +
+            31 * compactFormulaTransformAdjacentStepPublicWidth width tokenCount :=
+        hwidthRaw
+      _ = compactFormulaTransformCanonicalTableWidthBound
+          width tokenCount fuel := by
+        simp [rows, hvalid.1,
+          compactFormulaTransformCanonicalTableWidthBound]
   have hendpointWidth :
       compactFormulaTransformInitialFinalWitnessDynamicWidth
           endpointWitness ≤ tableWidth := by
@@ -532,38 +575,80 @@ theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
           (rows.getI rowIndex).currentCoordinates.parserFinish
           (states.getI rowIndex).1.2.2 := by
       rw [List.getI_eq_getElem _ hrowIndex']
-      simpa [rows, compactFormulaTransformFittingAdjacentStepRows] using
-        compactFormulaTransformFittingAdjacentStepRowAt_currentStatusLayout
-          hadjacent hrowIndexSub
+      simpa [rows, compactFormulaTransformPublicFittingAdjacentStepRows] using
+        compactFormulaTransformPublicFittingAdjacentStepRowAt_currentStatusLayout
+          hadjacentFit hrowIndexSub
     have hnextStatusLayout : CompactBinaryNatStreamStatusDirectLayout
         tokenTable width tokenCount
           (rows.getI rowIndex).nextCoordinates.parserTasksFinish
           (rows.getI rowIndex).nextCoordinates.parserFinish
           (states.getI (rowIndex + 1)).1.2.2 := by
       rw [List.getI_eq_getElem _ hrowIndex']
-      simpa [rows, compactFormulaTransformFittingAdjacentStepRows] using
-        compactFormulaTransformFittingAdjacentStepRowAt_nextStatusLayout
-          hadjacent hrowIndexSub
+      simpa [rows, compactFormulaTransformPublicFittingAdjacentStepRows] using
+        compactFormulaTransformPublicFittingAdjacentStepRowAt_nextStatusLayout
+          hadjacentFit hrowIndexSub
     exact CompactFormulaTransformAdjacentStepRowGraph.toCurrentBounded
       hrowGraph (hfit (rows.getI rowIndex) hrowMem)
       (CompactBinaryNatStreamStatusDirectLayout.validBounded
         hcurrentStatusLayout harea)
       (CompactBinaryNatStreamStatusDirectLayout.validBounded
         hnextStatusLayout harea)
-  refine ⟨tableWidth,
-    (compactFormulaTransformTotalTraceBoundedGraphDef_spec
+  refine ⟨tableWidth, ?_, htableWidth⟩
+  exact (compactFormulaTransformTotalTraceBoundedGraphDef_spec
       tokenTable width tokenCount stateBoundary states.length fuel mode
       witnessStart witnessFinish witnessCount
       inputBoundary input.length
       expectedOutputBoundary expectedOutput.length
-      emptyBoundary binderArity tableWidth (2 ^ tableWidth)).mpr ?_⟩
-  exact ⟨hvalid.1, harea, hendpointBounded, hadjacentBounded⟩
+      emptyBoundary binderArity tableWidth (2 ^ tableWidth)).mpr
+    ⟨hvalid.1, harea, hendpointBounded, hadjacentBounded⟩
+
+theorem localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
+    {tokenTable width tokenCount stateBoundary fuel mode
+      witnessStart witnessFinish witnessCount
+      inputBoundary expectedOutputBoundary emptyBoundary binderArity : Nat}
+    {states : List CompactFormulaTransformState}
+    {witness input expectedOutput : List Nat}
+    (hrows : CompactFormulaTransformStateListRowLayouts
+      tokenTable width tokenCount stateBoundary states)
+    (hwitness : CompactAdditiveNatListDirectLayout
+      tokenTable width tokenCount witnessStart witnessFinish witness)
+    (hwitnessCount : witnessCount = witness.length)
+    (hinput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        inputBoundary input)
+    (hexpectedOutput : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        expectedOutputBoundary expectedOutput)
+    (hempty : CompactAdditiveStructuredListElementRowLayouts
+      CompactAdditiveNatValueDirectLayout tokenTable width tokenCount
+        emptyBoundary [])
+    (hvalid : CompactFormulaTransformLocalTraceValid
+      (mode, witness) fuel
+        (compactFormulaTransformInitialState binderArity input) states)
+    (hfinalResult : expectedOutput =
+      (compactExactFormulaTransformResult
+        (compactFormulaTransformStateOutput
+          (states.getI fuel))).getD []) :
+    ∃ tableWidth,
+      compactFormulaTransformTotalTraceBoundedGraphDef.val.Evalb
+        ![tokenTable, width, tokenCount, stateBoundary, states.length,
+          fuel, mode, witnessStart, witnessFinish, witnessCount,
+          inputBoundary, input.length,
+          expectedOutputBoundary, expectedOutput.length,
+          emptyBoundary, binderArity, tableWidth, 2 ^ tableWidth] := by
+  rcases
+      localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula_with_width_bound
+        hrows hwitness hwitnessCount hinput hexpectedOutput hempty
+          hvalid hfinalResult with
+    ⟨tableWidth, hformula, _htableWidth⟩
+  exact ⟨tableWidth, hformula⟩
 
 #print axioms compactFormulaTransformTotalTraceBoundedGraphDef_spec
 #print axioms compactFormulaTransformTotalTraceBoundedGraphDef_sigmaZero
 #print axioms CompactFormulaTransformTotalTraceBoundedGraph.sound
 #print axioms CompactFormulaTransformTotalTraceBoundedGraph.finalLayout_selfContained
 #print axioms CompactFormulaTransformTotalTraceBoundedGraph.sound_selfContained
+#print axioms localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula_with_width_bound
 #print axioms localTrace_exists_compactFormulaTransformTotalTraceBoundedFormula
 
 end FoundationCompactNumericListedDirectFormulaTransformTotalTraceFormula

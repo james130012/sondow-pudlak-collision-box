@@ -1,0 +1,460 @@
+import integration.FoundationCompactNumericListedDirectVerifierOneParseSuccessNonLeafStateGraph
+import integration.FoundationCompactNumericListedDirectVerifierParsePayloadSuccessExposedSeparatedTablesPublicBounds
+import integration.FoundationCompactNumericListedDirectVerifierParseSuccessNonLeafPublicBounds
+
+/-!
+# Public bounds for the one-parse non-leaf state graph
+
+The successful parser constructor supplies the actual separated parser tables
+and their public coordinate bounds.  The schedule rows then bound the actual
+parse and combine task coordinates by the current state's public task-value
+budget.  The unused second parse schedule belongs to the enclosing parse-state
+formula and is deliberately not introduced here.
+-/
+
+open LO FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+namespace FoundationCompactNumericListedDirectVerifierOneParseSuccessNonLeafStatePublicBounds
+
+open FoundationCompactAdditiveTokenCodec
+open FoundationCompactNumericListedRuleChecks
+open FoundationCompactNumericListedTaskMachine
+open FoundationCompactNumericListedNodeFields
+open FoundationCompactNumericListedDirectAdditiveTypeLayouts
+open FoundationCompactNumericListedDirectAtomicListLayouts
+open FoundationCompactNumericListedDirectVerifierValueLayouts
+open FoundationCompactNumericListedDirectVerifierTaskLayout
+open FoundationCompactNumericListedDirectVerifierTaskFormula
+open FoundationCompactNumericListedDirectVerifierTaskListRowsFormula
+open FoundationCompactNumericListedDirectVerifierChildResultListRowsFormula
+open FoundationCompactNumericListedDirectCrossTableSliceEquality
+open FoundationCompactNumericListedDirectCrossTableNatListListSliceEquality
+open FoundationCompactNumericListedDirectNodeTransitionCases
+open FoundationCompactNumericListedDirectVerifierStepCases
+open FoundationCompactNumericListedDirectVerifierParsePayloadSuccessExposedSeparatedTablesFormula
+open FoundationCompactNumericListedDirectVerifierParsePayloadSuccessSeparatedTablesPublicBounds
+open FoundationCompactNumericListedDirectVerifierParsePayloadSuccessExposedSeparatedTablesPublicBounds
+open FoundationCompactNumericListedDirectVerifierParseScheduleRows
+open FoundationCompactNumericListedDirectVerifierParseScheduleRowsCompleteness
+open FoundationCompactNumericListedDirectVerifierParseSuccessNonLeafCommonRows
+open FoundationCompactNumericListedDirectVerifierParseSuccessNonLeafStateCoordinates
+open FoundationCompactNumericListedDirectVerifierTaskCrossTableBridgeGraph
+open FoundationCompactNumericListedDirectVerifierTaskFullFieldRealization
+open FoundationCompactNumericListedDirectVerifierOneParseSuccessNonLeafStateGraph
+open FoundationCompactNumericListedDirectVerifierParseSuccessNonLeafPublicBounds
+
+private theorem oneParsePublicOutput_of_outputCase
+    {proofNode : CompactNumericVerifierTask}
+    {certificateNode : CompactNumericCertificateNode}
+    {restTasks : List CompactNumericVerifierTask}
+    {values : List CompactNumericChildResult}
+    {output : CompactNumericRunningPayload}
+    (hcase : CompactNumericNodeTransitionOutputCase
+      proofNode certificateNode restTasks values output)
+    (htag : proofNode.1 = 4 ∨ proofNode.1 = 5 ∨ proofNode.1 = 6 ∨
+      proofNode.1 = 7 ∨ proofNode.1 = 8) :
+    certificateNode.1 = 2 ∧
+      ((proofNode.2.2.2.2.2, certificateNode.2.2),
+        (compactNumericParseTask ::
+          compactNumericCombineTask proofNode.1 proofNode.2 :: restTasks,
+          values)) = output := by
+  rcases proofNode with ⟨proofTag, fields⟩
+  rcases certificateNode with ⟨certificateTag, certificatePayload⟩
+  change proofTag = 4 ∨ proofTag = 5 ∨ proofTag = 6 ∨
+    proofTag = 7 ∨ proofTag = 8 at htag
+  rcases htag with htag | htag | htag | htag | htag <;>
+    subst proofTag <;>
+    simpa [CompactNumericNodeTransitionOutputCase,
+      compactNumericNodeFieldsSuffix] using hcase
+
+/- Every one-parse transition produces the same real state graph as the
+unbounded completeness theorem, together with public parser/root bounds and
+pointwise bounds for the two schedules that actually occur in that graph. -/
+set_option maxHeartbeats 2400000 in
+theorem
+    exists_compactNumericVerifierOneParseSuccessNonLeafStateGraph_of_transition_with_publicBounds
+    {stateTable stateWidth stateTokenCount
+      stateProofStart stateProofFinish stateCertificateStart
+        stateCertificateFinish
+      sourceTaskBoundary targetTaskBoundary
+      sourceValueBoundary targetValueBoundary
+      currentTaskTableWidth currentTaskValueBound
+      currentValueTableWidth currentValueValueBound
+      nextTaskTableWidth nextTaskValueBound
+      nextValueTableWidth nextValueValueBound
+      nextStart nextProofFinish nextCertificateFinish nextStatusTag
+      stateBound : Nat}
+    {proofTokens certificateTokens nextProof nextCertificate : List Nat}
+    {sourceTasks targetTasks : List CompactNumericVerifierTask}
+    {sourceValues targetValues : List CompactNumericChildResult}
+    {proofNode : CompactNumericVerifierTask}
+    {certificateNode : CompactNumericCertificateNode}
+    (hproofLayout : CompactAdditiveNatListDirectLayout
+      stateTable stateWidth stateTokenCount
+        stateProofStart stateProofFinish proofTokens)
+    (hcertificateLayout : CompactAdditiveNatListDirectLayout
+      stateTable stateWidth stateTokenCount
+        stateCertificateStart stateCertificateFinish certificateTokens)
+    (hstateBounds :
+      CompactNumericParsePayloadSuccessSeparatedTablesStateCoordinateBounds
+        stateTable stateWidth stateTokenCount
+        stateProofStart stateProofFinish
+        stateCertificateStart stateCertificateFinish stateBound)
+    (hcurrentTaskValueBound :
+      Nat.size currentTaskValueBound <= stateBound)
+    (hproofParser : compactListedProofNodeFieldsParser proofTokens = some proofNode)
+    (hcertificateParser : compactStructuralCertificateNodeParser certificateTokens =
+      some certificateNode)
+    (hproofTag : proofNode.1 = 4 ∨ proofNode.1 = 5 ∨ proofNode.1 = 6 ∨
+      proofNode.1 = 7 ∨ proofNode.1 = 8)
+    (htransition : compactNumericNodeTransition proofNode certificateNode
+      (sourceTasks.drop 1) sourceValues =
+        some ((nextProof, nextCertificate), (targetTasks, targetValues)))
+    (hnextProof : CompactAdditiveNatListDirectLayout
+      stateTable stateWidth stateTokenCount nextStart nextProofFinish nextProof)
+    (hnextCertificate : CompactAdditiveNatListDirectLayout
+      stateTable stateWidth stateTokenCount
+        nextProofFinish nextCertificateFinish nextCertificate)
+    (hsourceTaskRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactNumericVerifierTaskDirectLayout
+        stateTable stateWidth stateTokenCount sourceTaskBoundary sourceTasks)
+    (htargetTaskRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactNumericVerifierTaskDirectLayout
+        stateTable stateWidth stateTokenCount targetTaskBoundary targetTasks)
+    (hsourceTaskGraph : CompactNumericVerifierTaskListRowsGraph
+      stateTable stateWidth stateTokenCount sourceTaskBoundary
+        sourceTasks.length currentTaskTableWidth currentTaskValueBound)
+    (htargetTaskGraph : CompactNumericVerifierTaskListRowsGraph
+      stateTable stateWidth stateTokenCount targetTaskBoundary
+        targetTasks.length currentTaskTableWidth currentTaskValueBound)
+    (hsourceValueRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactNumericChildResultDirectLayout
+        stateTable stateWidth stateTokenCount sourceValueBoundary sourceValues)
+    (htargetValueRows : CompactAdditiveStructuredListElementRowLayouts
+      CompactNumericChildResultDirectLayout
+        stateTable stateWidth stateTokenCount targetValueBoundary targetValues)
+    (hsourceValueGraph : CompactNumericChildResultListRowsGraph
+      stateTable stateWidth stateTokenCount sourceValueBoundary
+        sourceValues.length currentValueTableWidth currentValueValueBound)
+    (htargetValueGraph : CompactNumericChildResultListRowsGraph
+      stateTable stateWidth stateTokenCount targetValueBoundary
+        targetValues.length currentValueTableWidth currentValueValueBound)
+    (hsourceTaskNonempty : 1 <= sourceTasks.length)
+    (htaskTableWidth : nextTaskTableWidth = currentTaskTableWidth)
+    (htaskValueBound : nextTaskValueBound = currentTaskValueBound)
+    (hvalueTableWidth : nextValueTableWidth = currentValueTableWidth)
+    (hvalueValueBound : nextValueValueBound = currentValueValueBound)
+    (hnextStatus : nextStatusTag = 0) :
+    let proofWeight := compactAdditiveValueWeight proofTokens
+    let certificateWeight := compactAdditiveValueWeight certificateTokens
+    let publicBound :=
+      compactNumericParsePayloadSuccessExposedSeparatedTablesPublicCoordinateSizeBound
+        stateBound proofWeight certificateWeight
+    ∃ proofTable proofWidth proofTokenCount proofInputStart proofInputFinish,
+    ∃ rootStart rootFinish proofTag proofEndpointBound,
+    ∃ certificateTable certificateWidth certificateTokenCount
+      certificateInputStart certificateInputFinish,
+    ∃ axiomStart axiomFinish formulaStart formulaFinish,
+    ∃ suffixStart suffixFinish certificateTag certificateEndpointBound,
+    ∃ gammaFinish gammaCount gammaBoundary firstFinish firstCount
+      secondFinish secondCount witnessFinish witnessCount suffixCount
+      gammaBoundarySize,
+    ∃ parseCoordinates combineCoordinates,
+    ∃ parseSize combineSize,
+      CompactNumericVerifierOneParseSuccessNonLeafStateGraph
+        stateTable stateWidth stateTokenCount
+        stateProofStart stateProofFinish
+        stateCertificateStart stateCertificateFinish
+        proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
+        rootStart rootFinish proofTag proofEndpointBound
+        certificateTable certificateWidth certificateTokenCount
+        certificateInputStart certificateInputFinish
+        axiomStart axiomFinish formulaStart formulaFinish
+        suffixStart suffixFinish certificateTag certificateEndpointBound
+        gammaFinish gammaCount gammaBoundary firstFinish firstCount
+        secondFinish secondCount witnessFinish witnessCount suffixCount
+        gammaBoundarySize
+        sourceTaskBoundary sourceTasks.length targetTaskBoundary targetTasks.length
+        sourceValueBoundary sourceValues.length targetValueBoundary targetValues.length
+        currentTaskTableWidth currentTaskValueBound
+        currentValueTableWidth currentValueValueBound
+        nextTaskTableWidth nextTaskValueBound
+        nextValueTableWidth nextValueValueBound
+        nextStart nextProofFinish nextCertificateFinish nextStatusTag
+        parseCoordinates combineCoordinates parseSize combineSize ∧
+      CompactNumericParsePayloadSuccessSeparatedTablesParserCoordinateBounds
+        proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
+        rootStart rootFinish proofTag proofEndpointBound
+        certificateTable certificateWidth certificateTokenCount
+        certificateInputStart certificateInputFinish
+        axiomStart axiomFinish formulaStart formulaFinish
+        suffixStart suffixFinish certificateTag certificateEndpointBound
+        publicBound ∧
+      CompactNumericParsePayloadSuccessExposedTaskCoordinateBounds
+        gammaFinish gammaCount gammaBoundary firstFinish firstCount
+        secondFinish secondCount witnessFinish witnessCount suffixCount
+        gammaBoundarySize publicBound ∧
+      (∀ coordinate : Fin 40,
+        Nat.size
+          (compactNumericParsePayloadSuccessExposedSeparatedTablesGraphEnvironment
+            stateTable stateWidth stateTokenCount
+            stateProofStart stateProofFinish
+            stateCertificateStart stateCertificateFinish
+            proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
+            rootStart rootFinish proofTag proofEndpointBound
+            certificateTable certificateWidth certificateTokenCount
+            certificateInputStart certificateInputFinish
+            axiomStart axiomFinish formulaStart formulaFinish
+            suffixStart suffixFinish certificateTag certificateEndpointBound
+            gammaFinish gammaCount gammaBoundary firstFinish firstCount
+            secondFinish secondCount witnessFinish witnessCount suffixCount
+            gammaBoundarySize coordinate) <= publicBound) ∧
+      (∀ coordinate : Fin 14,
+        Nat.size
+          (compactNumericVerifierTaskScheduleEnvironment
+            parseCoordinates parseSize coordinate) <= publicBound) ∧
+      (∀ coordinate : Fin 14,
+        Nat.size
+          (compactNumericVerifierTaskScheduleEnvironment
+            combineCoordinates combineSize coordinate) <= publicBound) := by
+  let proofWeight := compactAdditiveValueWeight proofTokens
+  let certificateWeight := compactAdditiveValueWeight certificateTokens
+  let baseBound :=
+    compactNumericParsePayloadSuccessSeparatedTablesPublicCoordinateSizeBound
+      stateBound proofWeight certificateWeight
+  let publicBound :=
+    compactNumericParsePayloadSuccessExposedSeparatedTablesPublicCoordinateSizeBound
+      stateBound proofWeight certificateWeight
+  have hstateToBase : stateBound <= baseBound := by
+    dsimp only [baseBound,
+      compactNumericParsePayloadSuccessSeparatedTablesPublicCoordinateSizeBound]
+    omega
+  have hbaseToPublic : baseBound <= publicBound := by
+    dsimp only [baseBound, publicBound,
+      compactNumericParsePayloadSuccessExposedSeparatedTablesPublicCoordinateSizeBound]
+    omega
+  have htaskValuePublic : Nat.size currentTaskValueBound <= publicBound :=
+    hcurrentTaskValueBound.trans (hstateToBase.trans hbaseToPublic)
+  have houtputCase :=
+    (compactNumericNodeTransition_eq_some_iff_outputCase
+      proofNode certificateNode (sourceTasks.drop 1) sourceValues
+      ((nextProof, nextCertificate), (targetTasks, targetValues))).1 htransition
+  rcases oneParsePublicOutput_of_outputCase houtputCase hproofTag with
+    ⟨_hcertificateNodeTag, houtput⟩
+  have hnextProofValue : nextProof = proofNode.2.2.2.2.2 := by
+    have h := congrArg (fun output : CompactNumericRunningPayload => output.1.1)
+      houtput
+    simpa using h.symm
+  have hnextCertificateValue : nextCertificate = certificateNode.2.2 := by
+    have h := congrArg (fun output : CompactNumericRunningPayload => output.1.2)
+      houtput
+    simpa using h.symm
+  have htargetTasks : targetTasks = compactNumericParseTask ::
+      compactNumericCombineTask proofNode.1 proofNode.2 ::
+        sourceTasks.drop 1 := by
+    have h := congrArg (fun output : CompactNumericRunningPayload => output.2.1)
+      houtput
+    simpa using h.symm
+  have htargetValues : targetValues = sourceValues := by
+    have h := congrArg (fun output : CompactNumericRunningPayload => output.2.2)
+      houtput
+    simpa using h.symm
+  have hparsePayload : compactNumericParsePayload
+      ((proofTokens, certificateTokens), (sourceTasks.drop 1, sourceValues)) =
+        some ((nextProof, nextCertificate), (targetTasks, targetValues)) :=
+    (compactNumericParsePayload_eq_some_iff
+      ((proofTokens, certificateTokens), (sourceTasks.drop 1, sourceValues))
+      ((nextProof, nextCertificate), (targetTasks, targetValues))).2
+      ⟨proofNode, certificateNode, hproofParser, hcertificateParser, htransition⟩
+  rcases
+      exists_compactNumericParsePayloadSuccessExposedSeparatedTablesGraph_of_exists_some_with_publicBounds
+        hproofLayout hcertificateLayout hstateBounds
+        ⟨((nextProof, nextCertificate), (targetTasks, targetValues)),
+          hparsePayload⟩ with
+    ⟨proofTable, proofWidth, proofTokenCount, proofInputStart, proofInputFinish,
+      rootStart, rootFinish, proofTag, proofEndpointBound,
+      certificateTable, certificateWidth, certificateTokenCount,
+      certificateInputStart, certificateInputFinish,
+      axiomStart, axiomFinish, formulaStart, formulaFinish,
+      suffixStart, suffixFinish, certificateTag, certificateEndpointBound,
+      gammaFinish, gammaCount, gammaBoundary, firstFinish, firstCount,
+      secondFinish, secondCount, witnessFinish, witnessCount, suffixCount,
+      gammaBoundarySize, hparseGraph, hparserBounds, hrootBounds,
+      hparserEnvironmentBounds⟩
+  rcases hparseGraph.realize_nonleaf_fields with
+    ⟨parsedProofInput, parsedProofNode, parsedCertificateInput,
+      parsedCertificateNode, proofSuffix, certificateSuffix,
+      hparsedProofInput, hparsedProofNode, hparsedProofParser,
+      hparsedProofNodeTag, hproofSuffix, hproofSuffixValue,
+      hparsedCertificateInput, hcertificateSuffix,
+      hparsedCertificateParser, hparsedCertificateNodeTag,
+      hcertificateSuffixValue⟩
+  have hparsedProofInputValue : parsedProofInput = proofTokens :=
+    hparseGraph.1.1.natListValues_eq hproofLayout hparsedProofInput
+  have hparsedCertificateInputValue : parsedCertificateInput = certificateTokens :=
+    hparseGraph.1.2.1.natListValues_eq
+      hcertificateLayout hparsedCertificateInput
+  have hparsedProofParserState :
+      compactListedProofNodeFieldsParser proofTokens = some parsedProofNode := by
+    simpa only [hparsedProofInputValue] using hparsedProofParser
+  have hparsedCertificateParserState :
+      compactStructuralCertificateNodeParser certificateTokens =
+        some parsedCertificateNode := by
+    simpa only [hparsedCertificateInputValue] using hparsedCertificateParser
+  have hparsedProofNodeValue : parsedProofNode = proofNode := by
+    have hsome : some parsedProofNode = some proofNode :=
+      hparsedProofParserState.symm.trans hproofParser
+    exact Option.some.inj hsome
+  have hparsedCertificateNodeValue : parsedCertificateNode = certificateNode := by
+    have hsome : some parsedCertificateNode = some certificateNode :=
+      hparsedCertificateParserState.symm.trans hcertificateParser
+    exact Option.some.inj hsome
+  subst parsedProofNode
+  subst parsedCertificateNode
+  have hsourceNonempty : sourceTasks ≠ [] := by
+    intro hnil
+    simp [hnil] at hsourceTaskNonempty
+  rcases
+      CompactNumericVerifierOneParseScheduleRows.of_components_self_root
+        hsourceTaskRows htargetTaskRows hsourceTaskGraph htargetTaskGraph
+        hproofTag hsourceNonempty htargetTasks with
+    ⟨parseCoordinates, combineCoordinates, parseSize, combineSize,
+      hscheduleRowsActualTag⟩
+  have hscheduleRows : CompactNumericVerifierOneParseScheduleRows
+      stateTable stateWidth stateTokenCount
+      sourceTaskBoundary sourceTasks.length targetTaskBoundary targetTasks.length
+      currentTaskValueBound
+      combineCoordinates.start combineCoordinates.finish proofTag
+      parseCoordinates combineCoordinates parseSize combineSize := by
+    simpa only [hparsedProofNodeTag] using hscheduleRowsActualTag
+  have hcommonRows :=
+    CompactNumericVerifierParseSuccessNonLeafCommonRows.of_components
+      hproofSuffix hcertificateSuffix hnextProof hnextCertificate
+      hsourceValueRows htargetValueRows hsourceValueGraph htargetValueGraph
+      (hnextProofValue.trans hproofSuffixValue.symm)
+      (hnextCertificateValue.trans hcertificateSuffixValue.symm)
+      htargetValues htaskTableWidth htaskValueBound
+      hvalueTableWidth hvalueValueBound hnextStatus
+  rcases
+      FoundationCompactNumericListedDirectVerifierTaskFullFieldRealization.CompactNumericVerifierTaskCoreGraph.realizeDirectLayoutWithAllFields
+        hparseGraph.2 with
+    ⟨sourceRoot, hsourceRoot, hsourceRootTag,
+      hsourceGamma, hsourceFirst, hsourceSecond,
+      hsourceWitness, hsourceSuffix⟩
+  have hsourceRootValue : sourceRoot = proofNode :=
+    FoundationCompactNumericListedDirectVerifierTaskFieldRealization.CompactNumericVerifierTaskCoreGraph.realizedTask_eq
+      hparseGraph.2 hparsedProofNode hsourceRoot
+  have hcombineAt := hscheduleRows.2.2.2.2.1
+  rcases
+      FoundationCompactNumericListedDirectVerifierTaskFullFieldRealization.CompactNumericVerifierTaskCoreGraph.realizeDirectLayoutWithAllFields
+        hcombineAt.core with
+    ⟨targetRoot, htargetRoot, htargetRootTag,
+      htargetGamma, htargetFirst, htargetSecond,
+      htargetWitness, htargetSuffix⟩
+  have htargetIndex : 1 < targetTasks.length := by
+    rw [htargetTasks]
+    simp
+  rcases hcombineAt.realize_actualAtWithFields htargetIndex htargetTaskRows with
+    ⟨actualTargetRoot, hactualTargetRoot, _hactualTargetRootTag,
+      hactualTargetRootLayout, _hactualGammaRows, _hactualGammaLength,
+      _hactualFirst, _hactualFirstLength, _hactualSecond,
+      _hactualSecondLength, _hactualWitness, _hactualWitnessLength,
+      _hactualSuffix, _hactualSuffixLength⟩
+  have htargetRootActual : targetRoot = actualTargetRoot :=
+    FoundationCompactNumericListedDirectVerifierTaskFieldRealization.CompactNumericVerifierTaskCoreGraph.realizedTask_eq
+      hcombineAt.core hactualTargetRootLayout htargetRoot
+  have htargetAt : targetTasks.getI 1 = proofNode := by
+    rw [htargetTasks]
+    rfl
+  have htargetRootValue : targetRoot = proofNode :=
+    htargetRootActual.trans (hactualTargetRoot.trans htargetAt)
+  have hsourceRootTag' : proofNode.1 = proofTag := by
+    rw [← hsourceRootValue]
+    simpa [compactNumericVerifierTaskRowCoordinatesOf] using hsourceRootTag
+  have htargetRootTag' : proofNode.1 = combineCoordinates.tag := by
+    rw [← htargetRootValue]
+    exact htargetRootTag
+  have hsourceGamma' := hsourceGamma
+  have hsourceFirst' := hsourceFirst
+  have hsourceSecond' := hsourceSecond
+  have hsourceWitness' := hsourceWitness
+  have hsourceSuffix' := hsourceSuffix
+  have htargetGamma' := htargetGamma
+  have htargetFirst' := htargetFirst
+  have htargetSecond' := htargetSecond
+  have htargetWitness' := htargetWitness
+  have htargetSuffix' := htargetSuffix
+  rw [hsourceRootValue] at hsourceGamma' hsourceFirst' hsourceSecond'
+  rw [hsourceRootValue] at hsourceWitness' hsourceSuffix'
+  rw [htargetRootValue] at htargetGamma' htargetFirst' htargetSecond'
+  rw [htargetRootValue] at htargetWitness' htargetSuffix'
+  have hbridgeRows : CompactNumericVerifierTaskCrossTableBridgeGraph
+      proofTable proofWidth proofTokenCount rootStart rootFinish proofTag
+      gammaFinish firstFinish secondFinish witnessFinish
+      stateTable stateWidth stateTokenCount
+      combineCoordinates.start combineCoordinates.finish combineCoordinates.tag
+      combineCoordinates.gammaFinish combineCoordinates.firstFinish
+      combineCoordinates.secondFinish combineCoordinates.witnessFinish := by
+    refine ⟨hsourceRootTag'.symm.trans htargetRootTag',
+      CompactFixedWidthCrossTableSlicesEq.of_natListListLayouts
+        hsourceGamma' htargetGamma',
+      CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
+        hsourceFirst' htargetFirst',
+      CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
+        hsourceSecond' htargetSecond',
+      CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
+        hsourceWitness' htargetWitness',
+      CompactFixedWidthCrossTableSlicesEq.of_natListLayouts
+        hsourceSuffix' htargetSuffix'⟩
+  have hgraph : CompactNumericVerifierOneParseSuccessNonLeafStateGraph
+      stateTable stateWidth stateTokenCount
+      stateProofStart stateProofFinish
+      stateCertificateStart stateCertificateFinish
+      proofTable proofWidth proofTokenCount proofInputStart proofInputFinish
+      rootStart rootFinish proofTag proofEndpointBound
+      certificateTable certificateWidth certificateTokenCount
+      certificateInputStart certificateInputFinish
+      axiomStart axiomFinish formulaStart formulaFinish
+      suffixStart suffixFinish certificateTag certificateEndpointBound
+      gammaFinish gammaCount gammaBoundary firstFinish firstCount
+      secondFinish secondCount witnessFinish witnessCount suffixCount
+      gammaBoundarySize
+      sourceTaskBoundary sourceTasks.length targetTaskBoundary targetTasks.length
+      sourceValueBoundary sourceValues.length targetValueBoundary targetValues.length
+      currentTaskTableWidth currentTaskValueBound
+      currentValueTableWidth currentValueValueBound
+      nextTaskTableWidth nextTaskValueBound
+      nextValueTableWidth nextValueValueBound
+      nextStart nextProofFinish nextCertificateFinish nextStatusTag
+      parseCoordinates combineCoordinates parseSize combineSize :=
+    ⟨hparseGraph, hcommonRows, hscheduleRows, hbridgeRows⟩
+  have hparseScheduleBounds : ∀ coordinate : Fin 14,
+      Nat.size
+        (compactNumericVerifierTaskScheduleEnvironment
+          parseCoordinates parseSize coordinate) <= publicBound := by
+    exact compactNumericVerifierTaskScheduleEnvironment_size_le_of_boundedAt
+      hscheduleRows.2.2.1 htaskValuePublic
+  have hcombineScheduleBounds : ∀ coordinate : Fin 14,
+      Nat.size
+        (compactNumericVerifierTaskScheduleEnvironment
+          combineCoordinates combineSize coordinate) <= publicBound := by
+    exact compactNumericVerifierTaskScheduleEnvironment_size_le_of_boundedAt
+      hscheduleRows.2.2.2.2.1 htaskValuePublic
+  exact ⟨proofTable, proofWidth, proofTokenCount, proofInputStart,
+    proofInputFinish, rootStart, rootFinish, proofTag, proofEndpointBound,
+    certificateTable, certificateWidth, certificateTokenCount,
+    certificateInputStart, certificateInputFinish,
+    axiomStart, axiomFinish, formulaStart, formulaFinish,
+    suffixStart, suffixFinish, certificateTag, certificateEndpointBound,
+    gammaFinish, gammaCount, gammaBoundary, firstFinish, firstCount,
+    secondFinish, secondCount, witnessFinish, witnessCount, suffixCount,
+    gammaBoundarySize, parseCoordinates, combineCoordinates,
+    parseSize, combineSize, hgraph, hparserBounds, hrootBounds,
+    hparserEnvironmentBounds, hparseScheduleBounds, hcombineScheduleBounds⟩
+
+#print axioms
+  exists_compactNumericVerifierOneParseSuccessNonLeafStateGraph_of_transition_with_publicBounds
+
+end FoundationCompactNumericListedDirectVerifierOneParseSuccessNonLeafStatePublicBounds

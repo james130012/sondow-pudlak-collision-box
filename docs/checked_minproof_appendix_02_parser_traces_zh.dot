@@ -1,0 +1,59 @@
+digraph ParserTraceAppendix {
+  graph [rankdir=TB, bgcolor="white", splines=polyline, nodesep="0.28",
+    ranksep="0.44", pad="0.18", size="10,14!", ratio=compress,
+    fontname="Noto Sans CJK SC", fontsize=21,
+    label="附图 02：解析器与嵌套轨迹算术化", labelloc="t"];
+  node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
+    fontsize=10.5, color="#526d75", fillcolor="#f3f3f3",
+    margin="0.14,0.09", penwidth=1.2];
+  edge [fontname="Noto Sans CJK SC", fontsize=8.5, color="#65777d",
+    arrowsize=0.68];
+
+  stream [node_id="A02.01", status="done", endpoint_theorem="binary stream-step Delta-zero graph",
+    source="integration/FoundationCompactNumericListedDirectBinaryNatStreamStepFormula.lean",
+    appendix="02", next_obligation="none", label="A02.01 自然数位流单步图\n四分支精确 iff 真实执行",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  layouts [node_id="A02.02", status="done", endpoint_theorem="parser-state canonical layouts",
+    source="integration/FoundationCompactNumericListedDirectParserStateLayout.lean",
+    appendix="02", next_obligation="none", label="A02.02 解析器状态规范布局\ntoken/task/status 全字段显式",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  state_formula [node_id="A02.03", status="done", endpoint_theorem="13-variable parser-state formula",
+    source="integration/FoundationCompactNumericListedDirectParserStateFormula.lean",
+    appendix="02", next_obligation="none", label="A02.03 解析状态 Delta-zero 核心\n数值表与 typed state 双向恢复",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  syntax_dispatch [node_id="A02.04", status="done", endpoint_theorem="syntax task-head dispatch",
+    source="integration/FoundationCompactNumericListedDirectParserSyntaxFormulaTaskFormula.lean",
+    appendix="02", next_obligation="none", label="A02.04 syntax 任务头分派\nterm/formula/repeat/invalid 已闭合",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  boundaries [node_id="A02.05", status="done", endpoint_theorem="parser initial/final formula installation",
+    source="integration/FoundationCompactNumericListedDirectParserInitialFinalInstallation.lean",
+    appendix="02", next_obligation="none", label="A02.05 三解析器初态与终态\nproof 输出直接接 certificate 输入",
+    fillcolor="#dff2e8", color="#3f7c66"];
+  proof_tasks [node_id="A02.06", status="paused", endpoint_theorem="proof parser task-head formula",
+    source="planned", appendix="02", next_obligation="do not resume before generic compiler route requires it",
+    label="A02.06 proof parser 剩余任务头\n已暂停；不是当前工作面",
+    style="rounded,filled,dashed", color="#777777"];
+  cert_tasks [node_id="A02.07", status="paused", endpoint_theorem="certificate parser task-head formula",
+    source="planned", appendix="02", next_obligation="do not resume before generic compiler route requires it",
+    label="A02.07 certificate parser 剩余任务头\n已暂停；不是当前工作面",
+    style="rounded,filled,dashed", color="#777777"];
+  aggregate [node_id="A02.08", status="pending", endpoint_theorem="complete parser-step formula",
+    source="planned", appendix="02", next_obligation="wait for route decision after PA compiler",
+    label="A02.08 完整 parser-step 汇总\n等待根编译器路线决定复用范围",
+    style="rounded,filled,dashed", color="#777777"];
+  legacy [node_id="A02.X1", status="audit_archive", endpoint_theorem="legacy full dependency audit",
+    source="docs/checked_minproof_theorem_dependency_graph_legacy_20260712_zh.dot",
+    appendix="02", next_obligation="read-only audit source",
+    label="历史 778 行审计图\n保留全部局部绿点与源码定位\n不再作为实时主控图",
+    fillcolor="#e9e3f5", color="#76639a"];
+
+  stream -> layouts -> state_formula;
+  state_formula -> syntax_dispatch;
+  layouts -> boundaries;
+  syntax_dispatch -> proof_tasks;
+  syntax_dispatch -> cert_tasks;
+  proof_tasks -> aggregate;
+  cert_tasks -> aggregate;
+  legacy -> stream [style=dotted, arrowhead=none];
+  legacy -> boundaries [style=dotted, arrowhead=none];
+}

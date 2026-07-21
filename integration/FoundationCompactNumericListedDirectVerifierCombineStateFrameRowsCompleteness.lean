@@ -181,7 +181,7 @@ theorem CompactNumericVerifierCombineCanonicalFramePackage.exists_of_layouts
   rw [hactualTaskEq] at hwitnessLayout hwitnessCount hsuffixLayout hsuffixCount
   have hcurrentStatusTag : currentCoordinates.statusTag = 0 := by
     rcases hcurrentStatus with hnone | hsome
-    · exact hnone.2
+    · exact hnone.2.1
     · rcases hsome with ⟨result, hstatus, _htag, _hbool⟩
       simp at hstatus
   have htaskCoordinatesNe : taskCoordinates.tag ≠ 10 := by

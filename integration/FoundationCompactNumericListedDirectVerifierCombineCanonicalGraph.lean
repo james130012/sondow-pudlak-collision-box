@@ -1,4 +1,6 @@
 import integration.FoundationCompactNumericListedDirectVerifierCombineCanonicalFrameCompleteness
+import integration.FoundationCompactNumericListedDirectVerifierCombineRuleWitnessBounds
+import integration.FoundationCompactNumericListedDirectVerifierStateCoreCompleteness
 import integration.FoundationCompactNumericListedDirectVerifierCombineStateGraph
 import integration.FoundationCompactNumericListedDirectVerifierCombineSimpleStateGraphCompleteness
 import integration.FoundationCompactNumericListedDirectVerifierCombineFailureStateGraphCompleteness
@@ -35,8 +37,10 @@ open FoundationCompactNumericListedDirectVerifierValueLayouts
 open FoundationCompactNumericListedDirectFormulaTransformStateLayout
 open FoundationCompactNumericListedDirectFormulaTransformTraceListLayout
 open FoundationCompactNumericListedDirectVerifierCombineBranchRows
+open FoundationCompactNumericListedDirectVerifierCombineRuleWitnessBounds
 open FoundationCompactNumericListedDirectVerifierCombineStateGraph
 open FoundationCompactNumericListedDirectVerifierStatePairCanonicalLayout
+open FoundationCompactNumericListedDirectVerifierStateCoreCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineCanonicalFrameCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineStateFrameRowsCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineSimpleStateGraphCompleteness
@@ -79,10 +83,136 @@ def CompactNumericVerifierCanonicalCombineGraph
     currentCoordinates.finish = currentTokens.length ∧
     nextCoordinates.start = currentTokens.length ∧
     nextCoordinates.finish = currentTokens.length + nextTokens.length ∧
+    CompactNumericVerifierStateCanonicalCorePackage
+      (compactFixedWidthTableCode width tokens) width tokens.length
+      0 currentTokens.length currentState
+      currentCoordinates currentSizeWitness ∧
+    CompactNumericVerifierStateCanonicalCorePackage
+      (compactFixedWidthTableCode width tokens) width tokens.length
+      currentTokens.length (currentTokens.length + nextTokens.length)
+      nextState nextCoordinates nextSizeWitness ∧
     CompactNumericVerifierCombineStateGraph
       (compactFixedWidthTableCode width tokens) width tokens.length
       currentCoordinates nextCoordinates currentSizeWitness nextSizeWitness
       taskCoordinates taskSizeWitness ruleWitness
+
+/-- Quantitative companion to the canonical combine graph.  It retains the
+same concrete witness that proves the graph and records a pointwise binary-size
+bound for all thirty-four rule coordinates, including canonical zero padding. -/
+def CompactNumericVerifierCanonicalCombineBoundedGraph
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source target : List CompactNumericChildResult)
+    (nextStatus : Option Bool)
+    (backTokens : List Nat) (ruleCoordinateBound : Nat) : Prop :=
+  let currentState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (task :: tasks, source)), none)
+  let nextState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (tasks, target)), nextStatus)
+  let currentTokens := compactAdditiveEncode currentState
+  let nextTokens := compactAdditiveEncode nextState
+  let tokens := currentTokens ++ nextTokens ++ backTokens
+  let width := (compactBinaryNatPayloadBits tokens).length
+  ∃ currentCoordinates nextCoordinates
+      currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
+      ruleWitness,
+    currentCoordinates.start = 0 ∧
+    currentCoordinates.finish = currentTokens.length ∧
+    nextCoordinates.start = currentTokens.length ∧
+    nextCoordinates.finish = currentTokens.length + nextTokens.length ∧
+    CompactNumericVerifierStateCanonicalCorePackage
+      (compactFixedWidthTableCode width tokens) width tokens.length
+      0 currentTokens.length currentState
+      currentCoordinates currentSizeWitness ∧
+    CompactNumericVerifierStateCanonicalCorePackage
+      (compactFixedWidthTableCode width tokens) width tokens.length
+      currentTokens.length (currentTokens.length + nextTokens.length)
+      nextState nextCoordinates nextSizeWitness ∧
+    CompactNumericVerifierCombineStateGraph
+      (compactFixedWidthTableCode width tokens) width tokens.length
+      currentCoordinates nextCoordinates currentSizeWitness nextSizeWitness
+      taskCoordinates taskSizeWitness ruleWitness ∧
+    ∀ coordinate : Fin 34,
+      Nat.size (compactNumericVerifierCombineRuleWitnessEnvironment
+        ruleWitness coordinate) <= ruleCoordinateBound
+
+def compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source target : List CompactNumericChildResult)
+    (nextStatus : Option Bool)
+    (backTokens : List Nat) : Nat :=
+  let currentState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (task :: tasks, source)), none)
+  let nextState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (tasks, target)), nextStatus)
+  let currentTokens := compactAdditiveEncode currentState
+  let nextTokens := compactAdditiveEncode nextState
+  let tokens := currentTokens ++ nextTokens ++ backTokens
+  let width := (compactBinaryNatPayloadBits tokens).length
+  compactNumericAllShiftCombineRuleCoordinateSizeBound width tokens.length
+
+def compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source target : List CompactNumericChildResult)
+    (nextStatus : Option Bool)
+    (backTokens : List Nat) : Nat :=
+  let currentState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (task :: tasks, source)), none)
+  let nextState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (tasks, target)), nextStatus)
+  let currentTokens := compactAdditiveEncode currentState
+  let nextTokens := compactAdditiveEncode nextState
+  let tokens := currentTokens ++ nextTokens ++ backTokens
+  compactNumericVerifierSimpleCombineRuleCoordinateSizeBound tokens.length
+
+def compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source target : List CompactNumericChildResult)
+    (nextStatus : Option Bool)
+    (backTokens : List Nat) : Nat :=
+  let currentState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (task :: tasks, source)), none)
+  let nextState : CompactNumericVerifierState :=
+    (((proofTokens, certificateTokens), (tasks, target)), nextStatus)
+  let currentTokens := compactAdditiveEncode currentState
+  let nextTokens := compactAdditiveEncode nextState
+  let tokens := currentTokens ++ nextTokens ++ backTokens
+  let width := (compactBinaryNatPayloadBits tokens).length
+  compactNumericExsCutCombineRuleCoordinateSizeBound width tokens.length
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.toGraph
+    {proofTokens certificateTokens : List Nat}
+    {task : CompactNumericVerifierTask}
+    {tasks : List CompactNumericVerifierTask}
+    {source target : List CompactNumericChildResult}
+    {nextStatus : Option Bool}
+    {backTokens : List Nat} {ruleCoordinateBound : Nat}
+    (hgraph : CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens task tasks source target
+        nextStatus backTokens ruleCoordinateBound) :
+    CompactNumericVerifierCanonicalCombineGraph
+      proofTokens certificateTokens task tasks source target
+        nextStatus backTokens := by
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph] at hgraph
+  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+  rcases hgraph with
+    ⟨currentCoordinates, nextCoordinates,
+      currentSizeWitness, nextSizeWitness,
+      taskCoordinates, taskSizeWitness, ruleWitness,
+      hcurrentStart, hcurrentFinish, hnextStart, hnextFinish,
+      hcurrentPackage, hnextPackage, hcombine, _hcoordinateSize⟩
+  exact ⟨currentCoordinates, nextCoordinates,
+    currentSizeWitness, nextSizeWitness,
+    taskCoordinates, taskSizeWitness, ruleWitness,
+    hcurrentStart, hcurrentFinish, hnextStart, hnextFinish,
+    hcurrentPackage, hnextPackage, hcombine⟩
 
 def compactNumericExsCombineAuxiliaryTokens
     (formula witness : List Nat) : List Nat :=
@@ -147,6 +277,58 @@ def compactNumericAllCombineAuxiliaryTokens
     compactAdditiveEncode freeTrace ++ compactAdditiveEncode candidates ++
     compactAdditiveEncode shifted ++ compactAdditiveEncode shiftTraces
 
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_and
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (firstFormula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (rightConclusion leftConclusion : List (List Nat))
+    (rightValid leftValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens
+      (3, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks
+      ((rightConclusion, rightValid) :: (leftConclusion, leftValid) :: tail)
+      ((Gamma, compactAndRuleCheck
+        (Gamma, firstFormula, secondFormula,
+          (leftConclusion, leftValid), rightConclusion, rightValid)) :: tail)
+      none []
+      (compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (3, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+        tasks
+        ((rightConclusion, rightValid) :: (leftConclusion, leftValid) :: tail)
+        ((Gamma, compactAndRuleCheck
+          (Gamma, firstFormula, secondFormula,
+            (leftConclusion, leftValid), rightConclusion, rightValid)) :: tail)
+        none []) := by
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound]
+  have hframeExists :=
+    CompactNumericVerifierCombineCanonicalFramePackage.exists_canonical_with_back
+      proofTokens certificateTokens
+      (3, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks
+      ((rightConclusion, rightValid) :: (leftConclusion, leftValid) :: tail)
+      ((Gamma, compactAndRuleCheck
+        (Gamma, firstFormula, secondFormula,
+          (leftConclusion, leftValid), rightConclusion, rightValid)) :: tail)
+      none [] (by simp)
+  dsimp only at hframeExists
+  rcases hframeExists with
+    ⟨currentCoordinates, nextCoordinates,
+      currentSizeWitness, nextSizeWitness,
+      taskCoordinates, taskSizeWitness, hframe⟩
+  rcases CompactNumericVerifierCombineStateGraph.exists_of_and_frame
+      hframe with ⟨ruleWitness, hgraph, hruleSize⟩
+  exact ⟨currentCoordinates, nextCoordinates,
+    currentSizeWitness, nextSizeWitness,
+    taskCoordinates, taskSizeWitness, ruleWitness,
+    hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
+    hframe.1, hframe.2.1,
+    hgraph, hruleSize⟩
+
 theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_and
     (proofTokens certificateTokens : List Nat)
     (Gamma : List (List Nat))
@@ -164,29 +346,57 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_and
         (Gamma, firstFormula, secondFormula,
           (leftConclusion, leftValid), rightConclusion, rightValid)) :: tail)
       none [] := by
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_and
+    proofTokens certificateTokens Gamma firstFormula secondFormula witness
+      suffix tasks rightConclusion leftConclusion rightValid leftValid tail).toGraph
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_or
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (firstFormula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (rightConclusion : List (List Nat)) (rightValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens
+      (4, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks ((rightConclusion, rightValid) :: tail)
+      ((Gamma, compactOrRuleCheck
+        (Gamma, firstFormula, secondFormula,
+          rightConclusion, rightValid)) :: tail)
+      none []
+      (compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (4, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+        tasks ((rightConclusion, rightValid) :: tail)
+        ((Gamma, compactOrRuleCheck
+          (Gamma, firstFormula, secondFormula,
+            rightConclusion, rightValid)) :: tail)
+        none []) := by
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound]
   have hframeExists :=
     CompactNumericVerifierCombineCanonicalFramePackage.exists_canonical_with_back
       proofTokens certificateTokens
-      (3, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
-      tasks
-      ((rightConclusion, rightValid) :: (leftConclusion, leftValid) :: tail)
-      ((Gamma, compactAndRuleCheck
+      (4, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks ((rightConclusion, rightValid) :: tail)
+      ((Gamma, compactOrRuleCheck
         (Gamma, firstFormula, secondFormula,
-          (leftConclusion, leftValid), rightConclusion, rightValid)) :: tail)
+          rightConclusion, rightValid)) :: tail)
       none [] (by simp)
   dsimp only at hframeExists
   rcases hframeExists with
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       taskCoordinates, taskSizeWitness, hframe⟩
-  rcases CompactNumericVerifierCombineStateGraph.exists_of_and_frame
-      hframe with ⟨ruleWitness, hgraph⟩
+  rcases CompactNumericVerifierCombineStateGraph.exists_of_or_frame
+      hframe with ⟨ruleWitness, hgraph, hruleSize⟩
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hruleSize⟩
 
 theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_or
     (proofTokens certificateTokens : List Nat)
@@ -203,28 +413,54 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_or
         (Gamma, firstFormula, secondFormula,
           rightConclusion, rightValid)) :: tail)
       none [] := by
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_or
+    proofTokens certificateTokens Gamma firstFormula secondFormula witness
+      suffix tasks rightConclusion rightValid tail).toGraph
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_wk
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (firstFormula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (rightConclusion : List (List Nat)) (rightValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens
+      (7, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks ((rightConclusion, rightValid) :: tail)
+      ((Gamma, compactWkRuleCheck
+        (Gamma, rightConclusion, rightValid)) :: tail)
+      none []
+      (compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (7, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+        tasks ((rightConclusion, rightValid) :: tail)
+        ((Gamma, compactWkRuleCheck
+          (Gamma, rightConclusion, rightValid)) :: tail)
+        none []) := by
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalSimpleRuleCoordinateSizeBound]
   have hframeExists :=
     CompactNumericVerifierCombineCanonicalFramePackage.exists_canonical_with_back
       proofTokens certificateTokens
-      (4, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      (7, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
       tasks ((rightConclusion, rightValid) :: tail)
-      ((Gamma, compactOrRuleCheck
-        (Gamma, firstFormula, secondFormula,
-          rightConclusion, rightValid)) :: tail)
+      ((Gamma, compactWkRuleCheck
+        (Gamma, rightConclusion, rightValid)) :: tail)
       none [] (by simp)
   dsimp only at hframeExists
   rcases hframeExists with
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       taskCoordinates, taskSizeWitness, hframe⟩
-  rcases CompactNumericVerifierCombineStateGraph.exists_of_or_frame
-      hframe with ⟨ruleWitness, hgraph⟩
+  rcases CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
+      hframe with ⟨ruleWitness, hgraph, hruleSize⟩
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hruleSize⟩
 
 theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_wk
     (proofTokens certificateTokens : List Nat)
@@ -240,27 +476,9 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_wk
       ((Gamma, compactWkRuleCheck
         (Gamma, rightConclusion, rightValid)) :: tail)
       none [] := by
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
-  have hframeExists :=
-    CompactNumericVerifierCombineCanonicalFramePackage.exists_canonical_with_back
-      proofTokens certificateTokens
-      (7, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
-      tasks ((rightConclusion, rightValid) :: tail)
-      ((Gamma, compactWkRuleCheck
-        (Gamma, rightConclusion, rightValid)) :: tail)
-      none [] (by simp)
-  dsimp only at hframeExists
-  rcases hframeExists with
-    ⟨currentCoordinates, nextCoordinates,
-      currentSizeWitness, nextSizeWitness,
-      taskCoordinates, taskSizeWitness, hframe⟩
-  rcases CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
-      hframe with ⟨ruleWitness, hgraph⟩
-  exact ⟨currentCoordinates, nextCoordinates,
-    currentSizeWitness, nextSizeWitness,
-    taskCoordinates, taskSizeWitness, ruleWitness,
-    hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_wk
+    proofTokens certificateTokens Gamma firstFormula secondFormula witness
+      suffix tasks rightConclusion rightValid tail).toGraph
 
 theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_failure
     (proofTokens certificateTokens : List Nat)
@@ -281,28 +499,65 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_failure
     ⟨currentCoordinates, nextCoordinates,
       currentSizeWitness, nextSizeWitness,
       taskCoordinates, taskSizeWitness, hframe⟩
-  rcases CompactNumericVerifierCombineStateGraph.exists_of_failure_frame
-      hframe htransition with ⟨ruleWitness, hgraph⟩
+  have hgraph := CompactNumericVerifierCombineStateGraph.of_failure_frame
+    hframe htransition
   exact ⟨currentCoordinates, nextCoordinates,
-    currentSizeWitness, nextSizeWitness,
-    taskCoordinates, taskSizeWitness, ruleWitness,
+    currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
+    compactNumericVerifierFailureCombineRuleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
+    hframe.1, hframe.2.1,
     hgraph⟩
 
-theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_failure
+    (proofTokens certificateTokens : List Nat)
+    (task : CompactNumericVerifierTask)
+    (tasks : List CompactNumericVerifierTask)
+    (source : List CompactNumericChildResult)
+    (htaskNe : task.1 ≠ 10)
+    (htransition : compactNumericCombineTransition task source = none) :
+    CompactNumericVerifierCanonicalCombineBoundedGraph
+      proofTokens certificateTokens task tasks source source
+      (some false) [] 0 := by
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph]
+  have hframeExists :=
+    CompactNumericVerifierCombineCanonicalFramePackage.exists_canonical_with_back
+      proofTokens certificateTokens task tasks source source
+      (some false) [] htaskNe
+  dsimp only at hframeExists
+  rcases hframeExists with
+    ⟨currentCoordinates, nextCoordinates,
+      currentSizeWitness, nextSizeWitness,
+      taskCoordinates, taskSizeWitness, hframe⟩
+  have hgraph := CompactNumericVerifierCombineStateGraph.of_failure_frame
+    hframe htransition
+  exact ⟨currentCoordinates, nextCoordinates,
+    currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
+    compactNumericVerifierFailureCombineRuleWitness,
+    hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
+    hframe.1, hframe.2.1, hgraph,
+    compactNumericVerifierFailureCombineRuleWitness_size_le 0⟩
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_exs
     (proofTokens certificateTokens : List Nat)
     (Gamma : List (List Nat))
     (formula secondFormula witness suffix : List Nat)
     (tasks : List CompactNumericVerifierTask)
     (rightConclusion : List (List Nat)) (rightValid : Bool)
     (tail : List CompactNumericChildResult) :
-    CompactNumericVerifierCanonicalCombineGraph
+    CompactNumericVerifierCanonicalCombineBoundedGraph
       proofTokens certificateTokens
       (6, (Gamma, (formula, (secondFormula, (witness, suffix)))))
       tasks ((rightConclusion, rightValid) :: tail)
       ((Gamma, compactExsRuleCheck
         (Gamma, formula, witness, rightConclusion, rightValid)) :: tail)
-      none (compactNumericExsCombineAuxiliaryTokens formula witness) := by
+      none (compactNumericExsCombineAuxiliaryTokens formula witness)
+      (compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (6, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+        tasks ((rightConclusion, rightValid) :: tail)
+        ((Gamma, compactExsRuleCheck
+          (Gamma, formula, witness, rightConclusion, rightValid)) :: tail)
+        none (compactNumericExsCombineAuxiliaryTokens formula witness)) := by
   let task : CompactNumericVerifierTask :=
     (6, (Gamma, (formula, (secondFormula, (witness, suffix)))))
   let source : List CompactNumericChildResult :=
@@ -340,8 +595,9 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
   let transformStateBoundary :=
     compactFormulaTransformStateBoundaryTable
       tokens.length (traceStart + 1) trace
-  change CompactNumericVerifierCanonicalCombineGraph
+  change CompactNumericVerifierCanonicalCombineBoundedGraph
     proofTokens certificateTokens task tasks source target none backTokens
+      (compactNumericExsCutCombineRuleCoordinateSizeBound width tokens.length)
   have htransformedRaw := compactAdditiveNatListDirectLayout_canonical
     statePrefix transformed (emptyTokens ++ traceTokens)
   have htransformed : CompactAdditiveNatListDirectLayout
@@ -396,16 +652,36 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
       (transformedFinish := transformedFinish)
       (transformStateBoundary := transformStateBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe htransformed hempty htrace.2.1 with
-    ⟨ruleWitness, hgraph⟩
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+      hframe htransformed hempty ⟨htrace.2.1, htrace.2.2⟩ with
+    ⟨ruleWitness, hgraph, hruleBounds⟩
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hruleBounds.coordinate_size⟩
 
-theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
+theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (formula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (rightConclusion : List (List Nat)) (rightValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineGraph
+      proofTokens certificateTokens
+      (6, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+      tasks ((rightConclusion, rightValid) :: tail)
+      ((Gamma, compactExsRuleCheck
+        (Gamma, formula, witness, rightConclusion, rightValid)) :: tail)
+      none (compactNumericExsCombineAuxiliaryTokens formula witness) := by
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_exs
+    proofTokens certificateTokens Gamma formula secondFormula witness suffix
+      tasks rightConclusion rightValid tail).toGraph
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_cut
     (proofTokens certificateTokens : List Nat)
     (Gamma : List (List Nat))
     (formula secondFormula witness suffix : List Nat)
@@ -413,7 +689,7 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
     (rightConclusion leftConclusion : List (List Nat))
     (rightValid leftValid : Bool)
     (tail : List CompactNumericChildResult) :
-    CompactNumericVerifierCanonicalCombineGraph
+    CompactNumericVerifierCanonicalCombineBoundedGraph
       proofTokens certificateTokens
       (9, (Gamma, (formula, (secondFormula, (witness, suffix)))))
       tasks
@@ -421,7 +697,17 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
       ((Gamma, compactCutRuleCheck
         (Gamma, formula, (leftConclusion, leftValid),
           rightConclusion, rightValid)) :: tail)
-      none (compactNumericCutCombineAuxiliaryTokens formula) := by
+      none (compactNumericCutCombineAuxiliaryTokens formula)
+      (compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (9, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+        tasks
+        ((rightConclusion, rightValid) ::
+          (leftConclusion, leftValid) :: tail)
+        ((Gamma, compactCutRuleCheck
+          (Gamma, formula, (leftConclusion, leftValid),
+            rightConclusion, rightValid)) :: tail)
+        none (compactNumericCutCombineAuxiliaryTokens formula)) := by
   let task : CompactNumericVerifierTask :=
     (9, (Gamma, (formula, (secondFormula, (witness, suffix)))))
   let source : List CompactNumericChildResult :=
@@ -459,8 +745,9 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
   let transformStateBoundary :=
     compactFormulaTransformStateBoundaryTable
       tokens.length (traceStart + 1) trace
-  change CompactNumericVerifierCanonicalCombineGraph
+  change CompactNumericVerifierCanonicalCombineBoundedGraph
     proofTokens certificateTokens task tasks source target none backTokens
+      (compactNumericExsCutCombineRuleCoordinateSizeBound width tokens.length)
   have htransformedRaw := compactAdditiveNatListDirectLayout_canonical
     statePrefix transformed (emptyTokens ++ traceTokens)
   have htransformed : CompactAdditiveNatListDirectLayout
@@ -515,28 +802,57 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
       (transformedFinish := transformedFinish)
       (transformStateBoundary := transformStateBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe htransformed hempty htrace.2.1 with
-    ⟨ruleWitness, hgraph⟩
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+      hframe htransformed hempty ⟨htrace.2.1, htrace.2.2⟩ with
+    ⟨ruleWitness, hgraph, hruleBounds⟩
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalExsCutRuleCoordinateSizeBound]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hruleBounds.coordinate_size⟩
 
-theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
+theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (formula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (rightConclusion leftConclusion : List (List Nat))
+    (rightValid leftValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineGraph
+      proofTokens certificateTokens
+      (9, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+      tasks
+      ((rightConclusion, rightValid) :: (leftConclusion, leftValid) :: tail)
+      ((Gamma, compactCutRuleCheck
+        (Gamma, formula, (leftConclusion, leftValid),
+          rightConclusion, rightValid)) :: tail)
+      none (compactNumericCutCombineAuxiliaryTokens formula) := by
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_cut
+    proofTokens certificateTokens Gamma formula secondFormula witness suffix
+      tasks rightConclusion leftConclusion rightValid leftValid tail).toGraph
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_shift
     (proofTokens certificateTokens : List Nat)
     (Gamma : List (List Nat))
     (firstFormula secondFormula witness suffix : List Nat)
     (tasks : List CompactNumericVerifierTask)
     (premise : List (List Nat)) (premiseValid : Bool)
     (tail : List CompactNumericChildResult) :
-    CompactNumericVerifierCanonicalCombineGraph
+    CompactNumericVerifierCanonicalCombineBoundedGraph
       proofTokens certificateTokens
       (8, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
       tasks ((premise, premiseValid) :: tail)
       ((Gamma, compactShiftRuleCheck (Gamma, premise, premiseValid)) :: tail)
-      none (compactNumericShiftCombineAuxiliaryTokens premise) := by
+      none (compactNumericShiftCombineAuxiliaryTokens premise)
+      (compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (8, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+        tasks ((premise, premiseValid) :: tail)
+        ((Gamma, compactShiftRuleCheck (Gamma, premise, premiseValid)) :: tail)
+        none (compactNumericShiftCombineAuxiliaryTokens premise)) := by
   let task : CompactNumericVerifierTask :=
     (8, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
   let source : List CompactNumericChildResult :=
@@ -573,8 +889,10 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
   let afterShifted := afterCandidate ++ shiftedTokens
   let traceStart := afterShifted.length
   let traceFinish := traceStart + traceTokens.length
-  change CompactNumericVerifierCanonicalCombineGraph
+  change CompactNumericVerifierCanonicalCombineBoundedGraph
     proofTokens certificateTokens task tasks source target none backTokens
+      (compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+        proofTokens certificateTokens task tasks source target none backTokens)
   have hemptyRaw := compactAdditiveNatListDirectLayout_canonical
     statePrefix empty (candidateTokens ++ shiftedTokens ++ traceTokens)
   have hempty : CompactAdditiveNatListDirectLayout
@@ -591,8 +909,8 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
       candidateTokens, afterEmpty, candidateStart, candidateFinish,
       List.append_assoc] using hcandidateRaw
   rcases hcandidate with
-    ⟨candidateBoundary, _hcandidateStructure,
-      hcandidateRows, _hcandidateSize⟩
+    ⟨candidateBoundary, hcandidateStructure,
+      hcandidateRows, hcandidateSize⟩
   have hshiftedRaw := compactAdditiveNatListListDirectLayout_canonical
     afterCandidate shifted traceTokens
   have hshifted : CompactAdditiveNatListListDirectLayout
@@ -602,7 +920,7 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
       candidateTokens, shiftedTokens, afterEmpty, afterCandidate,
       shiftedStart, shiftedFinish, List.append_assoc] using hshiftedRaw
   rcases hshifted with
-    ⟨shiftedBoundary, _hshiftedStructure, hshiftedRows, _hshiftedSize⟩
+    ⟨shiftedBoundary, hshiftedStructure, hshiftedRows, hshiftedSize⟩
   have htracesRaw := compactFormulaTransformTraceListDirectLayout_canonical
     afterShifted traces []
   have htraces : CompactFormulaTransformTraceListDirectLayout
@@ -621,15 +939,23 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
           stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (premise.getI index))
-            (compactFormulaTransformInitialState 0 (premise.getI index))) := by
+            (compactFormulaTransformInitialState 0 (premise.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (premise.getI index))
+              (compactFormulaTransformInitialState 0
+                (premise.getI index))).length + 1) * tokens.length := by
     intro index hindex
     have htraceIndex : index < traces.length := by
       simpa [traces, compactFormulaShiftTraceList] using hindex
-    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows
-        htraceRows index htraceIndex with ⟨stateBoundary, hstateRows⟩
-    exact ⟨stateBoundary, by
-      simpa only [traces, compactFormulaShiftTraceList_getI
-        premise index hindex] using hstateRows⟩
+    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
+        htraceRows index htraceIndex with
+      ⟨stateBoundary, hstateRows, hstateSize⟩
+    refine ⟨stateBoundary, ?_, ?_⟩
+    · simpa only [traces, compactFormulaShiftTraceList_getI
+        premise index hindex] using hstateRows
+    · simpa only [traces, compactFormulaShiftTraceList_getI
+        premise index hindex] using hstateSize
   have htokenCount : 1 ≤ tokens.length := by
     simpa only [tokens, statePrefix, currentTokens, nextTokens] using
       compactNumericVerifierStatePairPrefix_tokenCount_pos
@@ -656,29 +982,58 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
       (shiftCandidateBoundary := candidateBoundary)
       (shiftedBoundary := shiftedBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe hempty hcandidateRows hshiftedRows hshiftTraces htokenCount with
-    ⟨ruleWitness, hgraph⟩
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+      hframe hempty
+        ⟨hcandidateStructure, hcandidateRows, hcandidateSize⟩
+        ⟨hshiftedStructure, hshiftedRows, hshiftedSize⟩
+        hshiftTraces htokenCount with
+    ⟨ruleWitness, hgraph, hbounds⟩
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hbounds.coordinate_size⟩
 
-theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
+theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_shift
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (firstFormula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (premise : List (List Nat)) (premiseValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineGraph
+      proofTokens certificateTokens
+      (8, (Gamma, (firstFormula, (secondFormula, (witness, suffix)))))
+      tasks ((premise, premiseValid) :: tail)
+      ((Gamma, compactShiftRuleCheck (Gamma, premise, premiseValid)) :: tail)
+      none (compactNumericShiftCombineAuxiliaryTokens premise) := by
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_shift
+    proofTokens certificateTokens Gamma firstFormula secondFormula
+      witness suffix tasks premise premiseValid tail).toGraph
+
+theorem CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_all
     (proofTokens certificateTokens : List Nat)
     (Gamma : List (List Nat))
     (formula secondFormula witness suffix : List Nat)
     (tasks : List CompactNumericVerifierTask)
     (premise : List (List Nat)) (premiseValid : Bool)
     (tail : List CompactNumericChildResult) :
-    CompactNumericVerifierCanonicalCombineGraph
+    CompactNumericVerifierCanonicalCombineBoundedGraph
       proofTokens certificateTokens
       (5, (Gamma, (formula, (secondFormula, (witness, suffix)))))
       tasks ((premise, premiseValid) :: tail)
       ((Gamma, compactAllRuleCheck
         (Gamma, formula, premise, premiseValid)) :: tail)
-      none (compactNumericAllCombineAuxiliaryTokens Gamma formula) := by
+      none (compactNumericAllCombineAuxiliaryTokens Gamma formula)
+      (compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+        proofTokens certificateTokens
+        (5, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+        tasks ((premise, premiseValid) :: tail)
+        ((Gamma, compactAllRuleCheck
+          (Gamma, formula, premise, premiseValid)) :: tail)
+        none (compactNumericAllCombineAuxiliaryTokens Gamma formula)) := by
   let task : CompactNumericVerifierTask :=
     (5, (Gamma, (formula, (secondFormula, (witness, suffix)))))
   let source : List CompactNumericChildResult :=
@@ -732,8 +1087,10 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
   let freeStateBoundary :=
     compactFormulaTransformStateBoundaryTable
       tokens.length (freeTraceStart + 1) freeTrace
-  change CompactNumericVerifierCanonicalCombineGraph
+  change CompactNumericVerifierCanonicalCombineBoundedGraph
     proofTokens certificateTokens task tasks source target none backTokens
+      (compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound
+        proofTokens certificateTokens task tasks source target none backTokens)
   have hfreedRaw := compactAdditiveNatListDirectLayout_canonical
     statePrefix freed
       (emptyTokens ++ freeTraceTokens ++ candidateTokens ++ shiftedTokens ++
@@ -779,8 +1136,8 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
       afterFreeTrace, candidateStart, candidateFinish,
       List.append_assoc] using hcandidateRaw
   rcases hcandidate with
-    ⟨candidateBoundary, _hcandidateStructure,
-      hcandidateRows, _hcandidateSize⟩
+    ⟨candidateBoundary, hcandidateStructure,
+      hcandidateRows, hcandidateSize⟩
   have hshiftedRaw := compactAdditiveNatListListDirectLayout_canonical
     afterCandidate shifted shiftTraceTokens
   have hshifted : CompactAdditiveNatListListDirectLayout
@@ -791,7 +1148,7 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
       afterFreed, afterEmpty, afterFreeTrace, afterCandidate,
       shiftedStart, shiftedFinish, List.append_assoc] using hshiftedRaw
   rcases hshifted with
-    ⟨shiftedBoundary, _hshiftedStructure, hshiftedRows, _hshiftedSize⟩
+    ⟨shiftedBoundary, hshiftedStructure, hshiftedRows, hshiftedSize⟩
   have hshiftTracesRaw :=
     compactFormulaTransformTraceListDirectLayout_canonical
       afterShifted shiftTraces []
@@ -813,15 +1170,23 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
           stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (Gamma.getI index))
-            (compactFormulaTransformInitialState 0 (Gamma.getI index))) := by
+            (compactFormulaTransformInitialState 0 (Gamma.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (Gamma.getI index))
+              (compactFormulaTransformInitialState 0
+                (Gamma.getI index))).length + 1) * tokens.length := by
     intro index hindex
     have htraceIndex : index < shiftTraces.length := by
       simpa [shiftTraces, compactFormulaShiftTraceList] using hindex
-    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows
-        hshiftTraceRows index htraceIndex with ⟨stateBoundary, hstateRows⟩
-    exact ⟨stateBoundary, by
-      simpa only [shiftTraces, compactFormulaShiftTraceList_getI
-        Gamma index hindex] using hstateRows⟩
+    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
+        hshiftTraceRows index htraceIndex with
+      ⟨stateBoundary, hstateRows, hstateSize⟩
+    refine ⟨stateBoundary, ?_, ?_⟩
+    · simpa only [shiftTraces, compactFormulaShiftTraceList_getI
+        Gamma index hindex] using hstateRows
+    · simpa only [shiftTraces, compactFormulaShiftTraceList_getI
+        Gamma index hindex] using hstateSize
   have htokenCount : 1 ≤ tokens.length := by
     simpa only [tokens, statePrefix, currentTokens, nextTokens] using
       compactNumericVerifierStatePairPrefix_tokenCount_pos
@@ -850,20 +1215,58 @@ theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
       (shiftCandidateBoundary := candidateBoundary)
       (shiftedBoundary := shiftedBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe hfreed hempty hfreeTrace.2.1 hcandidateRows hshiftedRows
+      hframe hfreed hempty hfreeTrace.2
+        ⟨hcandidateStructure, hcandidateRows, hcandidateSize⟩
+        ⟨hshiftedStructure, hshiftedRows, hshiftedSize⟩
         hshiftTraces htokenCount with
-    ⟨ruleWitness, hgraph⟩
-  dsimp only [CompactNumericVerifierCanonicalCombineGraph]
+    ⟨ruleWitness, hgraph, hbounds⟩
+  dsimp only [CompactNumericVerifierCanonicalCombineBoundedGraph,
+    compactNumericVerifierCanonicalAllShiftRuleCoordinateSizeBound]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness,
     taskCoordinates, taskSizeWitness, ruleWitness,
     hframe.1.1, hframe.1.2.1, hframe.2.1.1, hframe.2.1.2.1,
-    hgraph⟩
+    hframe.1, hframe.2.1,
+    hgraph, hbounds.coordinate_size⟩
+
+theorem CompactNumericVerifierCanonicalCombineGraph.exists_of_all
+    (proofTokens certificateTokens : List Nat)
+    (Gamma : List (List Nat))
+    (formula secondFormula witness suffix : List Nat)
+    (tasks : List CompactNumericVerifierTask)
+    (premise : List (List Nat)) (premiseValid : Bool)
+    (tail : List CompactNumericChildResult) :
+    CompactNumericVerifierCanonicalCombineGraph
+      proofTokens certificateTokens
+      (5, (Gamma, (formula, (secondFormula, (witness, suffix)))))
+      tasks ((premise, premiseValid) :: tail)
+      ((Gamma, compactAllRuleCheck
+        (Gamma, formula, premise, premiseValid)) :: tail)
+      none (compactNumericAllCombineAuxiliaryTokens Gamma formula) := by
+  exact (CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_all
+    proofTokens certificateTokens Gamma formula secondFormula witness suffix
+      tasks premise premiseValid tail).toGraph
 
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_and
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_or
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_wk
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_and
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_or
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_wk
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_failure
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_failure
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_exs
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_cut
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_shift
+#print axioms
+  CompactNumericVerifierCanonicalCombineBoundedGraph.exists_of_all
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_exs
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_cut
 #print axioms CompactNumericVerifierCanonicalCombineGraph.exists_of_shift

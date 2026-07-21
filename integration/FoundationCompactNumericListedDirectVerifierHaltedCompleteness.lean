@@ -50,12 +50,13 @@ def CompactNumericVerifierCanonicalHaltedGraph
     currentCoordinates.finish = stateTokens.length ∧
     nextCoordinates.start = stateTokens.length ∧
     nextCoordinates.finish = stateTokens.length + stateTokens.length ∧
-    CompactNumericVerifierStateCoreGraph
+    CompactNumericVerifierStateCanonicalCorePackage
       (compactFixedWidthTableCode width tokens) width tokens.length
-      currentCoordinates currentSizeWitness ∧
-    CompactNumericVerifierStateCoreGraph
+      0 stateTokens.length state currentCoordinates currentSizeWitness ∧
+    CompactNumericVerifierStateCanonicalCorePackage
       (compactFixedWidthTableCode width tokens) width tokens.length
-      nextCoordinates nextSizeWitness ∧
+      stateTokens.length (stateTokens.length + stateTokens.length)
+      state nextCoordinates nextSizeWitness ∧
     CompactNumericVerifierHaltedRows
       (compactFixedWidthTableCode width tokens) width tokens.length
       currentCoordinates.start currentCoordinates.finish
@@ -124,8 +125,7 @@ theorem CompactNumericVerifierCanonicalHaltedGraph.exists_of_some
     currentSizeWitness, nextSizeWitness,
     hcurrentPackage.1, hcurrentPackage.2.1,
     hnextPackage.1, hnextPackage.2.1,
-    hcurrentPackage.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2,
-    hnextPackage.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2, ?_⟩
+    hcurrentPackage, hnextPackage, ?_⟩
   exact ⟨hcurrentStatus.1, by
     simpa only [hcurrentPackage.1, hcurrentPackage.2.1,
       hnextPackage.1, hnextPackage.2.1] using hslices⟩

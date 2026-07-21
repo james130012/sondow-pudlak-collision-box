@@ -296,7 +296,7 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_and
     CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
       hframe.2.1 rfl
   rcases CompactNumericVerifierCombineStateGraph.exists_of_and_frame hframe with
-    ⟨ruleWitness, hgraph⟩
+    ⟨ruleWitness, hgraph, _hruleSize⟩
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
     ruleWitness, hgraph, hstatus⟩
@@ -335,7 +335,7 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_or
     CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
       hframe.2.1 rfl
   rcases CompactNumericVerifierCombineStateGraph.exists_of_or_frame hframe with
-    ⟨ruleWitness, hgraph⟩
+    ⟨ruleWitness, hgraph, _hruleSize⟩
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
     ruleWitness, hgraph, hstatus⟩
@@ -372,7 +372,7 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_wk
     CompactNumericVerifierStateCanonicalCorePackage.statusTag_eq_zero
       hframe.2.1 rfl
   rcases CompactNumericVerifierCombineStateGraph.exists_of_wk_frame hframe with
-    ⟨ruleWitness, hgraph⟩
+    ⟨ruleWitness, hgraph, _hruleSize⟩
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
     ruleWitness, hgraph, hstatus⟩
@@ -487,8 +487,8 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_exs
       (transformedFinish := transformedFinish)
       (transformStateBoundary := transformStateBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe htransformed hempty htrace.2.1 with
-    ⟨ruleWitness, hgraph⟩
+      hframe htransformed hempty ⟨htrace.2.1, htrace.2.2⟩ with
+    ⟨ruleWitness, hgraph, _hruleBounds⟩
   dsimp only [CompactNumericVerifierCanonicalNonLeafSuccessStateGraph]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
@@ -607,8 +607,8 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_cut
       (transformedFinish := transformedFinish)
       (transformStateBoundary := transformStateBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe htransformed hempty htrace.2.1 with
-    ⟨ruleWitness, hgraph⟩
+      hframe htransformed hempty ⟨htrace.2.1, htrace.2.2⟩ with
+    ⟨ruleWitness, hgraph, _hruleBounds⟩
   dsimp only [CompactNumericVerifierCanonicalNonLeafSuccessStateGraph]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
@@ -681,8 +681,8 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_shift
       candidateTokens, afterEmpty, candidateStart, candidateFinish,
       List.append_assoc] using hcandidateRaw
   rcases hcandidate with
-    ⟨candidateBoundary, _hcandidateStructure,
-      hcandidateRows, _hcandidateSize⟩
+    ⟨candidateBoundary, hcandidateStructure,
+      hcandidateRows, hcandidateSize⟩
   have hshiftedRaw := compactAdditiveNatListListDirectLayout_canonical
     afterCandidate shifted traceTokens
   have hshifted : CompactAdditiveNatListListDirectLayout
@@ -692,7 +692,7 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_shift
       candidateTokens, shiftedTokens, afterEmpty, afterCandidate,
       shiftedStart, shiftedFinish, List.append_assoc] using hshiftedRaw
   rcases hshifted with
-    ⟨shiftedBoundary, _hshiftedStructure, hshiftedRows, _hshiftedSize⟩
+    ⟨shiftedBoundary, hshiftedStructure, hshiftedRows, hshiftedSize⟩
   have htracesRaw := compactFormulaTransformTraceListDirectLayout_canonical
     afterShifted traces []
   have htraces : CompactFormulaTransformTraceListDirectLayout
@@ -711,15 +711,23 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_shift
           stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (premise.getI index))
-            (compactFormulaTransformInitialState 0 (premise.getI index))) := by
+            (compactFormulaTransformInitialState 0 (premise.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (premise.getI index))
+              (compactFormulaTransformInitialState 0
+                (premise.getI index))).length + 1) * tokens.length := by
     intro index hindex
     have htraceIndex : index < traces.length := by
       simpa [traces, compactFormulaShiftTraceList] using hindex
-    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows
-        htraceRows index htraceIndex with ⟨stateBoundary, hstateRows⟩
-    exact ⟨stateBoundary, by
-      simpa only [traces, compactFormulaShiftTraceList_getI
-        premise index hindex] using hstateRows⟩
+    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
+        htraceRows index htraceIndex with
+      ⟨stateBoundary, hstateRows, hstateSize⟩
+    refine ⟨stateBoundary, ?_, ?_⟩
+    · simpa only [traces, compactFormulaShiftTraceList_getI
+        premise index hindex] using hstateRows
+    · simpa only [traces, compactFormulaShiftTraceList_getI
+        premise index hindex] using hstateSize
   have htokenCount : 1 ≤ tokens.length := by
     simpa only [tokens, statePrefix, currentTokens, nextTokens] using
       compactNumericVerifierStatePairPrefix_tokenCount_pos
@@ -749,8 +757,11 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_shift
       (shiftCandidateBoundary := candidateBoundary)
       (shiftedBoundary := shiftedBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe hempty hcandidateRows hshiftedRows hshiftTraces htokenCount with
-    ⟨ruleWitness, hgraph⟩
+      hframe hempty
+        ⟨hcandidateStructure, hcandidateRows, hcandidateSize⟩
+        ⟨hshiftedStructure, hshiftedRows, hshiftedSize⟩
+        hshiftTraces htokenCount with
+    ⟨ruleWitness, hgraph, _hcritical⟩
   dsimp only [CompactNumericVerifierCanonicalNonLeafSuccessStateGraph]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,
@@ -869,8 +880,8 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_all
       afterFreeTrace, candidateStart, candidateFinish,
       List.append_assoc] using hcandidateRaw
   rcases hcandidate with
-    ⟨candidateBoundary, _hcandidateStructure,
-      hcandidateRows, _hcandidateSize⟩
+    ⟨candidateBoundary, hcandidateStructure,
+      hcandidateRows, hcandidateSize⟩
   have hshiftedRaw := compactAdditiveNatListListDirectLayout_canonical
     afterCandidate shifted shiftTraceTokens
   have hshifted : CompactAdditiveNatListListDirectLayout
@@ -881,7 +892,7 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_all
       afterFreed, afterEmpty, afterFreeTrace, afterCandidate,
       shiftedStart, shiftedFinish, List.append_assoc] using hshiftedRaw
   rcases hshifted with
-    ⟨shiftedBoundary, _hshiftedStructure, hshiftedRows, _hshiftedSize⟩
+    ⟨shiftedBoundary, hshiftedStructure, hshiftedRows, hshiftedSize⟩
   have hshiftTracesRaw :=
     compactFormulaTransformTraceListDirectLayout_canonical
       afterShifted shiftTraces []
@@ -903,15 +914,23 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_all
           stateBoundary
           (compactFormulaTransformStateTrace (1, [])
             (compactSyntaxRunFuelBound (Gamma.getI index))
-            (compactFormulaTransformInitialState 0 (Gamma.getI index))) := by
+            (compactFormulaTransformInitialState 0 (Gamma.getI index))) ∧
+        Nat.size stateBoundary ≤
+          ((compactFormulaTransformStateTrace (1, [])
+              (compactSyntaxRunFuelBound (Gamma.getI index))
+              (compactFormulaTransformInitialState 0
+                (Gamma.getI index))).length + 1) * tokens.length := by
     intro index hindex
     have htraceIndex : index < shiftTraces.length := by
       simpa [shiftTraces, compactFormulaShiftTraceList] using hindex
-    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows
-        hshiftTraceRows index htraceIndex with ⟨stateBoundary, hstateRows⟩
-    exact ⟨stateBoundary, by
-      simpa only [shiftTraces, compactFormulaShiftTraceList_getI
-        Gamma index hindex] using hstateRows⟩
+    rcases CompactFormulaTransformTraceListRowLayouts.trace_rows_with_size
+        hshiftTraceRows index htraceIndex with
+      ⟨stateBoundary, hstateRows, hstateSize⟩
+    refine ⟨stateBoundary, ?_, ?_⟩
+    · simpa only [shiftTraces, compactFormulaShiftTraceList_getI
+        Gamma index hindex] using hstateRows
+    · simpa only [shiftTraces, compactFormulaShiftTraceList_getI
+        Gamma index hindex] using hstateSize
   have htokenCount : 1 ≤ tokens.length := by
     simpa only [tokens, statePrefix, currentTokens, nextTokens] using
       compactNumericVerifierStatePairPrefix_tokenCount_pos
@@ -943,9 +962,11 @@ theorem CompactNumericVerifierCanonicalNonLeafSuccessStateGraph.exists_of_all
       (shiftCandidateBoundary := candidateBoundary)
       (shiftedBoundary := shiftedBoundary)
       (emptyStart := emptyStart) (emptyFinish := emptyFinish)
-      hframe hfreed hempty hfreeTrace.2.1 hcandidateRows hshiftedRows
+      hframe hfreed hempty hfreeTrace.2
+        ⟨hcandidateStructure, hcandidateRows, hcandidateSize⟩
+        ⟨hshiftedStructure, hshiftedRows, hshiftedSize⟩
         hshiftTraces htokenCount with
-    ⟨ruleWitness, hgraph⟩
+    ⟨ruleWitness, hgraph, _hcritical⟩
   dsimp only [CompactNumericVerifierCanonicalNonLeafSuccessStateGraph]
   exact ⟨currentCoordinates, nextCoordinates,
     currentSizeWitness, nextSizeWitness, taskCoordinates, taskSizeWitness,

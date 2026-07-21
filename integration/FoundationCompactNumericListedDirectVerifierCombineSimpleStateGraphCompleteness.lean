@@ -1,4 +1,5 @@
 import integration.FoundationCompactNumericListedDirectVerifierCombineStateGraphCompleteness
+import integration.FoundationCompactNumericListedDirectVerifierChildResultComponentBounds
 
 /-!
 # Full 93-column converse constructors for simple combine rules
@@ -29,6 +30,8 @@ open FoundationCompactNumericListedDirectSimpleCombineTransitionRows
 open FoundationCompactNumericListedDirectSimpleCombineTransitionRowsCompleteness
 open FoundationCompactNumericListedDirectVerifierCombineStateGraph
 open FoundationCompactNumericListedDirectVerifierCombineStateGraphCompleteness
+open FoundationCompactNumericListedDirectVerifierChildResultComponentBounds
+open FoundationCompactNumericListedDirectVerifierCombineRuleWitnessBounds
 
 theorem CompactNumericVerifierCombineStateGraph.exists_of_and_frame
     {tokenTable width tokenCount currentStart currentFinish
@@ -62,7 +65,12 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_and_frame
       CompactNumericVerifierCombineStateGraph
         tokenTable width tokenCount currentCoordinates nextCoordinates
         currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
-        ruleWitness := by
+        ruleWitness ∧
+      ∀ coordinate : Fin 34,
+        Nat.size (compactNumericVerifierCombineRuleWitnessEnvironment
+          ruleWitness coordinate) ≤
+          compactNumericVerifierSimpleCombineRuleCoordinateSizeBound
+            tokenCount := by
   have hframeSaved := hframePackage
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, _hhead, _hframe,
@@ -110,14 +118,24 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_and_frame
       currentSizeWitness.valueValueBound := by
     simpa only [hcurrentValueTableWidth,
       hcurrentValueValueBound] using htargetGraphCanonical
-  rcases CompactAdditiveStructuredListElementRowLayouts.childResult_components_at
-      hsourceRows 0 (by simp) with
-    ⟨rightGammaBoundary, rightBoolValue,
-      hrightRowsRaw, hrightBoolRaw⟩
-  rcases CompactAdditiveStructuredListElementRowLayouts.childResult_components_at
-      hsourceRows 1 (by simp) with
-    ⟨leftGammaBoundary, leftBoolValue,
-      hleftRowsRaw, hleftBoolRaw⟩
+  rcases
+      CompactAdditiveStructuredListElementRowLayouts.childResult_component_size_bounds
+        hsourceRows (rowIndex := 0) (by simp) with
+    ⟨rightGammaCount, rightGammaBoundary, rightBoolValue,
+      hrightCount, hrightRowsRaw, hrightBoolRaw,
+      _hrightCountLe, hrightCountSize,
+      hrightBoundarySize, hrightBoolSize⟩
+  rcases
+      CompactAdditiveStructuredListElementRowLayouts.childResult_component_size_bounds
+        hsourceRows (rowIndex := 1) (by simp) with
+    ⟨leftGammaCount, leftGammaBoundary, leftBoolValue,
+      hleftCount, hleftRowsRaw, hleftBoolRaw,
+      _hleftCountLe, hleftCountSize,
+      hleftBoundarySize, hleftBoolSize⟩
+  have hrightCountEq : rightGammaCount = rightConclusion.length := by
+    simpa using hrightCount
+  have hleftCountEq : leftGammaCount = leftConclusion.length := by
+    simpa using hleftCount
   have hrightRows : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
       rightGammaBoundary rightConclusion := by
@@ -154,8 +172,28 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_and_frame
             (leftConclusion, leftValid), rightConclusion, rightValid))) := by
     simpa only [hGammaCount, hfirstCount, hsecondCount,
       hsourceCount, htargetCount] using hlocal
-  exact CompactNumericVerifierCombineStateGraph.exists_of_simple_rows
-    hframeSaved hlocalAligned
+  let ruleWitness := compactNumericVerifierSimpleCombineRuleWitness
+    rightConclusion.length rightGammaBoundary rightBoolValue
+    leftConclusion.length leftGammaBoundary leftBoolValue
+    (compactAdditiveBoolTag
+      (compactAndRuleCheck
+        (Gamma, firstFormula, secondFormula,
+          (leftConclusion, leftValid), rightConclusion, rightValid)))
+  refine ⟨ruleWitness, ?_, ?_⟩
+  · exact CompactNumericVerifierCombineStateGraph.of_simple_rows
+      hframeSaved hlocalAligned
+  · intro coordinate
+    apply compactNumericVerifierSimpleCombineRuleWitness_size_le
+    · simpa [hrightCountEq] using hrightCountSize
+    · exact hrightBoundarySize
+    · exact hrightBoolSize
+    · simpa [hleftCountEq] using hleftCountSize
+    · exact hleftBoundarySize
+    · exact hleftBoolSize
+    · cases compactAndRuleCheck
+          (Gamma, firstFormula, secondFormula,
+            (leftConclusion, leftValid), rightConclusion, rightValid) <;>
+        simp [compactAdditiveBoolTag]
 
 theorem CompactNumericVerifierCombineStateGraph.exists_of_or_frame
     {tokenTable width tokenCount currentStart currentFinish
@@ -187,7 +225,12 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_or_frame
       CompactNumericVerifierCombineStateGraph
         tokenTable width tokenCount currentCoordinates nextCoordinates
         currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
-        ruleWitness := by
+        ruleWitness ∧
+      ∀ coordinate : Fin 34,
+        Nat.size (compactNumericVerifierCombineRuleWitnessEnvironment
+          ruleWitness coordinate) ≤
+          compactNumericVerifierSimpleCombineRuleCoordinateSizeBound
+            tokenCount := by
   have hframeSaved := hframePackage
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, _hhead, _hframe,
@@ -234,10 +277,15 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_or_frame
       currentSizeWitness.valueValueBound := by
     simpa only [hcurrentValueTableWidth,
       hcurrentValueValueBound] using htargetGraphCanonical
-  rcases CompactAdditiveStructuredListElementRowLayouts.childResult_components_at
-      hsourceRows 0 (by simp) with
-    ⟨rightGammaBoundary, rightBoolValue,
-      hrightRowsRaw, hrightBoolRaw⟩
+  rcases
+      CompactAdditiveStructuredListElementRowLayouts.childResult_component_size_bounds
+        hsourceRows (rowIndex := 0) (by simp) with
+    ⟨rightGammaCount, rightGammaBoundary, rightBoolValue,
+      hrightCount, hrightRowsRaw, hrightBoolRaw,
+      _hrightCountLe, hrightCountSize,
+      hrightBoundarySize, hrightBoolSize⟩
+  have hrightCountEq : rightGammaCount = rightConclusion.length := by
+    simpa using hrightCount
   have hrightRows : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
       rightGammaBoundary rightConclusion := by
@@ -269,8 +317,28 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_or_frame
             rightConclusion, rightValid))) := by
     simpa only [hGammaCount, hfirstCount, hsecondCount,
       hsourceCount, htargetCount] using hlocal
-  exact CompactNumericVerifierCombineStateGraph.exists_of_simple_rows
-    hframeSaved hlocalAligned
+  let ruleWitness := compactNumericVerifierSimpleCombineRuleWitness
+    rightConclusion.length rightGammaBoundary rightBoolValue
+    0 0 0
+    (compactAdditiveBoolTag
+      (compactOrRuleCheck
+        (Gamma, firstFormula, secondFormula,
+          rightConclusion, rightValid)))
+  refine ⟨ruleWitness, ?_, ?_⟩
+  · exact CompactNumericVerifierCombineStateGraph.of_simple_rows
+      hframeSaved hlocalAligned
+  · intro coordinate
+    apply compactNumericVerifierSimpleCombineRuleWitness_size_le
+    · simpa [hrightCountEq] using hrightCountSize
+    · exact hrightBoundarySize
+    · exact hrightBoolSize
+    · simp
+    · simp
+    · simp
+    · cases compactOrRuleCheck
+          (Gamma, firstFormula, secondFormula,
+            rightConclusion, rightValid) <;>
+        simp [compactAdditiveBoolTag]
 
 theorem CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
     {tokenTable width tokenCount currentStart currentFinish
@@ -301,7 +369,12 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
       CompactNumericVerifierCombineStateGraph
         tokenTable width tokenCount currentCoordinates nextCoordinates
         currentSizeWitness nextSizeWitness taskCoordinates taskSizeWitness
-        ruleWitness := by
+        ruleWitness ∧
+      ∀ coordinate : Fin 34,
+        Nat.size (compactNumericVerifierCombineRuleWitnessEnvironment
+          ruleWitness coordinate) ≤
+          compactNumericVerifierSimpleCombineRuleCoordinateSizeBound
+            tokenCount := by
   have hframeSaved := hframePackage
   rcases hframePackage with
     ⟨hcurrentPackage, hnextPackage, _hhead, _hframe,
@@ -347,10 +420,15 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
       currentSizeWitness.valueValueBound := by
     simpa only [hcurrentValueTableWidth,
       hcurrentValueValueBound] using htargetGraphCanonical
-  rcases CompactAdditiveStructuredListElementRowLayouts.childResult_components_at
-      hsourceRows 0 (by simp) with
-    ⟨rightGammaBoundary, rightBoolValue,
-      hrightRowsRaw, hrightBoolRaw⟩
+  rcases
+      CompactAdditiveStructuredListElementRowLayouts.childResult_component_size_bounds
+        hsourceRows (rowIndex := 0) (by simp) with
+    ⟨rightGammaCount, rightGammaBoundary, rightBoolValue,
+      hrightCount, hrightRowsRaw, hrightBoolRaw,
+      _hrightCountLe, hrightCountSize,
+      hrightBoundarySize, hrightBoolSize⟩
+  have hrightCountEq : rightGammaCount = rightConclusion.length := by
+    simpa using hrightCount
   have hrightRows : CompactAdditiveStructuredListElementRowLayouts
       CompactAdditiveNatListDirectLayout tokenTable width tokenCount
       rightGammaBoundary rightConclusion := by
@@ -383,8 +461,24 @@ theorem CompactNumericVerifierCombineStateGraph.exists_of_wk_frame
       (compactAdditiveBoolTag
         (compactWkRuleCheck (Gamma, rightConclusion, rightValid))) := by
     simpa only [hGammaCount, hsourceCount, htargetCount] using hlocal
-  exact CompactNumericVerifierCombineStateGraph.exists_of_simple_rows
-    hframeSaved hlocalAligned
+  let ruleWitness := compactNumericVerifierSimpleCombineRuleWitness
+    rightConclusion.length rightGammaBoundary rightBoolValue
+    0 0 0
+    (compactAdditiveBoolTag
+      (compactWkRuleCheck (Gamma, rightConclusion, rightValid)))
+  refine ⟨ruleWitness, ?_, ?_⟩
+  · exact CompactNumericVerifierCombineStateGraph.of_simple_rows
+      hframeSaved hlocalAligned
+  · intro coordinate
+    apply compactNumericVerifierSimpleCombineRuleWitness_size_le
+    · simpa [hrightCountEq] using hrightCountSize
+    · exact hrightBoundarySize
+    · exact hrightBoolSize
+    · simp
+    · simp
+    · simp
+    · cases compactWkRuleCheck (Gamma, rightConclusion, rightValid) <;>
+        simp [compactAdditiveBoolTag]
 
 #print axioms CompactNumericVerifierCombineStateGraph.exists_of_and_frame
 #print axioms CompactNumericVerifierCombineStateGraph.exists_of_or_frame
