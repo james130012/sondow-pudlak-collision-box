@@ -27057,6 +27057,14 @@ theorem natPrefixMax_le_of_bound_before {f : Nat → Nat}
           exact hbound n (Nat.lt_trans hn (Nat.lt_succ_self t))))
         (hbound t (Nat.lt_succ_self t))
 
+/-- The executable finite prefix maximum is monotone in the threshold. -/
+theorem natPrefixMax_mono_threshold {f : Nat → Nat}
+    {small large : Nat} (hle : small ≤ large) :
+    natPrefixMax f small ≤ natPrefixMax f large :=
+  natPrefixMax_le_of_bound_before (by
+    intro n hn
+    exact natPrefixMax_bound (Nat.lt_of_lt_of_le hn hle))
+
 /-- The finite prefix maximum is insensitive to pointwise-equal functions. -/
 theorem natPrefixMax_congr {f g : Nat → Nat} (threshold : Nat)
     (hfg : ∀ n : Nat, f n = g n) :
@@ -27134,6 +27142,44 @@ theorem S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCod
       (Or.inl ⟨n, rfl⟩)
   rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
   rfl
+
+/-- Half-denominator thresholds are monotone in the denominator bound.  This is
+the arithmetic step that turns a concrete denominator upper bound `D` into a
+fixed finite prefix range. -/
+theorem rationalParameterHalfDenThreshold_le_of_den_le
+    (rat : MainSondowRationalParameter) {D : Nat}
+    (hden : rat.q.den ≤ D) :
+    max 3 ((rat.q.den + 1) / 2) ≤ max 3 ((D + 1) / 2) := by
+  have hsucc : rat.q.den + 1 ≤ D + 1 := Nat.succ_le_succ hden
+  have hdiv : (rat.q.den + 1) / 2 ≤ (D + 1) / 2 :=
+    Nat.div_le_div_right hsucc
+  exact max_le (Nat.le_max_left 3 ((D + 1) / 2))
+    (Nat.le_trans hdiv (Nat.le_max_right 3 ((D + 1) / 2)))
+
+/-- A denominator upper bound fixes a larger MiniHilbert prefix maximum that
+dominates every remaining half-denominator prefix entry.  This is the finite
+computation target for the natural-number route once an explicit denominator
+bound `D` is available. -/
+theorem s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (rat : MainSondowRationalParameter) {D : Nat}
+    (hden : rat.q.den ≤ D) :
+    ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+      (_root_.s21GraftMiniHilbertProofCodeSemantics
+        hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+        (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+          s21SondowMiniHilbertMinProofCodeSizePrefixMax
+            hrec (max 3 ((D + 1) / 2)) := by
+  intro n hn
+  unfold s21SondowMiniHilbertMinProofCodeSizePrefixMax
+  exact
+    natPrefixMax_bound
+      (f := fun k : Nat =>
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode k) (Or.inl ⟨k, rfl⟩))
+      (Nat.lt_of_lt_of_le hn
+        (rationalParameterHalfDenThreshold_le_of_den_le rat hden))
 
 /-- Sondow component data where the finite-prefix coefficient is computed by
 `natPrefixMax` instead of supplied externally. -/
@@ -27759,6 +27805,138 @@ theorem projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rational
   rw [projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_eventualAcceptedTraceAndPrefix_bigN_eq_coeffFormula]
   norm_num
 
+/-- Recognition-theorem form of the half-denominator finite-prefix endpoint
+where the prefix input is stated in the generated MiniHilbert proof-code
+semantics.  This is the finite root certificate needed for a numeric `N`: give
+a concrete upper bound for the remaining `minProofCodeSize` prefix, and the
+default target endpoint computes `max 17 C + 8`. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowMiniHilbertPrefixBound_bigN_eq_coeffFormula
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (sondowPrefixCoeff : Nat)
+    (sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            sondowPrefixCoeff) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound
+      h sondowTrace partialTrace rat partialTruth sondowPrefixCoeff
+      sondowPrefixBound).coeff + 2 = max 17 sondowPrefixCoeff + 8 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound_bigN_eq_coeffFormula
+      h sondowTrace partialTrace rat partialTruth sondowPrefixCoeff
+      sondowPrefixBound
+
+/-- Denominator-bound version of the MiniHilbert finite-prefix endpoint.  Once
+`rat.q.den ≤ D` is known, the remaining unknown prefix is replaced by the fixed
+finite maximum below `max 3 ((D+1)/2)`.  This is the natural-number computation
+handoff: a concrete `D` and a finite MiniHilbert prefix evaluation determine
+the displayed coefficient. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndDenBoundMiniHilbertPrefixMax_bigN_eq_coeffFormula
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (D : Nat)
+    (hden : rat.q.den ≤ D) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let fixedThreshold := max 3 ((D + 1) / 2)
+    let fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+    let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+        hrec rat hden
+    let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound
+      h sondowTrace partialTrace rat partialTruth fixedPrefixCoeff
+      sondowPrefixBound).coeff + 2 =
+        max 17 fixedPrefixCoeff + 8 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let fixedThreshold := max 3 ((D + 1) / 2)
+  let fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+  let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+      hrec rat hden
+  let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailPartialAcceptedTruthAndSondowPrefixBound_bigN_eq_coeffFormula
+      h sondowTrace partialTrace rat partialTruth fixedPrefixCoeff
+      sondowPrefixBound
+
 /-- Half-denominator tail endpoint where the remaining finite prefix is
 certified by accepted Sondow certificates, not by direct proof-family length
 bounds.  Trace soundness converts the accepted prefix into the required
@@ -27950,6 +28128,46 @@ theorem projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rational
   projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_prefixMax_le_17
     h sondowTrace partialTrace rat partialTruth
     (natPrefixMax_le_of_bound_before hprefix)
+
+/-- Recognition-theorem/MiniHilbert version of the half-denominator numeric
+collapse.  The remaining obligation is a finite proof-code-semantics check:
+all generated Sondow `minProofCodeSize` values below the half-denominator
+threshold are at most `17`; then the default target endpoint is exactly `25`. -/
+theorem projectLengthS21GraftProofLengthRecognitionDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_miniHilbertPrefix_le_17
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (hprefix :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤ 17) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    (projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth
+      h sondowTrace partialTrace rat partialTruth).coeff + 2 = 25 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  have hprefix_length :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ 17 := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using hprefix n hn
+  exact
+    projectLengthS21GraftCanonicalDefaultTargetNatPowerUpperData_of_rationalParameterHalfDenTailAndPartialAcceptedTruth_bigN_eq_25_of_prefix_lengths_le_17
+      h sondowTrace partialTrace rat partialTruth hprefix_length
 
 /-- Explicit natural-power upper data for the generated conj-source upper
 shape.  Since the generated real upper is `(left.conjIntro right).length + 2`,
@@ -35866,6 +36084,162 @@ theorem projectLengthS21GraftProofLengthRecognitionOneHigherPowerSearchBigN_noFa
   rw [S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
     hrec T]
 
+/-- Denominator-bound one-higher-power endpoint with the remaining finite
+prefix computed from the generated MiniHilbert proof-code semantics.  This is
+the natural-number handoff parallel to the default-target `D` theorem: a
+concrete denominator bound `D`, a finite MiniHilbert prefix evaluation below
+`max 3 ((D+1)/2)`, and the one-higher-power source lower bound determine the
+no-fallback search endpoint as the visible natural number
+`max 17 fixedPrefixCoeff + 8`. -/
+theorem projectLengthS21GraftProofLengthRecognitionOneHigherPowerSearchBigN_noFallback_of_halfDenTailDenBoundMiniHilbertPrefixMax_eq_coeffFormula
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (D : Nat)
+    (hden : rat.q.den ≤ D)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (one_higher_power_lower :
+      ∀ coeff degree n : Nat,
+        projectLengthOneHigherPowerThresholdOfMonomial coeff degree ≤ n →
+          (n + 1) ^ (degree + 1) ≤
+            (((hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).sondow_proofs.conjIntro
+              (hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).partial_proofs)
+              |>.rightConjElim
+              |>.minCheckedCodeSize n)) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let fixedThreshold := max 3 ((D + 1) / 2)
+    let fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+    let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+        hrec rat hden
+    let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+    let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+      intro n hn
+      exact
+        ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+          rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+    let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+      intro n _hn
+      exact partialTruth.accepted_all n
+    let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+      intro n hn
+      exact False.elim (Nat.not_lt_zero n hn)
+    let left_data :=
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h sondowTrace sondowThreshold fixedPrefixCoeff
+        sondowAcceptedTail sondowPrefixBound
+    let right_data :=
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+    let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+    let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+    let targetU : Nat → Real :=
+      fun m : Nat =>
+        _root_.MiniHilbert.nat_bound_as_real
+          (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+    let upper_data :=
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData
+        h.sondow_proofs h.partial_proofs left_data right_data
+    let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+      intro m
+      simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+        Nat.cast_add] using upper_data.real_bound m
+    let selector :=
+      ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+        targetU upper_data.coeff upper_data.degree target_bound
+    let lengthCodeAt :=
+      fun m : Nat =>
+        ((h.sondow_proofs.conjIntro h.partial_proofs)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m)
+    let monomial_lt_lengthCodeAt_after :=
+      projectLength_monomial_lt_lengthCodeAt_after_of_oneHigherPower_lower
+        lengthCodeAt one_higher_power_lower
+    let provider :=
+      projectLengthNatValuedMonomialLowerEnvelopeProviderOfCalibratedSingletonSearchLowerBound
+        lengthCodeAt time_bound_strict exponent_ne_zero
+        projectLengthOneHigherPowerThresholdOfMonomial
+        monomial_lt_lengthCodeAt_after
+    let search_provider := provider.toMonomialSearchWitnessProvider
+    projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        search_provider selector left_length_polynomial right_length_polynomial =
+      max 17 fixedPrefixCoeff + 8 := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let fixedThreshold := max 3 ((D + 1) / 2)
+  let fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+  let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            fixedPrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+      hrec rat hden
+  let sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ fixedPrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  exact
+    projectLengthS21GraftCanonicalOneHigherPowerSearchBigN_noFallback_of_halfDenTailPrefixBound_eq_coeffFormula
+      (scale_data := scale_data) h sondowTrace partialTrace rat partialTruth
+      time_bound_strict exponent_ne_zero fixedPrefixCoeff
+      sondowPrefixBound one_higher_power_lower
+
 /-- Half-denominator one-higher-power endpoint with an accepted Sondow prefix.
 Trace soundness supplies the concrete prefix coefficient `17 * T_half`, so the
 fallback-free search endpoint computes the handoff formula
@@ -36639,6 +37013,183 @@ theorem projectLengthConjSourceSemanticStrongSearchBigN_noFallback_eq_classicalW
     ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound]
     using hbig
 
+/-- S21 half-denominator semantic-strong route with an explicit finite Sondow
+prefix bound.  This is the reusable root form behind both the actual
+`natPrefixMax` route and denominator-bound MiniHilbert prefix route: once the
+remaining half-denominator prefix is bounded by a concrete coefficient, the
+generated source endpoint is exactly the classical source witness for
+`(max 17 prefix + 8) * (n+1)`. -/
+theorem projectLengthS21GraftCanonicalSemanticStrongSearchBigN_noFallback_of_halfDenTailSondowPrefixBound_eq_classicalWitnessFormula
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : _root_.S21GraftCanonicalCalibrationPackage)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (sondowPrefixCoeff : Nat)
+    (sondowPrefixBound :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff)
+    (hsource :
+      _root_.SemanticStrongNatLowerBound
+        (fun m : Nat =>
+          ((h.sondow_proofs.conjIntro h.partial_proofs)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))) :
+    let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+    let sourceLength : Nat → Nat :=
+      fun m : Nat =>
+        ((h.sondow_proofs.conjIntro h.partial_proofs)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m)
+    let provider :=
+      ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+        hsource
+    let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+      intro n hn
+      exact
+        ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+          rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+    let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+      intro n _hn
+      exact partialTruth.accepted_all n
+    let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+      intro n hn
+      exact False.elim (Nat.not_lt_zero n hn)
+    let left_data :=
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h sondowTrace sondowThreshold sondowPrefixCoeff
+        sondowAcceptedTail sondowPrefixBound
+    let right_data :=
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+    let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+    let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+    let targetU : Nat → Real :=
+      fun m : Nat =>
+        _root_.MiniHilbert.nat_bound_as_real
+          (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+    let upper_data :=
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData
+        h.sondow_proofs h.partial_proofs left_data right_data
+    let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+      intro m
+      simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+        Nat.cast_add] using upper_data.real_bound m
+    let selector :=
+      ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+        targetU upper_data.coeff upper_data.degree target_bound
+    projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        provider selector left_length_polynomial right_length_polynomial =
+      semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+        sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 := by
+  let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+  let sourceLength : Nat → Nat :=
+    fun m : Nat =>
+      ((h.sondow_proofs.conjIntro h.partial_proofs)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m)
+  let provider :=
+    ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+      hsource
+  let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+    intro n hn
+    exact
+      ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+        rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+  let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+    intro n _hn
+    exact partialTruth.accepted_all n
+  let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+    intro n hn
+    exact False.elim (Nat.not_lt_zero n hn)
+  let left_data :=
+    s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+      h sondowTrace sondowThreshold sondowPrefixCoeff
+      sondowAcceptedTail sondowPrefixBound
+  let right_data :=
+    s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+      h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+  let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+    ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+  let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+    ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+  let targetU : Nat → Real :=
+    fun m : Nat =>
+      _root_.MiniHilbert.nat_bound_as_real
+        (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+  let upper_data :=
+    projectLengthConjIntroLengthAddTwoNatPowerUpperData
+      h.sondow_proofs h.partial_proofs left_data right_data
+  let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+    intro m
+    simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+      Nat.cast_add] using upper_data.real_bound m
+  let selector :=
+    ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+      targetU upper_data.coeff upper_data.degree target_bound
+  have hgeneric :
+      projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+          h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+          provider selector left_length_polynomial right_length_polynomial =
+        semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+          sourceLength hsource upper_data.coeff upper_data.degree 0 := by
+    simpa [sourceLength, provider, targetU, upper_data, target_bound, selector,
+      left_length_polynomial, right_length_polynomial] using
+      projectLengthConjSourceSemanticStrongSearchBigN_noFallback_eq_classicalWitness_withGeneratedUpperSelector
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        left_data right_data left_length_polynomial right_length_polynomial
+        hsource
+  have hcoeff : upper_data.coeff = max 17 sondowPrefixCoeff + 8 := by
+    simp [upper_data, left_data, right_data,
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      ProjectLengthNatPowerUpperData.ofEventuallyBoundAndPrefixBound,
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData]
+  have hdegree : upper_data.degree = 1 := by
+    simp [upper_data, left_data, right_data,
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      ProjectLengthNatPowerUpperData.ofEventuallyBoundAndPrefixBound,
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData]
+  exact hgeneric.trans (by rw [hcoeff, hdegree])
+
 /-- S21 half-denominator specialization of the semantic-strong lower-bound
 route.  The current Pudlak/source-minChecked strength computes the final search
 endpoint as the classical source witness at the concrete generated monomial
@@ -36807,6 +37358,212 @@ theorem projectLengthS21GraftCanonicalSemanticStrongSearchBigN_noFallback_of_hal
       s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
       ProjectLengthNatPowerUpperData.ofEventuallyBoundAndPrefixBound,
       projectLengthConjIntroLengthAddTwoNatPowerUpperData]
+  have hdegree : upper_data.degree = 1 := by
+    simp [upper_data, left_data, right_data,
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      ProjectLengthNatPowerUpperData.ofEventuallyBoundAndPrefixBound,
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData]
+  exact hgeneric.trans (by rw [hcoeff, hdegree])
+
+/-- Checked-prefix version of the source-calibrated semantic-strong route.
+The finite input is the actual external checker prefix.  The accepted-prefix
+bridge and Sondow trace soundness turn it into the concrete generated monomial
+coefficient `17 * T_half + 8`, so this theorem is the non-existential source
+witness formula corresponding to the checked half-denominator route. -/
+theorem projectLengthS21GraftCanonicalSemanticStrongSearchBigN_noFallback_of_halfDenTailCheckedPrefix_eq_classicalWitnessFormula
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (h : _root_.S21GraftCanonicalCalibrationPackage)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (sem :
+      _root_.BoundedArithmeticLab.ExternalAcceptedCheckedCodeSemantics
+        mainSondowAcceptedAt)
+    (sondowCheckedPrefix :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        ∃ c : sem.Code, sem.checksAt c n)
+    (hsource :
+      _root_.SemanticStrongNatLowerBound
+        (fun m : Nat =>
+          ((h.sondow_proofs.conjIntro h.partial_proofs)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m))) :
+    let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+    let sondowAcceptedPrefix :
+      ∀ n : Nat, n < sondowThreshold →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) :=
+      sondowAcceptedPrefix_of_externalCheckedCodePrefix
+        sem sondowThreshold sondowCheckedPrefix
+    let sondowPrefixCoeff := 17 * sondowThreshold
+    let sondowPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff :=
+      s21GraftCanonicalCalibrationPackage_sondow_prefix_length_le_17_mul_threshold_of_trace
+        h sondowTrace sondowThreshold sondowAcceptedPrefix
+    let sourceLength : Nat → Nat :=
+      fun m : Nat =>
+        ((h.sondow_proofs.conjIntro h.partial_proofs)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m)
+    let provider :=
+      ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+        hsource
+    let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+      intro n hn
+      exact
+        ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+          rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+    let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+      intro n _hn
+      exact partialTruth.accepted_all n
+    let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+      intro n hn
+      exact False.elim (Nat.not_lt_zero n hn)
+    let left_data :=
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h sondowTrace sondowThreshold sondowPrefixCoeff
+        sondowAcceptedTail sondowPrefixBound
+    let right_data :=
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+    let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+    let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+    let targetU : Nat → Real :=
+      fun m : Nat =>
+        _root_.MiniHilbert.nat_bound_as_real
+          (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+    let upper_data :=
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData
+        h.sondow_proofs h.partial_proofs left_data right_data
+    let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+      intro m
+      simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+        Nat.cast_add] using upper_data.real_bound m
+    let selector :=
+      ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+        targetU upper_data.coeff upper_data.degree target_bound
+    projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        provider selector left_length_polynomial right_length_polynomial =
+      semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+        sourceLength hsource (17 * sondowThreshold + 8) 1 0 := by
+  let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+  let sondowAcceptedPrefix :
+      ∀ n : Nat, n < sondowThreshold →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) :=
+    sondowAcceptedPrefix_of_externalCheckedCodePrefix
+      sem sondowThreshold sondowCheckedPrefix
+  let sondowPrefixCoeff := 17 * sondowThreshold
+  let sondowPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff :=
+    s21GraftCanonicalCalibrationPackage_sondow_prefix_length_le_17_mul_threshold_of_trace
+      h sondowTrace sondowThreshold sondowAcceptedPrefix
+  let sourceLength : Nat → Nat :=
+    fun m : Nat =>
+      ((h.sondow_proofs.conjIntro h.partial_proofs)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m)
+  let provider :=
+    ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+      hsource
+  let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+    intro n hn
+    exact
+      ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+        rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+  let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+    intro n _hn
+    exact partialTruth.accepted_all n
+  let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+    intro n hn
+    exact False.elim (Nat.not_lt_zero n hn)
+  let left_data :=
+    s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+      h sondowTrace sondowThreshold sondowPrefixCoeff
+      sondowAcceptedTail sondowPrefixBound
+  let right_data :=
+    s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+      h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+  let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+    ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+  let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+    ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+  let targetU : Nat → Real :=
+    fun m : Nat =>
+      _root_.MiniHilbert.nat_bound_as_real
+        (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+  let upper_data :=
+    projectLengthConjIntroLengthAddTwoNatPowerUpperData
+      h.sondow_proofs h.partial_proofs left_data right_data
+  let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+    intro m
+    simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+      Nat.cast_add] using upper_data.real_bound m
+  let selector :=
+    ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+      targetU upper_data.coeff upper_data.degree target_bound
+  have hgeneric :
+      projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+          h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+          provider selector left_length_polynomial right_length_polynomial =
+        semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+          sourceLength hsource upper_data.coeff upper_data.degree 0 := by
+    simpa [sourceLength, provider, targetU, upper_data, target_bound, selector,
+      left_length_polynomial, right_length_polynomial] using
+      projectLengthConjSourceSemanticStrongSearchBigN_noFallback_eq_classicalWitness_withGeneratedUpperSelector
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        left_data right_data left_length_polynomial right_length_polynomial
+        hsource
+  have hthreshold_one : 1 ≤ sondowThreshold :=
+    le_trans (by norm_num) (Nat.le_max_left 3 ((rat.q.den + 1) / 2))
+  have hseventeen_le : 17 ≤ 17 * sondowThreshold := by
+    have hmul := Nat.mul_le_mul_left 17 hthreshold_one
+    exact Nat.le_trans (by norm_num : 17 ≤ 17 * 1) hmul
+  have hcoeff : upper_data.coeff = 17 * sondowThreshold + 8 := by
+    simp [upper_data, left_data, right_data,
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
+      ProjectLengthNatPowerUpperData.ofEventuallyBoundAndPrefixBound,
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData,
+      sondowPrefixCoeff, max_eq_right hseventeen_le]
   have hdegree : upper_data.degree = 1 := by
     simp [upper_data, left_data, right_data,
       s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix,
@@ -37216,6 +37973,118 @@ theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_o
       (scale_data := scale_data) hrec sondowTrace partialTrace rat partialTruth
       time_bound_strict exponent_ne_zero hsource
 
+/-- Rationality-specialized source-calibrated big-`N` existence theorem.  This
+is the non-numeral retreat target with the real roots exposed: a rationality
+witness supplies an explicit `MainSondowRationalParameter`, the S21 recognition
+package supplies the canonical proof families, and the Pudlak/source-minChecked
+calibration supplies the final source witness. -/
+theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_rationality
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (source_minChecked_calibration :
+      _root_.MiniHilbert.PartialConsistencySourceMinCheckedCalibration
+        (_root_.MiniHilbert.FormulaCodeHilbertInterpretation.default
+          ((hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).sondow_proofs.conjIntro
+            (hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).partial_proofs)))
+    (buss_pudlak_rescaling :
+      _root_.BussPudlakTimeConstructibleRescalingTheorem)
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    ∃ rat : MainSondowRationalParameter,
+      let h :=
+        hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+      let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+      let sondowPrefixCoeff :=
+        natPrefixMax h.sondow_proofs.length sondowThreshold
+      let sourceLength : Nat → Nat :=
+        fun m : Nat =>
+          ((h.sondow_proofs.conjIntro h.partial_proofs)
+            |>.rightConjElim
+            |>.minCheckedCodeSize m)
+      let hsource : _root_.SemanticStrongNatLowerBound sourceLength := by
+        simpa [sourceLength, h, _root_.MiniHilbert.FormulaCodeHilbertInterpretation.default] using
+          source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling
+            buss_pudlak_rescaling
+      let provider :=
+        ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+          hsource
+      let sondowAcceptedTail :
+        ∀ n : Nat, sondowThreshold ≤ n →
+          _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+        intro n hn
+        exact
+          ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+            rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+      let partialAcceptedTail :
+        ∀ n : Nat, 0 ≤ n →
+          _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+        intro n _hn
+        exact partialTruth.accepted_all n
+      let partialPrefixBound :
+        ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+        intro n hn
+        exact False.elim (Nat.not_lt_zero n hn)
+      let left_data :=
+        s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+          h sondowTrace sondowThreshold sondowPrefixCoeff
+          sondowAcceptedTail (by intro n hn; exact natPrefixMax_bound hn)
+      let right_data :=
+        s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+          h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+      let left_length_polynomial :
+        _root_.is_polynomial_bound
+          (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+        ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+      let right_length_polynomial :
+        _root_.is_polynomial_bound
+          (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+        ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+      let targetU : Nat → Real :=
+        fun m : Nat =>
+          _root_.MiniHilbert.nat_bound_as_real
+            (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+      let upper_data :=
+        projectLengthConjIntroLengthAddTwoNatPowerUpperData
+          h.sondow_proofs h.partial_proofs left_data right_data
+      let target_bound :
+        ∀ m : Nat,
+          targetU m ≤
+            (upper_data.coeff : Real) *
+              ((m : Real) + 1) ^ upper_data.degree := by
+        intro m
+        simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+          Nat.cast_add] using upper_data.real_bound m
+      let selector :=
+        ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+          targetU upper_data.coeff upper_data.degree target_bound
+      let endpointN :=
+        projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+          h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+          provider selector left_length_polynomial right_length_polynomial
+      ∃ N : Nat,
+        endpointN = N ∧
+          N =
+            semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+              sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 ∧
+            (max 17 sondowPrefixCoeff + 8) * (N + 1) ^ 1 <
+              sourceLength N := by
+  refine ⟨MainSondowRationalParameter.ofRationality hrat, ?_⟩
+  exact
+    projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
+      (scale_data := scale_data) hrec sondowTrace partialTrace
+      (MainSondowRationalParameter.ofRationality hrat) partialTruth
+      time_bound_strict exponent_ne_zero source_minChecked_calibration
+      buss_pudlak_rescaling
+
 set_option linter.style.longLine false
 
 /-- Direct source-calibrated computation formula for the S21 half-denominator
@@ -37458,6 +38327,147 @@ theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedSearchBigN_so
         (max 3 ((rat.q.den + 1) / 2))) + 8)
       1 0).2
 
+/-- Source-calibrated checked-prefix audit.  This is the checked-code version
+of the current publishable existence route: after proof-length recognition
+generates the canonical S21 package, the finite prefix is supplied by the
+external checker semantics, while the source lower bound is supplied by the
+partial-consistency source-minChecked calibration.  The endpoint is the
+classical source witness for the concrete generated coefficient
+`17 * T_half + 8`. -/
+theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedSearchBigN_sourceWitness_spec_of_halfDenTailCheckedPrefix
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (sem :
+      _root_.BoundedArithmeticLab.ExternalAcceptedCheckedCodeSemantics
+        mainSondowAcceptedAt)
+    (sondowCheckedPrefix :
+      ∀ n : Nat, n < max 3 ((rat.q.den + 1) / 2) →
+        ∃ c : sem.Code, sem.checksAt c n)
+    (source_minChecked_calibration :
+      _root_.MiniHilbert.PartialConsistencySourceMinCheckedCalibration
+        (_root_.MiniHilbert.FormulaCodeHilbertInterpretation.default
+          ((hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).sondow_proofs.conjIntro
+            (hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).partial_proofs)))
+    (buss_pudlak_rescaling :
+      _root_.BussPudlakTimeConstructibleRescalingTheorem) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+    let sondowAcceptedPrefix :
+      ∀ n : Nat, n < sondowThreshold →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) :=
+      sondowAcceptedPrefix_of_externalCheckedCodePrefix
+        sem sondowThreshold sondowCheckedPrefix
+    let sondowPrefixCoeff := 17 * sondowThreshold
+    let sondowPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        h.sondow_proofs.length n ≤ sondowPrefixCoeff :=
+      s21GraftCanonicalCalibrationPackage_sondow_prefix_length_le_17_mul_threshold_of_trace
+        h sondowTrace sondowThreshold sondowAcceptedPrefix
+    let sourceLength : Nat → Nat :=
+      fun m : Nat =>
+        ((h.sondow_proofs.conjIntro h.partial_proofs)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m)
+    let hsource : _root_.SemanticStrongNatLowerBound sourceLength := by
+      simpa [sourceLength, h, _root_.MiniHilbert.FormulaCodeHilbertInterpretation.default] using
+        source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling
+          buss_pudlak_rescaling
+    let provider :=
+      ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+        hsource
+    let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+      intro n hn
+      exact
+        ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+          rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+    let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+      intro n _hn
+      exact partialTruth.accepted_all n
+    let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+      intro n hn
+      exact False.elim (Nat.not_lt_zero n hn)
+    let left_data :=
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h sondowTrace sondowThreshold sondowPrefixCoeff
+        sondowAcceptedTail sondowPrefixBound
+    let right_data :=
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+    let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+    let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+    let targetU : Nat → Real :=
+      fun m : Nat =>
+        _root_.MiniHilbert.nat_bound_as_real
+          (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+    let upper_data :=
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData
+        h.sondow_proofs h.partial_proofs left_data right_data
+    let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+      intro m
+      simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+        Nat.cast_add] using upper_data.real_bound m
+    let selector :=
+      ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+        targetU upper_data.coeff upper_data.degree target_bound
+    let endpointN :=
+      projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        provider selector left_length_polynomial right_length_polynomial
+    endpointN =
+        semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+          sourceLength hsource (17 * sondowThreshold + 8) 1 0 ∧
+      (17 * sondowThreshold + 8) * (endpointN + 1) ^ 1 <
+        sourceLength endpointN := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+  let sourceLength : Nat → Nat :=
+    fun m : Nat =>
+      ((h.sondow_proofs.conjIntro h.partial_proofs)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m)
+  let hsource : _root_.SemanticStrongNatLowerBound sourceLength := by
+    simpa [sourceLength, h, _root_.MiniHilbert.FormulaCodeHilbertInterpretation.default] using
+      source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling
+        buss_pudlak_rescaling
+  have hendpoint :=
+    projectLengthS21GraftCanonicalSemanticStrongSearchBigN_noFallback_of_halfDenTailCheckedPrefix_eq_classicalWitnessFormula
+      (scale_data := scale_data)
+      h sondowTrace partialTrace rat partialTruth time_bound_strict
+      exponent_ne_zero sem sondowCheckedPrefix hsource
+  refine ⟨hendpoint, ?_⟩
+  simpa [h, sondowThreshold, sourceLength, hsource, hendpoint] using
+    (semanticStrongNatLowerBoundClassicalMonomialSearchWitness_spec
+      sourceLength hsource (17 * sondowThreshold + 8) 1 0).2
+
 /-- Final source-calibrated audit with the remaining Sondow prefix rewritten to
 the generated MiniHilbert proof-code semantics.  This is the current closest
 numeric route: the no-fallback endpoint is the classical source witness with
@@ -37590,6 +38600,178 @@ theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedSearchBigN_so
         hrec rat
   exact ⟨by simpa [h, sourceLength, hsource, hprefix] using hspec.1,
     by simpa [h, sourceLength, hsource, hprefix] using hspec.2⟩
+
+/-- Denominator-bound source-calibrated audit with the remaining Sondow prefix
+fixed by a MiniHilbert finite maximum below `max 3 ((D+1)/2)`.  This is the
+next natural-number handoff after rationality: once an explicit denominator
+bound `D` is known, the source witness coefficient no longer depends on the
+unknown rational parameter except through the proved inequality `rat.q.den ≤ D`. -/
+theorem projectLengthS21GraftProofLengthRecognitionSourceCalibratedSearchBigN_sourceWitness_spec_of_halfDenTailDenBoundMiniHilbertPrefixMax
+    {scale_data : InternalPudlakTheorem5ScaleData}
+    (hrec : _root_.S21GraftProofLengthRecognitionTheorem)
+    (sondowTrace :
+      _root_.S21VerifierTraceSoundness _root_.sondowCertificateValidCode)
+    (partialTrace :
+      _root_.S21VerifierTraceSoundness _root_.partialConsistencyCode)
+    (rat : MainSondowRationalParameter)
+    (partialTruth : _root_.PartialConsistencyAcceptedTruth)
+    (D : Nat)
+    (hden : rat.q.den ≤ D)
+    (time_bound_strict :
+      ∀ {a b : Nat}, a < b →
+        scale_data.time_constructible_bound a <
+          scale_data.time_constructible_bound b)
+    (exponent_ne_zero : scale_data.exponent ≠ 0)
+    (source_minChecked_calibration :
+      _root_.MiniHilbert.PartialConsistencySourceMinCheckedCalibration
+        (_root_.MiniHilbert.FormulaCodeHilbertInterpretation.default
+          ((hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).sondow_proofs.conjIntro
+            (hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage).partial_proofs)))
+    (buss_pudlak_rescaling :
+      _root_.BussPudlakTimeConstructibleRescalingTheorem) :
+    let h :=
+      hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+    let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+    let fixedThreshold := max 3 ((D + 1) / 2)
+    let sourcePrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+    let sourceLength : Nat → Nat :=
+      fun m : Nat =>
+        ((h.sondow_proofs.conjIntro h.partial_proofs)
+          |>.rightConjElim
+          |>.minCheckedCodeSize m)
+    let hsource : _root_.SemanticStrongNatLowerBound sourceLength := by
+      simpa [sourceLength, h, _root_.MiniHilbert.FormulaCodeHilbertInterpretation.default] using
+        source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling
+          buss_pudlak_rescaling
+    let provider :=
+      ProjectLengthNatMonomialSearchWitnessProvider.ofSemanticStrongNatLowerBound
+        hsource
+    let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            sourcePrefixCoeff :=
+      s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+        hrec rat hden
+    let sondowPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        h.sondow_proofs.length n ≤ sourcePrefixCoeff := by
+      intro n hn
+      have hpoint :
+          (_root_.s21GraftMiniHilbertProofCodeSemantics
+            hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+            (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+              h.sondow_proofs.length n := by
+        rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+        rfl
+      simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+    let sondowAcceptedTail :
+      ∀ n : Nat, sondowThreshold ≤ n →
+        _root_.accepted_certificate (_root_.sondowCertificateValidCode n) := by
+      intro n hn
+      exact
+        ((mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
+          rat.q rat.gamma_eq).checked_at n hn).toAcceptedAt
+    let partialAcceptedTail :
+      ∀ n : Nat, 0 ≤ n →
+        _root_.accepted_certificate (_root_.partialConsistencyCode n) := by
+      intro n _hn
+      exact partialTruth.accepted_all n
+    let partialPrefixBound :
+      ∀ n : Nat, n < 0 → h.partial_proofs.length n ≤ 0 := by
+      intro n hn
+      exact False.elim (Nat.not_lt_zero n hn)
+    let left_data :=
+      s21GraftCanonicalSondowNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h sondowTrace sondowThreshold sourcePrefixCoeff
+        sondowAcceptedTail sondowPrefixBound
+    let right_data :=
+      s21GraftCanonicalPartialNatPowerUpperData_of_eventualAcceptedTraceAndPrefix
+        h partialTrace 0 0 partialAcceptedTail partialPrefixBound
+    let left_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.sondow_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound left_data
+    let right_length_polynomial :
+      _root_.is_polynomial_bound
+        (_root_.MiniHilbert.nat_bound_as_real h.partial_proofs.length) :=
+      ProjectLengthNatPowerUpperData.toPolynomialBound right_data
+    let targetU : Nat → Real :=
+      fun m : Nat =>
+        _root_.MiniHilbert.nat_bound_as_real
+          (h.sondow_proofs.conjIntro h.partial_proofs).length m + 2
+    let upper_data :=
+      projectLengthConjIntroLengthAddTwoNatPowerUpperData
+        h.sondow_proofs h.partial_proofs left_data right_data
+    let target_bound :
+      ∀ m : Nat,
+        targetU m ≤
+          (upper_data.coeff : Real) *
+            ((m : Real) + 1) ^ upper_data.degree := by
+      intro m
+      simpa [targetU, upper_data, _root_.MiniHilbert.nat_bound_as_real,
+        Nat.cast_add] using upper_data.real_bound m
+    let selector :=
+      ProjectLengthPolynomialEnvelopeSelector.withDistinguished
+        targetU upper_data.coeff upper_data.degree target_bound
+    let endpointN :=
+      projectLengthConjSourceMonomialSearchWitnessProviderBigN_noFallback
+        h.sondow_proofs h.partial_proofs time_bound_strict exponent_ne_zero
+        provider selector left_length_polynomial right_length_polynomial
+    endpointN =
+        semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+          sourceLength hsource (max 17 sourcePrefixCoeff + 8) 1 0 ∧
+      (max 17 sourcePrefixCoeff + 8) * (endpointN + 1) ^ 1 <
+        sourceLength endpointN := by
+  dsimp
+  let h :=
+    hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+  let sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+  let fixedThreshold := max 3 ((D + 1) / 2)
+  let sourcePrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec fixedThreshold
+  let sourceLength : Nat → Nat :=
+    fun m : Nat =>
+      ((h.sondow_proofs.conjIntro h.partial_proofs)
+        |>.rightConjElim
+        |>.minCheckedCodeSize m)
+  let hsource : _root_.SemanticStrongNatLowerBound sourceLength := by
+    simpa [sourceLength, h, _root_.MiniHilbert.FormulaCodeHilbertInterpretation.default] using
+      source_minChecked_calibration.semanticStrongNatLowerBound_of_rescaling
+        buss_pudlak_rescaling
+  let sondowMiniHilbertPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) ≤
+            sourcePrefixCoeff :=
+    s21SondowMiniHilbertMinProofCodeSizePrefixBound_of_den_le
+      hrec rat hden
+  let sondowPrefixBound :
+      ∀ n : Nat, n < sondowThreshold →
+        h.sondow_proofs.length n ≤ sourcePrefixCoeff := by
+    intro n hn
+    have hpoint :
+        (_root_.s21GraftMiniHilbertProofCodeSemantics
+          hrec.sondow_proofs hrec.partial_proofs).minProofCodeSize
+          (_root_.sondowCertificateValidCode n) (Or.inl ⟨n, rfl⟩) =
+            h.sondow_proofs.length n := by
+      rw [_root_.s21GraftMiniHilbertProofCodeSemantics_minProofCodeSize]
+      rfl
+    simpa [hpoint] using sondowMiniHilbertPrefixBound n hn
+  have hendpoint :=
+    projectLengthS21GraftCanonicalSemanticStrongSearchBigN_noFallback_of_halfDenTailSondowPrefixBound_eq_classicalWitnessFormula
+      (scale_data := scale_data) h sondowTrace partialTrace rat partialTruth
+      time_bound_strict exponent_ne_zero sourcePrefixCoeff
+      sondowPrefixBound hsource
+  refine ⟨?_, ?_⟩
+  · simpa [h, sondowThreshold, fixedThreshold, sourcePrefixCoeff, sourceLength,
+      hsource, sondowMiniHilbertPrefixBound, sondowPrefixBound] using hendpoint
+  · simpa [h, sourceLength, hsource, sourcePrefixCoeff, hendpoint] using
+      (semanticStrongNatLowerBoundClassicalMonomialSearchWitness_spec
+        sourceLength hsource (max 17 sourcePrefixCoeff + 8) 1 0).2
 
 set_option linter.style.longLine true
 

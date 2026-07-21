@@ -2016,6 +2016,35 @@ structure MainSondowRationalParameter : Type where
 
 namespace MainSondowRationalParameter
 
+noncomputable def ofRationality
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    MainSondowRationalParameter where
+  q := Classical.choose hrat
+  gamma_eq := Classical.choose_spec hrat
+
+theorem ofRationality_gamma_eq
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (((ofRationality hrat).q : ℝ) = _root_.euler_mascheroni) :=
+  (ofRationality hrat).gamma_eq
+
+def denominatorBound
+    (h : MainSondowRationalParameter) : Nat :=
+  h.q.den
+
+theorem den_le_denominatorBound
+    (h : MainSondowRationalParameter) :
+    h.q.den ≤ h.denominatorBound :=
+  le_rfl
+
+noncomputable def denominatorBoundOfRationality
+    (hrat : _root_.is_rational _root_.euler_mascheroni) : Nat :=
+  (ofRationality hrat).denominatorBound
+
+theorem ofRationality_den_le_denominatorBound
+    (hrat : _root_.is_rational _root_.euler_mascheroni) :
+    (ofRationality hrat).q.den ≤ denominatorBoundOfRationality hrat :=
+  le_rfl
+
 def checkedTail
     (h : MainSondowRationalParameter) :
     MainSondowFullCertificateCheckedTail :=
