@@ -1039,6 +1039,139 @@ def compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope
     (compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelope
       tokenTable width tokenCount boundaryTable indexTerm valueTerm data)
 
+def
+    compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelopeOfValues
+    (tokenTable width tokenCount boundaryTable left right : Nat)
+    (indexTerm valueTerm : ValuationTerm) : Nat :=
+  let successorTerm := natListAtSuccessorTermAtValuationIndex indexTerm
+  let leftFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) indexTerm
+    (shortBinaryNumeralTerm left)
+  let rightFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) successorTerm
+    (shortBinaryNumeralTerm right)
+  let cellFormula := compactAdditiveTokenCellAtValuationFormula
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm left)
+    valueTerm (shortBinaryNumeralTerm right)
+  let leftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) indexTerm
+      (shortBinaryNumeralTerm left)
+  let rightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) successorTerm
+      (shortBinaryNumeralTerm right)
+  let cellResource := compactAdditiveNatListAtRowsValueTokenCellPayloadEnvelope
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount) (shortBinaryNumeralTerm left)
+    valueTerm (shortBinaryNumeralTerm right)
+  let rightCellResource := transparentHybridConjunctionPayloadEnvelope
+    natListAtZeroValuation rightFormula cellFormula rightResource cellResource
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    leftFormula (rightFormula ⋏ cellFormula) leftResource rightCellResource
+
+def
+    compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelopeOfValues
+    (tokenTable width tokenCount boundaryTable left right : Nat)
+    (indexTerm valueTerm : ValuationTerm) : Nat :=
+  let values : Fin 2 -> Nat := ![right, left]
+  explicitBoundedWitnessHybridStructuralPayloadEnvelope natListAtZeroValuation
+    tokenCount
+    (compactAdditiveNatListAtRowsTerminalAtValuationIndexValue tokenTable width
+      tokenCount boundaryTable indexTerm valueTerm)
+    values
+    (compactAdditiveNatListAtRowsAtValuationIndexValueTerminalPayloadEnvelopeOfValues
+      tokenTable width tokenCount boundaryTable left right indexTerm valueTerm)
+
+def
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+    (tokenTable width tokenCount boundaryTable count left right : Nat)
+    (indexTerm valueTerm : ValuationTerm) : Nat :=
+  let guardFormula : ValuationFormula :=
+    “!!indexTerm < !!(shortBinaryNumeralTerm count)”
+  let witnessFormula :=
+    compactAdditiveNatListAtRowsWitnessBodyAtValuationIndexValue tokenTable width
+      tokenCount boundaryTable indexTerm valueTerm
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    guardFormula witnessFormula
+    (compactAdditiveNatListAtRowsIndexGuardPayloadPolynomial count indexTerm)
+    (compactAdditiveNatListAtRowsAtValuationIndexValueWitnessPayloadEnvelopeOfValues
+      tokenTable width tokenCount boundaryTable left right indexTerm valueTerm)
+
+def
+    compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count : Nat)
+    (indexTerm valueTerm : ValuationTerm) : Nat :=
+  (Finset.range (tokenCount + 1)).sum fun left =>
+    (Finset.range (tokenCount + 1)).sum fun right =>
+      compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+        tokenTable width tokenCount boundaryTable count left right indexTerm
+        valueTerm
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope_eq_values
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope tokenTable
+        width tokenCount boundaryTable count index value indexTerm valueTerm
+        data =
+      compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+        tokenTable width tokenCount boundaryTable count data.left data.right
+        indexTerm valueTerm := by
+  rfl
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable index value) :
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope tokenTable
+        width tokenCount boundaryTable count index value indexTerm valueTerm
+        data <=
+      compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count indexTerm valueTerm := by
+  rw [
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope_eq_values]
+  have hright :
+      compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+          tokenTable width tokenCount boundaryTable count data.left data.right
+          indexTerm valueTerm <=
+        (Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count data.left right
+            indexTerm valueTerm := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        (compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+          tokenTable width tokenCount boundaryTable count data.left candidate
+          indexTerm valueTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.right_le))
+  have hleft :
+      ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count data.left right
+            indexTerm valueTerm) <=
+        compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+          tokenTable width tokenCount boundaryTable count indexTerm valueTerm := by
+    unfold
+      compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count candidate right
+            indexTerm valueTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.left_le))
+  exact hright.trans hleft
+
 theorem
     compactAdditiveNatListAtRowsAtValuationIndexValueExplicitFormulaCertificateFromRowData_structuralPayloadBound_le_public
     (tokenTable width tokenCount boundaryTable count index value : Nat)
@@ -1197,6 +1330,50 @@ theorem
       (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
         boundaryTable count index value hrows)
 
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope
+        tokenTable width tokenCount boundaryTable count index value indexTerm
+        valueTerm hrows <=
+      compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count indexTerm valueTerm := by
+  unfold
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope
+  exact
+    compactAdditiveNatListAtRowsAtValuationIndexValuePayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      valueTerm
+      (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
+        boundaryTable count index value hrows)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm valueTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables ⊆ {0})
+    (hvalueClosed : valueTerm.freeVariables = ∅)
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hvalueValue : termValue natListAtZeroValuation valueTerm = value)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+          natListAtZeroValuation tokenTable width tokenCount boundaryTable count
+          index value indexTerm valueTerm hindexValue hvalueValue hrows) <=
+      compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count indexTerm valueTerm := by
+  exact
+    (compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      valueTerm hindexClosed hvalueClosed hindexValue hvalueValue hrows).trans
+    (compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      valueTerm hrows)
+
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexWitnessCertificate_structuralPayloadBound_le_public
 #print axioms
@@ -1207,5 +1384,7 @@ theorem
   compactAdditiveNatListAtRowsAtValuationIndexValueWitnessCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectNatListAtRowsPublicBounds

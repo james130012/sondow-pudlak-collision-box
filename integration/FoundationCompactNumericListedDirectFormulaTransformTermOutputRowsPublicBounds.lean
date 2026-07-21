@@ -50,7 +50,7 @@ open FoundationCompactNumericListedDirectNatListAppendTwoValuesPublicBounds
 open FoundationCompactNumericListedDirectNatListAppendOneValuePublicBounds
 open FoundationCompactNumericListedDirectNatListAppendSlicesPublicBounds
 
-private abbrev termRowsZeroValuation : Nat -> Nat :=
+abbrev termRowsZeroValuation : Nat -> Nat :=
   FoundationCompactNumericListedDirectFormulaTransformTermOutputRowsExplicitHybridCertificate.zeroValuation
 
 private theorem arithmeticOneTerm_freeVariables_eq_empty :
@@ -522,6 +522,46 @@ def tripleFailurePayloadEnvelopeFromData
       transparentHybridDisjunctionRightPayloadEnvelope termRowsZeroValuation
         consumedFormula (tagFormula ⋎ argumentFormula) selected
 
+def tripleFailurePublicFinitePayloadEnvelope
+    (consumedCount tag argument binderArity : Nat) : Nat :=
+  let consumedTerm := shortBinaryNumeralTerm consumedCount
+  let tagTerm := shortBinaryNumeralTerm tag
+  let argumentTerm := shortBinaryNumeralTerm argument
+  let binderArityTerm := shortBinaryNumeralTerm binderArity
+  let consumedFormula := nativeNeFormula consumedTerm (‘2’ : ValuationTerm)
+  let tagFormula := nativeNeFormula tagTerm (‘0’ : ValuationTerm)
+  let argumentFormula := nativeNeFormula
+    (nativeAddTerm argumentTerm (‘1’ : ValuationTerm)) binderArityTerm
+  let consumedResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    termRowsZeroValuation consumedFormula (tagFormula ⋎ argumentFormula)
+    (termRowsNativeNeStructuralEnvelope consumedTerm (‘2’ : ValuationTerm))
+  let tagSelected := transparentHybridDisjunctionLeftPayloadEnvelope
+    termRowsZeroValuation tagFormula argumentFormula
+    (termRowsNativeNeStructuralEnvelope tagTerm (‘0’ : ValuationTerm))
+  let tagResource := transparentHybridDisjunctionRightPayloadEnvelope
+    termRowsZeroValuation consumedFormula (tagFormula ⋎ argumentFormula)
+    tagSelected
+  let argumentSelected := transparentHybridDisjunctionRightPayloadEnvelope
+    termRowsZeroValuation tagFormula argumentFormula
+    (termRowsNativeNeStructuralEnvelope
+      (nativeAddTerm argumentTerm (‘1’ : ValuationTerm)) binderArityTerm)
+  let argumentResource := transparentHybridDisjunctionRightPayloadEnvelope
+    termRowsZeroValuation consumedFormula (tagFormula ⋎ argumentFormula)
+    argumentSelected
+  consumedResource + tagResource + argumentResource
+
+theorem tripleFailurePayloadEnvelopeFromData_le_publicFinite
+    (consumedCount tag argument binderArity : Nat)
+    (data : TripleFailureCheckedData consumedCount tag argument binderArity) :
+    tripleFailurePayloadEnvelopeFromData consumedCount tag argument binderArity
+        data <=
+      tripleFailurePublicFinitePayloadEnvelope consumedCount tag argument
+        binderArity := by
+  cases data <;>
+    unfold tripleFailurePayloadEnvelopeFromData
+      tripleFailurePublicFinitePayloadEnvelope <;>
+    dsimp only <;> omega
+
 theorem
     tripleFailureCertificateFromData_structuralPayloadBound_le_transparent
     (consumedCount tag argument binderArity : Nat)
@@ -621,6 +661,30 @@ def doubleFailurePayloadEnvelopeFromData
         consumedFormula tagFormula
         (termRowsNativeNeStructuralEnvelope tagTerm (‘1’ : ValuationTerm))
 
+def doubleFailurePublicFinitePayloadEnvelope
+    (consumedCount tag : Nat) : Nat :=
+  let consumedTerm := shortBinaryNumeralTerm consumedCount
+  let tagTerm := shortBinaryNumeralTerm tag
+  let consumedFormula := nativeNeFormula consumedTerm (‘2’ : ValuationTerm)
+  let tagFormula := nativeNeFormula tagTerm (‘1’ : ValuationTerm)
+  let consumedResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    termRowsZeroValuation consumedFormula tagFormula
+    (termRowsNativeNeStructuralEnvelope consumedTerm (‘2’ : ValuationTerm))
+  let tagResource := transparentHybridDisjunctionRightPayloadEnvelope
+    termRowsZeroValuation consumedFormula tagFormula
+    (termRowsNativeNeStructuralEnvelope tagTerm (‘1’ : ValuationTerm))
+  consumedResource + tagResource
+
+theorem doubleFailurePayloadEnvelopeFromData_le_publicFinite
+    (consumedCount tag : Nat)
+    (data : DoubleFailureCheckedData consumedCount tag) :
+    doubleFailurePayloadEnvelopeFromData consumedCount tag data <=
+      doubleFailurePublicFinitePayloadEnvelope consumedCount tag := by
+  cases data <;>
+    unfold doubleFailurePayloadEnvelopeFromData
+      doubleFailurePublicFinitePayloadEnvelope <;>
+    dsimp only <;> omega
+
 theorem
     doubleFailureCertificateFromData_structuralPayloadBound_le_transparent
     (consumedCount tag : Nat)
@@ -689,6 +753,19 @@ def otherModesWithTailPayloadEnvelope
     (oneFormula ⋏ (twoFormula ⋏ (fourFormula ⋏ (fiveFormula ⋏ tail))))
     (termRowsNativeNeStructuralEnvelope modeTerm (‘0’ : ValuationTerm))
     oneTail
+
+theorem otherModesWithTailPayloadEnvelope_mono
+    (mode : Nat) (tail : ValuationFormula)
+    {small large : Nat} (hresource : small <= large) :
+    otherModesWithTailPayloadEnvelope mode tail small <=
+      otherModesWithTailPayloadEnvelope mode tail large := by
+  unfold otherModesWithTailPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            hresource))))
 
 theorem otherModesWithTailCertificate_structuralPayloadBound_le_transparent
     (mode : Nat)
@@ -801,6 +878,102 @@ noncomputable def compactFormulaTransformTermResidualExistsPayloadEnvelope
   hybridExistsWitnessStructuralPayloadEnvelope termRowsZeroValuation
     (compactFormulaTransformTermResidualWitnessBody tokenTable width tokenCount
       current next argument witnessCount) residual bodyResource
+
+noncomputable def
+    compactFormulaTransformTermResidualExistsPublicFiniteCandidate
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (argument witnessCount residual : Nat) : Nat :=
+  let residualTerm := shortBinaryNumeralTerm residual
+  let argumentTerm := shortBinaryNumeralTerm argument
+  let witnessCountTerm := shortBinaryNumeralTerm witnessCount
+  let boundFormula := nativeLtFormula residualTerm
+    (nativeAddTerm argumentTerm (‘1’ : ValuationTerm))
+  let equalityFormula := nativeEqFormula argumentTerm
+    (nativeAddTerm witnessCountTerm residualTerm)
+  let rowsFormula :=
+    FoundationCompactNumericListedDirectNatListAppendTwoValuesExplicitHybridCertificate.compactAdditiveNatListAppendTwoValuesAtValuationValuesFormula
+      tokenTable width tokenCount current.parserFinish current.finish
+      current.outputCount next.parserFinish next.finish next.outputBoundary
+      next.outputCount (‘1’ : ValuationTerm) residualTerm
+  let boundResource := termRowsNativeLtStructuralEnvelope residualTerm
+    (nativeAddTerm argumentTerm (‘1’ : ValuationTerm))
+  let equalityResource := termRowsNativeEqStructuralEnvelope argumentTerm
+    (nativeAddTerm witnessCountTerm residualTerm)
+  let rowsResource :=
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.parserFinish current.finish
+      current.outputCount next.parserFinish next.finish next.outputBoundary
+      next.outputCount (‘1’ : ValuationTerm) residualTerm
+  let equalityRowsResource := transparentHybridConjunctionPayloadEnvelope
+    termRowsZeroValuation equalityFormula rowsFormula equalityResource
+    rowsResource
+  let bodyResource := transparentHybridConjunctionPayloadEnvelope
+    termRowsZeroValuation boundFormula (equalityFormula ⋏ rowsFormula)
+    boundResource equalityRowsResource
+  hybridExistsWitnessStructuralPayloadEnvelope termRowsZeroValuation
+    (compactFormulaTransformTermResidualWitnessBody tokenTable width tokenCount
+      current next argument witnessCount) residual bodyResource
+
+noncomputable def
+    compactFormulaTransformTermResidualExistsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (argument witnessCount : Nat) : Nat :=
+  (Finset.range (argument + 1)).sum fun residual =>
+    compactFormulaTransformTermResidualExistsPublicFiniteCandidate tokenTable
+      width tokenCount current next argument witnessCount residual
+
+private theorem termRowsHybridExistsWitnessStructuralPayloadEnvelope_mono
+    (valuation : Nat -> Nat)
+    (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
+    (witness : Nat) {small large : Nat} (hresource : small <= large) :
+    hybridExistsWitnessStructuralPayloadEnvelope valuation body witness small <=
+      hybridExistsWitnessStructuralPayloadEnvelope valuation body witness
+        large := by
+  unfold hybridExistsWitnessStructuralPayloadEnvelope
+  dsimp only
+  omega
+
+theorem
+    compactFormulaTransformTermResidualExistsPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (argument witnessCount residual : Nat)
+    (hresidual : residual <= argument)
+    (hrows : CompactFormulaTransformOutputTwoValuesRows tokenTable width
+      tokenCount current next 1 residual) :
+    compactFormulaTransformTermResidualExistsPayloadEnvelope tokenTable width
+        tokenCount current next argument witnessCount residual hrows <=
+      compactFormulaTransformTermResidualExistsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next argument witnessCount := by
+  have hrowsResource :=
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current.parserFinish current.finish
+      current.outputCount next.parserFinish next.finish next.outputBoundary
+      next.outputCount 1 residual (‘1’ : ValuationTerm)
+      (shortBinaryNumeralTerm residual) hrows
+  have hcandidate :
+      compactFormulaTransformTermResidualExistsPayloadEnvelope tokenTable width
+          tokenCount current next argument witnessCount residual hrows <=
+        compactFormulaTransformTermResidualExistsPublicFiniteCandidate
+          tokenTable width tokenCount current next argument witnessCount
+          residual := by
+    unfold compactFormulaTransformTermResidualExistsPayloadEnvelope
+      compactFormulaTransformTermResidualExistsPublicFiniteCandidate
+    exact termRowsHybridExistsWitnessStructuralPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          hrowsResource))
+  refine hcandidate.trans ?_
+  unfold
+    compactFormulaTransformTermResidualExistsPublicFinitePayloadEnvelope
+  exact Finset.single_le_sum
+    (fun candidate _ => Nat.zero_le
+      (compactFormulaTransformTermResidualExistsPublicFiniteCandidate
+        tokenTable width tokenCount current next argument witnessCount
+        candidate))
+    (Finset.mem_range.mpr (Nat.lt_succ_of_le hresidual))
 
 theorem
     compactFormulaTransformTermResidualExistsCertificate_structuralPayloadBound_le_transparent
@@ -1530,6 +1703,158 @@ def termRowsZeroSelectedPayloadEnvelope
       (nativeAddTerm (shortBinaryNumeralTerm consumedCount)
         (shortBinaryNumeralTerm next.parserTokensCount))) casesResource
 
+theorem termRowsModeOuterPayloadEnvelope_mono
+    (modeTerm literal : ValuationTerm) (body : ValuationFormula)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeOuterPayloadEnvelope modeTerm literal body small <=
+      termRowsModeOuterPayloadEnvelope modeTerm literal body large := by
+  unfold termRowsModeOuterPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    hresource
+
+theorem termRowsModeZeroPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeZeroPathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsModeZeroPathPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsModeZeroPathPayloadEnvelope
+  exact transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource
+
+theorem termRowsModeOnePathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeOnePathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsModeOnePathPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsModeOnePathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource)
+
+theorem termRowsModeTwoPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeTwoPathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsModeTwoPathPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsModeTwoPathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _ hresource))
+
+theorem termRowsModeFourPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeFourPathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsModeFourPathPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsModeFourPathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+        (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+          hresource)))
+
+theorem termRowsModeFivePathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsModeFivePathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsModeFivePathPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsModeFivePathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+        (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+          (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+            hresource))))
+
+theorem termRowsOtherPathPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsOtherPathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsOtherPathPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount large := by
+  unfold termRowsOtherPathPayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+        (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+          (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+            hresource))))
+
+theorem termRowsPositiveSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsPositiveSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount small <=
+      termRowsPositiveSelectedPayloadEnvelope tokenTable width tokenCount
+        current next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsPositiveSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        hresource))
+
+theorem termRowsZeroSelectedPayloadEnvelope_mono
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode binderArity tag argument consumedCount : Nat)
+    (witnessStart witnessFinish witnessCount : Nat)
+    {small large : Nat} (hresource : small <= large) :
+    termRowsZeroSelectedPayloadEnvelope tokenTable width tokenCount current next
+        mode binderArity tag argument consumedCount witnessStart witnessFinish
+        witnessCount small <=
+      termRowsZeroSelectedPayloadEnvelope tokenTable width tokenCount current
+        next mode binderArity tag argument consumedCount witnessStart
+        witnessFinish witnessCount large := by
+  unfold termRowsZeroSelectedPayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        hresource))
+
 theorem termRowsModeZeroPathCertificate_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount : Nat)
     (current next : CompactFormulaTransformStateRowCoordinates)
@@ -2056,6 +2381,7 @@ noncomputable def
       termRowsPositiveSelectedPayloadEnvelope tokenTable width tokenCount
         current next mode binderArity tag argument consumedCount witnessStart
         witnessFinish witnessCount modesResource
+
   | .modeZeroShifted _ _ _ failure _ hrows =>
       let guardRows := transparentHybridConjunctionPayloadEnvelope
         termRowsZeroValuation (termRowsGuardOneTagFormula consumedCount tag)
@@ -2595,6 +2921,19 @@ noncomputable def
       termRowsPositiveSelectedPayloadEnvelope tokenTable width tokenCount
         current next mode binderArity tag argument consumedCount witnessStart
         witnessFinish witnessCount modesResource
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 theorem
     compactFormulaTransformTermOutputRowsZeroBranch_structuralPayloadBound_le_transparent

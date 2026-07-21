@@ -130,6 +130,123 @@ noncomputable def
     (countFormula ⋏ (sliceFormula ⋏ (firstFormula ⋏ secondFormula)))
     finishResource countTailResource
 
+noncomputable def
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount : Nat)
+    (firstTerm secondTerm : ValuationTerm) : Nat :=
+  let finishFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm targetFinish) =
+      !!(addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm targetCount))”
+  let countFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm targetCount) =
+      !!(addTerm (shortBinaryNumeralTerm sourceCount)
+        (‘2’ : ValuationTerm))”
+  let sliceFormula := compactFixedWidthTokenSlicesEqAtValuationFormula
+    (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+    (shortBinaryNumeralTerm tokenCount)
+    (successorTerm (shortBinaryNumeralTerm sourceStart))
+    (shortBinaryNumeralTerm sourceFinish)
+    (successorTerm (shortBinaryNumeralTerm targetStart))
+    (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+      (shortBinaryNumeralTerm sourceCount))
+  let firstFormula := compactAdditiveNatListAtRowsAtValuationIndexValueFormula
+    tokenTable width tokenCount targetBoundary targetCount
+    (shortBinaryNumeralTerm sourceCount) firstTerm
+  let secondFormula := compactAdditiveNatListAtRowsAtValuationIndexValueFormula
+    tokenTable width tokenCount targetBoundary targetCount
+    (successorTerm (shortBinaryNumeralTerm sourceCount)) secondTerm
+  let finishResource := appendTwoEqualityPayloadEnvelope
+    (shortBinaryNumeralTerm targetFinish)
+    (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+      (shortBinaryNumeralTerm targetCount))
+  let countResource := appendTwoEqualityPayloadEnvelope
+    (shortBinaryNumeralTerm targetCount)
+    (addTerm (shortBinaryNumeralTerm sourceCount) (‘2’ : ValuationTerm))
+  let sliceResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPublicFinitePayloadEnvelope
+      tokenCount appendTwoZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (successorTerm (shortBinaryNumeralTerm sourceStart))
+      (shortBinaryNumeralTerm sourceFinish)
+      (successorTerm (shortBinaryNumeralTerm targetStart))
+      (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm sourceCount))
+  let firstResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+      tokenTable width tokenCount targetBoundary targetCount
+      (shortBinaryNumeralTerm sourceCount) firstTerm
+  let secondResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexValuePublicFinitePayloadEnvelope
+      tokenTable width tokenCount targetBoundary targetCount
+      (successorTerm (shortBinaryNumeralTerm sourceCount)) secondTerm
+  let rowsResource := transparentHybridConjunctionPayloadEnvelope
+    appendTwoZeroValuation firstFormula secondFormula firstResource secondResource
+  let sliceRowsResource := transparentHybridConjunctionPayloadEnvelope
+    appendTwoZeroValuation sliceFormula (firstFormula ⋏ secondFormula)
+    sliceResource rowsResource
+  let countTailResource := transparentHybridConjunctionPayloadEnvelope
+    appendTwoZeroValuation countFormula
+    (sliceFormula ⋏ (firstFormula ⋏ secondFormula)) countResource
+    sliceRowsResource
+  transparentHybridConjunctionPayloadEnvelope appendTwoZeroValuation
+    finishFormula
+    (countFormula ⋏ (sliceFormula ⋏ (firstFormula ⋏ secondFormula)))
+    finishResource countTailResource
+
+theorem
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount
+      first second : Nat)
+    (firstTerm secondTerm : ValuationTerm)
+    (hgraph : CompactAdditiveNatListAppendTwoValues tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount targetStart targetFinish
+      targetBoundary targetCount first second) :
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope
+        tokenTable width tokenCount sourceStart sourceFinish sourceCount
+        targetStart targetFinish targetBoundary targetCount first second
+        firstTerm secondTerm hgraph <=
+      compactAdditiveNatListAppendTwoValuesAtValuationValuesPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceStart sourceFinish sourceCount
+        targetStart targetFinish targetBoundary targetCount firstTerm
+        secondTerm := by
+  let sliceCount := Classical.choose hgraph.2.2.1
+  have hsliceCount : sliceCount <= tokenCount := by
+    dsimp only [sliceCount]
+    exact (Classical.choose_spec hgraph.2.2.1).1
+  have hsliceResource :=
+    compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_publicFinite
+      tokenCount appendTwoZeroValuation
+      (shortBinaryNumeralTerm tokenTable) (shortBinaryNumeralTerm width)
+      (shortBinaryNumeralTerm tokenCount)
+      (successorTerm (shortBinaryNumeralTerm sourceStart))
+      (shortBinaryNumeralTerm sourceFinish)
+      (successorTerm (shortBinaryNumeralTerm targetStart))
+      (addTerm (successorTerm (shortBinaryNumeralTerm targetStart))
+        (shortBinaryNumeralTerm sourceCount)) sliceCount hsliceCount
+  have hfirstResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount targetBoundary targetCount sourceCount first
+      (shortBinaryNumeralTerm sourceCount) firstTerm hgraph.2.2.2.1
+  have hsecondResource :=
+    compactAdditiveNatListAtRowsAtValuationIndexValueGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount targetBoundary targetCount (sourceCount + 1)
+      second (successorTerm (shortBinaryNumeralTerm sourceCount)) secondTerm
+      hgraph.2.2.2.2
+  unfold
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ hsliceResource
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          hfirstResource hsecondResource)))
+
 theorem
     compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount
@@ -355,8 +472,44 @@ theorem
     compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope,
     sliceCount] using hdirect
 
+theorem
+    compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount
+      first second : Nat)
+    (firstTerm secondTerm : ValuationTerm)
+    (hfirstClosed : firstTerm.freeVariables = ∅)
+    (hsecondClosed : secondTerm.freeVariables = ∅)
+    (hfirstValue : termValue appendTwoZeroValuation firstTerm = first)
+    (hsecondValue : termValue appendTwoZeroValuation secondTerm = second)
+    (hgraph : CompactAdditiveNatListAppendTwoValues tokenTable width tokenCount
+      sourceStart sourceFinish sourceCount targetStart targetFinish
+      targetBoundary targetCount first second) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount sourceStart sourceFinish sourceCount
+          targetStart targetFinish targetBoundary targetCount first second
+          firstTerm secondTerm hfirstValue hsecondValue hgraph) <=
+      compactAdditiveNatListAppendTwoValuesAtValuationValuesPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceStart sourceFinish sourceCount
+        targetStart targetFinish targetBoundary targetCount firstTerm
+        secondTerm := by
+  exact
+    (compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount first second firstTerm
+      secondTerm hfirstClosed hsecondClosed hfirstValue hsecondValue
+      hgraph).trans
+    (compactAdditiveNatListAppendTwoValuesAtValuationValuesGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceStart sourceFinish sourceCount
+      targetStart targetFinish targetBoundary targetCount first second firstTerm
+      secondTerm hgraph)
+
 #print axioms valuationEqCertificate_structuralPayloadBound_le_transparent
 #print axioms
   compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectNatListAppendTwoValuesPublicBounds
