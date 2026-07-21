@@ -39,15 +39,11 @@ open FoundationCompactNumericListedDirectVerifierParseTaskHeadExplicitHybridCert
 private abbrev layoutZeroValuation : Nat -> Nat :=
   FoundationCompactNumericListedDirectSyntaxTaskLayoutExplicitHybridCertificate.zeroValuation
 
-noncomputable def compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope
+def compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelopeOfWitnesses
     (tokenTable width tokenCount start finish
       kind binderArity repeatCount : Nat)
     (kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
-    (hlayout : CompactSyntaxTaskDirectLayout tokenTable width tokenCount
-      start finish (kind, binderArity, repeatCount)) : Nat := by
-  let binderStart := Classical.choose hlayout
-  have hbinderData := Classical.choose_spec hlayout
-  let countStart := Classical.choose hbinderData
+    (binderStart countStart : Nat) : Nat := by
   let tokenTableTerm := shortBinaryNumeralTerm tokenTable
   let widthTerm := shortBinaryNumeralTerm width
   let tokenCountTerm := shortBinaryNumeralTerm tokenCount
@@ -86,6 +82,17 @@ noncomputable def compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope
     (compactSyntaxTaskDirectLayoutAtValuationTermsTerminal tokenTable width
       tokenCount start finish kindTerm binderArityTerm repeatCountTerm)
     values terminalResource
+
+noncomputable def compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope
+    (tokenTable width tokenCount start finish
+      kind binderArity repeatCount : Nat)
+    (kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
+    (hlayout : CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+      start finish (kind, binderArity, repeatCount)) : Nat :=
+  compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelopeOfWitnesses
+    tokenTable width tokenCount start finish kind binderArity repeatCount
+    kindTerm binderArityTerm repeatCountTerm (Classical.choose hlayout)
+    (Classical.choose (Classical.choose_spec hlayout))
 
 theorem
     compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout_structuralPayloadBound_le_public
@@ -276,11 +283,104 @@ theorem
             width tokenCount start finish kindTerm binderArityTerm
             repeatCountTerm) values _ terminal)) ≤ _
   unfold compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope
+    compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelopeOfWitnesses
   simpa only [hybridFormulaStructuralPayloadBound, binderStart, countStart,
     tokenTableTerm, widthTerm, tokenCountTerm, startTerm, binderStartTerm,
     countStartTerm, finishTerm, kindCertificate, binderCertificate,
     repeatCertificate, binderRepeat, terminalParts, values, terminal] using
     hinstalled
+
+private theorem layoutValue_le_finiteSum
+    (bound value : Nat) (resource : Nat -> Nat) (hvalue : value <= bound) :
+    resource value <= (Finset.range (bound + 1)).sum resource := by
+  exact Finset.single_le_sum
+    (fun candidate _ => Nat.zero_le (resource candidate))
+    (Finset.mem_range.mpr (Nat.lt_succ_of_le hvalue))
+
+def compactSyntaxTaskDirectLayoutAtValuationTermsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount start finish
+      kind binderArity repeatCount : Nat)
+    (kindTerm binderArityTerm repeatCountTerm : ValuationTerm) : Nat :=
+  (Finset.range (tokenCount + 1)).sum fun binderStart =>
+    (Finset.range (tokenCount + 1)).sum fun countStart =>
+      compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelopeOfWitnesses
+        tokenTable width tokenCount start finish kind binderArity repeatCount
+        kindTerm binderArityTerm repeatCountTerm binderStart countStart
+
+theorem
+    compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount start finish
+      kind binderArity repeatCount : Nat)
+    (kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
+    (hlayout : CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+      start finish (kind, binderArity, repeatCount)) :
+    compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope tokenTable
+        width tokenCount start finish kind binderArity repeatCount kindTerm
+        binderArityTerm repeatCountTerm hlayout <=
+      compactSyntaxTaskDirectLayoutAtValuationTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount start finish kind binderArity repeatCount
+        kindTerm binderArityTerm repeatCountTerm := by
+  let binderStart := Classical.choose hlayout
+  have hbinderData := Classical.choose_spec hlayout
+  let countStart := Classical.choose hbinderData
+  have hcells := Classical.choose_spec hbinderData
+  have hkind := hcells.1
+  have hbinder := hcells.2.1
+  have hbinderStartLe : binderStart <= tokenCount := by
+    have hstart := hkind.1
+    have hnext := hkind.2.1
+    omega
+  have hcountStartLe : countStart <= tokenCount := by
+    have hstart := hbinder.1
+    have hnext := hbinder.2.1
+    omega
+  let resource :=
+    compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelopeOfWitnesses
+      tokenTable width tokenCount start finish kind binderArity repeatCount
+      kindTerm binderArityTerm repeatCountTerm
+  have hcount := layoutValue_le_finiteSum tokenCount countStart
+    (resource binderStart) hcountStartLe
+  have hbinderBound := layoutValue_le_finiteSum tokenCount binderStart
+    (fun candidate =>
+      (Finset.range (tokenCount + 1)).sum (resource candidate))
+    hbinderStartLe
+  unfold compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope
+    compactSyntaxTaskDirectLayoutAtValuationTermsPublicFinitePayloadEnvelope
+  dsimp only [binderStart, countStart, resource] at hcount hbinderBound ⊢
+  exact hcount.trans hbinderBound
+
+theorem
+    compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount start finish
+      kind binderArity repeatCount : Nat)
+    (kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
+    (hkindClosed : kindTerm.freeVariables = ∅)
+    (hbinderClosed : binderArityTerm.freeVariables = ∅)
+    (hrepeatClosed : repeatCountTerm.freeVariables = ∅)
+    (hkindValue : ∀ valuation, termValue valuation kindTerm = kind)
+    (hbinderArityValue : ∀ valuation,
+      termValue valuation binderArityTerm = binderArity)
+    (hrepeatCountValue : ∀ valuation,
+      termValue valuation repeatCountTerm = repeatCount)
+    (hlayout : CompactSyntaxTaskDirectLayout tokenTable width tokenCount
+      start finish (kind, binderArity, repeatCount)) :
+    hybridFormulaStructuralPayloadBound
+        (compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout
+          tokenTable width tokenCount start finish kind binderArity repeatCount
+          kindTerm binderArityTerm repeatCountTerm hkindValue
+          hbinderArityValue hrepeatCountValue hlayout) <=
+      compactSyntaxTaskDirectLayoutAtValuationTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount start finish kind binderArity repeatCount
+        kindTerm binderArityTerm repeatCountTerm := by
+  exact
+    (compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout_structuralPayloadBound_le_public
+      tokenTable width tokenCount start finish kind binderArity repeatCount
+      kindTerm binderArityTerm repeatCountTerm hkindClosed hbinderClosed
+      hrepeatClosed hkindValue hbinderArityValue hrepeatCountValue
+      hlayout).trans
+    (compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount start finish kind binderArity repeatCount
+      kindTerm binderArityTerm repeatCountTerm hlayout)
 
 theorem
     compactSyntaxTaskDirectLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_public
@@ -329,5 +429,7 @@ theorem
   compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout_structuralPayloadBound_le_public
 #print axioms
   compactSyntaxTaskDirectLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_public
+#print axioms
+  compactSyntaxTaskDirectLayoutAtValuationTermsExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectSyntaxTaskLayoutPublicBounds

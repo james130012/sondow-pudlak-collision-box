@@ -268,16 +268,10 @@ theorem outputBoundaryAreaCertificate_structuralPayloadBound_le_public
   dsimp only [rightTerm] at hpublic ⊢
   exact hpublic
 
-noncomputable def compactUnifiedParserEmptyGraphPayloadEnvelope
+def compactUnifiedParserEmptyPublicFinitePayloadEnvelope
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
-    (witness : CompactUnifiedParserEmptyWitnessCoordinates)
-    (hgraph : CompactUnifiedParserEmptyGraphRows tokenTable width tokenCount
-      current next witness) : Nat := by
-  rcases hgraph with
-    ⟨hcurrentCount, hnextCount, hrunning, htokenRows, hcompleted⟩
-  rcases hcompleted with
-    ⟨⟨hprefix, hlayout, houtputRows⟩, hsize, harea⟩
+    (witness : CompactUnifiedParserEmptyWitnessCoordinates) : Nat := by
   let currentCountFormula : ValuationFormula :=
     “!!(shortBinaryNumeralTerm current.tasksCount) = 0”
   let nextCountFormula : ValuationFormula :=
@@ -308,22 +302,19 @@ noncomputable def compactUnifiedParserEmptyGraphPayloadEnvelope
   let runningResource :=
     compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
       width tokenCount current.tasksFinish current.finish
-  let tokenRowsResource := compactAdditiveNatListSameRowsGraphPayloadEnvelope
+  let tokenRowsResource := compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope
     tokenTable width tokenCount current.tokensBoundary current.tokensCount
-    next.tokensBoundary next.tokensCount htokenRows
+    next.tokensBoundary next.tokensCount
   let completedResource :=
     compactBinaryNatCompletedStatusPrefixStructuralPayloadPolynomial tokenTable
       width tokenCount next.tasksFinish witness.targetOutputStart
   let layoutResource :=
-    compactAdditiveStructuredListLayoutDataStructuralPayloadEnvelope tokenTable
+    compactAdditiveStructuredListLayoutPublicFiniteStructuralPayloadEnvelope tokenTable
       width tokenCount witness.targetOutputStart current.tokensCount
       next.finish witness.targetOutputBoundary
-      (compactAdditiveStructuredListLayoutDataOfLayout tokenTable width
-        tokenCount witness.targetOutputStart current.tokensCount next.finish
-        witness.targetOutputBoundary hlayout)
-  let outputRowsResource := compactAdditiveNatListSameRowsGraphPayloadEnvelope
+  let outputRowsResource := compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope
     tokenTable width tokenCount current.tokensBoundary current.tokensCount
-    witness.targetOutputBoundary current.tokensCount houtputRows
+    witness.targetOutputBoundary current.tokensCount
   let sizeResource := compactNatSizeStructuralPayloadPolynomial
     witness.targetOutputBoundarySize witness.targetOutputBoundary
   let areaResource := parserEmptyOutputBoundaryAreaPayloadPolynomial tokenCount
@@ -374,7 +365,7 @@ noncomputable def compactUnifiedParserEmptyGraphPayloadEnvelope
     currentCountResource nextCountTailResource
 
 theorem
-    compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
     (witness : CompactUnifiedParserEmptyWitnessCoordinates)
@@ -383,8 +374,8 @@ theorem
     hybridFormulaStructuralPayloadBound
         (compactUnifiedParserEmptyExplicitHybridCertificateOfGraph tokenTable
           width tokenCount current next witness hgraph) <=
-      compactUnifiedParserEmptyGraphPayloadEnvelope tokenTable width tokenCount
-        current next witness hgraph := by
+      compactUnifiedParserEmptyPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next witness := by
   rcases hgraph with
     ⟨hcurrentCount, hnextCount, hrunning, htokenRows, hcompleted⟩
   rcases hcompleted with
@@ -459,7 +450,7 @@ theorem
     compactBinaryNatRunningStatusSliceExplicitHybridCertificate_structuralPayloadBound_le_public
       tokenTable width tokenCount current.tasksFinish current.finish hrunning
   have htokenRowsResource :=
-    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.tokensBoundary current.tokensCount
       next.tokensBoundary next.tokensCount htokenRows
   have hcompletedResource :=
@@ -467,11 +458,11 @@ theorem
       tokenTable width tokenCount next.tasksFinish witness.targetOutputStart
       hprefix
   have hlayoutResource :=
-    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
+    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount witness.targetOutputStart
       current.tokensCount next.finish witness.targetOutputBoundary hlayout
   have houtputRowsResource :=
-    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.tokensBoundary current.tokensCount
       witness.targetOutputBoundary current.tokensCount houtputRows
   have hsizeResource :=
@@ -521,7 +512,7 @@ theorem
       (CheckedHybridValuationBoundedFormulaCertificate.cast
         (compactUnifiedParserEmptyClosedFormula_alignment tokenTable width
           tokenCount current next witness).symm parts) <= _
-  unfold compactUnifiedParserEmptyGraphPayloadEnvelope
+  unfold compactUnifiedParserEmptyPublicFinitePayloadEnvelope
   simpa only [hybridFormulaStructuralPayloadBound,
     currentCountCertificate, nextCountCertificate, runningCertificate,
     tokenRowsCertificate, completedCertificate, layoutCertificate,
@@ -532,6 +523,6 @@ theorem
 #print axioms closedEqZeroCertificate_structuralPayloadBound_le_public
 #print axioms outputBoundaryAreaCertificate_structuralPayloadBound_le_public
 #print axioms
-  compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+  compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserEmptyPublicBounds

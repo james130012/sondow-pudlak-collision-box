@@ -235,24 +235,13 @@ theorem boundaryAreaCertificate_structuralPayloadBound_le_public
   dsimp only [rightTerm] at hpublic ⊢
   exact hpublic
 
-noncomputable def
-    compactBinaryNatCompletedStatusSameRowsWithSizeGraphPayloadEnvelope
+def compactBinaryNatCompletedStatusSameRowsWithSizePublicFinitePayloadEnvelope
     (tokenTable width tokenCount
       sourceStatusStart sourceStatusFinish
       targetStatusStart targetStatusFinish
       sourceOutputStart sourceOutputBoundary sourceOutputBoundarySize
       targetOutputStart targetOutputBoundary targetOutputBoundarySize
-      outputCount : Nat)
-    (hgraph : CompactBinaryNatCompletedStatusSameRowsWithSize
-      tokenTable width tokenCount sourceStatusStart sourceStatusFinish
-      targetStatusStart targetStatusFinish sourceOutputStart
-      sourceOutputBoundary sourceOutputBoundarySize targetOutputStart
-      targetOutputBoundary targetOutputBoundarySize outputCount) : Nat := by
-  rcases hgraph with
-    ⟨hbase, hsourceSize, hsourceArea, htargetSize, htargetArea⟩
-  rcases hbase with
-    ⟨hsourcePrefix, hsourceLayout, htargetPrefix,
-      htargetLayout, hsame⟩
+      outputCount : Nat) : Nat := by
   let sourcePrefixFormula := compactBinaryNatCompletedStatusPrefixClosedFormula
     tokenTable width tokenCount sourceStatusStart sourceOutputStart
   let sourceLayoutFormula := compactAdditiveStructuredListLayoutClosedFormula
@@ -282,25 +271,19 @@ noncomputable def
     compactBinaryNatCompletedStatusPrefixStructuralPayloadPolynomial tokenTable
       width tokenCount sourceStatusStart sourceOutputStart
   let sourceLayoutResource :=
-    compactAdditiveStructuredListLayoutDataStructuralPayloadEnvelope tokenTable
-      width tokenCount sourceOutputStart outputCount sourceStatusFinish
-      sourceOutputBoundary
-      (compactAdditiveStructuredListLayoutDataOfLayout tokenTable width
-        tokenCount sourceOutputStart outputCount sourceStatusFinish
-        sourceOutputBoundary hsourceLayout)
+    compactAdditiveStructuredListLayoutPublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount sourceOutputStart outputCount
+      sourceStatusFinish sourceOutputBoundary
   let targetPrefixResource :=
     compactBinaryNatCompletedStatusPrefixStructuralPayloadPolynomial tokenTable
       width tokenCount targetStatusStart targetOutputStart
   let targetLayoutResource :=
-    compactAdditiveStructuredListLayoutDataStructuralPayloadEnvelope tokenTable
-      width tokenCount targetOutputStart outputCount targetStatusFinish
-      targetOutputBoundary
-      (compactAdditiveStructuredListLayoutDataOfLayout tokenTable width
-        tokenCount targetOutputStart outputCount targetStatusFinish
-        targetOutputBoundary htargetLayout)
-  let sameResource := compactAdditiveNatListSameRowsGraphPayloadEnvelope
+    compactAdditiveStructuredListLayoutPublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount targetOutputStart outputCount
+      targetStatusFinish targetOutputBoundary
+  let sameResource := compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope
     tokenTable width tokenCount sourceOutputBoundary outputCount
-    targetOutputBoundary outputCount hsame
+    targetOutputBoundary outputCount
   let sourceSizeResource := compactNatSizeStructuralPayloadPolynomial
     sourceOutputBoundarySize sourceOutputBoundary
   let sourceAreaResource := completedStatusBoundaryAreaPayloadPolynomial
@@ -358,7 +341,7 @@ noncomputable def
     sourcePrefixResource sourceLayoutTailResource
 
 theorem
-    compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount
       sourceStatusStart sourceStatusFinish
       targetStatusStart targetStatusFinish
@@ -376,11 +359,11 @@ theorem
           targetStatusStart targetStatusFinish sourceOutputStart
           sourceOutputBoundary sourceOutputBoundarySize targetOutputStart
           targetOutputBoundary targetOutputBoundarySize outputCount hgraph) ≤
-      compactBinaryNatCompletedStatusSameRowsWithSizeGraphPayloadEnvelope
+      compactBinaryNatCompletedStatusSameRowsWithSizePublicFinitePayloadEnvelope
         tokenTable width tokenCount sourceStatusStart sourceStatusFinish
         targetStatusStart targetStatusFinish sourceOutputStart
         sourceOutputBoundary sourceOutputBoundarySize targetOutputStart
-        targetOutputBoundary targetOutputBoundarySize outputCount hgraph := by
+        targetOutputBoundary targetOutputBoundarySize outputCount := by
   rcases hgraph with
     ⟨hbase, hsourceSize, hsourceArea, htargetSize, htargetArea⟩
   rcases hbase with
@@ -454,7 +437,7 @@ theorem
       tokenTable width tokenCount sourceStatusStart sourceOutputStart
       hsourcePrefix
   have hsourceLayoutResource :=
-    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
+    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount sourceOutputStart outputCount
       sourceStatusFinish sourceOutputBoundary hsourceLayout
   have htargetPrefixResource :=
@@ -462,11 +445,11 @@ theorem
       tokenTable width tokenCount targetStatusStart targetOutputStart
       htargetPrefix
   have htargetLayoutResource :=
-    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
+    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount targetOutputStart outputCount
       targetStatusFinish targetOutputBoundary htargetLayout
   have hsameResource :=
-    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount sourceOutputBoundary outputCount
       targetOutputBoundary outputCount hsame
   have hsourceSizeResource :=
@@ -525,7 +508,7 @@ theorem
   have hparts := transparentHybridConjunctionPayloadBound_le
     sourcePrefixCertificate sourceLayoutTail _ _ hsourcePrefixResource
     hsourceLayoutTail
-  unfold compactBinaryNatCompletedStatusSameRowsWithSizeGraphPayloadEnvelope
+  unfold compactBinaryNatCompletedStatusSameRowsWithSizePublicFinitePayloadEnvelope
   simpa only [
     compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph,
     hybridFormulaStructuralPayloadBound, sourcePrefixCertificate,
@@ -538,6 +521,6 @@ theorem
 #print axioms valuationLeCertificate_structuralPayloadBound_le_public
 #print axioms boundaryAreaCertificate_structuralPayloadBound_le_public
 #print axioms
-  compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+  compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectCompletedStatusSameRowsPublicBounds

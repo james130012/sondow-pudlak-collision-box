@@ -102,8 +102,46 @@ theorem transparentHybridDisjunctionRightPayloadBound_le
   dsimp only
   omega
 
+theorem transparentHybridConjunctionPayloadEnvelope_mono
+    (valuation : Nat -> Nat) (left right : ValuationFormula)
+    {leftSmall leftLarge rightSmall rightLarge : Nat}
+    (hleft : leftSmall <= leftLarge)
+    (hright : rightSmall <= rightLarge) :
+    transparentHybridConjunctionPayloadEnvelope valuation left right
+        leftSmall rightSmall <=
+      transparentHybridConjunctionPayloadEnvelope valuation left right
+        leftLarge rightLarge := by
+  unfold transparentHybridConjunctionPayloadEnvelope
+  dsimp only
+  omega
+
+theorem transparentHybridDisjunctionLeftPayloadEnvelope_mono
+    (valuation : Nat -> Nat) (left right : ValuationFormula)
+    {small large : Nat} (hresource : small <= large) :
+    transparentHybridDisjunctionLeftPayloadEnvelope valuation left right
+        small <=
+      transparentHybridDisjunctionLeftPayloadEnvelope valuation left right
+        large := by
+  unfold transparentHybridDisjunctionLeftPayloadEnvelope
+  dsimp only
+  omega
+
+theorem transparentHybridDisjunctionRightPayloadEnvelope_mono
+    (valuation : Nat -> Nat) (left right : ValuationFormula)
+    {small large : Nat} (hresource : small <= large) :
+    transparentHybridDisjunctionRightPayloadEnvelope valuation left right
+        small <=
+      transparentHybridDisjunctionRightPayloadEnvelope valuation left right
+        large := by
+  unfold transparentHybridDisjunctionRightPayloadEnvelope
+  dsimp only
+  omega
+
 #print axioms transparentHybridConjunctionPayloadBound_le
 #print axioms transparentHybridDisjunctionLeftPayloadBound_le
 #print axioms transparentHybridDisjunctionRightPayloadBound_le
+#print axioms transparentHybridConjunctionPayloadEnvelope_mono
+#print axioms transparentHybridDisjunctionLeftPayloadEnvelope_mono
+#print axioms transparentHybridDisjunctionRightPayloadEnvelope_mono
 
 end FoundationCompactPAHybridConnectiveTransparentBounds

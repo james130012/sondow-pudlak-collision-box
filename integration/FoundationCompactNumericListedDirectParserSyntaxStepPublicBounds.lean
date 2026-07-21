@@ -297,13 +297,13 @@ noncomputable def compactUnifiedParserSyntaxStepBranchPayloadEnvelopeFromData
   | done hgraph =>
       exact sixWayDisjunctionPath0PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserDoneGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.done hgraph)
+        (compactUnifiedParserDonePublicFinitePayloadEnvelope tokenTable width
+          tokenCount current next witness.done)
   | empty hgraph =>
       exact sixWayDisjunctionPath1PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserEmptyGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.empty hgraph)
+        (compactUnifiedParserEmptyPublicFinitePayloadEnvelope tokenTable width
+          tokenCount current next witness.empty)
   | repeatBranch hgraph =>
       exact sixWayDisjunctionPath2PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
@@ -353,7 +353,7 @@ theorem
   cases data with
   | done hgraph =>
       have hselected :=
-        compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.done hgraph
       have hpath := sixWayDisjunctionPath0PayloadBound_le
         (valuation := stepZeroValuation)
@@ -369,7 +369,7 @@ theorem
         invalidFormula] using hpath
   | empty hgraph =>
       have hselected :=
-        compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.empty hgraph
       have hpath := sixWayDisjunctionPath1PayloadBound_le
         (valuation := stepZeroValuation)

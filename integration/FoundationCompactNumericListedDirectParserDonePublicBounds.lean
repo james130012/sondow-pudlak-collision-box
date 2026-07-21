@@ -44,21 +44,10 @@ open FoundationCompactNumericListedDirectCompletedStatusSameRowsPublicBounds
 private abbrev doneZeroValuation : Nat -> Nat :=
   FoundationCompactNumericListedDirectParserDoneExplicitHybridCertificate.zeroValuation
 
-noncomputable def compactUnifiedParserDoneStatusGraphPayloadEnvelope
+def compactUnifiedParserDoneStatusPublicFinitePayloadEnvelope
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
-    (witness : CompactUnifiedParserDoneWitnessCoordinates)
-    (hstatus :
-      (CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
-          current.tasksFinish current.finish ∧
-        CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
-          next.tasksFinish next.finish) ∨
-      CompactBinaryNatCompletedStatusSameRowsWithSize tokenTable width tokenCount
-        current.tasksFinish current.finish next.tasksFinish next.finish
-        witness.sourceOutputStart witness.sourceOutputBoundary
-        witness.sourceOutputBoundarySize witness.targetOutputStart
-        witness.targetOutputBoundary witness.targetOutputBoundarySize
-        witness.outputCount) : Nat := by
+    (witness : CompactUnifiedParserDoneWitnessCoordinates) : Nat := by
   let currentFailedFormula := compactBinaryNatFailedStatusSliceClosedFormula
     tokenTable width tokenCount current.tasksFinish current.finish
   let nextFailedFormula := compactBinaryNatFailedStatusSliceClosedFormula
@@ -71,43 +60,30 @@ noncomputable def compactUnifiedParserDoneStatusGraphPayloadEnvelope
       witness.sourceOutputBoundarySize witness.targetOutputStart
       witness.targetOutputBoundary witness.targetOutputBoundarySize
       witness.outputCount
-  by_cases hfailed :
-      CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
-          current.tasksFinish current.finish ∧
-        CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
-          next.tasksFinish next.finish
-  · let currentResource :=
-      compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
-        width tokenCount current.tasksFinish current.finish
-    let nextResource :=
-      compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
-        width tokenCount next.tasksFinish next.finish
-    let pairResource := transparentHybridConjunctionPayloadEnvelope
-      doneZeroValuation currentFailedFormula nextFailedFormula currentResource
-      nextResource
-    exact transparentHybridDisjunctionLeftPayloadEnvelope doneZeroValuation
-      failedPairFormula completedFormula pairResource
-  · have hcompleted : CompactBinaryNatCompletedStatusSameRowsWithSize
-        tokenTable width tokenCount current.tasksFinish current.finish
-        next.tasksFinish next.finish witness.sourceOutputStart
-        witness.sourceOutputBoundary witness.sourceOutputBoundarySize
-        witness.targetOutputStart witness.targetOutputBoundary
-        witness.targetOutputBoundarySize witness.outputCount := by
-      rcases hstatus with hfailed' | hcompleted
-      · exact False.elim (hfailed hfailed')
-      · exact hcompleted
-    let completedResource :=
-      compactBinaryNatCompletedStatusSameRowsWithSizeGraphPayloadEnvelope
-        tokenTable width tokenCount current.tasksFinish current.finish
-        next.tasksFinish next.finish witness.sourceOutputStart
-        witness.sourceOutputBoundary witness.sourceOutputBoundarySize
-        witness.targetOutputStart witness.targetOutputBoundary
-        witness.targetOutputBoundarySize witness.outputCount hcompleted
-    exact transparentHybridDisjunctionRightPayloadEnvelope doneZeroValuation
-      failedPairFormula completedFormula completedResource
+  let currentResource :=
+    compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount current.tasksFinish current.finish
+  let nextResource :=
+    compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish
+  let pairResource := transparentHybridConjunctionPayloadEnvelope
+    doneZeroValuation currentFailedFormula nextFailedFormula currentResource
+    nextResource
+  let failedResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    doneZeroValuation failedPairFormula completedFormula pairResource
+  let completedCoreResource :=
+    compactBinaryNatCompletedStatusSameRowsWithSizePublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tasksFinish current.finish
+      next.tasksFinish next.finish witness.sourceOutputStart
+      witness.sourceOutputBoundary witness.sourceOutputBoundarySize
+      witness.targetOutputStart witness.targetOutputBoundary
+      witness.targetOutputBoundarySize witness.outputCount
+  let completedResource := transparentHybridDisjunctionRightPayloadEnvelope
+    doneZeroValuation failedPairFormula completedFormula completedCoreResource
+  exact failedResource + completedResource
 
 theorem
-    compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
     (witness : CompactUnifiedParserDoneWitnessCoordinates)
@@ -125,8 +101,8 @@ theorem
     hybridFormulaStructuralPayloadBound
         (compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph
           tokenTable width tokenCount current next witness hstatus) ≤
-      compactUnifiedParserDoneStatusGraphPayloadEnvelope tokenTable width
-        tokenCount current next witness hstatus := by
+      compactUnifiedParserDoneStatusPublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next witness := by
   let currentFailedFormula := compactBinaryNatFailedStatusSliceClosedFormula
     tokenTable width tokenCount current.tasksFinish current.finish
   let nextFailedFormula := compactBinaryNatFailedStatusSliceClosedFormula
@@ -139,6 +115,26 @@ theorem
       witness.sourceOutputBoundarySize witness.targetOutputStart
       witness.targetOutputBoundary witness.targetOutputBoundarySize
       witness.outputCount
+  let currentResource :=
+    compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount current.tasksFinish current.finish
+  let nextResource :=
+    compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish
+  let pairResource := transparentHybridConjunctionPayloadEnvelope
+    doneZeroValuation currentFailedFormula nextFailedFormula currentResource
+    nextResource
+  let failedResource := transparentHybridDisjunctionLeftPayloadEnvelope
+    doneZeroValuation failedPairFormula completedFormula pairResource
+  let completedCoreResource :=
+    compactBinaryNatCompletedStatusSameRowsWithSizePublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tasksFinish current.finish
+      next.tasksFinish next.finish witness.sourceOutputStart
+      witness.sourceOutputBoundary witness.sourceOutputBoundarySize
+      witness.targetOutputStart witness.targetOutputBoundary
+      witness.targetOutputBoundarySize witness.outputCount
+  let completedResource := transparentHybridDisjunctionRightPayloadEnvelope
+    doneZeroValuation failedPairFormula completedFormula completedCoreResource
   by_cases hfailed :
       CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
           current.tasksFinish current.finish ∧
@@ -168,16 +164,26 @@ theorem
     let statusCertificate :=
       CheckedHybridValuationBoundedFormulaCertificate.disjunctionLeft
         (right := completedFormula) pairCertificate
-    have hstatusResource := transparentHybridDisjunctionLeftPayloadBound_le
-      (right := completedFormula) pairCertificate _ hpair
+    have hstatusResource :
+        hybridFormulaStructuralPayloadBound statusCertificate ≤
+          failedResource := by
+      simpa only [statusCertificate, failedResource, failedPairFormula,
+        pairResource] using
+        (transparentHybridDisjunctionLeftPayloadBound_le
+          (right := completedFormula) pairCertificate _ hpair)
+    have hpublic : hybridFormulaStructuralPayloadBound statusCertificate ≤
+        failedResource + completedResource := by
+      exact hstatusResource.trans (by
+        dsimp only [failedResource]
+        omega)
     unfold compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph
     rw [dif_pos hfailed]
-    unfold compactUnifiedParserDoneStatusGraphPayloadEnvelope
-    rw [dif_pos hfailed]
+    unfold compactUnifiedParserDoneStatusPublicFinitePayloadEnvelope
     simpa only [hybridFormulaStructuralPayloadBound, currentFailedFormula,
       nextFailedFormula, failedPairFormula, completedFormula,
       currentCertificate, nextCertificate, pairCertificate,
-      statusCertificate] using hstatusResource
+      statusCertificate, currentResource, nextResource, pairResource,
+      failedResource, completedCoreResource, completedResource] using hpublic
   · have hcompleted : CompactBinaryNatCompletedStatusSameRowsWithSize
         tokenTable width tokenCount current.tasksFinish current.finish
         next.tasksFinish next.finish witness.sourceOutputStart
@@ -197,29 +203,39 @@ theorem
         witness.targetOutputStart witness.targetOutputBoundary
         witness.targetOutputBoundarySize witness.outputCount hcompleted
     have hcompletedResource :=
-      compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      compactBinaryNatCompletedStatusSameRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
         tokenTable width tokenCount current.tasksFinish current.finish
         next.tasksFinish next.finish witness.sourceOutputStart
         witness.sourceOutputBoundary witness.sourceOutputBoundarySize
         witness.targetOutputStart witness.targetOutputBoundary
         witness.targetOutputBoundarySize witness.outputCount hcompleted
-    have hstatusResource := transparentHybridDisjunctionRightPayloadBound_le
-      (left := failedPairFormula) completedCertificate _ hcompletedResource
+    have hstatusResource : hybridFormulaStructuralPayloadBound
+        (CheckedHybridValuationBoundedFormulaCertificate.disjunctionRight
+          (left := failedPairFormula) completedCertificate) ≤
+        completedResource := by
+      simpa only [completedResource, completedCoreResource] using
+        (transparentHybridDisjunctionRightPayloadBound_le
+          (left := failedPairFormula) completedCertificate _
+          hcompletedResource)
+    have hpublic : hybridFormulaStructuralPayloadBound
+        (CheckedHybridValuationBoundedFormulaCertificate.disjunctionRight
+          (left := failedPairFormula) completedCertificate) ≤
+        failedResource + completedResource := by
+      exact hstatusResource.trans (by
+        dsimp only [completedResource]
+        omega)
     unfold compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph
     rw [dif_neg hfailed]
-    unfold compactUnifiedParserDoneStatusGraphPayloadEnvelope
-    rw [dif_neg hfailed]
+    unfold compactUnifiedParserDoneStatusPublicFinitePayloadEnvelope
     simpa only [hybridFormulaStructuralPayloadBound, currentFailedFormula,
       nextFailedFormula, failedPairFormula, completedFormula,
-      completedCertificate] using hstatusResource
+      completedCertificate, currentResource, nextResource, pairResource,
+      failedResource, completedCoreResource, completedResource] using hpublic
 
-noncomputable def compactUnifiedParserDoneGraphPayloadEnvelope
+def compactUnifiedParserDonePublicFinitePayloadEnvelope
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
-    (witness : CompactUnifiedParserDoneWitnessCoordinates)
-    (hgraph : CompactUnifiedParserDoneGraphRows tokenTable width tokenCount
-      current next witness) : Nat := by
-  rcases hgraph with ⟨htokens, htasks, hstatus⟩
+    (witness : CompactUnifiedParserDoneWitnessCoordinates) : Nat := by
   let tokenFormula := compactAdditiveNatListSameRowsClosedFormula tokenTable
     width tokenCount current.tokensBoundary current.tokensCount
     next.tokensBoundary next.tokensCount
@@ -237,22 +253,22 @@ noncomputable def compactUnifiedParserDoneGraphPayloadEnvelope
         witness.sourceOutputBoundarySize witness.targetOutputStart
         witness.targetOutputBoundary witness.targetOutputBoundarySize
         witness.outputCount)
-  let tokenResource := compactAdditiveNatListSameRowsGraphPayloadEnvelope
+  let tokenResource := compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope
     tokenTable width tokenCount current.tokensBoundary current.tokensCount
-    next.tokensBoundary next.tokensCount htokens
+    next.tokensBoundary next.tokensCount
   let taskResource :=
-    compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope tokenTable width
+    compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope tokenTable width
       tokenCount current.tasksBoundary current.tasksCount next.tasksBoundary
-      next.tasksCount htasks
-  let statusResource := compactUnifiedParserDoneStatusGraphPayloadEnvelope
-    tokenTable width tokenCount current next witness hstatus
+      next.tasksCount
+  let statusResource := compactUnifiedParserDoneStatusPublicFinitePayloadEnvelope
+    tokenTable width tokenCount current next witness
   let taskStatusResource := transparentHybridConjunctionPayloadEnvelope
     doneZeroValuation taskFormula statusFormula taskResource statusResource
   exact transparentHybridConjunctionPayloadEnvelope doneZeroValuation
     tokenFormula (taskFormula ⋏ statusFormula) tokenResource taskStatusResource
 
 theorem
-    compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
     (witness : CompactUnifiedParserDoneWitnessCoordinates)
@@ -261,8 +277,8 @@ theorem
     hybridFormulaStructuralPayloadBound
         (compactUnifiedParserDoneExplicitHybridCertificateOfGraph tokenTable
           width tokenCount current next witness hgraph) ≤
-      compactUnifiedParserDoneGraphPayloadEnvelope tokenTable width tokenCount
-        current next witness hgraph := by
+      compactUnifiedParserDonePublicFinitePayloadEnvelope tokenTable width
+        tokenCount current next witness := by
   rcases hgraph with ⟨htokens, htasks, hstatus⟩
   let tokenCertificate :
       CheckedHybridValuationBoundedFormulaCertificate doneZeroValuation
@@ -284,15 +300,15 @@ theorem
     compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph tokenTable
       width tokenCount current next witness hstatus
   have htokenResource :=
-    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.tokensBoundary current.tokensCount
       next.tokensBoundary next.tokensCount htokens
   have htaskResource :=
-    compactAdditiveSyntaxTaskListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveSyntaxTaskListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.tasksBoundary current.tasksCount
       next.tasksBoundary next.tasksCount htasks
   have hstatusResource :=
-    compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current next witness hstatus
   let taskStatus := CheckedHybridValuationBoundedFormulaCertificate.conjunction
     taskCertificate statusCertificate
@@ -306,13 +322,13 @@ theorem
       (CheckedHybridValuationBoundedFormulaCertificate.cast
         (compactUnifiedParserDoneClosedFormula_alignment tokenTable width
           tokenCount current next witness).symm parts) ≤ _
-  unfold compactUnifiedParserDoneGraphPayloadEnvelope
+  unfold compactUnifiedParserDonePublicFinitePayloadEnvelope
   simpa only [hybridFormulaStructuralPayloadBound, tokenCertificate,
     taskCertificate, statusCertificate, taskStatus, parts] using hparts
 
 #print axioms
-  compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+  compactUnifiedParserDoneStatusExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 #print axioms
-  compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+  compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserDonePublicBounds

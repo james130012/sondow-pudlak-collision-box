@@ -79,6 +79,43 @@ def explicitBoundedWitnessHybridStructuralPayloadEnvelope
         (explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope
           valuation bound body values terminalResource)
 
+theorem explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope_mono
+    (valuation : Nat -> Nat) {k : Nat}
+    (bound : Nat)
+    (body : ArithmeticSemiformula Nat (k + 1))
+    (values : Fin (k + 1) -> Nat)
+    {small large : Nat} (hresource : small <= large) :
+    explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope valuation bound
+        body values small <=
+      explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope valuation bound
+        body values large := by
+  unfold explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope
+    hybridConjunctionStructuralPayloadEnvelope
+    hybridExistsWitnessStructuralPayloadEnvelope
+  dsimp only
+  omega
+
+theorem explicitBoundedWitnessHybridStructuralPayloadEnvelope_mono
+    (valuation : Nat -> Nat) {k : Nat}
+    (bound : Nat)
+    (body : ArithmeticSemiformula Nat k)
+    (values : Fin k -> Nat)
+    {small large : Nat} (hresource : small <= large) :
+    explicitBoundedWitnessHybridStructuralPayloadEnvelope valuation bound body
+        values small <=
+      explicitBoundedWitnessHybridStructuralPayloadEnvelope valuation bound body
+        values large := by
+  induction k generalizing small large with
+  | zero => exact hresource
+  | succ k inductionHypothesis =>
+      simp only [explicitBoundedWitnessHybridStructuralPayloadEnvelope]
+      exact inductionHypothesis
+        (body := body.bexsLTSucc
+          (closedShift k (shortBinaryNumeralTerm bound)))
+        (values := fun index => values index.succ)
+        (explicitBoundedWitnessHybridHeadStructuralPayloadEnvelope_mono
+          valuation bound body values hresource)
+
 theorem boundedWitnessGuardCertificate_structuralPayloadBound_le_transparent
     (valuation : Nat -> Nat) (value bound : Nat)
     (hvalue : value <= bound) :
@@ -255,5 +292,7 @@ theorem buildExplicitBoundedWitnessHybridCertificate_structuralPayloadBound_le_t
   boundedWitnessGuardCertificate_structuralPayloadBound_le_transparent
 #print axioms
   buildExplicitBoundedWitnessHybridCertificate_structuralPayloadBound_le_transparent
+#print axioms
+  explicitBoundedWitnessHybridStructuralPayloadEnvelope_mono
 
 end FoundationCompactPAExplicitBoundedWitnessHybridTransparentBounds

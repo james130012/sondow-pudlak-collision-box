@@ -167,9 +167,86 @@ theorem
       tokenTable width tokenCount current next tailBoundary tailCount hgraph.1
       hgraph.2.1 hgraph.2.2
 
+def compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount : Nat) : Nat :=
+  let failedFormula := compactBinaryNatFailedStatusSliceClosedFormula
+    tokenTable width tokenCount next.tasksFinish next.finish
+  let tokensFormula := compactAdditiveNatListSameRowsClosedFormula tokenTable
+    width tokenCount current.tokensBoundary current.tokensCount
+    next.tokensBoundary next.tokensCount
+  let tasksFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+    next.tasksCount
+  let tokensTasksResource := transparentHybridConjunctionPayloadEnvelope
+    natListZeroValuation tokensFormula tasksFormula
+    (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount)
+    (compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope tokenTable
+      width tokenCount tailBoundary tailCount next.tasksBoundary
+      next.tasksCount)
+  transparentHybridConjunctionPayloadEnvelope binaryStatusZeroValuation
+    failedFormula (tokensFormula ⋏ tasksFormula)
+    (compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish)
+    tokensTasksResource
+
+theorem
+    compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount : Nat)
+    (hfailed : CompactBinaryNatFailedStatusSlice tokenTable width tokenCount
+      next.tasksFinish next.finish)
+    (htokens : CompactAdditiveNatListSameRows tokenTable width tokenCount
+      current.tokensBoundary current.tokensCount next.tokensBoundary
+      next.tokensCount)
+    (htasks : CompactAdditiveSyntaxTaskListSameRows tokenTable width tokenCount
+      tailBoundary tailCount next.tasksBoundary next.tasksCount) :
+    compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope tokenTable
+        width tokenCount current next tailBoundary tailCount hfailed htokens
+        htasks <=
+      compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next tailBoundary tailCount := by
+  unfold compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope
+    compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tokensBoundary current.tokensCount
+        next.tokensBoundary next.tokensCount htokens)
+      (compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+        next.tasksCount htasks))
+
+theorem
+    compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount : Nat)
+    (hgraph : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next tailBoundary tailCount) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next tailBoundary tailCount
+          hgraph) <=
+      compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next tailBoundary tailCount := by
+  exact
+    (compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next tailBoundary tailCount
+      hgraph).trans
+    (compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount hgraph.1
+      hgraph.2.1 hgraph.2.2)
+
 #print axioms
   compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxTermFailureRowsPublicBounds

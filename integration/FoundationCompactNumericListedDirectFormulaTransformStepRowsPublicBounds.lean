@@ -293,25 +293,25 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
   | quietDone hparser hrows =>
       let parserResource := fourWayPath0PayloadEnvelope doneFormula emptyFormula
         repeatFormula invalidFormula
-        (compactUnifiedParserDoneGraphPayloadEnvelope tokenTable width
-          tokenCount current.parser next.parser stepWitness.done hparser)
+        (compactUnifiedParserDonePublicFinitePayloadEnvelope tokenTable width
+          tokenCount current.parser next.parser stepWitness.done)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
-        (compactAdditiveNatListSameRowsGraphPayloadEnvelope tokenTable width
+        (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
           tokenCount current.outputBoundary current.outputCount
-          next.outputBoundary next.outputCount hrows)
+          next.outputBoundary next.outputCount)
       exact threeWayPath0PayloadEnvelope quietFormula termFormula formulaFormula
         quietResource
   | quietEmpty hparser hrows =>
       let parserResource := fourWayPath1PayloadEnvelope doneFormula emptyFormula
         repeatFormula invalidFormula
-        (compactUnifiedParserEmptyGraphPayloadEnvelope tokenTable width
-          tokenCount current.parser next.parser stepWitness.empty hparser)
+        (compactUnifiedParserEmptyPublicFinitePayloadEnvelope tokenTable width
+          tokenCount current.parser next.parser stepWitness.empty)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
-        (compactAdditiveNatListSameRowsGraphPayloadEnvelope tokenTable width
+        (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
           tokenCount current.outputBoundary current.outputCount
-          next.outputBoundary next.outputCount hrows)
+          next.outputBoundary next.outputCount)
       exact threeWayPath0PayloadEnvelope quietFormula termFormula formulaFormula
         quietResource
   | quietRepeat hparser hrows =>
@@ -322,9 +322,9 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
           stepWitness.slot1 stepWitness.repeat hparser)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
-        (compactAdditiveNatListSameRowsGraphPayloadEnvelope tokenTable width
+        (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
           tokenCount current.outputBoundary current.outputCount
-          next.outputBoundary next.outputCount hrows)
+          next.outputBoundary next.outputCount)
       exact threeWayPath0PayloadEnvelope quietFormula termFormula formulaFormula
         quietResource
   | quietInvalid hparser hrows =>
@@ -334,9 +334,9 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
           tokenCount current.parser next.parser stepWitness.invalid hparser)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
-        (compactAdditiveNatListSameRowsGraphPayloadEnvelope tokenTable width
+        (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
           tokenCount current.outputBoundary current.outputCount
-          next.outputBoundary next.outputCount hrows)
+          next.outputBoundary next.outputCount)
       exact threeWayPath0PayloadEnvelope quietFormula termFormula formulaFormula
         quietResource
   | term hparser hrows =>
@@ -421,11 +421,11 @@ theorem
       width tokenCount current.outputBoundary current.outputCount
       next.outputBoundary next.outputCount hrows
   have hparserResource :=
-    compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+    compactUnifiedParserDoneExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.parser next.parser stepWitness.done
       hparser
   have hrowsResource :=
-    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount current.outputBoundary current.outputCount
       next.outputBoundary next.outputCount hrows
   let parserPath :=
@@ -516,11 +516,11 @@ theorem
           width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       have hparserResource :=
-        compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserEmptyExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.parser next.parser
           stepWitness.empty hparser
       have hrowsResource :=
-        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       let parserPath :=
@@ -563,7 +563,7 @@ theorem
           tokenTable width tokenCount current.parser next.parser
           stepWitness.slot0 stepWitness.slot1 stepWitness.repeat hparser
       have hrowsResource :=
-        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       let parserPath :=
@@ -608,7 +608,7 @@ theorem
           tokenTable width tokenCount current.parser next.parser
           stepWitness.invalid hparser
       have hrowsResource :=
-        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       let parserPath :=

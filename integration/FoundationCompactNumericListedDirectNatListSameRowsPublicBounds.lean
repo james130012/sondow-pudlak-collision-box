@@ -1076,6 +1076,26 @@ theorem compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
       (compactAdditiveNatListSameRowDataOfGraph tokenTable width tokenCount
         sourceBoundary sourceCount targetBoundary targetCount hgraph)
 
+theorem
+    compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount
+      targetBoundary targetCount : Nat)
+    (hgraph : CompactAdditiveNatListSameRows tokenTable width tokenCount
+      sourceBoundary sourceCount targetBoundary targetCount) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount sourceBoundary sourceCount
+          targetBoundary targetCount hgraph) <=
+      compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount := by
+  exact
+    (compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+      targetCount hgraph).trans
+    (compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+      targetCount hgraph)
+
 #print axioms countEqualityCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveNatListSameRowsBranchCertificate_structuralPayloadBound_le_transparent
@@ -1089,5 +1109,7 @@ theorem compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
   compactAdditiveNatListSameRowsUniversalPayloadEnvelope_le_publicFinite
 #print axioms
   compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+#print axioms
+  compactAdditiveNatListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectNatListSameRowsPublicBounds
