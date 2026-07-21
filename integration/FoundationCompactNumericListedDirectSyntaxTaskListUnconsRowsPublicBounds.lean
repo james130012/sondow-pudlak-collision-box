@@ -1,6 +1,6 @@
 import integration.FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsExplicitHybridCertificate
-import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicBounds
-import integration.FoundationCompactNumericListedDirectSyntaxTaskListConsRowsPublicBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListConsRowsPublicFiniteUniversalBounds
 import integration.FoundationCompactNumericListedDirectAdditiveTripleBoundaryRowsPublicBounds
 import integration.FoundationCompactNumericListedDirectNatSizePublicBounds
 import integration.FoundationCompactPAHybridConnectiveTransparentBounds
@@ -265,6 +265,95 @@ noncomputable def
       sourceCount)
     dropTailResource
 
+def
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm) : Nat :=
+  let positiveFormula : ValuationFormula :=
+    “0 < !!(shortBinaryNumeralTerm sourceCount)”
+  let dropFormula :=
+    compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula tokenTable
+      width tokenCount sourceBoundary sourceCount tailBoundary tailCount 1
+  let tripleFormula := compactAdditiveTripleBoundaryRowsClosedFormula tokenCount
+    tailCount tailBoundary
+  let consFormula :=
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsFormula tokenTable
+      width tokenCount tailBoundary tailCount sourceBoundary sourceCount
+      headKindTerm headBinderArityTerm headRepeatCountTerm
+  let sizeFormula := compactNatSizeClosedFormula tailBoundarySize tailBoundary
+  let areaFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm tailBoundarySize) ≤
+      (!!(shortBinaryNumeralTerm tailCount) + 1) *
+        !!(shortBinaryNumeralTerm tokenCount)”
+  let sizeAreaResource := transparentHybridConjunctionPayloadEnvelope
+    natSizeZeroValuation sizeFormula areaFormula
+    (compactNatSizeStructuralPayloadPolynomial tailBoundarySize tailBoundary)
+    (compactAdditiveSyntaxTaskListUnconsRowsTailAreaPayloadPolynomial
+      tailBoundarySize tailCount tokenCount)
+  let consTailResource := transparentHybridConjunctionPayloadEnvelope
+    consZeroValuation consFormula (sizeFormula ⋏ areaFormula)
+    (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount tailBoundary tailCount sourceBoundary
+      sourceCount headKind headBinderArity headRepeatCount headKindTerm
+      headBinderArityTerm headRepeatCountTerm)
+    sizeAreaResource
+  let tripleTailResource := transparentHybridConjunctionPayloadEnvelope
+    tripleZeroValuation tripleFormula
+    (consFormula ⋏ (sizeFormula ⋏ areaFormula))
+    (compactAdditiveTripleBoundaryRowsPublicFiniteStructuralPayloadEnvelope
+      tokenCount tailCount tailBoundary)
+    consTailResource
+  let dropTailResource := transparentHybridConjunctionPayloadEnvelope
+    dropZeroValuation dropFormula
+    (tripleFormula ⋏ (consFormula ⋏ (sizeFormula ⋏ areaFormula)))
+    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount 1)
+    tripleTailResource
+  transparentHybridConjunctionPayloadEnvelope unconsZeroValuation
+    positiveFormula
+    (dropFormula ⋏
+      (tripleFormula ⋏ (consFormula ⋏ (sizeFormula ⋏ areaFormula))))
+    (compactAdditiveSyntaxTaskListUnconsRowsPositivePayloadPolynomial
+      sourceCount)
+    dropTailResource
+
+theorem
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm)
+    (hgraph : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount sourceBoundary sourceCount tailBoundary tailCount
+      tailBoundarySize headKind headBinderArity headRepeatCount) :
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+        headKindTerm headBinderArityTerm headRepeatCountTerm hgraph <=
+      compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+        headKindTerm headBinderArityTerm headRepeatCountTerm := by
+  unfold
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount 1 hgraph.2.1)
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+        (compactAdditiveTripleBoundaryRowsGraphStructuralPayloadEnvelope_le_publicFinite
+          tokenCount tailCount tailBoundary hgraph.2.2.1)
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+            tokenTable width tokenCount tailBoundary tailCount sourceBoundary
+            sourceCount headKind headBinderArity headRepeatCount headKindTerm
+            headBinderArityTerm headRepeatCountTerm hgraph.2.2.2.1)
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            le_rfl))))
+
 theorem
     compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
@@ -371,6 +460,44 @@ theorem
     areaCertificate, sizeAreaCertificate, consTailCertificate,
     tripleTailCertificate, dropTailCertificate, parts] using hparts
 
+theorem
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm)
+    (hheadKindClosed : headKindTerm.freeVariables = ∅)
+    (hheadBinderArityClosed : headBinderArityTerm.freeVariables = ∅)
+    (hheadRepeatCountClosed : headRepeatCountTerm.freeVariables = ∅)
+    (hheadKindValue : ∀ valuation, termValue valuation headKindTerm = headKind)
+    (hheadBinderArityValue : ∀ valuation,
+      termValue valuation headBinderArityTerm = headBinderArity)
+    (hheadRepeatCountValue : ∀ valuation,
+      termValue valuation headRepeatCountTerm = headRepeatCount)
+    (hgraph : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount sourceBoundary sourceCount tailBoundary tailCount
+      tailBoundarySize headKind headBinderArity headRepeatCount) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+          tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+          headKindTerm headBinderArityTerm headRepeatCountTerm hheadKindValue
+          hheadBinderArityValue hheadRepeatCountValue hgraph) <=
+      compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+        headKindTerm headBinderArityTerm headRepeatCountTerm := by
+  exact
+    (compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+      headKindTerm headBinderArityTerm headRepeatCountTerm hheadKindClosed
+      hheadBinderArityClosed hheadRepeatCountClosed hheadKindValue
+      hheadBinderArityValue hheadRepeatCountValue hgraph).trans
+    (compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+      headKindTerm headBinderArityTerm headRepeatCountTerm hgraph)
+
 noncomputable def
     compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedGraphPayloadEnvelope
     (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
@@ -384,6 +511,42 @@ noncomputable def
     (shortBinaryNumeralTerm headKind)
     (shortBinaryNumeralTerm headBinderArity)
     (shortBinaryNumeralTerm headRepeatCount) hgraph
+
+def
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat) :
+    Nat :=
+  compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+    tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+    tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+    (shortBinaryNumeralTerm headKind)
+    (shortBinaryNumeralTerm headBinderArity)
+    (shortBinaryNumeralTerm headRepeatCount)
+
+theorem
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat)
+    (hgraph : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount sourceBoundary sourceCount tailBoundary tailCount
+      tailBoundarySize headKind headBinderArity headRepeatCount) :
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedGraphPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+        hgraph <=
+      compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount := by
+  simpa only [
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedGraphPayloadEnvelope,
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope] using
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+      (shortBinaryNumeralTerm headKind)
+      (shortBinaryNumeralTerm headBinderArity)
+      (shortBinaryNumeralTerm headRepeatCount) hgraph
 
 theorem
     compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
@@ -421,11 +584,50 @@ theorem
       (fun valuation => by simp [termValue_shortBinaryNumeralTerm])
       (fun valuation => by simp [termValue_shortBinaryNumeralTerm]) hgraph
 
+theorem
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount : Nat)
+    (hgraph : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount sourceBoundary sourceCount tailBoundary tailCount
+      tailBoundarySize headKind headBinderArity headRepeatCount) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+          tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+          hgraph) <=
+      compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+        tailCount tailBoundarySize headKind headBinderArity headRepeatCount := by
+  simpa only [
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph,
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope,
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedFormula,
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadKindExplicitHybridCertificateOfGraph,
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadKindFormula,
+    id_eq] using
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount tailBoundary
+      tailCount tailBoundarySize headKind headBinderArity headRepeatCount
+      (shortBinaryNumeralTerm headKind)
+      (shortBinaryNumeralTerm headBinderArity)
+      (shortBinaryNumeralTerm headRepeatCount)
+      (shortBinaryNumeralTerm_freeVariables_eq_empty headKind)
+      (shortBinaryNumeralTerm_freeVariables_eq_empty headBinderArity)
+      (shortBinaryNumeralTerm_freeVariables_eq_empty headRepeatCount)
+      (fun valuation => by simp [termValue_shortBinaryNumeralTerm])
+      (fun valuation => by simp [termValue_shortBinaryNumeralTerm])
+      (fun valuation => by simp [termValue_shortBinaryNumeralTerm]) hgraph
+
 #print axioms closedPositiveCertificate_structuralPayloadBound_le_public
 #print axioms closedTailAreaLeCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
 #print axioms
   compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+#print axioms
+  compactAdditiveSyntaxTaskListUnconsRowsWithSizeExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsPublicBounds

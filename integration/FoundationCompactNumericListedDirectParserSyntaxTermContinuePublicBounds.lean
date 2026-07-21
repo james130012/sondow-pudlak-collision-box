@@ -1,6 +1,6 @@
 import integration.FoundationCompactNumericListedDirectParserSyntaxTermContinueExplicitHybridCertificate
 import integration.FoundationCompactNumericListedDirectBinaryNatStatusPublicBounds
-import integration.FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicBounds
+import integration.FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicFiniteUniversalBounds
 import integration.FoundationCompactNumericListedDirectSyntaxTaskListSameRowsPublicBounds
 import integration.FoundationCompactPAHybridConnectiveTransparentBounds
 
@@ -88,6 +88,62 @@ noncomputable def compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope
     width tokenCount current next tailBoundary tailCount consumed hgraph.1
     hgraph.2.1 hgraph.2.2
 
+def compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount consumed : Nat) : Nat :=
+  let runningFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount next.tasksFinish next.finish
+  let tokensFormula := compactAdditiveNatListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount current.tokensBoundary current.tokensCount
+    next.tokensBoundary next.tokensCount consumed
+  let tasksFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+    next.tasksCount
+  let tokensTasksResource := transparentHybridConjunctionPayloadEnvelope
+    natListDropZeroValuation tokensFormula tasksFormula
+    (compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount consumed)
+    (compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope tokenTable
+      width tokenCount tailBoundary tailCount next.tasksBoundary
+      next.tasksCount)
+  transparentHybridConjunctionPayloadEnvelope binaryStatusZeroValuation
+    runningFormula (tokensFormula ⋏ tasksFormula)
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish)
+    tokensTasksResource
+
+theorem
+    compactUnifiedParserSyntaxTermContinueFromGraphDataPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount consumed : Nat)
+    (hrunning : CompactBinaryNatRunningStatusSlice tokenTable width tokenCount
+      next.tasksFinish next.finish)
+    (htokens : CompactAdditiveNatListDropRows tokenTable width tokenCount
+      current.tokensBoundary current.tokensCount next.tokensBoundary
+      next.tokensCount consumed)
+    (htasks : CompactAdditiveSyntaxTaskListSameRows tokenTable width tokenCount
+      tailBoundary tailCount next.tasksBoundary next.tasksCount) :
+    compactUnifiedParserSyntaxTermContinueFromGraphDataPayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount consumed
+        hrunning htokens htasks <=
+      compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount
+        consumed := by
+  unfold compactUnifiedParserSyntaxTermContinueFromGraphDataPayloadEnvelope
+    compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tokensBoundary
+        current.tokensCount next.tokensBoundary next.tokensCount consumed
+        htokens)
+      (compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+        next.tasksCount htasks))
+
 theorem
     compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
     (tokenTable width tokenCount : Nat)
@@ -167,9 +223,50 @@ theorem
       tokenTable width tokenCount current next tailBoundary tailCount consumed
       hgraph.1 hgraph.2.1 hgraph.2.2
 
+theorem
+    compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount consumed : Nat)
+    (hgraph : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next tailBoundary tailCount consumed) :
+    compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope tokenTable width
+        tokenCount current next tailBoundary tailCount consumed hgraph <=
+      compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount
+        consumed := by
+  simpa only [compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope] using
+    compactUnifiedParserSyntaxTermContinueFromGraphDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount consumed
+      hgraph.1 hgraph.2.1 hgraph.2.2
+
+theorem
+    compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount consumed : Nat)
+    (hgraph : CompactUnifiedParserSyntaxTermContinueRows tokenTable width
+      tokenCount current next tailBoundary tailCount consumed) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next tailBoundary tailCount
+          consumed hgraph) <=
+      compactUnifiedParserSyntaxTermContinuePublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount
+        consumed := by
+  exact
+    (compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next tailBoundary tailCount consumed
+      hgraph).trans
+    (compactUnifiedParserSyntaxTermContinueGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount consumed
+      hgraph)
+
 #print axioms
   compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxTermContinueFixedNumeralExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxTermContinuePublicBounds

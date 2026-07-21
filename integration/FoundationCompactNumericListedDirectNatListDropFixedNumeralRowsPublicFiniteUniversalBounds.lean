@@ -1,6 +1,6 @@
-import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicFiniteBounds
+import integration.FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicFiniteBounds
 
-/-! Lifting the finite row envelope through the row universal. -/
+/-! Lift the finite natural-list drop envelope through the row universal. -/
 
 open LO FirstOrder LO.FirstOrder LO.FirstOrder.Arithmetic
 
@@ -10,36 +10,27 @@ set_option maxRecDepth 32768
 set_option maxHeartbeats 800000
 set_option Elab.async false
 
-namespace FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicBounds
+namespace FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicBounds
 
 open FoundationCompactBinaryNumeralTerm
 open FoundationCompactPABinaryNumeralAddition
-open FoundationCompactCertifiedContextProof
-open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
-open FoundationCompactCertifiedContextualModusPonens
 open FoundationCompactPAValuationTermCompiler
 open FoundationCompactPAValuationContextRewriting
 open FoundationCompactPAHybridValuationBoundedFormulaCompiler
 open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds
 open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybridValuationBoundedFormulaCertificate
 open FoundationCompactPAHybridConnectiveTransparentBounds
-open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompiler
 open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompilerOpenIndexTransparentBounds
 open FoundationCompactPAFixedWidthEntryIndexValuationHybridCompilerUniversalPublicBounds
 open FoundationCompactPAExplicitHybridUniversalBranchesPolynomialBounds
 open FoundationCompactPAContextualTermBoundedUniversalCompiler
 open FoundationCompactPAContextualTermBoundedUniversalCompilerBounds
 open FoundationCompactPAValuationShiftedBoundCompilerBounds
-open FoundationCompactPAExplicitBoundedWitnessHybridTransparentBounds
-open FoundationCompactNumericListedDirectAtomicRowEquality
-open FoundationCompactNumericListedDirectAtomicRowEqualityPublicBounds
-open FoundationCompactNumericListedDirectSyntaxTaskListDropRows
-open FoundationCompactNumericListedDirectSyntaxTaskListDropRowsExplicitHybridCertificate
-open FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificate
+open FoundationCompactNumericListedDirectNatListDropRows
+open FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsExplicitHybridCertificate
 
 private abbrev dropFiniteZeroValuation : Nat -> Nat :=
-  FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificate.zeroValuation
-
+  FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsExplicitHybridCertificate.zeroValuation
 
 private theorem dropHybridBranchesUniformEnvelope_mono_leaf
     (totalBound : Nat) (outerVariables : Finset Nat)
@@ -58,11 +49,11 @@ private theorem dropHybridBranchesUniformEnvelope_mono_leaf
         outerVariables valuation body hresource bound
       omega
 
-def compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
+def compactAdditiveNatListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
     (tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed : Nat) : Nat :=
-  let body := compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable
-    width tokenCount sourceBoundary targetBoundary consumed
+  let body := compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary consumed
   let outerFormula := ∀⁰ termBoundedUniversalBody
     (Rew.bShift (shortBinaryNumeralTerm targetCount)) body
   let outerVariables := outerFormula.freeVariables
@@ -70,47 +61,46 @@ def compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelop
     (shortBinaryNumeralTerm targetCount)
   hybridBranchesUniformStructuralPayloadEnvelope bound outerVariables
     dropFiniteZeroValuation body
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteLeafPayloadResourceSum
+    (compactAdditiveNatListDropFixedNumeralRowsPublicFiniteLeafPayloadResourceSum
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed)
     bound
 
 theorem
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesTransparentEnvelope_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsBranchesTransparentEnvelope_le_publicFinite
     (tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed : Nat)
-    (rows : (index : Fin targetCount) ->
-      CompactAdditiveSyntaxTaskListDropRowData tokenTable width tokenCount
-        sourceBoundary targetBoundary consumed index) :
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesTransparentEnvelope
+    (rows : (index : Fin targetCount) -> CompactAdditiveNatListDropRowData
+      tokenTable width tokenCount sourceBoundary targetBoundary consumed index) :
+    compactAdditiveNatListDropFixedNumeralRowsBranchesTransparentEnvelope
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed rows <=
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
+      compactAdditiveNatListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed := by
-  unfold compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesTransparentEnvelope
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
+  unfold compactAdditiveNatListDropFixedNumeralRowsBranchesTransparentEnvelope
+    compactAdditiveNatListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
   exact dropHybridBranchesUniformEnvelope_mono_leaf
     (termValue dropFiniteZeroValuation
       (shortBinaryNumeralTerm targetCount))
     (∀⁰ termBoundedUniversalBody
       (Rew.bShift (shortBinaryNumeralTerm targetCount))
-      (compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable width
+      (compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width
         tokenCount sourceBoundary targetBoundary consumed)).freeVariables
     dropFiniteZeroValuation
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable width
-      tokenCount sourceBoundary targetBoundary consumed)
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchPayloadResourceSum_le_publicFinite
+    (compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width tokenCount
+      sourceBoundary targetBoundary consumed)
+    (compactAdditiveNatListDropFixedNumeralRowsBranchPayloadResourceSum_le_publicFinite
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed rows)
     (termValue dropFiniteZeroValuation
       (shortBinaryNumeralTerm targetCount))
 
-def compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
+def compactAdditiveNatListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
     (tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed : Nat) : Nat :=
-  let body := compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable
-    width tokenCount sourceBoundary targetBoundary consumed
+  let body := compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary consumed
   let boundTerm := shortBinaryNumeralTerm targetCount
   let outerFormula := ∀⁰ termBoundedUniversalBody
     (Rew.bShift boundTerm) body
@@ -119,7 +109,7 @@ def compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloa
   let bound := termValue dropFiniteZeroValuation boundTerm
   let branchResource := contextualBranchesUnderBoundPayloadEnvelope
     (Gamma.image Rewriting.shift) bound (Rewriting.free body)
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
+    (compactAdditiveNatListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed)
   compileContextualTermBoundedUniversalPayloadEnvelope
@@ -129,20 +119,19 @@ def compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloa
     branchResource
 
 theorem
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsUniversalPayloadEnvelope_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsUniversalPayloadEnvelope_le_publicFinite
     (tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed : Nat)
-    (rows : (index : Fin targetCount) ->
-      CompactAdditiveSyntaxTaskListDropRowData tokenTable width tokenCount
-        sourceBoundary targetBoundary consumed index) :
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsUniversalPayloadEnvelope
+    (rows : (index : Fin targetCount) -> CompactAdditiveNatListDropRowData
+      tokenTable width tokenCount sourceBoundary targetBoundary consumed index) :
+    compactAdditiveNatListDropFixedNumeralRowsUniversalPayloadEnvelope
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed rows <=
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
+      compactAdditiveNatListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed := by
-  let body := compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable
-    width tokenCount sourceBoundary targetBoundary consumed
+  let body := compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary consumed
   let boundTerm := shortBinaryNumeralTerm targetCount
   let outerFormula := ∀⁰ termBoundedUniversalBody
     (Rew.bShift boundTerm) body
@@ -150,11 +139,11 @@ theorem
   let Gamma := valuationContext outerVariables dropFiniteZeroValuation
   let bound := termValue dropFiniteZeroValuation boundTerm
   let oldCore :=
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesTransparentEnvelope
+    compactAdditiveNatListDropFixedNumeralRowsBranchesTransparentEnvelope
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed rows
   let newCore :=
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
+    compactAdditiveNatListDropFixedNumeralRowsBranchesPublicFiniteEnvelope
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed
   let oldBranchResource := contextualBranchesUnderBoundPayloadEnvelope
@@ -165,7 +154,7 @@ theorem
     dropFiniteZeroValuation outerVariables boundTerm
   have hcore : oldCore <= newCore := by
     exact
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsBranchesTransparentEnvelope_le_publicFinite
+      compactAdditiveNatListDropFixedNumeralRowsBranchesTransparentEnvelope_le_publicFinite
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed rows
   have hbranch : oldBranchResource <= newBranchResource :=
@@ -176,12 +165,12 @@ theorem
     Gamma bound (Rew.bShift boundTerm) body boundResource oldBranchResource
     boundResource newBranchResource le_rfl hbranch
   simpa only [
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsUniversalPayloadEnvelope,
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope,
+    compactAdditiveNatListDropFixedNumeralRowsUniversalPayloadEnvelope,
+    compactAdditiveNatListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope,
     body, boundTerm, outerFormula, outerVariables, Gamma, bound, oldCore,
     newCore, oldBranchResource, newBranchResource, boundResource] using htotal
 
-def compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+def compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed : Nat) : Nat :=
   let countBoundFormula : ValuationFormula :=
@@ -192,86 +181,85 @@ def compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
       !!(fixedNumeralTerm consumed) +
         !!(shortBinaryNumeralTerm targetCount)”
   let universalFormula : ValuationFormula :=
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsBody tokenTable width
+    (compactAdditiveNatListDropFixedNumeralRowsBody tokenTable width
       tokenCount sourceBoundary targetBoundary consumed).ballLT
         (shortBinaryNumeralTerm targetCount)
   let equalityUniversalResource := transparentHybridConjunctionPayloadEnvelope
     dropFiniteZeroValuation countEqualityFormula universalFormula
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsCountEqualityPayloadPolynomial
+    (compactAdditiveNatListDropFixedNumeralRowsCountEqualityPayloadPolynomial
       sourceCount consumed targetCount)
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
+    (compactAdditiveNatListDropFixedNumeralRowsPublicFiniteUniversalPayloadEnvelope
       tokenTable width tokenCount sourceBoundary targetBoundary targetCount
       consumed)
   transparentHybridConjunctionPayloadEnvelope dropFiniteZeroValuation
     countBoundFormula (countEqualityFormula ⋏ universalFormula)
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsCountBoundPayloadPolynomial
+    (compactAdditiveNatListDropFixedNumeralRowsCountBoundPayloadPolynomial
       consumed sourceCount)
     equalityUniversalResource
 
 theorem
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsFromRowDataPayloadEnvelope_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsFromRowDataPayloadEnvelope_le_publicFinite
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed : Nat)
-    (rows : (index : Fin targetCount) ->
-      CompactAdditiveSyntaxTaskListDropRowData tokenTable width tokenCount
-        sourceBoundary targetBoundary consumed index) :
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsFromRowDataPayloadEnvelope
+    (rows : (index : Fin targetCount) -> CompactAdditiveNatListDropRowData
+      tokenTable width tokenCount sourceBoundary targetBoundary consumed index) :
+    compactAdditiveNatListDropFixedNumeralRowsFromRowDataPayloadEnvelope
         tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
         targetCount consumed rows <=
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+      compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
         tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
         targetCount consumed := by
-  unfold compactAdditiveSyntaxTaskListDropFixedNumeralRowsFromRowDataPayloadEnvelope
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+  unfold compactAdditiveNatListDropFixedNumeralRowsFromRowDataPayloadEnvelope
+    compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
   exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
     (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
-      (compactAdditiveSyntaxTaskListDropFixedNumeralRowsUniversalPayloadEnvelope_le_publicFinite
+      (compactAdditiveNatListDropFixedNumeralRowsUniversalPayloadEnvelope_le_publicFinite
         tokenTable width tokenCount sourceBoundary targetBoundary targetCount
         consumed rows))
 
 theorem
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed : Nat)
-    (hgraph : CompactAdditiveSyntaxTaskListDropRows tokenTable width tokenCount
+    (hgraph : CompactAdditiveNatListDropRows tokenTable width tokenCount
       sourceBoundary sourceCount targetBoundary targetCount consumed) :
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope
-        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
-        targetCount consumed hgraph <=
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+    compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope tokenTable
+        width tokenCount sourceBoundary sourceCount targetBoundary targetCount
+        consumed hgraph <=
+      compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
         tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
         targetCount consumed := by
-  unfold compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope
+  unfold compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope
   exact
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsFromRowDataPayloadEnvelope_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsFromRowDataPayloadEnvelope_le_publicFinite
       tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed
-      (compactAdditiveSyntaxTaskListDropFixedNumeralRowDataOfGraph tokenTable
-        width tokenCount sourceBoundary sourceCount targetBoundary targetCount
+      (compactAdditiveNatListDropFixedNumeralRowDataOfGraph tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount
         consumed hgraph)
 
 theorem
-    compactAdditiveSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    compactAdditiveNatListDropFixedNumeralRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed : Nat)
-    (hgraph : CompactAdditiveSyntaxTaskListDropRows tokenTable width tokenCount
+    (hgraph : CompactAdditiveNatListDropRows tokenTable width tokenCount
       sourceBoundary sourceCount targetBoundary targetCount consumed) :
     hybridFormulaStructuralPayloadBound
-        (compactAdditiveSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificateOfGraph
-          tokenTable width tokenCount sourceBoundary sourceCount
-          targetBoundary targetCount consumed hgraph) <=
-      compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+        (compactAdditiveNatListDropFixedNumeralRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+          targetCount consumed hgraph) <=
+      compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
         tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
         targetCount consumed := by
   exact
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+    (compactAdditiveNatListDropFixedNumeralRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
       tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount consumed hgraph).trans
-    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsFromRowDataPayloadEnvelope_le_publicFinite
+    (compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
       tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
-      targetCount consumed
-      (compactAdditiveSyntaxTaskListDropFixedNumeralRowDataOfGraph tokenTable
-        width tokenCount sourceBoundary sourceCount targetBoundary targetCount
-        consumed hgraph))
+      targetCount consumed hgraph)
 
-end FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicBounds
+#print axioms
+  compactAdditiveNatListDropFixedNumeralRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+
+end FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicBounds

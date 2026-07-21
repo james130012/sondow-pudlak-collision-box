@@ -154,6 +154,89 @@ noncomputable def compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope
     width tokenCount current next witness hgraph.1 hgraph.2.1 hgraph.2.2.1
     hgraph.2.2.2.1 hgraph.2.2.2.2.1 hgraph.2.2.2.2.2
 
+def compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxInvalidTaskWitnessCoordinates) : Nat :=
+  let runningFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount current.tasksFinish current.finish
+  let unconsFormula :=
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedFormula tokenTable
+      width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize
+      witness.kind witness.binderArity witness.repeatCount
+  let zeroFormula := fixedNeFormula witness.kind 0
+  let oneFormula := fixedNeFormula witness.kind 1
+  let twoFormula := fixedNeFormula witness.kind 2
+  let failureFormula := compactUnifiedParserSyntaxTermFailureClosedFormula
+    tokenTable width tokenCount current next witness.tailBoundary
+    witness.tailCount
+  let twoFailureResource := transparentHybridConjunctionPayloadEnvelope
+    invalidZeroValuation twoFormula failureFormula
+    (compactUnifiedParserSyntaxInvalidFixedNePayloadPolynomial witness.kind 2)
+    (compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+      width tokenCount current next witness.tailBoundary witness.tailCount)
+  let oneTailResource := transparentHybridConjunctionPayloadEnvelope
+    invalidZeroValuation oneFormula (twoFormula ⋏ failureFormula)
+    (compactUnifiedParserSyntaxInvalidFixedNePayloadPolynomial witness.kind 1)
+    twoFailureResource
+  let zeroTailResource := transparentHybridConjunctionPayloadEnvelope
+    invalidZeroValuation zeroFormula
+    (oneFormula ⋏ (twoFormula ⋏ failureFormula))
+    (compactUnifiedParserSyntaxInvalidFixedNePayloadPolynomial witness.kind 0)
+    oneTailResource
+  let unconsTailResource := transparentHybridConjunctionPayloadEnvelope
+    unconsZeroValuation unconsFormula
+    (zeroFormula ⋏ (oneFormula ⋏ (twoFormula ⋏ failureFormula)))
+    (compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize
+      witness.kind witness.binderArity witness.repeatCount)
+    zeroTailResource
+  transparentHybridConjunctionPayloadEnvelope binaryStatusZeroValuation
+    runningFormula
+    (unconsFormula ⋏
+      (zeroFormula ⋏ (oneFormula ⋏ (twoFormula ⋏ failureFormula))))
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount current.tasksFinish current.finish)
+    unconsTailResource
+
+theorem
+    compactUnifiedParserSyntaxInvalidFromGraphDataPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxInvalidTaskWitnessCoordinates)
+    (hrunning : CompactBinaryNatRunningStatusSlice tokenTable width tokenCount
+      current.tasksFinish current.finish)
+    (huncons : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount current.tasksBoundary current.tasksCount witness.tailBoundary
+      witness.tailCount witness.tailBoundarySize witness.kind
+      witness.binderArity witness.repeatCount)
+    (hzero : witness.kind ≠ 0)
+    (hone : witness.kind ≠ 1)
+    (htwo : witness.kind ≠ 2)
+    (hfailure : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next witness.tailBoundary witness.tailCount) :
+    compactUnifiedParserSyntaxInvalidFromGraphDataPayloadEnvelope tokenTable
+        width tokenCount current next witness hrunning huncons hzero hone htwo
+        hfailure <=
+      compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next witness := by
+  unfold compactUnifiedParserSyntaxInvalidFromGraphDataPayloadEnvelope
+    compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveSyntaxTaskListUnconsRowsWithSizeClosedGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tasksBoundary current.tasksCount
+        witness.tailBoundary witness.tailCount witness.tailBoundarySize
+        witness.kind witness.binderArity witness.repeatCount huncons)
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            (compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope_le_publicFinite
+              tokenTable width tokenCount current next witness.tailBoundary
+              witness.tailCount hfailure.1 hfailure.2.1 hfailure.2.2)))))
+
 theorem
     compactUnifiedParserSyntaxInvalidExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
     (tokenTable width tokenCount : Nat)
@@ -260,10 +343,46 @@ theorem
       hgraph.2.2.1 hgraph.2.2.2.1 hgraph.2.2.2.2.1
       hgraph.2.2.2.2.2
 
+theorem compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxInvalidTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxInvalidRows tokenTable width tokenCount
+      current next witness) :
+    compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope tokenTable width
+        tokenCount current next witness hgraph <=
+      compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next witness := by
+  simpa only [compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope] using
+    compactUnifiedParserSyntaxInvalidFromGraphDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next witness hgraph.1 hgraph.2.1
+      hgraph.2.2.1 hgraph.2.2.2.1 hgraph.2.2.2.2.1
+      hgraph.2.2.2.2.2
+
+theorem
+    compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (witness : CompactSyntaxInvalidTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxInvalidRows tokenTable width tokenCount
+      current next witness) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next witness hgraph) <=
+      compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next witness := by
+  exact
+    (compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next witness hgraph).trans
+    (compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next witness hgraph)
+
 #print axioms fixedNeCertificate_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxInvalidExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxInvalidPublicBounds

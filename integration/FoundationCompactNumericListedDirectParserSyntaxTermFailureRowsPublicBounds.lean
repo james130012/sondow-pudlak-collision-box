@@ -222,6 +222,22 @@ theorem
         next.tasksCount htasks))
 
 theorem
+    compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount : Nat)
+    (hgraph : CompactUnifiedParserSyntaxTermFailureRows tokenTable width
+      tokenCount current next tailBoundary tailCount) :
+    compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope tokenTable width
+        tokenCount current next tailBoundary tailCount hgraph <=
+      compactUnifiedParserSyntaxTermFailurePublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next tailBoundary tailCount := by
+  simpa only [compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope] using
+    compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount hgraph.1
+      hgraph.2.1 hgraph.2.2
+
+theorem
     compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount : Nat)
     (current next : CompactUnifiedParserStateRowCoordinates)
@@ -238,9 +254,8 @@ theorem
     (compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
       tokenTable width tokenCount current next tailBoundary tailCount
       hgraph).trans
-    (compactUnifiedParserSyntaxTermFailureFromGraphDataPayloadEnvelope_le_publicFinite
-      tokenTable width tokenCount current next tailBoundary tailCount hgraph.1
-      hgraph.2.1 hgraph.2.2)
+    (compactUnifiedParserSyntaxTermFailureGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount hgraph)
 
 #print axioms
   compactUnifiedParserSyntaxTermFailureExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public

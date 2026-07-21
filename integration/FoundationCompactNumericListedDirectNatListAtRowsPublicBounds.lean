@@ -350,6 +350,118 @@ def compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope
     (compactAdditiveNatListAtRowsAtValuationIndexWitnessPayloadEnvelope
       tokenTable width tokenCount boundaryTable value indexTerm data)
 
+def compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+    (tokenTable width tokenCount boundaryTable count value left right : Nat)
+    (indexTerm : ValuationTerm) : Nat :=
+  let successorTerm := natListAtSuccessorTermAtValuationIndex indexTerm
+  let leftFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) indexTerm
+    (shortBinaryNumeralTerm left)
+  let rightFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm boundaryTable)
+    (shortBinaryNumeralTerm tokenCount) successorTerm
+    (shortBinaryNumeralTerm right)
+  let cellFormula := compactAdditiveTokenCellClosedFormula tokenTable width
+    tokenCount left value right
+  let leftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) indexTerm
+      (shortBinaryNumeralTerm left)
+  let rightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      natListAtZeroValuation (shortBinaryNumeralTerm boundaryTable)
+      (shortBinaryNumeralTerm tokenCount) successorTerm
+      (shortBinaryNumeralTerm right)
+  let cellResource := compactAdditiveTokenCellClosedStructuralPayloadPolynomial
+    tokenTable width tokenCount left value right
+  let rightCellResource := transparentHybridConjunctionPayloadEnvelope
+    natListAtZeroValuation rightFormula cellFormula rightResource cellResource
+  let terminalResource := transparentHybridConjunctionPayloadEnvelope
+    natListAtZeroValuation leftFormula (rightFormula ⋏ cellFormula)
+    leftResource rightCellResource
+  let values : Fin 2 -> Nat := ![right, left]
+  let witnessResource := explicitBoundedWitnessHybridStructuralPayloadEnvelope
+    natListAtZeroValuation tokenCount
+    (compactAdditiveNatListAtRowsTerminalAtValuationIndex tokenTable width
+      tokenCount boundaryTable value indexTerm)
+    values terminalResource
+  let guardFormula : ValuationFormula :=
+    “!!indexTerm < !!(shortBinaryNumeralTerm count)”
+  let witnessFormula :=
+    compactAdditiveNatListAtRowsWitnessBodyAtValuationIndex tokenTable width
+      tokenCount boundaryTable value indexTerm
+  transparentHybridConjunctionPayloadEnvelope natListAtZeroValuation
+    guardFormula witnessFormula
+    (compactAdditiveNatListAtRowsIndexGuardPayloadPolynomial count indexTerm)
+    witnessResource
+
+def compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count value : Nat)
+    (indexTerm : ValuationTerm) : Nat :=
+  (Finset.range (tokenCount + 1)).sum fun left =>
+    (Finset.range (tokenCount + 1)).sum fun right =>
+      compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+        tokenTable width tokenCount boundaryTable count value left right
+        indexTerm
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope_eq_values
+    (tokenTable width tokenCount boundaryTable count value : Nat)
+    (indexTerm : ValuationTerm)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable (termValue natListAtZeroValuation indexTerm) value) :
+    compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope tokenTable
+        width tokenCount boundaryTable count value indexTerm data =
+      compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+        tokenTable width tokenCount boundaryTable count value data.left
+        data.right indexTerm := by
+  rfl
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count value : Nat)
+    (indexTerm : ValuationTerm)
+    (data : CompactAdditiveNatListAtRowData tokenTable width tokenCount
+      boundaryTable (termValue natListAtZeroValuation indexTerm) value) :
+    compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope tokenTable
+        width tokenCount boundaryTable count value indexTerm data <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count value indexTerm := by
+  rw [compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope_eq_values]
+  have hright :
+      compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+          tokenTable width tokenCount boundaryTable count value data.left
+          data.right indexTerm <=
+        (Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count value data.left
+            right indexTerm := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        (compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+          tokenTable width tokenCount boundaryTable count value data.left
+          candidate indexTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.right_le))
+  have hleft :
+      ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count value data.left
+            right indexTerm) <=
+        compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+          tokenTable width tokenCount boundaryTable count value indexTerm := by
+    unfold
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count value candidate
+            right indexTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le data.left_le))
+  exact hright.trans hleft
+
 theorem
     compactAdditiveNatListAtRowsAtValuationIndexExplicitFormulaCertificateFromRowData_structuralPayloadBound_le_public
     (tokenTable width tokenCount boundaryTable count value : Nat)
@@ -501,6 +613,48 @@ theorem
       (compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
         boundaryTable count (termValue natListAtZeroValuation indexTerm) value
         hrows)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm : ValuationTerm)
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope tokenTable
+        width tokenCount boundaryTable count index value indexTerm hindexValue
+        hrows <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count value indexTerm := by
+  unfold compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope
+  exact
+    compactAdditiveNatListAtRowsAtValuationIndexPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count value indexTerm
+      (hindexValue.symm ▸
+        compactAdditiveNatListAtRowDataOfGraph tokenTable width tokenCount
+          boundaryTable count index value hrows)
+
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index value : Nat)
+    (indexTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables ⊆ {0})
+    (hindexValue : termValue natListAtZeroValuation indexTerm = index)
+    (hrows : CompactAdditiveNatListAtRows tokenTable width tokenCount
+      boundaryTable count index value) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount boundaryTable count index value indexTerm
+          hindexValue hrows) <=
+      compactAdditiveNatListAtRowsAtValuationIndexPublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count value indexTerm := by
+  exact
+    (compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      hindexClosed hindexValue hrows).trans
+    (compactAdditiveNatListAtRowsAtValuationIndexGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count index value indexTerm
+      hindexValue hrows)
 
 /-! ## Exact index-and-value-term endpoint -/
 
@@ -1047,6 +1201,8 @@ theorem
   compactAdditiveNatListAtRowsAtValuationIndexWitnessCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 #print axioms
   compactAdditiveNatListAtRowsAtValuationIndexValueWitnessCertificate_structuralPayloadBound_le_public
 #print axioms

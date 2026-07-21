@@ -3,7 +3,7 @@ import integration.FoundationCompactNumericListedDirectBinaryNatStatusPublicBoun
 import integration.FoundationCompactNumericListedDirectNatListSameRowsPublicBounds
 import integration.FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsPublicBounds
 import integration.FoundationCompactNumericListedDirectSyntaxTaskListSameRowsPublicBounds
-import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsPublicFiniteUniversalBounds
 import integration.FoundationCompactNumericListedDirectSyntaxTaskListAtRowsPublicBounds
 import integration.FoundationCompactPAHybridConnectiveTransparentBounds
 import integration.FoundationCompactPAValuationAtomicCompilerPublicBounds
@@ -310,6 +310,412 @@ noncomputable def compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope
     (compactSyntaxRepeatCheckedBranchDataOfGraph tokenTable width tokenCount
       next binderArity repeatCount witness hgraph.2.2.2.2)
 
+def compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates) : Nat :=
+  let zeroEqFormula := nativeEqFormula repeatCount 0
+  let sameFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount witness.tailBoundary witness.tailCount
+    next.tasksBoundary next.tasksCount
+  let zeroBranchFormula := zeroEqFormula ⋏ sameFormula
+  let successorEqFormula := nativeSuccessorEqFormula repeatCount
+    witness.decrementedCount
+  let dropFormula := compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount next.tasksBoundary next.tasksCount
+    witness.tailBoundary witness.tailCount 2
+  let taskZeroFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 0)
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let taskOneFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount)
+  let positiveBranchFormula := successorEqFormula ⋏
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+  let zeroPairResource := transparentHybridConjunctionPayloadEnvelope
+    repeatZeroValuation zeroEqFormula sameFormula
+    (compactUnifiedParserSyntaxRepeatNativeEqPayloadPolynomial repeatCount 0)
+    (compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope tokenTable
+      width tokenCount witness.tailBoundary witness.tailCount
+      next.tasksBoundary next.tasksCount)
+  transparentHybridDisjunctionLeftPayloadEnvelope repeatZeroValuation
+    zeroBranchFormula positiveBranchFormula zeroPairResource
+
+def compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates) : Nat :=
+  let zeroEqFormula := nativeEqFormula repeatCount 0
+  let sameFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount witness.tailBoundary witness.tailCount
+    next.tasksBoundary next.tasksCount
+  let zeroBranchFormula := zeroEqFormula ⋏ sameFormula
+  let successorEqFormula := nativeSuccessorEqFormula repeatCount
+    witness.decrementedCount
+  let dropFormula := compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount next.tasksBoundary next.tasksCount
+    witness.tailBoundary witness.tailCount 2
+  let taskZeroFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 0)
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let taskOneFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount)
+  let positiveBranchFormula := successorEqFormula ⋏
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+  let taskPairResource := transparentHybridConjunctionPayloadEnvelope
+    atRowsZeroValuation taskZeroFormula taskOneFormula
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount 0 0
+      binderArity 0 (fixedNumeralTerm 0) (fixedNumeralTerm 0)
+      (shortBinaryNumeralTerm binderArity) (fixedNumeralTerm 0))
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount 1 2
+      binderArity witness.decrementedCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount))
+  let dropTailResource := transparentHybridConjunctionPayloadEnvelope
+    dropZeroValuation dropFormula (taskZeroFormula ⋏ taskOneFormula)
+    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount
+      witness.tailBoundary witness.tailCount 2)
+    taskPairResource
+  let positiveResource := transparentHybridConjunctionPayloadEnvelope
+    repeatZeroValuation successorEqFormula
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+    (compactUnifiedParserSyntaxRepeatNativeSuccessorEqPayloadPolynomial
+      repeatCount witness.decrementedCount)
+    dropTailResource
+  transparentHybridDisjunctionRightPayloadEnvelope repeatZeroValuation
+    zeroBranchFormula positiveBranchFormula positiveResource
+
+noncomputable def compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hsame : CompactAdditiveSyntaxTaskListSameRows tokenTable width tokenCount
+      witness.tailBoundary witness.tailCount next.tasksBoundary
+      next.tasksCount) : Nat :=
+  let zeroEqFormula := nativeEqFormula repeatCount 0
+  let sameFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount witness.tailBoundary witness.tailCount
+    next.tasksBoundary next.tasksCount
+  let zeroBranchFormula := zeroEqFormula ⋏ sameFormula
+  let successorEqFormula := nativeSuccessorEqFormula repeatCount
+    witness.decrementedCount
+  let dropFormula := compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount next.tasksBoundary next.tasksCount
+    witness.tailBoundary witness.tailCount 2
+  let taskZeroFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 0)
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let taskOneFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount)
+  let positiveBranchFormula := successorEqFormula ⋏
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+  let zeroPairResource := transparentHybridConjunctionPayloadEnvelope
+    repeatZeroValuation zeroEqFormula sameFormula
+    (compactUnifiedParserSyntaxRepeatNativeEqPayloadPolynomial repeatCount 0)
+    (compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope tokenTable
+      width tokenCount witness.tailBoundary witness.tailCount
+      next.tasksBoundary next.tasksCount hsame)
+  transparentHybridDisjunctionLeftPayloadEnvelope repeatZeroValuation
+    zeroBranchFormula positiveBranchFormula zeroPairResource
+
+theorem
+    compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hsame : CompactAdditiveSyntaxTaskListSameRows tokenTable width tokenCount
+      witness.tailBoundary witness.tailCount next.tasksBoundary
+      next.tasksCount) :
+    compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope tokenTable
+        width tokenCount next binderArity repeatCount witness hsame <=
+      compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+        tokenTable width tokenCount next binderArity repeatCount witness := by
+  unfold compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope
+    compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+  exact transparentHybridDisjunctionLeftPayloadEnvelope_mono _ _ _
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount witness.tailBoundary witness.tailCount
+        next.tasksBoundary next.tasksCount hsame))
+
+noncomputable def
+    compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hdrop : CompactAdditiveSyntaxTaskListDropRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount witness.tailBoundary
+      witness.tailCount 2)
+    (htaskZero : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount 0 0 binderArity 0)
+    (htaskOne : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount 1 2 binderArity
+      witness.decrementedCount) : Nat :=
+  let zeroEqFormula := nativeEqFormula repeatCount 0
+  let sameFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount witness.tailBoundary witness.tailCount
+    next.tasksBoundary next.tasksCount
+  let zeroBranchFormula := zeroEqFormula ⋏ sameFormula
+  let successorEqFormula := nativeSuccessorEqFormula repeatCount
+    witness.decrementedCount
+  let dropFormula := compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount next.tasksBoundary next.tasksCount
+    witness.tailBoundary witness.tailCount 2
+  let taskZeroFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 0)
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let taskOneFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount)
+  let positiveBranchFormula := successorEqFormula ⋏
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+  let taskPairResource := transparentHybridConjunctionPayloadEnvelope
+    atRowsZeroValuation taskZeroFormula taskOneFormula
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount 0 0
+      binderArity 0 (fixedNumeralTerm 0) (fixedNumeralTerm 0)
+      (shortBinaryNumeralTerm binderArity) (fixedNumeralTerm 0) htaskZero)
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount 1 2
+      binderArity witness.decrementedCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount) htaskOne)
+  let dropTailResource := transparentHybridConjunctionPayloadEnvelope
+    dropZeroValuation dropFormula (taskZeroFormula ⋏ taskOneFormula)
+    (compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope
+      tokenTable width tokenCount next.tasksBoundary next.tasksCount
+      witness.tailBoundary witness.tailCount 2 hdrop)
+    taskPairResource
+  let positiveResource := transparentHybridConjunctionPayloadEnvelope
+    repeatZeroValuation successorEqFormula
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+    (compactUnifiedParserSyntaxRepeatNativeSuccessorEqPayloadPolynomial
+      repeatCount witness.decrementedCount)
+    dropTailResource
+  transparentHybridDisjunctionRightPayloadEnvelope repeatZeroValuation
+    zeroBranchFormula positiveBranchFormula positiveResource
+
+theorem
+    compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hdrop : CompactAdditiveSyntaxTaskListDropRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount witness.tailBoundary
+      witness.tailCount 2)
+    (htaskZero : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount 0 0 binderArity 0)
+    (htaskOne : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      next.tasksBoundary next.tasksCount 1 2 binderArity
+      witness.decrementedCount) :
+    compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope
+        tokenTable width tokenCount next binderArity repeatCount witness hdrop
+        htaskZero htaskOne <=
+      compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+        tokenTable width tokenCount next binderArity repeatCount witness := by
+  unfold compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope
+    compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+  exact transparentHybridDisjunctionRightPayloadEnvelope_mono _ _ _
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+        (compactAdditiveSyntaxTaskListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
+          tokenTable width tokenCount next.tasksBoundary next.tasksCount
+          witness.tailBoundary witness.tailCount 2 hdrop)
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope_le_publicFinite
+            tokenTable width tokenCount next.tasksBoundary next.tasksCount 0 0
+            binderArity 0 (fixedNumeralTerm 0) (fixedNumeralTerm 0)
+            (shortBinaryNumeralTerm binderArity) (fixedNumeralTerm 0)
+            htaskZero)
+          (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope_le_publicFinite
+            tokenTable width tokenCount next.tasksBoundary next.tasksCount 1 2
+            binderArity witness.decrementedCount (fixedNumeralTerm 1)
+            (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+            (shortBinaryNumeralTerm witness.decrementedCount) htaskOne))))
+
+def compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates) : Nat :=
+  let currentFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount current.tasksFinish current.finish
+  let nextFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount next.tasksFinish next.finish
+  let tokensFormula := compactAdditiveNatListSameRowsClosedFormula tokenTable
+    width tokenCount current.tokensBoundary current.tokensCount
+    next.tokensBoundary next.tokensCount
+  let unconsFormula :=
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadKindFormula
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize
+      binderArity repeatCount (fixedNumeralTerm 2)
+  let zeroEqFormula := nativeEqFormula repeatCount 0
+  let sameFormula := compactAdditiveSyntaxTaskListSameRowsClosedFormula
+    tokenTable width tokenCount witness.tailBoundary witness.tailCount
+    next.tasksBoundary next.tasksCount
+  let zeroBranchFormula := zeroEqFormula ⋏ sameFormula
+  let successorEqFormula := nativeSuccessorEqFormula repeatCount
+    witness.decrementedCount
+  let dropFormula := compactAdditiveSyntaxTaskListDropFixedNumeralRowsClosedFormula
+    tokenTable width tokenCount next.tasksBoundary next.tasksCount
+    witness.tailBoundary witness.tailCount 2
+  let taskZeroFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 0)
+      (fixedNumeralTerm 0) (shortBinaryNumeralTerm binderArity)
+      (fixedNumeralTerm 0)
+  let taskOneFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsFormula tokenTable width
+      tokenCount next.tasksBoundary next.tasksCount (fixedNumeralTerm 1)
+      (fixedNumeralTerm 2) (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm witness.decrementedCount)
+  let positiveBranchFormula := successorEqFormula ⋏
+    (dropFormula ⋏ (taskZeroFormula ⋏ taskOneFormula))
+  let branchFormula := zeroBranchFormula ⋎ positiveBranchFormula
+  let branchResource :=
+    compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+        tokenTable width tokenCount next binderArity repeatCount witness +
+      compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+        tokenTable width tokenCount next binderArity repeatCount witness
+  let unconsBranchResource := transparentHybridConjunctionPayloadEnvelope
+    unconsZeroValuation unconsFormula branchFormula
+    (compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize 2
+      binderArity repeatCount (fixedNumeralTerm 2)
+      (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm repeatCount))
+    branchResource
+  let tokensTailResource := transparentHybridConjunctionPayloadEnvelope
+    natListZeroValuation tokensFormula (unconsFormula ⋏ branchFormula)
+    (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
+      tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount)
+    unconsBranchResource
+  let nextTailResource := transparentHybridConjunctionPayloadEnvelope
+    binaryStatusZeroValuation nextFormula
+    (tokensFormula ⋏ (unconsFormula ⋏ branchFormula))
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish)
+    tokensTailResource
+  transparentHybridConjunctionPayloadEnvelope binaryStatusZeroValuation
+    currentFormula
+    (nextFormula ⋏ (tokensFormula ⋏ (unconsFormula ⋏ branchFormula)))
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount current.tasksFinish current.finish)
+    nextTailResource
+
+theorem
+    compactUnifiedParserSyntaxRepeatFromGraphDataPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hcurrent : CompactBinaryNatRunningStatusSlice tokenTable width tokenCount
+      current.tasksFinish current.finish)
+    (hnext : CompactBinaryNatRunningStatusSlice tokenTable width tokenCount
+      next.tasksFinish next.finish)
+    (htokens : CompactAdditiveNatListSameRows tokenTable width tokenCount
+      current.tokensBoundary current.tokensCount next.tokensBoundary
+      next.tokensCount)
+    (huncons : CompactAdditiveSyntaxTaskListUnconsRowsWithSize tokenTable width
+      tokenCount current.tasksBoundary current.tasksCount witness.tailBoundary
+      witness.tailCount witness.tailBoundarySize 2 binderArity repeatCount)
+    (branchData : CompactSyntaxRepeatCheckedBranchData tokenTable width
+      tokenCount next binderArity repeatCount witness) :
+    compactUnifiedParserSyntaxRepeatFromGraphDataPayloadEnvelope tokenTable
+        width tokenCount current next binderArity repeatCount witness hcurrent
+        hnext htokens huncons branchData <=
+      compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity repeatCount witness := by
+  have htokensResource :=
+    compactAdditiveNatListSameRowsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount htokens
+  have hunconsResource :=
+    compactAdditiveSyntaxTaskListUnconsRowsWithSizeAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current.tasksBoundary current.tasksCount
+      witness.tailBoundary witness.tailCount witness.tailBoundarySize 2
+      binderArity repeatCount (fixedNumeralTerm 2)
+      (shortBinaryNumeralTerm binderArity)
+      (shortBinaryNumeralTerm repeatCount) huncons
+  rcases branchData with ⟨hrepeatZero, hsame⟩ |
+    ⟨hrepeatSuccessor, hdrop, htaskZero, htaskOne⟩
+  · have hzero :=
+      compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount next binderArity repeatCount witness hsame
+    have hbranch :
+        compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope tokenTable
+            width tokenCount next binderArity repeatCount witness hsame <=
+          compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+              tokenTable width tokenCount next binderArity repeatCount witness +
+            compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+              tokenTable width tokenCount next binderArity repeatCount
+              witness := by
+      omega
+    unfold compactUnifiedParserSyntaxRepeatZeroBranchGraphPayloadEnvelope at hbranch
+    unfold compactUnifiedParserSyntaxRepeatFromGraphDataPayloadEnvelope
+      compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope
+    simp only
+    exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          htokensResource
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+            hunconsResource hbranch)))
+  · have hpositive :=
+      compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount next binderArity repeatCount witness hdrop
+        htaskZero htaskOne
+    have hbranch :
+        compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope
+            tokenTable width tokenCount next binderArity repeatCount witness
+            hdrop htaskZero htaskOne <=
+          compactUnifiedParserSyntaxRepeatZeroBranchPublicFinitePayloadEnvelope
+              tokenTable width tokenCount next binderArity repeatCount witness +
+            compactUnifiedParserSyntaxRepeatPositiveBranchPublicFinitePayloadEnvelope
+              tokenTable width tokenCount next binderArity repeatCount
+              witness := by
+      omega
+    unfold compactUnifiedParserSyntaxRepeatPositiveBranchGraphPayloadEnvelope at hbranch
+    unfold compactUnifiedParserSyntaxRepeatFromGraphDataPayloadEnvelope
+      compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope
+    simp only
+    exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+          htokensResource
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+            hunconsResource hbranch)))
+
 theorem
     compactUnifiedParserSyntaxRepeatExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
     (tokenTable width tokenCount : Nat)
@@ -590,11 +996,53 @@ theorem
       (compactSyntaxRepeatCheckedBranchDataOfGraph tokenTable width tokenCount
         next binderArity repeatCount witness hgraph.2.2.2.2)
 
+theorem compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxRepeatRows tokenTable width tokenCount
+      current next binderArity repeatCount witness) :
+    compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope tokenTable width
+        tokenCount current next binderArity repeatCount witness hgraph <=
+      compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity repeatCount witness := by
+  simpa only [compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope] using
+    compactUnifiedParserSyntaxRepeatFromGraphDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next binderArity repeatCount witness
+      hgraph.1 hgraph.2.1 hgraph.2.2.1 hgraph.2.2.2.1
+      (compactSyntaxRepeatCheckedBranchDataOfGraph tokenTable width tokenCount
+        next binderArity repeatCount witness hgraph.2.2.2.2)
+
+theorem
+    compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (binderArity repeatCount : Nat)
+    (witness : CompactSyntaxRepeatTaskWitnessCoordinates)
+    (hgraph : CompactUnifiedParserSyntaxRepeatRows tokenTable width tokenCount
+      current next binderArity repeatCount witness) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next binderArity repeatCount
+          witness hgraph) <=
+      compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope tokenTable
+        width tokenCount current next binderArity repeatCount witness := by
+  exact
+    (compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next binderArity repeatCount witness
+      hgraph).trans
+    (compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next binderArity repeatCount witness
+      hgraph)
+
 #print axioms nativeEqCertificate_structuralPayloadBound_le_public
 #print axioms nativeSuccessorEqCertificate_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxRepeatExplicitHybridCertificateFromGraphData_structuralPayloadBound_le_public
 #print axioms
   compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxRepeatPublicBounds

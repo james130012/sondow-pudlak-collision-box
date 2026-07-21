@@ -229,6 +229,36 @@ theorem
         tailRows))
 
 theorem
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+      targetCount headKind headBinderArity headRepeatCount : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm)
+    (hgraph : CompactAdditiveSyntaxTaskListConsRows tokenTable width tokenCount
+      sourceBoundary sourceCount targetBoundary targetCount headKind
+      headBinderArity headRepeatCount) :
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsGraphPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+        targetCount headKind headBinderArity headRepeatCount headKindTerm
+        headBinderArityTerm headRepeatCountTerm hgraph <=
+      compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+        targetCount headKind headBinderArity headRepeatCount headKindTerm
+        headBinderArityTerm headRepeatCountTerm := by
+  unfold
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsGraphPayloadEnvelope
+  exact
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsFromDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+      targetCount headKind headBinderArity headRepeatCount headKindTerm
+      headBinderArityTerm headRepeatCountTerm
+      (compactAdditiveSyntaxTaskListConsRowsHeadDataOfGraph tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount
+        headKind headBinderArity headRepeatCount hgraph)
+      (compactAdditiveSyntaxTaskListConsRowsTailRowDataOfGraph tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount
+        headKind headBinderArity headRepeatCount hgraph)
+
+theorem
     compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
       targetCount headKind headBinderArity headRepeatCount : Nat)

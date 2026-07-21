@@ -317,9 +317,9 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
   | quietRepeat hparser hrows =>
       let parserResource := fourWayPath2PayloadEnvelope doneFormula emptyFormula
         repeatFormula invalidFormula
-        (compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope tokenTable width
-          tokenCount current.parser next.parser stepWitness.slot0
-          stepWitness.slot1 stepWitness.repeat hparser)
+        (compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current.parser next.parser stepWitness.slot0
+          stepWitness.slot1 stepWitness.repeat)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
         (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
@@ -330,8 +330,8 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
   | quietInvalid hparser hrows =>
       let parserResource := fourWayPath3PayloadEnvelope doneFormula emptyFormula
         repeatFormula invalidFormula
-        (compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope tokenTable width
-          tokenCount current.parser next.parser stepWitness.invalid hparser)
+        (compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current.parser next.parser stepWitness.invalid)
       let quietResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation quietParserFormula sameFormula parserResource
         (compactAdditiveNatListSameRowsPublicFinitePayloadEnvelope tokenTable width
@@ -559,7 +559,7 @@ theorem
           width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       have hparserResource :=
-        compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.parser next.parser
           stepWitness.slot0 stepWitness.slot1 stepWitness.repeat hparser
       have hrowsResource :=
@@ -604,7 +604,7 @@ theorem
           width tokenCount current.outputBoundary current.outputCount
           next.outputBoundary next.outputCount hrows
       have hparserResource :=
-        compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.parser next.parser
           stepWitness.invalid hparser
       have hrowsResource :=

@@ -307,9 +307,9 @@ noncomputable def compactUnifiedParserSyntaxStepBranchPayloadEnvelopeFromData
   | repeatBranch hgraph =>
       exact sixWayDisjunctionPath2PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserSyntaxRepeatGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.slot0 witness.slot1 witness.repeat
-          hgraph)
+        (compactUnifiedParserSyntaxRepeatPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current next witness.slot0 witness.slot1
+          witness.repeat)
   | term hgraph =>
       exact sixWayDisjunctionPath3PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
@@ -323,8 +323,8 @@ noncomputable def compactUnifiedParserSyntaxStepBranchPayloadEnvelopeFromData
   | invalid hgraph =>
       exact sixWayDisjunctionPath5PayloadEnvelope stepZeroValuation doneFormula
         emptyFormula repeatFormula termFormula formulaFormula invalidFormula
-        (compactUnifiedParserSyntaxInvalidGraphPayloadEnvelope tokenTable width
-          tokenCount current next witness.invalid hgraph)
+        (compactUnifiedParserSyntaxInvalidPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current next witness.invalid)
 
 theorem
     compactUnifiedParserSyntaxStepExplicitHybridCertificateFromData_structuralPayloadBound_le_public
@@ -385,7 +385,7 @@ theorem
         invalidFormula] using hpath
   | repeatBranch hgraph =>
       have hselected :=
-        compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxRepeatExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.slot0 witness.slot1
           witness.repeat hgraph
       have hpath := sixWayDisjunctionPath2PayloadBound_le
@@ -439,7 +439,7 @@ theorem
         invalidFormula] using hpath
   | invalid hgraph =>
       have hselected :=
-        compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next witness.invalid hgraph
       have hpath := sixWayDisjunctionPath5PayloadBound_le
         (valuation := stepZeroValuation)

@@ -189,6 +189,141 @@ noncomputable def
     (compactAdditiveSyntaxTaskListAtRowsGuardPayloadPolynomial count indexTerm)
     witnessResource
 
+def
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+    (tokenTable width tokenCount boundaryTable count index
+      kind binderArity repeatCount left right : Nat)
+    (indexTerm kindTerm binderArityTerm repeatCountTerm : ValuationTerm) : Nat :=
+  let boundaryTerm := shortBinaryNumeralTerm boundaryTable
+  let countTerm := shortBinaryNumeralTerm tokenCount
+  let leftTerm := shortBinaryNumeralTerm left
+  let rightTerm := shortBinaryNumeralTerm right
+  let nextIndexTerm := successorIndexTerm indexTerm
+  let leftFormula := compactFixedWidthEntryAtValuationFormula boundaryTerm
+    countTerm indexTerm leftTerm
+  let rightFormula := compactFixedWidthEntryAtValuationFormula boundaryTerm
+    countTerm nextIndexTerm rightTerm
+  let layoutFormula := compactSyntaxTaskDirectLayoutAtValuationTermsFormula
+    tokenTable width tokenCount left right kindTerm binderArityTerm
+    repeatCountTerm
+  let leftResource :=
+    compactFixedWidthEntryAtValuationStructuralPayloadPolynomial
+      atRowsZeroValuation boundaryTerm countTerm indexTerm leftTerm
+  let rightResource :=
+    compactFixedWidthEntryAtValuationStructuralPayloadPolynomial
+      atRowsZeroValuation boundaryTerm countTerm nextIndexTerm rightTerm
+  let layoutResource :=
+    compactSyntaxTaskDirectLayoutAtValuationTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount left right kind binderArity repeatCount
+      kindTerm binderArityTerm repeatCountTerm
+  let rightLayoutResource := transparentHybridConjunctionPayloadEnvelope
+    atRowsZeroValuation rightFormula layoutFormula rightResource
+    layoutResource
+  let terminalResource := transparentHybridConjunctionPayloadEnvelope
+    atRowsZeroValuation leftFormula (rightFormula ⋏ layoutFormula)
+    leftResource rightLayoutResource
+  let values : Fin 2 -> Nat := ![right, left]
+  let witnessResource := explicitBoundedWitnessHybridStructuralPayloadEnvelope
+    atRowsZeroValuation tokenCount
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsTerminal tokenTable
+      width tokenCount boundaryTable indexTerm kindTerm binderArityTerm
+      repeatCountTerm) values terminalResource
+  let guardFormula : ValuationFormula :=
+    “!!indexTerm < !!(shortBinaryNumeralTerm count)”
+  let witnessFormula :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsWitnessFormula tokenTable
+      width tokenCount boundaryTable indexTerm kindTerm binderArityTerm
+      repeatCountTerm
+  transparentHybridConjunctionPayloadEnvelope atRowsZeroValuation
+    guardFormula witnessFormula
+    (compactAdditiveSyntaxTaskListAtRowsGuardPayloadPolynomial count indexTerm)
+    witnessResource
+
+def
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount boundaryTable count index
+      kind binderArity repeatCount : Nat)
+    (indexTerm kindTerm binderArityTerm repeatCountTerm : ValuationTerm) : Nat :=
+  (Finset.range (tokenCount + 1)).sum fun left =>
+    (Finset.range (tokenCount + 1)).sum fun right =>
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+        tokenTable width tokenCount boundaryTable count index kind binderArity
+        repeatCount left right indexTerm kindTerm binderArityTerm
+        repeatCountTerm
+
+theorem
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index
+      kind binderArity repeatCount : Nat)
+    (indexTerm kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
+    (hgraph : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      boundaryTable count index kind binderArity repeatCount) :
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope
+        tokenTable width tokenCount boundaryTable count index kind binderArity
+        repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm hgraph <=
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count index kind binderArity
+        repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm := by
+  let left := Classical.choose hgraph.2
+  have hleftData := Classical.choose_spec hgraph.2
+  let right := Classical.choose hleftData.2
+  have hrightData := Classical.choose_spec hleftData.2
+  let valueResource :=
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+      tokenTable width tokenCount boundaryTable count index kind binderArity
+      repeatCount left right indexTerm kindTerm binderArityTerm repeatCountTerm
+  have hlocal :
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope
+          tokenTable width tokenCount boundaryTable count index kind binderArity
+          repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm
+          hgraph <= valueResource := by
+    dsimp only [valueResource]
+    unfold compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+    dsimp only [left, right]
+    exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+      (explicitBoundedWitnessHybridStructuralPayloadEnvelope_mono _ _ _ _
+        (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+          (transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+            (compactSyntaxTaskDirectLayoutAtValuationTermsPayloadEnvelope_le_publicFinite
+              tokenTable width tokenCount left right kind binderArity
+              repeatCount kindTerm binderArityTerm repeatCountTerm
+              hrightData.2.2.2))))
+  have hright :
+      valueResource <=
+        (Finset.range (tokenCount + 1)).sum fun candidate =>
+          compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count index kind
+            binderArity repeatCount left candidate indexTerm kindTerm
+            binderArityTerm repeatCountTerm := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+          tokenTable width tokenCount boundaryTable count index kind
+          binderArity repeatCount left candidate indexTerm kindTerm
+          binderArityTerm repeatCountTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le hrightData.1))
+  have hleft :
+      ((Finset.range (tokenCount + 1)).sum fun candidate =>
+          compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count index kind
+            binderArity repeatCount left candidate indexTerm kindTerm
+            binderArityTerm repeatCountTerm) <=
+        compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+          tokenTable width tokenCount boundaryTable count index kind binderArity
+          repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm := by
+    unfold
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (tokenCount + 1)).sum fun right =>
+          compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelopeOfValues
+            tokenTable width tokenCount boundaryTable count index kind
+            binderArity repeatCount candidate right indexTerm kindTerm
+            binderArityTerm repeatCountTerm))
+      (Finset.mem_range.mpr (Nat.lt_succ_of_le hleftData.1))
+  exact hlocal.trans (hright.trans hleft)
+
 theorem
     compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
     (tokenTable width tokenCount boundaryTable count index
@@ -402,8 +537,46 @@ theorem
     rightCertificate, layoutCertificate, rightLayout, terminalParts, values,
     terminal, terminalResource, witness, guard, parts] using hparts
 
+theorem
+    compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount boundaryTable count index
+      kind binderArity repeatCount : Nat)
+    (indexTerm kindTerm binderArityTerm repeatCountTerm : ValuationTerm)
+    (hindexClosed : indexTerm.freeVariables = ∅)
+    (hkindClosed : kindTerm.freeVariables = ∅)
+    (hbinderClosed : binderArityTerm.freeVariables = ∅)
+    (hrepeatClosed : repeatCountTerm.freeVariables = ∅)
+    (hindexValue : termValue atRowsZeroValuation indexTerm = index)
+    (hkindValue : ∀ valuation, termValue valuation kindTerm = kind)
+    (hbinderArityValue : ∀ valuation,
+      termValue valuation binderArityTerm = binderArity)
+    (hrepeatCountValue : ∀ valuation,
+      termValue valuation repeatCountTerm = repeatCount)
+    (hgraph : CompactAdditiveSyntaxTaskListAtRows tokenTable width tokenCount
+      boundaryTable count index kind binderArity repeatCount) :
+    hybridFormulaStructuralPayloadBound
+        (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount boundaryTable count index kind
+          binderArity repeatCount indexTerm kindTerm binderArityTerm
+          repeatCountTerm hindexValue hkindValue hbinderArityValue
+          hrepeatCountValue hgraph) <=
+      compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount boundaryTable count index kind binderArity
+        repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm := by
+  exact
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount boundaryTable count index kind binderArity
+      repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm
+      hindexClosed hkindClosed hbinderClosed hrepeatClosed hindexValue
+      hkindValue hbinderArityValue hrepeatCountValue hgraph).trans
+    (compactAdditiveSyntaxTaskListAtRowsAtValuationTermsPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount boundaryTable count index kind binderArity
+      repeatCount indexTerm kindTerm binderArityTerm repeatCountTerm hgraph)
+
 #print axioms strictCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactAdditiveSyntaxTaskListAtRowsAtValuationTermsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectSyntaxTaskListAtRowsPublicBounds

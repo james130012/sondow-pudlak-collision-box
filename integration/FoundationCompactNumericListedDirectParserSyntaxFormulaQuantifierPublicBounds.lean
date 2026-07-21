@@ -1,7 +1,7 @@
 import integration.FoundationCompactNumericListedDirectParserSyntaxFormulaQuantifierExplicitHybridCertificate
 import integration.FoundationCompactNumericListedDirectBinaryNatStatusPublicBounds
-import integration.FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicBounds
-import integration.FoundationCompactNumericListedDirectSyntaxTaskListConsRowsPublicBounds
+import integration.FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsPublicFiniteUniversalBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListConsRowsPublicFiniteUniversalBounds
 import integration.FoundationCompactPAHybridConnectiveTransparentBounds
 
 /-!
@@ -139,6 +139,63 @@ noncomputable def
       width tokenCount next.tasksFinish next.finish)
     dropConsResource
 
+def compactUnifiedParserSyntaxFormulaQuantifierPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount binderArity : Nat) : Nat :=
+  let runningFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount next.tasksFinish next.finish
+  let tokenDropFormula :=
+    FoundationCompactNumericListedDirectNatListDropFixedNumeralRowsExplicitHybridCertificate.compactAdditiveNatListDropFixedNumeralRowsClosedFormula
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount 1
+  let taskConsFormula :=
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsFormula tokenTable
+      width tokenCount tailBoundary tailCount next.tasksBoundary
+      next.tasksCount (quantifierNativeNumeralTerm 1)
+      (binderSuccessorTerm binderArity) (quantifierNativeNumeralTerm 0)
+  let dropConsResource := transparentHybridConjunctionPayloadEnvelope
+    quantifierZeroValuation tokenDropFormula taskConsFormula
+    (compactAdditiveNatListDropFixedNumeralRowsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount current.tokensBoundary current.tokensCount
+      next.tokensBoundary next.tokensCount 1)
+    (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsPublicFinitePayloadEnvelope
+      tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+      next.tasksCount 1 (binderArity + 1) 0
+      (quantifierNativeNumeralTerm 1) (binderSuccessorTerm binderArity)
+      (quantifierNativeNumeralTerm 0))
+  transparentHybridConjunctionPayloadEnvelope quantifierZeroValuation
+    runningFormula (tokenDropFormula ⋏ taskConsFormula)
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial tokenTable
+      width tokenCount next.tasksFinish next.finish)
+    dropConsResource
+
+theorem
+    compactUnifiedParserSyntaxFormulaQuantifierGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount binderArity : Nat)
+    (hgraph : CompactUnifiedParserSyntaxFormulaQuantifierRows tokenTable width
+      tokenCount current next tailBoundary tailCount binderArity) :
+    compactUnifiedParserSyntaxFormulaQuantifierGraphPayloadEnvelope tokenTable
+        width tokenCount current next tailBoundary tailCount binderArity
+        hgraph <=
+      compactUnifiedParserSyntaxFormulaQuantifierPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount
+        binderArity := by
+  unfold compactUnifiedParserSyntaxFormulaQuantifierGraphPayloadEnvelope
+    compactUnifiedParserSyntaxFormulaQuantifierPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono _ _ _ le_rfl
+    (transparentHybridConjunctionPayloadEnvelope_mono _ _ _
+      (compactAdditiveNatListDropFixedNumeralRowsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount current.tokensBoundary
+        current.tokensCount next.tokensBoundary next.tokensCount 1 hgraph.2.1)
+      (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsGraphPayloadEnvelope_le_publicFinite
+        tokenTable width tokenCount tailBoundary tailCount next.tasksBoundary
+        next.tasksCount 1 (binderArity + 1) 0
+        (quantifierNativeNumeralTerm 1) (binderSuccessorTerm binderArity)
+        (quantifierNativeNumeralTerm 0) hgraph.2.2))
+
 theorem
     compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
     (tokenTable width tokenCount : Nat)
@@ -207,7 +264,31 @@ theorem
   change hybridFormulaStructuralPayloadBound partsCertificate <= _
   exact hparts
 
+theorem
+    compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactUnifiedParserStateRowCoordinates)
+    (tailBoundary tailCount binderArity : Nat)
+    (hgraph : CompactUnifiedParserSyntaxFormulaQuantifierRows tokenTable width
+      tokenCount current next tailBoundary tailCount binderArity) :
+    hybridFormulaStructuralPayloadBound
+        (compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next tailBoundary tailCount
+          binderArity hgraph) <=
+      compactUnifiedParserSyntaxFormulaQuantifierPublicFinitePayloadEnvelope
+        tokenTable width tokenCount current next tailBoundary tailCount
+        binderArity := by
+  exact
+    (compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+      tokenTable width tokenCount current next tailBoundary tailCount
+      binderArity hgraph).trans
+    (compactUnifiedParserSyntaxFormulaQuantifierGraphPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount current next tailBoundary tailCount
+      binderArity hgraph)
+
 #print axioms
   compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+#print axioms
+  compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
 
 end FoundationCompactNumericListedDirectParserSyntaxFormulaQuantifierPublicBounds
