@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lean 检查的 Sondow-Pudlak 存在性大 N 证书</title>
+<link rel="stylesheet" href="katex.min.css">
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 18mm 18mm 18mm;
+  }
+  :root {
+    --ink: #121418;
+    --muted: #4d5966;
+    --accent: #882e1e;
+    --rule: #d6cdb7;
+    --paper: #fffdf8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif CJK SC", "Noto Serif", "Times New Roman", serif;
+    font-size: 10.7pt;
+    line-height: 1.72;
+    text-rendering: optimizeLegibility;
+  }
+  main {
+    max-width: 100%;
+  }
+  .cover {
+    border: 1.2pt solid var(--rule);
+    padding: 25mm 18mm;
+    margin-bottom: 12mm;
+    page-break-after: always;
+    background: linear-gradient(135deg, #fffcf5 0%, #fffdf8 100%);
+  }
+  .kicker {
+    color: var(--accent);
+    font-size: 9.8pt;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 12mm;
+  }
+  .title {
+    font-family: "Noto Sans CJK SC", "Noto Sans", sans-serif;
+    font-size: 29pt;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    margin: 0 0 10mm;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 12.4pt;
+    line-height: 1.6;
+    max-width: 94%;
+  }
+  .meta {
+    margin-top: 22mm;
+    color: var(--muted);
+    border-top: 1pt solid var(--rule);
+    padding-top: 6mm;
+    font-size: 9.4pt;
+  }
+  h1, h2, h3, h4 {
+    font-family: "Noto Sans CJK SC", "Noto Sans", sans-serif;
+    color: #0f1114;
+    line-height: 1.28;
+    page-break-after: avoid;
+  }
+  h1 {
+    font-size: 21.5pt;
+    margin: 0 0 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 1.2pt solid var(--rule);
+  }
+  h2 {
+    font-size: 16pt;
+    margin: 14mm 0 5mm;
+  }
+  h3 {
+    font-size: 12.9pt;
+    margin: 9mm 0 4mm;
+  }
+  p { margin: 0 0 4mm; text-align: justify; }
+  ul, ol {
+    padding-left: 8mm;
+    margin: 0 0 4mm;
+  }
+  li { margin: 1.4mm 0; }
+  code {
+    font-family: "Fira Code", "JetBrains Mono", "Noto Sans Mono CJK SC", monospace;
+    background: #f6f2ea;
+    border: 0.4pt solid #e3ddcf;
+    padding: 0.2mm 0.8mm;
+    border-radius: 2mm;
+    font-size: 9.1pt;
+  }
+  pre {
+    background: #f7f3eb;
+    border: 0.8pt solid #ddd6c8;
+    border-left: 3pt solid var(--accent);
+    padding: 3.4mm;
+    border-radius: 2mm;
+    overflow: hidden;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+    margin: 4mm 0;
+  }
+  pre code {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 8.6pt;
+  }
+  .math-block, .math-placeholder {
+    page-break-inside: avoid;
+    margin: 4mm 0;
+  }
+  .katex {
+    font-size: 1.12em;
+  }
+  .math-error {
+    border: 0.8pt dashed #b03b3b;
+    color: #7c2323;
+    background: #fff0f0;
+    padding: 2mm;
+    border-radius: 2mm;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 5mm 0;
+  }
+  th, td {
+    border: 0.5pt solid var(--rule);
+    padding: 2mm;
+    vertical-align: top;
+  }
+  th {
+    background: #f2ebdf;
+  }
+  hr { border: 0; border-top: 0.9pt solid var(--rule); margin: 12mm 0; }
+</style>
+</head>
+<body>
+<main>
+  
+    <section class="cover">
+      <div class="kicker">Lean-checked existential big-N certificate</div>
+      <h1 class="title">Lean 检查的 Sondow-Pudlak 存在性大 N 证书</h1>
+      <div class="subtitle">中文正文版本，聚焦存在性大 N 定理、真实根输入与后续数值路线。</div>
+      <div class="meta">本地导出自 <code>paper_new_zh.md</code> / <code>paper_new_en.md</code>，公式由 KaTeX 渲染，适配 A4 审计版式。</div>
+    </section>
+    <article class="paper-section"><h1>一个 Lean 检查的 Sondow-Pudlak 存在性阈值证书</h1>
+<p>James^1,*</p>
+<p>^1 Independent researcher.
+*Correspondence: through the public repository issue tracker unless a journal
+submission address is supplied.</p>
+<h2>摘要</h2>
+<p>Euler-Mascheroni constant 的无理性仍是公开问题。Sondow 判据把有理性假设转化为一族可检查的算术证书，Pudlak-Friedman-Buss 方向则给出有限一致性语句的证明长度下界。这里我们报告一个 Lean 4 机器检查的 Sondow-Pudlak 证明长度制品：在显式列出的 S21 proof-length recognition、Sondow/partial verifier trace、half-denominator tail、partial-consistency truth、source-minChecked calibration 和 Buss-Pudlak rescaling 输入下，Lean 证明最终 project-length endpoint 返回某个自然数阈值 <code>N</code>，并且该 <code>N</code> 满足所需的 source-side strict gap。结果不是 Euler 常数无理性的无条件证明，也不是十进制自然数 <code>N</code> 的抽取；它把此前路线图中的“存在大 N”推进为可复现、可审计的形式化定理。</p>
+<h2>主文</h2>
+<h3>问题</h3>
+<p>Euler-Mascheroni constant 定义为</p>
+<div class="math-block"><span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3.0521em;vertical-align:-1.3021em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-2.4em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mrel mtight">→</span><span class="mord mtight">∞</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">lim</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">(</span></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6514em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3021em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0315em;">k</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">n</span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size4">)</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">.</span></span></span></span></span></div>
+
+<p>项目的目标不是把这个公开问题用自然语言断言解决，而是把 Sondow 侧的证书上界和 Pudlak 侧的证明长度下界放到同一个可检查坐标中。本文报告的是一个中间但实质的形式化结论：在当前 source-calibrated proof-length route 中，存在最终阈值 <code>N</code>。</p>
+<p>这个表述有三个边界。</p>
+<ol>
+<li>已证明的是条件性形式化证书：给定论文列出的根输入，Lean 构造 <code>N : Nat</code> 并证明目标不等式。</li>
+<li>未证明的是展开成十进制的自然数 <code>N = ...</code>。</li>
+<li>未声称的是 <code>¬ is_rational euler_mascheroni</code> 的无条件定理。</li>
+</ol>
+<p>这一区分是审计的核心。一个存在性阈值定理可以是严肃的机器检查成果，但它不能被包装成最终数值抽取或最终无理性证明。</p>
+<h3>形式化结果</h3>
+<p>主形式化入口位于</p>
+<pre><code class="language-text">integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+</code></pre>
+<p>定理名为</p>
+<pre><code class="language-lean">projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
+</code></pre>
+<p>其结论的审计形状为</p>
+<pre><code class="language-lean">∃ N : Nat,
+  endpointN = N ∧
+  N =
+    semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+      sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 ∧
+  (max 17 sondowPrefixCoeff + 8) * (N + 1)^1 &lt; sourceLength N
+</code></pre>
+<p>这里 <code>sourceLength</code> 不是任意函数，而是从 Sondow proof family 与 partial-consistency proof family 的 conjunction/right-elimination checker measurement 中得到：</p>
+<pre><code class="language-lean">sourceLength m :=
+  ((h.sondow_proofs.conjIntro h.partial_proofs)
+    |&gt;.rightConjElim
+    |&gt;.minCheckedCodeSize m)
+</code></pre>
+<p><code>sondowPrefixCoeff</code> 也不是人为常数，而是有限前缀的真实最大值：</p>
+<pre><code class="language-lean">sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+sondowPrefixCoeff := natPrefixMax h.sondow_proofs.length sondowThreshold
+</code></pre>
+<p>因此，Lean 证明的是一个带来源的阈值存在性结果：最终 endpoint 返回的 <code>N</code> 与 lower-bound witness 同一，并在该点满足严格下界。</p>
+<h3>两个根输入</h3>
+<p>该构造从两个根输入出发。</p>
+<p>第一根是 S21/Sondow proof-length recognition side。它由</p>
+<pre><code class="language-lean">S21GraftProofLengthRecognitionTheorem
+</code></pre>
+<p>提供，并通过 <code>toLocalProofCodeSemanticsPackage</code> 与 <code>toCanonicalCalibrationPackage</code> 进入 project-length route。最新桥接把有限前缀最大值接到了 MiniHilbert proof-code semantics：</p>
+<pre><code class="language-lean">s21SondowMiniHilbertMinProofCodeSizePrefixMax
+
+S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
+</code></pre>
+<p>这一步很重要，因为它把残余有限前缀从抽象 proof-family length 改写到 <code>minProofCodeSize</code> 上。它不是最终十进制计算，但它把数值任务推进到真实证明码语义。</p>
+<p>第二根是原 proof-length tail-gap model。最终 C-line root route 中的数值入口位于</p>
+<pre><code class="language-text">integration/SondowProjectMonth11Month12HardResidualElimination.lean
+</code></pre>
+<p>定理名为</p>
+<pre><code class="language-lean">finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+</code></pre>
+<p>它把最终 computed collision index 化为</p>
+<pre><code class="language-lean">max upper.upperN (thresholdOf upper.U upper.polynomial)
+</code></pre>
+<p>这给出了后续十进制 <code>N</code> 的真实入口：必须构造并计算 <code>thresholdOf</code>，而不是再增加外层接口。</p>
+<h3>结果边界</h3>
+<p>表 1 列出本文主张与非主张。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+<th>机器检查入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存在 <code>N : Nat</code></td>
+<td>已证明</td>
+<td><code>projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax</code></td>
+</tr>
+<tr>
+<td><code>N</code> 满足 source-side strict gap</td>
+<td>已证明</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Sondow finite prefix 改写到 MiniHilbert <code>minProofCodeSize</code></td>
+<td>已证明</td>
+<td><code>S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax</code></td>
+</tr>
+<tr>
+<td>tail-gap 数值入口化为 <code>max upper.upperN (thresholdOf ...)</code></td>
+<td>已证明</td>
+<td><code>finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf</code></td>
+</tr>
+<tr>
+<td>打印十进制自然数 <code>N</code></td>
+<td>未完成</td>
+<td>需要可计算 <code>thresholdOf</code> 或 executable witness</td>
+</tr>
+<tr>
+<td>无条件证明 <code>gamma</code> 无理</td>
+<td>未声称</td>
+<td>不属于本文结论</td>
+</tr>
+</tbody>
+</table>
+<h3>Half-denominator 残余</h3>
+<p>half-denominator Sondow tail 给出阈值</p>
+<pre><code class="language-lean">max 3 ((rat.q.den + 1) / 2)
+</code></pre>
+<p>在更强的 checked-prefix 条件下，相关 endpoint 可进一步化为</p>
+<pre><code class="language-lean">17 * (max 3 ((rat.q.den + 1) / 2)) + 8
+</code></pre>
+<p>但 <code>rat.q.den</code> 来自 rationality branch，不能在没有额外构造的情况下当作已知外部常数消去。项目中还证明了真实的 finite-prefix obstruction：</p>
+<pre><code class="language-lean">not_sondowCheckedHalfDenPrefix_of_rationalParameter
+</code></pre>
+<p>这说明 checked-prefix premise 不能从 rational parameter 自动推出。该障碍必须保留在论文中；把它包装成“显然成立”会改变定理含义。</p>
+<h3>可复现性</h3>
+<p>本研究制品固定 Lean 与 Mathlib 版本：</p>
+<pre><code class="language-text">leanprover/lean4:v4.31.0
+mathlib v4.31.0
+</code></pre>
+<p>最小复现步骤如下。</p>
+<pre><code class="language-bash">git clone https://github.com/james130012/sondow-pudlak-collision-box.git
+cd sondow-pudlak-collision-box
+git checkout codex/month9-10-internal-lower-machine-continuation
+lake exe cache get
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+</code></pre>
+<p>旧公开对撞入口可用轻量 probe 检查：</p>
+<pre><code class="language-bash">lake env lean --stdin &lt;&lt;'EOF'
+import integration.SondowProjectPudlakInstantiation
+
+#check SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSplit
+EOF
+</code></pre>
+<p>论文中的新 Month 11/12 定理以源文件 type-check 为主复现方式。若审稿人需要通过 <code>#check</code> 直接打印新定理类型，应先运行：</p>
+<pre><code class="language-bash">lake build integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+lake build integration.SondowProjectMonth11Month12HardResidualElimination
+</code></pre>
+<p>然后再用 <code>lake env lean --stdin</code> 导入相应模块。完整构建会重放大量 integration 依赖，耗时显著长于源文件直检。</p>
+<h3>为什么还没有十进制 N</h3>
+<p>存在性结果使用的是 Prop-level strong lower bound：</p>
+<pre><code class="language-lean">SemanticStrongNatLowerBound
+</code></pre>
+<p>Lean 通过</p>
+<pre><code class="language-lean">semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+</code></pre>
+<p>抽取满足目标不等式的 witness。这足以证明 <code>∃ N : Nat</code>，但不是可执行搜索程序。要打印自然数，必须进一步构造以下二者之一。</p>
+<ol>
+<li>一个可计算的 <code>thresholdOf upper.U upper.polynomial</code>，并证明它等于 tail-gap threshold。</li>
+<li>一个 executable rejection extractor，给出真实 <code>extractor.witness</code> 与 <code>extractor.cutoff</code>。</li>
+</ol>
+<p>本文的贡献是把存在性阈值闭合，并把数值路线压到这两个真实入口上。</p>
+<h2>参考文献</h2>
+<ol>
+<li>Sondow, J. Criteria for irrationality of Euler's constant. <em>Proceedings of the American Mathematical Society</em> <strong>131</strong>, 3335-3344 (2003).</li>
+<li>Buss, S. R. On Godel's theorems on lengths of proofs I: number of lines and speedup for arithmetics. <em>Journal of Symbolic Logic</em> <strong>59</strong>, 737-756 (1994).</li>
+<li>Pudlak, P. On the lengths of proofs of finitistic consistency statements in first order theories. In <em>Logic Colloquium 1984</em> (1986).</li>
+<li>Pudlak, P. Improved bounds to the lengths of proofs of finitistic consistency statements. In <em>Logic and Combinatorics</em> (1987).</li>
+<li>Krajicek, J. &amp; Pudlak, P. The number of proof lines and the size of proofs in first-order logic. <em>Archive for Mathematical Logic</em> (1988).</li>
+<li>de Moura, L. &amp; Ullrich, S. The Lean 4 theorem prover and programming language. <em>Automated Deduction - CADE 28</em> (2021).</li>
+</ol>
+<h2>Methods</h2>
+<h3>Formal environment</h3>
+<p>All formal claims are checked in Lean 4 with the repository-pinned toolchain:</p>
+<pre><code class="language-text">leanprover/lean4:v4.31.0
+</code></pre>
+<p>The Lake package is <code>euler_limit</code>; the relevant dependency is Mathlib at revision <code>v4.31.0</code>. The file <code>lakefile.toml</code> fixes these dependencies.</p>
+<h3>Verification protocol</h3>
+<p>The primary verification protocol is source-file elaboration with Lean:</p>
+<pre><code class="language-bash">lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+</code></pre>
+<p>The first command checks the existential big-<code>N</code> endpoint and the MiniHilbert prefix bridges. The second command checks the tail-gap <code>thresholdOf</code> handoff theorem.</p>
+<p>Whitespace and patch-integrity checks are run with:</p>
+<pre><code class="language-bash">git diff --check
+</code></pre>
+<h3>Axiom and assumption audit</h3>
+<p>The manuscript separates formal composition from remaining mathematical inputs. The older public collision endpoint still depends on explicitly listed external or abstract inputs, including literature Pudlak lower-bound content, payload truth, and root <code>proof_length</code>. These dependencies are documented in <code>AXIOM_LEDGER.md</code>.</p>
+<p>The existential big-<code>N</code> theorem removes the abstract <code>SemanticStrongNatLowerBound</code> premise from the publishable endpoint by deriving it from:</p>
+<pre><code class="language-lean">PartialConsistencySourceMinCheckedCalibration
+BussPudlakTimeConstructibleRescalingTheorem
+</code></pre>
+<p>It does not remove all global project assumptions. In particular, the recognition theorem and verifier traces remain explicit inputs.</p>
+<h3>AI-assisted manuscript preparation</h3>
+<p>AI-assisted editing was used to reorganize the manuscript text and to prepare reproducibility instructions. The mathematical and formal claims reported here are tied to Lean source files and are checked by the commands above; no AI-generated mathematical assertion is used as a substitute for a Lean theorem.</p>
+<h2>Data Availability</h2>
+<p>No empirical datasets were generated or analysed. The minimum material needed to verify the claims is the Lean source tree, the pinned Lake configuration, and the paper source files in this repository.</p>
+<h2>Code Availability</h2>
+<p>The source code is available at:</p>
+<pre><code class="language-text">https://github.com/james130012/sondow-pudlak-collision-box
+</code></pre>
+<p>The current audit branch is:</p>
+<pre><code class="language-text">codex/month9-10-internal-lower-machine-continuation
+</code></pre>
+<p>For journal submission, the exact accepted commit should be archived in a DOI-minting repository such as Zenodo or Code Ocean, and this section should be updated with the DOI. A GitHub branch or tag is sufficient for immediate public audit, but it is not a substitute for a permanent journal archive.</p>
+<h2>Acknowledgements</h2>
+<p>No external funding is declared in this draft.</p>
+<h2>Author Contributions</h2>
+<p>J. designed the formal route, implemented the Lean development, prepared the manuscript, and is responsible for the repository release unless additional contributors are added before submission.</p>
+<h2>Competing Interests</h2>
+<p>The author declares no competing interests in this draft.</p>
+<h2>Additional Information</h2>
+<p>Correspondence and requests for materials should be directed through the public repository until a journal submission address is supplied. Supplementary information should include the exact release tag, commit hash, <code>#print axioms</code> transcript, and generated PDF/HTML audit artifacts for the submitted version.</p></article>
+</main>
+</body>
+</html>
