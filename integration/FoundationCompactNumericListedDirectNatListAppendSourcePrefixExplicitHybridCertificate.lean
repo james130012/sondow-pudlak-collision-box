@@ -31,7 +31,7 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+def zeroValuation : Nat -> Nat := fun _ => 0
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -46,10 +46,10 @@ private theorem arithmeticRewritingApp_congr
   cases h
   rfl
 
-private def successorTerm (term : ValuationTerm) : ValuationTerm :=
+def successorTerm (term : ValuationTerm) : ValuationTerm :=
   ‘!!term + 1’
 
-private def addTerm (left right : ValuationTerm) : ValuationTerm :=
+def addTerm (left right : ValuationTerm) : ValuationTerm :=
   ‘!!left + !!right’
 
 private theorem arithmeticAddTerm_eq_func
@@ -102,7 +102,7 @@ def compactAdditiveNatListAppendSourcePrefixClosedFormula
       shortBinaryNumeralTerm targetFinish,
       shortBinaryNumeralTerm targetCount]
 
-private def compactAdditiveNatListAppendSourcePrefixExplicitFormula
+def compactAdditiveNatListAppendSourcePrefixExplicitFormula
     (tokenTable width tokenCount
       leftStart leftFinish leftCount
       sourceStart sourceFinish sourceCount prefixCount
@@ -165,24 +165,32 @@ theorem compactAdditiveNatListAppendSourcePrefixClosedFormula_alignment
     · intro coordinate
       exact Empty.elim coordinate
 
-private noncomputable def valuationLeCertificate
+noncomputable def valuationLeCertificate
     (left right : ValuationTerm)
     (hle : termValue zeroValuation left ≤ termValue zeroValuation right) :
     HybridCertificate “!!left ≤ !!right” := by
   if heq : termValue zeroValuation left = termValue zeroValuation right then
     let equality := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
       zeroValuation Language.Eq.eq ![left, right] heq
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionLeft
+        (right := LO.FirstOrder.Semiformula.rel Language.ORing.Rel.lt
+          ![left, right]) equality
     exact .cast (LO.FirstOrder.Semiformula.Operator.le_def _ _).symm
-      (.disjunctionLeft equality)
+      direct
   else
     have hlt : termValue zeroValuation left < termValue zeroValuation right :=
       Nat.lt_of_le_of_ne hle heq
     let strict := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
       zeroValuation Language.ORing.Rel.lt ![left, right] hlt
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionRight
+        (left := LO.FirstOrder.Semiformula.rel Language.Eq.eq
+          ![left, right]) strict
     exact .cast (LO.FirstOrder.Semiformula.Operator.le_def _ _).symm
-      (.disjunctionRight strict)
+      direct
 
-private noncomputable def valuationEqCertificate
+noncomputable def valuationEqCertificate
     (left right : ValuationTerm)
     (heq : termValue zeroValuation left = termValue zeroValuation right) :
     HybridCertificate “!!left = !!right” := by
@@ -234,8 +242,6 @@ noncomputable def
             ((targetStart + 1 + leftCount + offset) * width + bitIndex) := by
     simpa [sourceSliceCount, Nat.add_assoc] using
       Classical.choose_spec hsourceSlice
-  rw [compactAdditiveNatListAppendSourcePrefixClosedFormula_alignment]
-  unfold compactAdditiveNatListAppendSourcePrefixExplicitFormula
   let leftCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
       zeroValuation
@@ -283,7 +289,7 @@ noncomputable def
           simpa [termValue_shortBinaryNumeralTerm] using hbitIndex
         simpa [termValue_shortBinaryNumeralTerm] using
           hsourceSpec.2.2.2.2.2 offset hoffset bitIndex hbitIndex')
-  exact CheckedHybridValuationBoundedFormulaCertificate.conjunction
+  let direct := CheckedHybridValuationBoundedFormulaCertificate.conjunction
     (valuationLeCertificate
       (shortBinaryNumeralTerm prefixCount)
       (shortBinaryNumeralTerm sourceCount) (by
@@ -302,6 +308,10 @@ noncomputable def
               simpa [termValue_shortBinaryNumeralTerm] using hcount))
         (CheckedHybridValuationBoundedFormulaCertificate.conjunction
           leftCertificate sourceCertificate)))
+  exact .cast
+    (compactAdditiveNatListAppendSourcePrefixClosedFormula_alignment tokenTable
+      width tokenCount leftStart leftFinish leftCount sourceStart sourceFinish
+      sourceCount prefixCount targetStart targetFinish targetCount).symm direct
 
 noncomputable def
     compileCompactAdditiveNatListAppendSourcePrefixExplicitHybridContext

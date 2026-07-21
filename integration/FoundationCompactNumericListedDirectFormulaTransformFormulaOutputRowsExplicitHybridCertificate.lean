@@ -46,7 +46,7 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-private def zeroValuation : Nat -> Nat := fun _ => 0
+def zeroValuation : Nat -> Nat := fun _ => 0
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -64,28 +64,28 @@ private theorem arithmeticRewritingApp_congr
   cases h
   rfl
 
-private def nativeAddTerm (left right : ValuationTerm) : ValuationTerm :=
+def nativeAddTerm (left right : ValuationTerm) : ValuationTerm :=
   ‘!!left + !!right’
 
-private def nativeEqFormula
+def nativeEqFormula
     (left right : ValuationTerm) : ValuationFormula :=
   “!!left = !!right”
 
-private def nativeNeFormula
+def nativeNeFormula
     (left right : ValuationTerm) : ValuationFormula :=
   ∼(nativeEqFormula left right)
 
-private def nativeLeFormula
+def nativeLeFormula
     (left right : ValuationTerm) : ValuationFormula :=
   “!!left ≤ !!right”
 
-private def rawModeFormula (modeTerm : ValuationTerm) : ValuationFormula :=
+def rawModeFormula (modeTerm : ValuationTerm) : ValuationFormula :=
   nativeEqFormula modeTerm (‘0’ : ValuationTerm) ⋎
     (nativeEqFormula modeTerm (‘1’ : ValuationTerm) ⋎
       (nativeEqFormula modeTerm (‘2’ : ValuationTerm) ⋎
         nativeEqFormula modeTerm (‘5’ : ValuationTerm)))
 
-private def otherModeWithTailFormula
+def otherModeWithTailFormula
     (modeTerm : ValuationTerm) (tail : ValuationFormula) : ValuationFormula :=
   nativeNeFormula modeTerm (‘0’ : ValuationTerm) ⋏
     (nativeNeFormula modeTerm (‘1’ : ValuationTerm) ⋏
@@ -107,27 +107,27 @@ private theorem termValue_arithmeticAdd
   rw [arithmeticAddTerm_eq_func]
   exact termValue_add valuation ![left, right]
 
-private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
+theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-private theorem termValue_arithmeticZero (valuation : Nat -> Nat) :
+theorem termValue_arithmeticZero (valuation : Nat -> Nat) :
     termValue valuation (‘0’ : ValuationTerm) = 0 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
+theorem termValue_arithmeticTwo (valuation : Nat -> Nat) :
     termValue valuation (‘2’ : ValuationTerm) = 2 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticFour (valuation : Nat -> Nat) :
+theorem termValue_arithmeticFour (valuation : Nat -> Nat) :
     termValue valuation (‘4’ : ValuationTerm) = 4 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private theorem termValue_arithmeticFive (valuation : Nat -> Nat) :
+theorem termValue_arithmeticFive (valuation : Nat -> Nat) :
     termValue valuation (‘5’ : ValuationTerm) = 5 := by
   simp [termValue, LO.FirstOrder.Semiterm.val_operator]
 
-private noncomputable def nativeEqCertificate
+noncomputable def nativeEqCertificate
     (left right : ValuationTerm)
     (heq : termValue zeroValuation left = termValue zeroValuation right) :
     HybridCertificate (nativeEqFormula left right) := by
@@ -136,7 +136,7 @@ private noncomputable def nativeEqCertificate
     zeroValuation Language.Eq.eq ![left, right] heq
   exact .cast (Semiformula.Operator.eq_def _ _).symm direct
 
-private noncomputable def nativeNeCertificate
+noncomputable def nativeNeCertificate
     (left right : ValuationTerm)
     (hne : ¬termValue zeroValuation left = termValue zeroValuation right) :
     HybridCertificate (nativeNeFormula left right) := by
@@ -147,23 +147,47 @@ private noncomputable def nativeNeCertificate
     (congrArg (fun formula : ValuationFormula => ∼formula)
       (Semiformula.Operator.eq_def _ _).symm) direct
 
-private noncomputable def nativeLeCertificate
+noncomputable def nativeLeCertificateCore
     (left right : ValuationTerm)
     (hle : termValue zeroValuation left ≤ termValue zeroValuation right) :
-    HybridCertificate (nativeLeFormula left right) := by
-  unfold nativeLeFormula
+    HybridCertificate “!!left ≤ !!right” := by
   if heq : termValue zeroValuation left = termValue zeroValuation right then
+    have hequality :
+        FoundationCompactPAValuationAtomicCompiler.formulaValue zeroValuation
+          (LO.FirstOrder.Semiformula.rel Language.Eq.eq ![left, right]) := by
+      change termValue zeroValuation left = termValue zeroValuation right
+      exact heq
     let equality := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
-      zeroValuation Language.Eq.eq ![left, right] heq
+      zeroValuation Language.Eq.eq ![left, right] hequality
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionLeft
+        (right := LO.FirstOrder.Semiformula.rel Language.ORing.Rel.lt
+          ![left, right]) equality
     exact .cast (Semiformula.Operator.le_def _ _).symm
-      (.disjunctionLeft equality)
+      direct
   else
     have hlt : termValue zeroValuation left < termValue zeroValuation right :=
       Nat.lt_of_le_of_ne hle heq
+    have hstrict :
+        FoundationCompactPAValuationAtomicCompiler.formulaValue zeroValuation
+          (LO.FirstOrder.Semiformula.rel Language.ORing.Rel.lt
+            ![left, right]) := by
+      change termValue zeroValuation left < termValue zeroValuation right
+      exact hlt
     let strict := CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
-      zeroValuation Language.ORing.Rel.lt ![left, right] hlt
+      zeroValuation Language.ORing.Rel.lt ![left, right] hstrict
+    let direct :=
+      CheckedHybridValuationBoundedFormulaCertificate.disjunctionRight
+        (left := LO.FirstOrder.Semiformula.rel Language.Eq.eq
+          ![left, right]) strict
     exact .cast (Semiformula.Operator.le_def _ _).symm
-      (.disjunctionRight strict)
+      direct
+
+noncomputable def nativeLeCertificate
+    (left right : ValuationTerm)
+    (hle : termValue zeroValuation left ≤ termValue zeroValuation right) :
+    HybridCertificate (nativeLeFormula left right) :=
+  nativeLeCertificateCore left right hle
 
 def compactFormulaTransformFormulaOutputRowsClosedFormula
     (tokenTable width tokenCount : Nat)
@@ -265,7 +289,7 @@ theorem compactFormulaTransformFormulaOutputRowsClosedFormula_alignment
        · intro coordinate
          exact Empty.elim coordinate)
 
-private noncomputable def consumedCountEqualityCertificate
+noncomputable def consumedCountEqualityCertificate
     (current next : CompactFormulaTransformStateRowCoordinates)
     (consumedCount : Nat)
     (hcount : current.parserTokensCount =
@@ -281,7 +305,7 @@ private noncomputable def consumedCountEqualityCertificate
       simpa [nativeAddTerm, termValue_shortBinaryNumeralTerm,
         termValue_arithmeticAdd] using hcount)
 
-private noncomputable def consumedCountZeroCertificate
+noncomputable def consumedCountZeroCertificate
     (consumedCount : Nat) (hzero : consumedCount = 0) :
     HybridCertificate
       (nativeEqFormula (shortBinaryNumeralTerm consumedCount)
@@ -291,7 +315,7 @@ private noncomputable def consumedCountZeroCertificate
       simpa [termValue_shortBinaryNumeralTerm,
         termValue_arithmeticZero] using hzero)
 
-private noncomputable def consumedCountPositiveCertificate
+noncomputable def consumedCountPositiveCertificate
     (consumedCount : Nat) (hpositive : 1 ≤ consumedCount) :
     HybridCertificate
       (nativeLeFormula (‘1’ : ValuationTerm)
@@ -301,7 +325,7 @@ private noncomputable def consumedCountPositiveCertificate
       simpa [termValue_arithmeticOne,
         termValue_shortBinaryNumeralTerm] using hpositive)
 
-private noncomputable def modeNativeEqualityCertificate
+noncomputable def modeNativeEqualityCertificate
     (mode : Nat) (literal : ValuationTerm) (expected : Nat)
     (hliteral : termValue zeroValuation literal = expected)
     (heq : mode = expected) :
@@ -311,7 +335,7 @@ private noncomputable def modeNativeEqualityCertificate
   nativeEqCertificate (shortBinaryNumeralTerm mode) literal (by
     simpa [termValue_shortBinaryNumeralTerm, hliteral] using heq)
 
-private noncomputable def modeNativeInequalityCertificate
+noncomputable def modeNativeInequalityCertificate
     (mode : Nat) (literal : ValuationTerm) (expected : Nat)
     (hliteral : termValue zeroValuation literal = expected)
     (hne : mode ≠ expected) :
@@ -344,7 +368,7 @@ private noncomputable def rawModeCertificate
     HybridCertificate (rawModeFormula (shortBinaryNumeralTerm mode)) :=
   Classical.choice (rawModeCertificate_nonempty mode hmode)
 
-private noncomputable def otherModeWithTailCertificate
+noncomputable def otherModeWithTailCertificate
     (mode : Nat)
     (hzero : mode ≠ 0) (hone : mode ≠ 1) (htwo : mode ≠ 2)
     (hfour : mode ≠ 4) (hfive : mode ≠ 5)

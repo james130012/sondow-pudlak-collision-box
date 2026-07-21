@@ -1471,6 +1471,12 @@ noncomputable def tokenSliceAtValuationBitBranchCertificate
     (tokenSliceAtValuationBitBranchDataOfEquality valuation tokenTableTerm
       widthTerm sourceStartTerm targetStartTerm offset bitIndex hbit)
 
+theorem tokenSliceAtValuationBitBound_eq
+    (valuation : Nat -> Nat) (widthTerm : ValuationTerm) (offset : Nat) :
+    termValue valuation widthTerm =
+      termValue (extendValuation offset valuation) (Rew.shift widthTerm) := by
+  simp only [termValue_shift]
+
 noncomputable def tokenSliceAtValuationBitUniversalBranches
     (valuation : Nat -> Nat)
     (tokenTableTerm widthTerm sourceStartTerm targetStartTerm :
@@ -1487,17 +1493,16 @@ noncomputable def tokenSliceAtValuationBitUniversalBranches
       (extendValuation offset valuation)
       (tokenSliceAtValuationBitBody tokenTableTerm widthTerm sourceStartTerm
         targetStartTerm)
-      (termValue (extendValuation offset valuation) (Rew.shift widthTerm)) := by
-  let bound := termValue valuation widthTerm
-  let branches := buildExplicitHybridUniversalBranches bound
-    (fun bitIndex hbitIndex =>
+      (termValue (extendValuation offset valuation) (Rew.shift widthTerm)) :=
+  (tokenSliceAtValuationBitBound_eq valuation widthTerm offset) ▸
+    buildExplicitHybridUniversalBranches (termValue valuation widthTerm)
+      (fun bitIndex hbitIndex =>
       CheckedHybridValuationBoundedFormulaCertificate.cast
         (tokenSliceAtValuationBitBody_free_alignment tokenTableTerm widthTerm
           sourceStartTerm targetStartTerm).symm
         (tokenSliceAtValuationBitBranchCertificate valuation tokenTableTerm
           widthTerm sourceStartTerm targetStartTerm offset bitIndex
           (hbits bitIndex hbitIndex)))
-  simpa [bound, termValue_shift] using branches
 
 noncomputable def tokenSliceAtValuationBitUniversalCertificate
     (valuation : Nat -> Nat)
@@ -1550,6 +1555,11 @@ noncomputable def tokenSliceAtValuationOffsetBranchCertificate
     (tokenSliceAtValuationBitUniversalCertificate valuation tokenTableTerm
       widthTerm sourceStartTerm targetStartTerm offset hbits)
 
+theorem tokenSliceAtValuationOffsetBound_eq
+    (valuation : Nat -> Nat) (count : Nat) :
+    count = termValue valuation (shortBinaryNumeralTerm count) := by
+  simp only [termValue_shortBinaryNumeralTerm]
+
 noncomputable def tokenSliceAtValuationOffsetUniversalBranches
     (valuation : Nat -> Nat)
     (tokenTableTerm widthTerm sourceStartTerm targetStartTerm :
@@ -1565,12 +1575,12 @@ noncomputable def tokenSliceAtValuationOffsetUniversalBranches
     CheckedHybridValuationUniversalBranches valuation
       (tokenSliceAtValuationOffsetBody tokenTableTerm widthTerm sourceStartTerm
         targetStartTerm)
-      (termValue valuation (shortBinaryNumeralTerm count)) := by
-  let branches := buildExplicitHybridUniversalBranches count
-    (fun offset hoffset => tokenSliceAtValuationOffsetBranchCertificate
+      (termValue valuation (shortBinaryNumeralTerm count)) :=
+  (tokenSliceAtValuationOffsetBound_eq valuation count) ▸
+    buildExplicitHybridUniversalBranches count
+      (fun offset hoffset => tokenSliceAtValuationOffsetBranchCertificate
       valuation tokenTableTerm widthTerm sourceStartTerm targetStartTerm
       offset (hbits offset hoffset))
-  simpa [termValue_shortBinaryNumeralTerm] using branches
 
 noncomputable def tokenSliceAtValuationOffsetUniversalCertificate
     (valuation : Nat -> Nat)
@@ -1602,6 +1612,55 @@ noncomputable def tokenSliceAtValuationOffsetUniversalCertificate
     rw [termBoundedUniversal_eq_ball]
     rfl) direct
 
+noncomputable def tokenSliceAtValuationPostWitnessCertificate
+    (valuation : Nat -> Nat)
+    (tokenTableTerm widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm : ValuationTerm)
+    (count : Nat)
+    (hcountBound : count <= termValue valuation tokenCountTerm)
+    (hsourceEndpoint : termValue valuation sourceFinishTerm =
+      termValue valuation sourceStartTerm + count)
+    (htargetEndpoint : termValue valuation targetFinishTerm =
+      termValue valuation targetStartTerm + count)
+    (hsourceFinishBound : termValue valuation sourceFinishTerm <=
+      termValue valuation tokenCountTerm)
+    (htargetFinishBound : termValue valuation targetFinishTerm <=
+      termValue valuation tokenCountTerm)
+    (hbits : ∀ offset < count, ∀ bitIndex < termValue valuation widthTerm,
+      (termValue valuation tokenTableTerm).testBit
+          ((termValue valuation sourceStartTerm + offset) *
+            termValue valuation widthTerm + bitIndex) =
+        (termValue valuation tokenTableTerm).testBit
+          ((termValue valuation targetStartTerm + offset) *
+            termValue valuation widthTerm + bitIndex)) :
+    TokenSliceHybridCertificate valuation
+      (tokenSliceAtValuationPostWitnessFormula tokenTableTerm widthTerm
+        tokenCountTerm sourceStartTerm sourceFinishTerm targetStartTerm
+        targetFinishTerm count) := by
+  let decomposed :=
+    CheckedHybridValuationBoundedFormulaCertificate.conjunction
+      (tokenSliceAtValuationCountGuardCertificate valuation tokenCountTerm
+        count hcountBound)
+      (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+        (tokenSliceAtValuationEndpointCertificate valuation sourceStartTerm
+          sourceFinishTerm count hsourceEndpoint)
+        (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+          (tokenSliceAtValuationEndpointCertificate valuation targetStartTerm
+            targetFinishTerm count htargetEndpoint)
+          (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+            (tokenSliceAtValuationLeCertificate valuation sourceFinishTerm
+              tokenCountTerm hsourceFinishBound)
+            (CheckedHybridValuationBoundedFormulaCertificate.conjunction
+              (tokenSliceAtValuationLeCertificate valuation targetFinishTerm
+                tokenCountTerm htargetFinishBound)
+              (tokenSliceAtValuationOffsetUniversalCertificate valuation
+                tokenTableTerm widthTerm sourceStartTerm targetStartTerm
+                count hbits)))))
+  exact .cast
+    (tokenSliceAtValuationPostWitnessFormula_alignment tokenTableTerm
+      widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
+      targetStartTerm targetFinishTerm count).symm decomposed
+
 /-- Explicit checked hybrid certificate at seven original valuation terms.
 Callers may retain arithmetic starts such as `leftStart + 1` syntactically. -/
 noncomputable def
@@ -1630,34 +1689,18 @@ noncomputable def
       (compactFixedWidthTokenSlicesEqAtValuationFormula tokenTableTerm
         widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
         targetStartTerm targetFinishTerm) := by
-  rw [compactFixedWidthTokenSlicesEqAtValuationFormula_alignment]
-  refine .existsWitness
+  let direct := CheckedHybridValuationBoundedFormulaCertificate.existsWitness
     (tokenSliceAtValuationWitnessBody tokenTableTerm widthTerm tokenCountTerm
       sourceStartTerm sourceFinishTerm targetStartTerm targetFinishTerm)
-    count ?_
-  let decomposed :=
-    CheckedHybridValuationBoundedFormulaCertificate.conjunction
-      (tokenSliceAtValuationCountGuardCertificate valuation tokenCountTerm
-        count hcountBound)
-      (CheckedHybridValuationBoundedFormulaCertificate.conjunction
-        (tokenSliceAtValuationEndpointCertificate valuation sourceStartTerm
-          sourceFinishTerm count hsourceEndpoint)
-        (CheckedHybridValuationBoundedFormulaCertificate.conjunction
-          (tokenSliceAtValuationEndpointCertificate valuation targetStartTerm
-            targetFinishTerm count htargetEndpoint)
-          (CheckedHybridValuationBoundedFormulaCertificate.conjunction
-            (tokenSliceAtValuationLeCertificate valuation sourceFinishTerm
-              tokenCountTerm hsourceFinishBound)
-            (CheckedHybridValuationBoundedFormulaCertificate.conjunction
-              (tokenSliceAtValuationLeCertificate valuation targetFinishTerm
-                tokenCountTerm htargetFinishBound)
-              (tokenSliceAtValuationOffsetUniversalCertificate valuation
-                tokenTableTerm widthTerm sourceStartTerm targetStartTerm
-                count hbits)))))
+    count
+    (tokenSliceAtValuationPostWitnessCertificate valuation tokenTableTerm
+      widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm targetStartTerm
+      targetFinishTerm count hcountBound hsourceEndpoint htargetEndpoint
+      hsourceFinishBound htargetFinishBound hbits)
   exact .cast
-    (tokenSliceAtValuationPostWitnessFormula_alignment tokenTableTerm
+    (compactFixedWidthTokenSlicesEqAtValuationFormula_alignment tokenTableTerm
       widthTerm tokenCountTerm sourceStartTerm sourceFinishTerm
-      targetStartTerm targetFinishTerm count).symm decomposed
+      targetStartTerm targetFinishTerm).symm direct
 
 #print axioms compactFixedWidthTokenSlicesEqClosedFormula_alignment
 #print axioms compactFixedWidthTokenSlicesEqExplicitHybridCertificate
