@@ -894,6 +894,376 @@ theorem
       (compactAdditiveSyntaxTaskListSameRowDataOfGraph tokenTable width tokenCount
         sourceBoundary sourceCount targetBoundary targetCount hgraph)
 
+/-! ## Removing row-data dependence by a finite public envelope -/
+
+def
+    compactAdditiveSyntaxTaskListSameRowsTerminalStructuralPayloadEnvelopeOfValues
+    (tokenTable width tokenCount sourceBoundary targetBoundary index
+      sourceLeft sourceRight targetLeft targetRight : Nat) : Nat :=
+  let valuation := extendValuation index sameRowsZeroValuation
+  let widthTerm := shortBinaryNumeralTerm tokenCount
+  let sourceIndexTerm : ValuationTerm := &0
+  let nextIndexTerm : ValuationTerm := ‘&0 + 1’
+  let sourceLeftTerm := shortBinaryNumeralTerm sourceLeft
+  let sourceRightTerm := shortBinaryNumeralTerm sourceRight
+  let targetLeftTerm := shortBinaryNumeralTerm targetLeft
+  let targetRightTerm := shortBinaryNumeralTerm targetRight
+  let sourceLeftFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm sourceBoundary) widthTerm sourceIndexTerm
+    sourceLeftTerm
+  let sourceRightFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm sourceBoundary) widthTerm nextIndexTerm
+    sourceRightTerm
+  let targetLeftFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm targetBoundary) widthTerm sourceIndexTerm
+    targetLeftTerm
+  let targetRightFormula := compactFixedWidthEntryAtValuationFormula
+    (shortBinaryNumeralTerm targetBoundary) widthTerm nextIndexTerm
+    targetRightTerm
+  let rowFormula :=
+    (Rewriting.emb (ξ := Nat) compactAdditiveSyntaxTaskRowEqDef.val) ⇜
+      ![shortBinaryNumeralTerm tokenTable, shortBinaryNumeralTerm width,
+        widthTerm, sourceLeftTerm, sourceRightTerm, targetLeftTerm,
+        targetRightTerm]
+  let sourceLeftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation (shortBinaryNumeralTerm sourceBoundary) widthTerm
+      sourceIndexTerm sourceLeftTerm
+  let sourceRightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation (shortBinaryNumeralTerm sourceBoundary) widthTerm
+      nextIndexTerm sourceRightTerm
+  let targetLeftResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation (shortBinaryNumeralTerm targetBoundary) widthTerm
+      sourceIndexTerm targetLeftTerm
+  let targetRightResource :=
+    compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
+      valuation (shortBinaryNumeralTerm targetBoundary) widthTerm
+      nextIndexTerm targetRightTerm
+  let rowResource :=
+    compactAdditiveSyntaxTaskRowEqStructuralPayloadEnvelope valuation tokenTable
+      width tokenCount sourceLeft sourceRight targetLeft targetRight
+  let targetRightRowResource := transparentHybridConjunctionPayloadEnvelope
+    valuation targetRightFormula rowFormula targetRightResource rowResource
+  let targetLeftTailResource := transparentHybridConjunctionPayloadEnvelope
+    valuation targetLeftFormula (targetRightFormula ⋏ rowFormula)
+    targetLeftResource targetRightRowResource
+  let sourceRightTailResource := transparentHybridConjunctionPayloadEnvelope
+    valuation sourceRightFormula
+      (targetLeftFormula ⋏ (targetRightFormula ⋏ rowFormula))
+    sourceRightResource targetLeftTailResource
+  transparentHybridConjunctionPayloadEnvelope valuation sourceLeftFormula
+    (sourceRightFormula ⋏
+      (targetLeftFormula ⋏ (targetRightFormula ⋏ rowFormula)))
+    sourceLeftResource sourceRightTailResource
+
+def
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelopeOfValues
+    (tokenTable width tokenCount sourceBoundary targetBoundary index
+      sourceLeft sourceRight targetLeft targetRight : Nat) : Nat :=
+  let valuation := extendValuation index sameRowsZeroValuation
+  let values : Fin 4 -> Nat :=
+    ![targetRight, targetLeft, sourceRight, sourceLeft]
+  explicitBoundedWitnessHybridStructuralPayloadEnvelope valuation tokenCount
+    (compactAdditiveSyntaxTaskListSameRowsBranchTerminal tokenTable width
+      tokenCount sourceBoundary targetBoundary)
+    values
+    (compactAdditiveSyntaxTaskListSameRowsTerminalStructuralPayloadEnvelopeOfValues
+      tokenTable width tokenCount sourceBoundary targetBoundary index
+      sourceLeft sourceRight targetLeft targetRight)
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope_eq_values
+    (tokenTable width tokenCount sourceBoundary targetBoundary index : Nat)
+    (data : CompactAdditiveSyntaxTaskListSameRowData
+      tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary targetBoundary index data =
+      compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelopeOfValues
+        tokenTable width tokenCount sourceBoundary targetBoundary index
+        data.sourceLeft data.sourceRight data.targetLeft data.targetRight := by
+  rfl
+
+private theorem member_le_sum_range
+    (bound value : Nat) (f : Nat -> Nat) (hvalue : value <= bound) :
+    f value <= (Finset.range (bound + 1)).sum f := by
+  exact Finset.single_le_sum
+    (fun candidate _ => Nat.zero_le (f candidate))
+    (Finset.mem_range.mpr (Nat.lt_succ_of_le hvalue))
+
+def compactAdditiveSyntaxTaskListSameRowsPublicFiniteBranchEnvelope
+    (tokenTable width tokenCount sourceBoundary targetBoundary index : Nat) :
+    Nat :=
+  (Finset.range (tokenCount + 1)).sum fun sourceLeft =>
+    (Finset.range (tokenCount + 1)).sum fun sourceRight =>
+      (Finset.range (tokenCount + 1)).sum fun targetLeft =>
+        (Finset.range (tokenCount + 1)).sum fun targetRight =>
+          compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelopeOfValues
+            tokenTable width tokenCount sourceBoundary targetBoundary index
+            sourceLeft sourceRight targetLeft targetRight
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary targetBoundary index : Nat)
+    (data : CompactAdditiveSyntaxTaskListSameRowData
+      tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary targetBoundary index data <=
+      compactAdditiveSyntaxTaskListSameRowsPublicFiniteBranchEnvelope
+        tokenTable width tokenCount sourceBoundary targetBoundary index := by
+  rw [
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope_eq_values]
+  let resource :=
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelopeOfValues
+      tokenTable width tokenCount sourceBoundary targetBoundary index
+  have htargetRight := member_le_sum_range tokenCount data.targetRight
+    (fun targetRight => resource data.sourceLeft data.sourceRight
+      data.targetLeft targetRight) data.targetRight_le
+  have htargetLeft := member_le_sum_range tokenCount data.targetLeft
+    (fun targetLeft =>
+      (Finset.range (tokenCount + 1)).sum fun targetRight =>
+        resource data.sourceLeft data.sourceRight targetLeft targetRight)
+    data.targetLeft_le
+  have hsourceRight := member_le_sum_range tokenCount data.sourceRight
+    (fun sourceRight =>
+      (Finset.range (tokenCount + 1)).sum fun targetLeft =>
+        (Finset.range (tokenCount + 1)).sum fun targetRight =>
+          resource data.sourceLeft sourceRight targetLeft targetRight)
+    data.sourceRight_le
+  have hsourceLeft := member_le_sum_range tokenCount data.sourceLeft
+    (fun sourceLeft =>
+      (Finset.range (tokenCount + 1)).sum fun sourceRight =>
+        (Finset.range (tokenCount + 1)).sum fun targetLeft =>
+          (Finset.range (tokenCount + 1)).sum fun targetRight =>
+            resource sourceLeft sourceRight targetLeft targetRight)
+    data.sourceLeft_le
+  unfold compactAdditiveSyntaxTaskListSameRowsPublicFiniteBranchEnvelope
+  exact htargetRight.trans
+    (htargetLeft.trans (hsourceRight.trans hsourceLeft))
+
+def compactAdditiveSyntaxTaskListSameRowsPublicFiniteLeafPayloadResourceSum
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary :
+      Nat) : Nat :=
+  ∑ index : Fin sourceCount,
+    compactAdditiveSyntaxTaskListSameRowsPublicFiniteBranchEnvelope tokenTable
+      width tokenCount sourceBoundary targetBoundary index
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsBranchPayloadResourceSum_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary : Nat)
+    (rows : (index : Fin sourceCount) ->
+      CompactAdditiveSyntaxTaskListSameRowData
+        tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsBranchPayloadResourceSum tokenTable
+        width tokenCount sourceBoundary sourceCount targetBoundary rows <=
+      compactAdditiveSyntaxTaskListSameRowsPublicFiniteLeafPayloadResourceSum
+        tokenTable width tokenCount sourceBoundary sourceCount
+        targetBoundary := by
+  unfold compactAdditiveSyntaxTaskListSameRowsBranchPayloadResourceSum
+    compactAdditiveSyntaxTaskListSameRowsPublicFiniteLeafPayloadResourceSum
+  exact Finset.sum_le_sum fun index _ =>
+    compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary targetBoundary index
+      (rows index)
+
+private theorem hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf
+    (totalBound : Nat) (outerVariables : Finset Nat)
+    (valuation : Nat -> Nat)
+    (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
+    {small large : Nat} (hresource : small <= large) :
+    forall bound,
+      hybridBranchesUniformStructuralPayloadEnvelope totalBound outerVariables
+          valuation body small bound <=
+        hybridBranchesUniformStructuralPayloadEnvelope totalBound
+          outerVariables valuation body large bound
+  | 0 => by rfl
+  | bound + 1 => by
+      simp only [hybridBranchesUniformStructuralPayloadEnvelope]
+      have hinduction :=
+        hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf totalBound
+          outerVariables valuation body hresource bound
+      omega
+
+def compactAdditiveSyntaxTaskListSameRowsBranchesPublicFiniteEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary :
+      Nat) : Nat :=
+  let body := compactAdditiveSyntaxTaskListSameRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift (shortBinaryNumeralTerm sourceCount)) body
+  let outerVariables := outerFormula.freeVariables
+  let bound := termValue sameRowsZeroValuation
+    (shortBinaryNumeralTerm sourceCount)
+  hybridBranchesUniformStructuralPayloadEnvelope bound outerVariables
+    sameRowsZeroValuation body
+    (compactAdditiveSyntaxTaskListSameRowsPublicFiniteLeafPayloadResourceSum
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary)
+    bound
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsBranchesTransparentEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary : Nat)
+    (rows : (index : Fin sourceCount) ->
+      CompactAdditiveSyntaxTaskListSameRowData
+        tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsBranchesTransparentEnvelope tokenTable
+        width tokenCount sourceBoundary sourceCount targetBoundary rows <=
+      compactAdditiveSyntaxTaskListSameRowsBranchesPublicFiniteEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount
+        targetBoundary := by
+  unfold compactAdditiveSyntaxTaskListSameRowsBranchesTransparentEnvelope
+    compactAdditiveSyntaxTaskListSameRowsBranchesPublicFiniteEnvelope
+  exact hybridBranchesUniformStructuralPayloadEnvelope_mono_leaf
+    (termValue sameRowsZeroValuation (shortBinaryNumeralTerm sourceCount))
+    (∀⁰ termBoundedUniversalBody
+      (Rew.bShift (shortBinaryNumeralTerm sourceCount))
+      (compactAdditiveSyntaxTaskListSameRowsBody tokenTable width tokenCount
+        sourceBoundary targetBoundary)).freeVariables
+    sameRowsZeroValuation
+    (compactAdditiveSyntaxTaskListSameRowsBody tokenTable width tokenCount
+      sourceBoundary targetBoundary)
+    (compactAdditiveSyntaxTaskListSameRowsBranchPayloadResourceSum_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary rows)
+    (termValue sameRowsZeroValuation (shortBinaryNumeralTerm sourceCount))
+
+def
+    compactAdditiveSyntaxTaskListSameRowsPublicFiniteUniversalPayloadEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary :
+      Nat) : Nat :=
+  let body := compactAdditiveSyntaxTaskListSameRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary
+  let boundTerm := shortBinaryNumeralTerm sourceCount
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift boundTerm) body
+  let outerVariables := outerFormula.freeVariables
+  let Gamma := valuationContext outerVariables sameRowsZeroValuation
+  let bound := termValue sameRowsZeroValuation boundTerm
+  let branchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body)
+    (compactAdditiveSyntaxTaskListSameRowsBranchesPublicFiniteEnvelope
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary)
+  compileContextualTermBoundedUniversalPayloadEnvelope
+    Gamma bound (Rew.bShift boundTerm) body
+    (compileShiftedBoundEqualityPayloadResource sameRowsZeroValuation
+      outerVariables boundTerm)
+    branchResource
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsUniversalPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary : Nat)
+    (rows : (index : Fin sourceCount) ->
+      CompactAdditiveSyntaxTaskListSameRowData
+        tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsUniversalPayloadEnvelope tokenTable
+        width tokenCount sourceBoundary sourceCount targetBoundary rows <=
+      compactAdditiveSyntaxTaskListSameRowsPublicFiniteUniversalPayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount
+        targetBoundary := by
+  let body := compactAdditiveSyntaxTaskListSameRowsBody tokenTable width
+    tokenCount sourceBoundary targetBoundary
+  let boundTerm := shortBinaryNumeralTerm sourceCount
+  let outerFormula := ∀⁰ termBoundedUniversalBody
+    (Rew.bShift boundTerm) body
+  let outerVariables := outerFormula.freeVariables
+  let Gamma := valuationContext outerVariables sameRowsZeroValuation
+  let bound := termValue sameRowsZeroValuation boundTerm
+  let oldCore :=
+    compactAdditiveSyntaxTaskListSameRowsBranchesTransparentEnvelope tokenTable
+      width tokenCount sourceBoundary sourceCount targetBoundary rows
+  let newCore :=
+    compactAdditiveSyntaxTaskListSameRowsBranchesPublicFiniteEnvelope
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+  let oldBranchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body) oldCore
+  let newBranchResource := contextualBranchesUnderBoundPayloadEnvelope
+    (Gamma.image Rewriting.shift) bound (Rewriting.free body) newCore
+  let boundResource := compileShiftedBoundEqualityPayloadResource
+    sameRowsZeroValuation outerVariables boundTerm
+  have hcore : oldCore <= newCore := by
+    exact
+      compactAdditiveSyntaxTaskListSameRowsBranchesTransparentEnvelope_le_publicFinite
+        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary rows
+  have hbranch : oldBranchResource <= newBranchResource :=
+    contextualBranchesUnderBoundPayloadEnvelope_mono
+      (Gamma.image Rewriting.shift) bound (Rewriting.free body)
+      oldCore newCore hcore
+  have htotal := compileContextualTermBoundedUniversalPayloadEnvelope_mono
+    Gamma bound (Rew.bShift boundTerm) body
+    boundResource oldBranchResource boundResource newBranchResource
+    le_rfl hbranch
+  simpa only [compactAdditiveSyntaxTaskListSameRowsUniversalPayloadEnvelope,
+    compactAdditiveSyntaxTaskListSameRowsPublicFiniteUniversalPayloadEnvelope,
+    body, boundTerm, outerFormula, outerVariables, Gamma, bound, oldCore,
+    newCore, oldBranchResource, newBranchResource, boundResource] using htotal
+
+def compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount
+      targetBoundary targetCount : Nat) : Nat :=
+  let countFormula : ValuationFormula :=
+    “!!(shortBinaryNumeralTerm targetCount) =
+      !!(shortBinaryNumeralTerm sourceCount)”
+  let universalFormula : ValuationFormula :=
+    (compactAdditiveSyntaxTaskListSameRowsBody tokenTable width tokenCount
+      sourceBoundary targetBoundary).ballLT
+        (shortBinaryNumeralTerm sourceCount)
+  transparentHybridConjunctionPayloadEnvelope sameRowsZeroValuation
+    countFormula universalFormula
+    (compactAdditiveSyntaxTaskListSameRowsCountEqualityPayloadPolynomial
+      sourceCount targetCount)
+    (compactAdditiveSyntaxTaskListSameRowsPublicFiniteUniversalPayloadEnvelope
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary)
+
+private theorem transparentHybridConjunctionPayloadEnvelope_mono_right
+    (valuation : Nat -> Nat) (left right : ValuationFormula)
+    (leftResource : Nat) {small large : Nat} (hresource : small <= large) :
+    transparentHybridConjunctionPayloadEnvelope valuation left right
+        leftResource small <=
+      transparentHybridConjunctionPayloadEnvelope valuation left right
+        leftResource large := by
+  unfold transparentHybridConjunctionPayloadEnvelope
+  dsimp only
+  omega
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsFromRowDataPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount
+      targetBoundary targetCount : Nat)
+    (rows : (index : Fin sourceCount) ->
+      CompactAdditiveSyntaxTaskListSameRowData
+        tokenTable width tokenCount sourceBoundary targetBoundary index) :
+    compactAdditiveSyntaxTaskListSameRowsFromRowDataPayloadEnvelope tokenTable
+        width tokenCount sourceBoundary sourceCount targetBoundary targetCount
+        rows <=
+      compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+        targetCount := by
+  unfold compactAdditiveSyntaxTaskListSameRowsFromRowDataPayloadEnvelope
+    compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope
+  exact transparentHybridConjunctionPayloadEnvelope_mono_right _ _ _ _
+    (compactAdditiveSyntaxTaskListSameRowsUniversalPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary rows)
+
+theorem
+    compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope_le_publicFinite
+    (tokenTable width tokenCount sourceBoundary sourceCount
+      targetBoundary targetCount : Nat)
+    (hgraph : CompactAdditiveSyntaxTaskListSameRows tokenTable width tokenCount
+      sourceBoundary sourceCount targetBoundary targetCount) :
+    compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount
+        hgraph <=
+      compactAdditiveSyntaxTaskListSameRowsPublicFinitePayloadEnvelope
+        tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+        targetCount := by
+  unfold compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope
+  exact
+    compactAdditiveSyntaxTaskListSameRowsFromRowDataPayloadEnvelope_le_publicFinite
+      tokenTable width tokenCount sourceBoundary sourceCount targetBoundary
+      targetCount
+      (compactAdditiveSyntaxTaskListSameRowDataOfGraph tokenTable width
+        tokenCount sourceBoundary sourceCount targetBoundary targetCount hgraph)
+
 #print axioms countEqualityCertificate_structuralPayloadBound_le_public
 #print axioms
   compactAdditiveSyntaxTaskListSameRowsBranchCertificate_structuralPayloadBound_le_transparent
@@ -901,5 +1271,11 @@ theorem
   compactAdditiveSyntaxTaskListSameRowsUniversalCertificate_structuralPayloadBound_le_transparent
 #print axioms
   compactAdditiveSyntaxTaskListSameRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+#print axioms
+  compactAdditiveSyntaxTaskListSameRowsBranchStructuralPayloadEnvelope_le_publicFinite
+#print axioms
+  compactAdditiveSyntaxTaskListSameRowsUniversalPayloadEnvelope_le_publicFinite
+#print axioms
+  compactAdditiveSyntaxTaskListSameRowsGraphPayloadEnvelope_le_publicFinite
 
 end FoundationCompactNumericListedDirectSyntaxTaskListSameRowsPublicBounds

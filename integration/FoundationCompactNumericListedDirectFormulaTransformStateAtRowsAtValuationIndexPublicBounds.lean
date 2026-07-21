@@ -163,11 +163,7 @@ noncomputable def
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (indexTerm : ValuationTerm)
     (coordinates : CompactFormulaTransformStateRowCoordinates)
-    (sizeWitness : CompactFormulaTransformStateCoreSizeWitness)
-    (hgraph : CompactFormulaTransformStateAtRows
-      tokenTable width tokenCount stateBoundary stateCount
-      (termValue valuation indexTerm) coordinates sizeWitness) : Nat := by
-  rcases hgraph with ⟨hindex, hstart, hfinish, hcore⟩
+    (sizeWitness : CompactFormulaTransformStateCoreSizeWitness) : Nat :=
   let nextIndexTerm : ValuationTerm := ‘!!indexTerm + 1’
   let indexFormula : ValuationFormula :=
     “!!indexTerm < !!(shortBinaryNumeralTerm stateCount)”
@@ -194,14 +190,14 @@ noncomputable def
       (shortBinaryNumeralTerm tokenCount) nextIndexTerm
       (shortBinaryNumeralTerm coordinates.finish)
   let coreResource :=
-    compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
-      tokenTable width tokenCount coordinates sizeWitness hcore
+    compactFormulaTransformStateCorePublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount coordinates sizeWitness
   let finishCoreResource := transparentHybridConjunctionPayloadEnvelope
     valuation finishFormula coreFormula finishResource coreResource
   let startTailResource := transparentHybridConjunctionPayloadEnvelope
     valuation startFormula (finishFormula ⋏ coreFormula)
     startResource finishCoreResource
-  exact transparentHybridConjunctionPayloadEnvelope valuation indexFormula
+  transparentHybridConjunctionPayloadEnvelope valuation indexFormula
     (startFormula ⋏ (finishFormula ⋏ coreFormula))
     indexResource startTailResource
 
@@ -222,7 +218,7 @@ noncomputable def
         coordinates sizeWitness)
       (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
         valuation tokenTable width tokenCount stateBoundary stateCount
-        indexTerm coordinates sizeWitness hgraph) := by
+        indexTerm coordinates sizeWitness) := by
   rcases hgraph with ⟨hindex, hstart, hfinish, hcore⟩
   let tableTerm := shortBinaryNumeralTerm stateBoundary
   let widthTerm := shortBinaryNumeralTerm tokenCount
@@ -281,8 +277,8 @@ noncomputable def
     compactFixedWidthEntryAtValuationOpenIndexStructuralPayloadPolynomial
       valuation tableTerm widthTerm nextIndexTerm finishTerm
   let coreResource :=
-    compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
-      tokenTable width tokenCount coordinates sizeWitness hcore
+    compactFormulaTransformStateCorePublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount coordinates sizeWitness
   have hindexResource : indexProof.payloadLength ≤ indexResource :=
     (compile_payloadLength_le_structuralPayloadBound indexCertificate).trans
       (valuationLtAtIndexCertificate_structuralPayloadBound_le_public

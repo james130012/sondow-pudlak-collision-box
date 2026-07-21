@@ -99,13 +99,13 @@ noncomputable def
       rowIndexTerm mode witnessStart witnessFinish witnessCount components.row
       components.row_graph
   let currentResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
-      currentCoordinates.parserFinish valueBound components.current_status
+      currentCoordinates.parserFinish valueBound
   let nextResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
-      nextCoordinates.parserFinish valueBound components.next_status
+      nextCoordinates.parserFinish valueBound
   let syntaxResource :=
     compactFormulaTransformAdjacentStepDirectTerminalAssemblySyntaxResource
       valuation tokenTable width tokenCount stateBoundary stateCount
@@ -160,8 +160,7 @@ theorem
     compactFormulaTransformAdjacentStepDirectTerminalComponentPayloadResource
         valuation tokenTable width tokenCount stateBoundary stateCount
         rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
-        currentCoordinates nextCoordinates components.row components.row_graph
-        components.current_status components.next_status <=
+        currentCoordinates nextCoordinates components.row components.row_graph <=
       compactFormulaTransformAdjacentStepDirectTerminalPublicAssemblyEnvelopeOfComponents
         valuation tokenTable width tokenCount stateBoundary stateCount
         rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
@@ -201,13 +200,13 @@ theorem
       rowIndexTerm mode witnessStart witnessFinish witnessCount row
       components.row_graph
   let currentResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
-      currentCoordinates.parserFinish valueBound components.current_status
+      currentCoordinates.parserFinish valueBound
   let nextResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
-      nextCoordinates.parserFinish valueBound components.next_status
+      nextCoordinates.parserFinish valueBound
   have hrawCode : (binaryFormulaCode rawBody).length <=
       compactFormulaTransformAdjacentStepRawTerminalPublicCodeEnvelope
         tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode

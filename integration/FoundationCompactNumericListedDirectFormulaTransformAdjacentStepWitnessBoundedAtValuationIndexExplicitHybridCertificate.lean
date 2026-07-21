@@ -972,13 +972,7 @@ noncomputable def
     (hrowGraph : CompactFormulaTransformAdjacentStepRowGraph
       tokenTable width tokenCount stateBoundary stateCount
         (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
-        witnessCount row)
-    (hcurrentStatus : CompactBinaryNatStatusValidBounded
-      tokenTable width tokenCount currentCoordinates.parserTasksFinish
-        currentCoordinates.parserFinish valueBound)
-    (hnextStatus : CompactBinaryNatStatusValidBounded
-      tokenTable width tokenCount nextCoordinates.parserTasksFinish
-        nextCoordinates.parserFinish valueBound) : Nat :=
+        witnessCount row) : Nat :=
   let rowFormula :=
     compactFormulaTransformAdjacentStepRowAtValuationIndexFormula
       tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
@@ -997,13 +991,13 @@ noncomputable def
       rowIndexTerm mode witnessStart witnessFinish witnessCount row
       hrowGraph
   let currentResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
-      currentCoordinates.parserFinish valueBound hcurrentStatus
+      currentCoordinates.parserFinish valueBound
   let nextResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
-      nextCoordinates.parserFinish valueBound hnextStatus
+      nextCoordinates.parserFinish valueBound
   (rowResource + weakeningFullAssemblyCost
       (insert rowFormula
         (valuationContext terminalFormula.freeVariables valuation))) +
@@ -1046,7 +1040,6 @@ noncomputable def
     valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
     mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
     nextCoordinates components.row components.row_graph
-    components.current_status components.next_status
 
 noncomputable def
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitDirectTerminalOfGraph
@@ -1116,9 +1109,9 @@ noncomputable def
         currentCoordinates.parserTasksFinish currentCoordinates.parserFinish
         valueBound hcurrentStatus
   let currentResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount currentCoordinates.parserTasksFinish
-      currentCoordinates.parserFinish valueBound hcurrentStatus
+      currentCoordinates.parserFinish valueBound
   have hcurrentPayload : currentProof.payloadLength ≤ currentResource := by
     exact
       compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph_payloadLength_le
@@ -1131,9 +1124,9 @@ noncomputable def
         nextCoordinates.parserTasksFinish nextCoordinates.parserFinish
         valueBound hnextStatus
   let nextResource :=
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
       tokenTable width tokenCount nextCoordinates.parserTasksFinish
-      nextCoordinates.parserFinish valueBound hnextStatus
+      nextCoordinates.parserFinish valueBound
   have hnextPayload : nextProof.payloadLength ≤ nextResource := by
     exact
       compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph_payloadLength_le

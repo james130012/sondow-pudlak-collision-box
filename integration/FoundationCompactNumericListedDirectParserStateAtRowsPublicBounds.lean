@@ -200,8 +200,9 @@ noncomputable def compactUnifiedParserStateAtRowsAtIndexTermPayloadEnvelope
       (shortBinaryNumeralTerm stateBoundary)
       (shortBinaryNumeralTerm tokenCount) nextIndexTerm
       (shortBinaryNumeralTerm coordinates.finish)
-  let coreResource := compactUnifiedParserStateCoreGraphStructuralPayloadEnvelope
-    tokenTable width tokenCount coordinates sizeWitness hcore
+  let coreResource :=
+    compactUnifiedParserStateCorePublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount coordinates sizeWitness
   let finishCoreResource := transparentHybridConjunctionPayloadEnvelope
     compactParserStateAtRowsZeroValuation finishFormula coreFormula
     finishResource coreResource
@@ -352,8 +353,9 @@ noncomputable def compactUnifiedParserStateAtRowsPayloadEnvelope
       (shortBinaryNumeralTerm stateBoundary)
       (shortBinaryNumeralTerm tokenCount) nextIndexTerm
       (shortBinaryNumeralTerm coordinates.finish)
-  let coreResource := compactUnifiedParserStateCoreGraphStructuralPayloadEnvelope
-    tokenTable width tokenCount coordinates sizeWitness hcore
+  let coreResource :=
+    compactUnifiedParserStateCorePublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount coordinates sizeWitness
   let finishCoreResource := transparentHybridConjunctionPayloadEnvelope
     compactParserStateAtRowsZeroValuation finishFormula coreFormula
     finishResource coreResource

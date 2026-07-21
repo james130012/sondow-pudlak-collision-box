@@ -229,11 +229,7 @@ theorem completedAreaCertificate_structuralPayloadBound_le_public
 
 noncomputable def compactBinaryNatCompletedStatusStructuralPayloadEnvelope
     (tokenTable width tokenCount start finish outputStart outputBoundary
-      outputBoundarySize outputCount : Nat)
-    (hcompleted : CompactBinaryNatCompletedStatusValidRows
-      tokenTable width tokenCount start finish
-        (compactBinaryNatStatusValidityWitnessOf
-          outputStart outputBoundary outputBoundarySize outputCount)) : Nat :=
+      outputBoundarySize outputCount : Nat) : Nat :=
   let prefixFormula :=
     compactBinaryNatCompletedStatusPrefixClosedFormula
       tokenTable width tokenCount start outputStart
@@ -254,11 +250,8 @@ noncomputable def compactBinaryNatCompletedStatusStructuralPayloadEnvelope
     compactBinaryNatCompletedStatusPrefixStructuralPayloadPolynomial
       tokenTable width tokenCount start outputStart
   let layoutResource :=
-    compactAdditiveStructuredListLayoutDataStructuralPayloadEnvelope
+    compactAdditiveStructuredListLayoutPublicFiniteStructuralPayloadEnvelope
       tokenTable width tokenCount outputStart outputCount finish outputBoundary
-      (FoundationCompactNumericListedDirectAdditiveStructuredListLayoutExplicitHybridCertificate.compactAdditiveStructuredListLayoutDataOfLayout
-        tokenTable width tokenCount outputStart outputCount finish
-          outputBoundary hcompleted.2.1)
   let unitResource :=
     compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
       tokenCount outputCount outputBoundary
@@ -293,7 +286,7 @@ theorem
             outputBoundarySize outputCount hcompleted) <=
       compactBinaryNatCompletedStatusStructuralPayloadEnvelope
         tokenTable width tokenCount start finish outputStart outputBoundary
-          outputBoundarySize outputCount hcompleted := by
+          outputBoundarySize outputCount := by
   let prefixCertificate :=
     compactBinaryNatCompletedStatusPrefixExplicitHybridCertificateOfGraph
       tokenTable width tokenCount start outputStart hcompleted.1
@@ -313,7 +306,7 @@ theorem
     compactBinaryNatCompletedStatusPrefixExplicitHybridCertificate_structuralPayloadBound_le_public
       tokenTable width tokenCount start outputStart hcompleted.1
   have hlayout :=
-    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
+    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount outputStart outputCount finish outputBoundary
         hcompleted.2.1
   have hunitTransparent :=
@@ -439,16 +432,13 @@ noncomputable def
           failedFormula completedFormula
           (compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial
             tokenTable width tokenCount start finish))
-    · let hcompleted := compactBinaryNatCompletedStatusValidRows_of_data
-        data hrunning hfailed
-      exact hybridDisjunctionRightStructuralPayloadEnvelope zeroValuation
+    · exact hybridDisjunctionRightStructuralPayloadEnvelope zeroValuation
         runningFormula (failedFormula ⋎ completedFormula)
         (hybridDisjunctionRightStructuralPayloadEnvelope zeroValuation
           failedFormula completedFormula
           (compactBinaryNatCompletedStatusStructuralPayloadEnvelope
             tokenTable width tokenCount start finish data.outputStart
-              data.outputBoundary data.outputBoundarySize data.outputCount
-                hcompleted))
+              data.outputBoundary data.outputBoundarySize data.outputCount))
 
 theorem
     compactBinaryNatStatusValidBoundedTerminalPartsOfData_structuralPayloadBound_le_transparent
@@ -564,6 +554,176 @@ theorem
         compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData,
         hrunning, hfailed, hcompleted, completedCertificate] using houter
 
+/-! ## Removing status-data and branch dependence by a finite public envelope -/
+
+def compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+    (tokenTable width tokenCount start finish outputStart outputBoundary
+      outputBoundarySize outputCount : Nat) : Nat :=
+  let runningFormula := compactBinaryNatRunningStatusSliceClosedFormula
+    tokenTable width tokenCount start finish
+  let failedFormula := compactBinaryNatFailedStatusSliceClosedFormula
+    tokenTable width tokenCount start finish
+  let completedFormula :=
+    compactBinaryNatCompletedStatusPrefixClosedFormula
+        tokenTable width tokenCount start outputStart ⋏
+      (FoundationCompactNumericListedDirectAdditiveStructuredListLayoutExplicitHybridCertificate.compactAdditiveStructuredListLayoutClosedFormula
+          tokenTable width tokenCount outputStart outputCount finish
+            outputBoundary ⋏
+        (FoundationCompactNumericListedDirectAdditiveUnitBoundaryRowsExplicitHybridCertificate.compactAdditiveUnitBoundaryRowsClosedFormula
+            tokenCount outputCount outputBoundary ⋏
+          (FoundationCompactNumericListedDirectNatSizeExplicitHybridCertificate.compactNatSizeClosedFormula
+              outputBoundarySize outputBoundary ⋏
+            “!!(shortBinaryNumeralTerm outputBoundarySize) ≤
+              (!!(shortBinaryNumeralTerm outputCount) + 1) *
+                !!(shortBinaryNumeralTerm tokenCount)”)))
+  let runningResource := hybridDisjunctionLeftStructuralPayloadEnvelope
+    zeroValuation runningFormula (failedFormula ⋎ completedFormula)
+    (compactBinaryNatRunningStatusSliceStructuralPayloadPolynomial
+      tokenTable width tokenCount start finish)
+  let failedResource := hybridDisjunctionRightStructuralPayloadEnvelope
+    zeroValuation runningFormula (failedFormula ⋎ completedFormula)
+    (hybridDisjunctionLeftStructuralPayloadEnvelope zeroValuation
+      failedFormula completedFormula
+      (compactBinaryNatFailedStatusSliceStructuralPayloadPolynomial
+        tokenTable width tokenCount start finish))
+  let completedResource := hybridDisjunctionRightStructuralPayloadEnvelope
+    zeroValuation runningFormula (failedFormula ⋎ completedFormula)
+    (hybridDisjunctionRightStructuralPayloadEnvelope zeroValuation
+      failedFormula completedFormula
+      (compactBinaryNatCompletedStatusStructuralPayloadEnvelope
+        tokenTable width tokenCount start finish outputStart outputBoundary
+          outputBoundarySize outputCount))
+  runningResource + failedResource + completedResource
+
+theorem
+    compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData_le_allBranches
+    (tokenTable width tokenCount start finish valueBound : Nat)
+    (data : CompactBinaryNatStatusValidBoundedData
+      tokenTable width tokenCount start finish valueBound) :
+    compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData
+        tokenTable width tokenCount start finish valueBound data <=
+      compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+        tokenTable width tokenCount start finish data.outputStart
+          data.outputBoundary data.outputBoundarySize data.outputCount := by
+  classical
+  by_cases hrunning : CompactBinaryNatRunningStatusSlice
+      tokenTable width tokenCount start finish
+  · simp only [
+      compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData,
+      compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues,
+      hrunning, dite_true]
+    omega
+  · by_cases hfailed : CompactBinaryNatFailedStatusSlice
+        tokenTable width tokenCount start finish
+    · simp only [
+        compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData,
+        compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues,
+        hrunning, hfailed, dite_false, dite_true]
+      omega
+    · simp only [
+        compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData,
+        compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues,
+        hrunning, hfailed, dite_false]
+      omega
+
+def compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+    (tokenTable width tokenCount start finish valueBound : Nat) : Nat :=
+  (Finset.range (valueBound + 1)).sum fun outputStart =>
+    (Finset.range (valueBound + 1)).sum fun outputBoundary =>
+      (Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+        (Finset.range (valueBound + 1)).sum fun outputCount =>
+          compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+            tokenTable width tokenCount start finish outputStart outputBoundary
+              outputBoundarySize outputCount
+
+theorem
+    compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData_le_publicFinite
+    (tokenTable width tokenCount start finish valueBound : Nat)
+    (data : CompactBinaryNatStatusValidBoundedData
+      tokenTable width tokenCount start finish valueBound) :
+    compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData
+        tokenTable width tokenCount start finish valueBound data <=
+      compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+        tokenTable width tokenCount start finish valueBound := by
+  have hbranch :=
+    compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData_le_allBranches
+      tokenTable width tokenCount start finish valueBound data
+  have hcount :
+      compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+          tokenTable width tokenCount start finish data.outputStart
+            data.outputBoundary data.outputBoundarySize data.outputCount <=
+        (Finset.range (valueBound + 1)).sum fun outputCount =>
+          compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+            tokenTable width tokenCount start finish data.outputStart
+              data.outputBoundary data.outputBoundarySize outputCount := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        (compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+          tokenTable width tokenCount start finish data.outputStart
+            data.outputBoundary data.outputBoundarySize candidate))
+      (Finset.mem_range.mpr
+        (Nat.lt_succ_of_le data.outputCount_le_valueBound))
+  have hsize :
+      ((Finset.range (valueBound + 1)).sum fun outputCount =>
+          compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+            tokenTable width tokenCount start finish data.outputStart
+              data.outputBoundary data.outputBoundarySize outputCount) <=
+        (Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+          (Finset.range (valueBound + 1)).sum fun outputCount =>
+            compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+              tokenTable width tokenCount start finish data.outputStart
+                data.outputBoundary outputBoundarySize outputCount := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (valueBound + 1)).sum fun outputCount =>
+          compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+            tokenTable width tokenCount start finish data.outputStart
+              data.outputBoundary candidate outputCount))
+      (Finset.mem_range.mpr
+        (Nat.lt_succ_of_le data.outputBoundarySize_le_valueBound))
+  have hboundary :
+      ((Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+          (Finset.range (valueBound + 1)).sum fun outputCount =>
+            compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+              tokenTable width tokenCount start finish data.outputStart
+                data.outputBoundary outputBoundarySize outputCount) <=
+        (Finset.range (valueBound + 1)).sum fun outputBoundary =>
+          (Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+            (Finset.range (valueBound + 1)).sum fun outputCount =>
+              compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+                tokenTable width tokenCount start finish data.outputStart
+                  outputBoundary outputBoundarySize outputCount := by
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+          (Finset.range (valueBound + 1)).sum fun outputCount =>
+            compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+              tokenTable width tokenCount start finish data.outputStart
+                candidate outputBoundarySize outputCount))
+      (Finset.mem_range.mpr
+        (Nat.lt_succ_of_le data.outputBoundary_le_valueBound))
+  have hstart :
+      ((Finset.range (valueBound + 1)).sum fun outputBoundary =>
+          (Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+            (Finset.range (valueBound + 1)).sum fun outputCount =>
+              compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+                tokenTable width tokenCount start finish data.outputStart
+                  outputBoundary outputBoundarySize outputCount) <=
+        compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+          tokenTable width tokenCount start finish valueBound := by
+    unfold compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+    exact Finset.single_le_sum
+      (fun candidate _ => Nat.zero_le
+        ((Finset.range (valueBound + 1)).sum fun outputBoundary =>
+          (Finset.range (valueBound + 1)).sum fun outputBoundarySize =>
+            (Finset.range (valueBound + 1)).sum fun outputCount =>
+              compactBinaryNatStatusValidBoundedTerminalAllBranchesEnvelopeOfValues
+                tokenTable width tokenCount start finish candidate
+                  outputBoundary outputBoundarySize outputCount))
+      (Finset.mem_range.mpr
+        (Nat.lt_succ_of_le data.outputStart_le_valueBound))
+  exact hbranch.trans (hcount.trans (hsize.trans (hboundary.trans hstart)))
+
 theorem
     compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData_terminal_structuralPayloadBound_le_transparent
     (tokenTable width tokenCount start finish valueBound : Nat)
@@ -595,6 +755,38 @@ theorem
           tokenTable width tokenCount start finish valueBound hgraph) := by
   exact
     compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData_terminal_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount start finish valueBound
+      (compactBinaryNatStatusValidBoundedDataOfGraph
+        tokenTable width tokenCount start finish valueBound hgraph)
+
+theorem
+    compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData_terminal_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount start finish valueBound : Nat)
+    (data : CompactBinaryNatStatusValidBoundedData
+      tokenTable width tokenCount start finish valueBound) :
+    hybridFormulaStructuralPayloadBound
+        (compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData
+          tokenTable width tokenCount start finish valueBound data).terminal <=
+      compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+        tokenTable width tokenCount start finish valueBound := by
+  exact
+    (compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData_terminal_structuralPayloadBound_le_transparent
+      tokenTable width tokenCount start finish valueBound data).trans
+    (compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData_le_publicFinite
+      tokenTable width tokenCount start finish valueBound data)
+
+theorem
+    compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfGraph_terminal_structuralPayloadBound_le_publicFinite
+    (tokenTable width tokenCount start finish valueBound : Nat)
+    (hgraph : CompactBinaryNatStatusValidBounded
+      tokenTable width tokenCount start finish valueBound) :
+    hybridFormulaStructuralPayloadBound
+        (compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfGraph
+          tokenTable width tokenCount start finish valueBound hgraph).terminal <=
+      compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
+        tokenTable width tokenCount start finish valueBound := by
+  exact
+    compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfData_terminal_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount start finish valueBound
       (compactBinaryNatStatusValidBoundedDataOfGraph
         tokenTable width tokenCount start finish valueBound hgraph)

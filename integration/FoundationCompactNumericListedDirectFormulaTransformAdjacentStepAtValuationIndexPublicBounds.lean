@@ -147,11 +147,11 @@ noncomputable def
   let currentResource :=
     compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount indexTerm
-      row.currentCoordinates row.currentSize hcurrent
+      row.currentCoordinates row.currentSize
   let nextResource :=
     compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount
-      nextIndexTerm row.nextCoordinates row.nextSize hnextAtTerm
+      nextIndexTerm row.nextCoordinates row.nextSize
   let stepResource := compactFormulaTransformStepRowsGraphPayloadEnvelope
     tokenTable width tokenCount row.currentCoordinates row.nextCoordinates mode
     row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
@@ -240,7 +240,7 @@ noncomputable def
     stepProof
     (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount
-      nextIndexTerm row.nextCoordinates row.nextSize hnextAtTerm)
+      nextIndexTerm row.nextCoordinates row.nextSize)
     (compactFormulaTransformStepRowsGraphPayloadEnvelope tokenTable width
       tokenCount row.currentCoordinates row.nextCoordinates mode
       row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
@@ -251,12 +251,12 @@ noncomputable def
     currentBound.proof nextStepProof
     (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount indexTerm
-      row.currentCoordinates row.currentSize hcurrent)
+      row.currentCoordinates row.currentSize)
     (transparentHybridConjunctionPayloadEnvelope valuation nextFormula
       stepFormula
       (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
         valuation tokenTable width tokenCount stateBoundary stateCount
-        nextIndexTerm row.nextCoordinates row.nextSize hnextAtTerm)
+        nextIndexTerm row.nextCoordinates row.nextSize)
       (compactFormulaTransformStepRowsGraphPayloadEnvelope tokenTable width
         tokenCount row.currentCoordinates row.nextCoordinates mode
         row.stepWitness row.consumedCount row.mappedHead witnessStart

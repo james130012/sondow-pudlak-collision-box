@@ -246,15 +246,11 @@ theorem outputBoundaryAreaCertificate_structuralPayloadBound_le_public
   dsimp only [rightTerm] at hpublic ⊢
   exact hpublic
 
-noncomputable def compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
+noncomputable def
+    compactFormulaTransformStateCorePublicFiniteStructuralPayloadEnvelope
     (tokenTable width tokenCount : Nat)
     (coordinates : CompactFormulaTransformStateRowCoordinates)
-    (sizeWitness : CompactFormulaTransformStateCoreSizeWitness)
-    (hgraph : CompactFormulaTransformStateCoreGraph
-      tokenTable width tokenCount coordinates sizeWitness) : Nat := by
-  rcases hgraph with
-    ⟨houter, hparser, houtputLayout, houtputRows,
-      houtputSize, houtputArea⟩
+    (sizeWitness : CompactFormulaTransformStateCoreSizeWitness) : Nat :=
   let outerFormula := compactAdditiveProductSplitClosedFormula
     tokenCount coordinates.start coordinates.parserFinish coordinates.finish
   let parserFormula := compactUnifiedParserStateCoreClosedFormula
@@ -279,20 +275,15 @@ noncomputable def compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
     compactAdditiveProductSplitStructuralPayloadPolynomial
       tokenCount coordinates.start coordinates.parserFinish coordinates.finish
   let parserResource :=
-    compactUnifiedParserStateCoreGraphStructuralPayloadEnvelope
-      tokenTable width tokenCount coordinates.parser sizeWitness.parser hparser
+    compactUnifiedParserStateCorePublicFiniteStructuralPayloadEnvelope
+      tokenTable width tokenCount coordinates.parser sizeWitness.parser
   let outputLayoutResource :=
-    compactAdditiveStructuredListLayoutDataStructuralPayloadEnvelope
+    compactAdditiveStructuredListLayoutPublicFiniteStructuralPayloadEnvelope
       tokenTable width tokenCount coordinates.parserFinish
       coordinates.outputCount coordinates.finish coordinates.outputBoundary
-      (compactAdditiveStructuredListLayoutDataOfLayout
-        tokenTable width tokenCount coordinates.parserFinish
-        coordinates.outputCount coordinates.finish coordinates.outputBoundary
-        houtputLayout)
   let outputRowsResource :=
-    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope
+    compactAdditiveUnitBoundaryRowsPublicFiniteStructuralPayloadEnvelope
       tokenCount coordinates.outputCount coordinates.outputBoundary
-      houtputRows
   let outputSizeResource := compactNatSizeStructuralPayloadPolynomial
     sizeWitness.outputBoundarySize coordinates.outputBoundary
   let outputAreaResource := outputBoundaryAreaStructuralPayloadPolynomial
@@ -315,7 +306,7 @@ noncomputable def compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
     (outputLayoutFormula ⋏
       (outputRowsFormula ⋏ (outputSizeFormula ⋏ outputAreaFormula)))
     parserResource outputLayoutTailResource
-  exact transparentHybridConjunctionPayloadEnvelope
+  transparentHybridConjunctionPayloadEnvelope
     FoundationCompactNumericListedDirectAdditiveProductSplitExplicitHybridCertificate.zeroValuation
     outerFormula
     (parserFormula ⋏
@@ -333,8 +324,8 @@ theorem
     hybridFormulaStructuralPayloadBound
         (compactFormulaTransformStateCoreExplicitHybridCertificateOfGraph
           tokenTable width tokenCount coordinates sizeWitness hgraph) ≤
-      compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
-        tokenTable width tokenCount coordinates sizeWitness hgraph := by
+      compactFormulaTransformStateCorePublicFiniteStructuralPayloadEnvelope
+        tokenTable width tokenCount coordinates sizeWitness := by
   rcases hgraph with
     ⟨houter, hparser, houtputLayout, houtputRows,
       houtputSize, houtputArea⟩
@@ -368,14 +359,18 @@ theorem
     compactUnifiedParserStateCoreExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
       tokenTable width tokenCount coordinates.parser sizeWitness.parser hparser
   have houtputLayoutResource :=
-    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_transparent
+    compactAdditiveStructuredListLayoutExplicitHybridCertificateOfLayout_structuralPayloadBound_le_publicFinite
       tokenTable width tokenCount coordinates.parserFinish
       coordinates.outputCount coordinates.finish coordinates.outputBoundary
       houtputLayout
-  have houtputRowsResource :=
+  have houtputRowsTransparent :=
     compactAdditiveUnitBoundaryRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
       tokenCount coordinates.outputCount coordinates.outputBoundary
       houtputRows
+  have houtputRowsPublic :=
+    compactAdditiveUnitBoundaryRowsGraphStructuralPayloadEnvelope_le_publicFinite
+      tokenCount coordinates.outputCount coordinates.outputBoundary houtputRows
+  have houtputRowsResource := houtputRowsTransparent.trans houtputRowsPublic
   have houtputSizeResource :=
     compactNatSizeExplicitHybridCertificate_structuralPayloadBound_le_public
       sizeWitness.outputBoundarySize coordinates.outputBoundary houtputSize
@@ -414,7 +409,7 @@ theorem
       (CheckedHybridValuationBoundedFormulaCertificate.cast
         (compactFormulaTransformStateCoreClosedFormula_alignment
           tokenTable width tokenCount coordinates sizeWitness).symm parts) ≤ _
-  unfold compactFormulaTransformStateCoreGraphStructuralPayloadEnvelope
+  unfold compactFormulaTransformStateCorePublicFiniteStructuralPayloadEnvelope
   simpa only [hybridFormulaStructuralPayloadBound,
     outerCertificate, parserCertificate, outputLayoutCertificate,
     outputRowsCertificate, outputSizeCertificate, outputAreaCertificate,

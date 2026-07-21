@@ -58,28 +58,22 @@ def compactBinaryNatStatusValidBoundedRawTerminalPublicContextCodeBound
       statusZeroValuation)
 
 noncomputable def
-    compactBinaryNatStatusValidBoundedDirectTerminalPublicResourceOfGraph
-    (tokenTable width tokenCount start finish valueBound : Nat)
-    (hgraph : CompactBinaryNatStatusValidBounded
-      tokenTable width tokenCount start finish valueBound) : Nat :=
-  compactBinaryNatStatusValidBoundedTerminalPartsStructuralPayloadEnvelopeOfData
+    compactBinaryNatStatusValidBoundedDirectTerminalPublicResource
+    (tokenTable width tokenCount start finish valueBound : Nat) : Nat :=
+  compactBinaryNatStatusValidBoundedTerminalPublicFiniteEnvelope
     tokenTable width tokenCount start finish valueBound
-    (compactBinaryNatStatusValidBoundedDataOfGraph
-      tokenTable width tokenCount start finish valueBound hgraph)
 
 noncomputable def
-    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
-    (tokenTable width tokenCount start finish valueBound : Nat)
-    (hgraph : CompactBinaryNatStatusValidBounded
-      tokenTable width tokenCount start finish valueBound) : Nat :=
+    compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
+    (tokenTable width tokenCount start finish valueBound : Nat) : Nat :=
   explicitBoundedWitnessDirectPublicPayloadEnvelope 4
     (compactBinaryNatStatusValidBoundedRawTerminalPublicContextCodeBound
       tokenTable width tokenCount start finish)
     valueBound
     (compactBinaryNatStatusValidBoundedRawTerminalPublicCodeBound
       tokenTable width tokenCount start finish)
-    (compactBinaryNatStatusValidBoundedDirectTerminalPublicResourceOfGraph
-      tokenTable width tokenCount start finish valueBound hgraph)
+    (compactBinaryNatStatusValidBoundedDirectTerminalPublicResource
+      tokenTable width tokenCount start finish valueBound)
 
 noncomputable def compactBinaryNatStatusValidBoundedPublicDirectBoundOfGraph
     (tokenTable width tokenCount start finish valueBound : Nat)
@@ -88,8 +82,8 @@ noncomputable def compactBinaryNatStatusValidBoundedPublicDirectBoundOfGraph
     ExplicitDirectFormulaBound statusZeroValuation
       (compactBinaryNatStatusValidBoundedClosedFormula
         tokenTable width tokenCount start finish valueBound)
-      (compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
-        tokenTable width tokenCount start finish valueBound hgraph) := by
+      (compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
+        tokenTable width tokenCount start finish valueBound) := by
   let data := compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfGraph
     tokenTable width tokenCount start finish valueBound hgraph
   let rawBody := compactBinaryNatStatusValidBoundedRawTerminal
@@ -100,12 +94,12 @@ noncomputable def compactBinaryNatStatusValidBoundedPublicDirectBoundOfGraph
   let bodyCodeBound := compactBinaryNatStatusValidBoundedRawTerminalPublicCodeBound
     tokenTable width tokenCount start finish
   let terminalResource :=
-    compactBinaryNatStatusValidBoundedDirectTerminalPublicResourceOfGraph
-      tokenTable width tokenCount start finish valueBound hgraph
+    compactBinaryNatStatusValidBoundedDirectTerminalPublicResource
+      tokenTable width tokenCount start finish valueBound
   have hterminalStructural :
       hybridFormulaStructuralPayloadBound data.terminal <= terminalResource := by
     exact
-      compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfGraph_terminal_structuralPayloadBound_le_transparent
+      compactBinaryNatStatusValidBoundedExplicitHybridTerminalOfGraph_terminal_structuralPayloadBound_le_publicFinite
         tokenTable width tokenCount start finish valueBound hgraph
   have hterminal : data.terminal.compile.payloadLength <= terminalResource :=
     (compile_payloadLength_le_structuralPayloadBound data.terminal).trans
@@ -178,8 +172,8 @@ theorem
     (compileCompactBinaryNatStatusValidBoundedPublicDirectAtValuationOfGraph
       valuation tokenTable width tokenCount start finish valueBound
         hgraph).payloadLength <=
-      compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelopeOfGraph
-        tokenTable width tokenCount start finish valueBound hgraph := by
+      compactBinaryNatStatusValidBoundedPublicDirectPayloadEnvelope
+        tokenTable width tokenCount start finish valueBound := by
   let direct := compactBinaryNatStatusValidBoundedPublicDirectBoundOfGraph
     tokenTable width tokenCount start finish valueBound hgraph
   have hcontext :
