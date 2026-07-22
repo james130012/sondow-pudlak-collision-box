@@ -1,6 +1,6 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexExplicitHybridCertificate
 import integration.FoundationCompactNumericListedDirectFormulaTransformStateAtRowsAtValuationIndexPublicBounds
-import integration.FoundationCompactNumericListedDirectFormulaTransformStepRowsPublicBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformStepRowsPublicFiniteBounds
 import integration.FoundationCompactPADirectConnectiveTransparentBounds
 import integration.FoundationCompactPAClosedHybridContextTransport
 import integration.FoundationCompactPAEmbeddedPredicateFreeVariables
@@ -116,22 +116,13 @@ theorem compactFormulaTransformStepRowsClosedFormula_freeVariables_eq_empty
     exact shortBinaryNumeralTerm_freeVariables_eq_empty _
 
 noncomputable def
-    compactFormulaTransformAdjacentStepRowAtValuationIndexDirectPayloadEnvelope
+    compactFormulaTransformAdjacentStepRowAtValuationIndexPublicFiniteDirectPayloadEnvelope
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (indexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount : Nat)
-    (row : CompactFormulaTransformAdjacentStepRow)
-    (hgraph : CompactFormulaTransformAdjacentStepRowGraph tokenTable width
-      tokenCount stateBoundary stateCount (termValue valuation indexTerm) mode
-      witnessStart witnessFinish witnessCount row) : Nat := by
-  rcases hgraph with ⟨hcurrent, hnext, hstep⟩
+    (row : CompactFormulaTransformAdjacentStepRow) : Nat := by
   let nextIndexTerm : ValuationTerm := ‘!!indexTerm + 1’
-  have hnextAtTerm : CompactFormulaTransformStateAtRows tokenTable width
-      tokenCount stateBoundary stateCount (termValue valuation nextIndexTerm)
-      row.nextCoordinates row.nextSize := by
-    simpa [nextIndexTerm, termValue_arithmeticAdd,
-      termValue_arithmeticOne] using hnext
   let currentFormula :=
     compactFormulaTransformStateAtRowsAtValuationIndexFormula tokenTable width
       tokenCount stateBoundary stateCount indexTerm row.currentCoordinates
@@ -152,14 +143,28 @@ noncomputable def
     compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount
       nextIndexTerm row.nextCoordinates row.nextSize
-  let stepResource := compactFormulaTransformStepRowsGraphPayloadEnvelope
+  let stepResource := compactFormulaTransformStepRowsPublicFinitePayloadEnvelope
     tokenTable width tokenCount row.currentCoordinates row.nextCoordinates mode
     row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
-    witnessCount hstep
+    witnessCount
   let nextStepResource := transparentHybridConjunctionPayloadEnvelope valuation
     nextFormula stepFormula nextResource stepResource
   exact transparentHybridConjunctionPayloadEnvelope valuation currentFormula
     (nextFormula ⋏ stepFormula) currentResource nextStepResource
+
+noncomputable def
+    compactFormulaTransformAdjacentStepRowAtValuationIndexDirectPayloadEnvelope
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (indexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount : Nat)
+    (row : CompactFormulaTransformAdjacentStepRow)
+    (_hgraph : CompactFormulaTransformAdjacentStepRowGraph tokenTable width
+      tokenCount stateBoundary stateCount (termValue valuation indexTerm) mode
+      witnessStart witnessFinish witnessCount row) : Nat :=
+  compactFormulaTransformAdjacentStepRowAtValuationIndexPublicFiniteDirectPayloadEnvelope
+    valuation tokenTable width tokenCount stateBoundary stateCount indexTerm mode
+    witnessStart witnessFinish witnessCount row
 
 noncomputable def
     compactFormulaTransformAdjacentStepRowAtValuationIndexExplicitDirectOfGraph
@@ -225,13 +230,13 @@ noncomputable def
   let stepProof := compileClosedHybridAtValuation (target := valuation)
     stepCertificate hstepClosed
   have hstepResource : stepProof.payloadLength <=
-      compactFormulaTransformStepRowsGraphPayloadEnvelope tokenTable width
+      compactFormulaTransformStepRowsPublicFinitePayloadEnvelope tokenTable width
         tokenCount row.currentCoordinates row.nextCoordinates mode
         row.stepWitness row.consumedCount row.mappedHead witnessStart
-        witnessFinish witnessCount hstep :=
+        witnessFinish witnessCount :=
     (compileClosedHybridAtValuation_payloadLength_le_structural
       (target := valuation) stepCertificate hstepClosed).trans
-        (compactFormulaTransformStepRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        (compactFormulaTransformStepRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount row.currentCoordinates
           row.nextCoordinates mode row.stepWitness row.consumedCount
           row.mappedHead witnessStart witnessFinish witnessCount hstep)
@@ -241,10 +246,10 @@ noncomputable def
     (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount
       nextIndexTerm row.nextCoordinates row.nextSize)
-    (compactFormulaTransformStepRowsGraphPayloadEnvelope tokenTable width
+    (compactFormulaTransformStepRowsPublicFinitePayloadEnvelope tokenTable width
       tokenCount row.currentCoordinates row.nextCoordinates mode
       row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
-      witnessCount hstep)
+      witnessCount)
     nextBound.payloadLength_le hstepResource
   let explicitProof := compileDirectConjunction currentBound.proof nextStepProof
   have hexplicit := compileDirectConjunction_payloadLength_le
@@ -257,10 +262,10 @@ noncomputable def
       (compactFormulaTransformStateAtRowsAtValuationIndexDirectPayloadEnvelope
         valuation tokenTable width tokenCount stateBoundary stateCount
         nextIndexTerm row.nextCoordinates row.nextSize)
-      (compactFormulaTransformStepRowsGraphPayloadEnvelope tokenTable width
+      (compactFormulaTransformStepRowsPublicFinitePayloadEnvelope tokenTable width
         tokenCount row.currentCoordinates row.nextCoordinates mode
         row.stepWitness row.consumedCount row.mappedHead witnessStart
-        witnessFinish witnessCount hstep))
+        witnessFinish witnessCount))
     currentBound.payloadLength_le hnextStep
   have hformula :
       compactFormulaTransformAdjacentStepRowAtValuationIndexExplicitFormula
@@ -278,6 +283,7 @@ noncomputable def
     exact castValuationContextProof_payloadLength_eq hformula explicitProof]
   unfold
     compactFormulaTransformAdjacentStepRowAtValuationIndexDirectPayloadEnvelope
+    compactFormulaTransformAdjacentStepRowAtValuationIndexPublicFiniteDirectPayloadEnvelope
   dsimp only [nextIndexTerm, currentFormula, nextFormula, stepFormula,
     currentBound, nextBound, stepCertificate, stepProof, nextStepProof,
     explicitProof]
@@ -360,6 +366,29 @@ theorem
     compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope,
     dif_pos hindexVariables]
 
+theorem
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope_eq_publicFinite
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (indexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount : Nat)
+    (row : CompactFormulaTransformAdjacentStepRow)
+    (hgraph : CompactFormulaTransformAdjacentStepRowGraph tokenTable width
+      tokenCount stateBoundary stateCount (termValue valuation indexTerm) mode
+      witnessStart witnessFinish witnessCount row)
+    (hindexVariables : indexTerm.freeVariables ⊆ {0}) :
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope
+        valuation tokenTable width tokenCount stateBoundary stateCount indexTerm
+        mode witnessStart witnessFinish witnessCount row hgraph =
+      compactFormulaTransformAdjacentStepRowAtValuationIndexPublicFiniteDirectPayloadEnvelope
+        valuation tokenTable width tokenCount stateBoundary stateCount indexTerm
+        mode witnessStart witnessFinish witnessCount row := by
+  rw [
+    compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope_eq_public
+      valuation tokenTable width tokenCount stateBoundary stateCount indexTerm
+      mode witnessStart witnessFinish witnessCount row hgraph hindexVariables]
+  rfl
+
 #print axioms
   compactFormulaTransformStepRowsClosedFormula_freeVariables_eq_empty
 #print axioms
@@ -368,5 +397,7 @@ theorem
   compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedExplicitDirectOfGraph
 #print axioms
   compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope_eq_public
+#print axioms
+  compactFormulaTransformAdjacentStepRowAtValuationIndexSelectedDirectPayloadEnvelope_eq_publicFinite
 
 end FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexPublicBounds

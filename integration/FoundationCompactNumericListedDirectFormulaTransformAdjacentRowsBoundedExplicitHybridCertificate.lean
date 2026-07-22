@@ -379,7 +379,7 @@ noncomputable def
     (hrow : CompactFormulaTransformAdjacentCurrentBounded
       tokenTable width tokenCount stateBoundary stateCount rowIndex mode
       witnessStart witnessFinish witnessCount valueBound) : Nat :=
-  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph
+  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicFiniteDirectPayloadEnvelopeOfGraph
     (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
     stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
     witnessFinish witnessCount valueBound (by
@@ -402,10 +402,10 @@ theorem
     compactFormulaTransformAdjacentRowsBoundedDirectBranchPayloadResource
   rw [castValuationContextProof_payloadLength_eq]
   exact
-    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le
+    compileCompactFormulaTransformAdjacentCurrentBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le_publicFinite
       (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
       stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
-      witnessFinish witnessCount valueBound _
+      witnessFinish witnessCount valueBound _ (by simp)
 
 noncomputable def
     compactFormulaTransformAdjacentRowsBoundedDirectLeafPayloadResourceSum

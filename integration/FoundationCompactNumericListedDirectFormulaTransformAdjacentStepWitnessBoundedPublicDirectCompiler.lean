@@ -1,5 +1,6 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitHybridCertificate
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentDirectTerminalPublicAssemblyBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentDirectTerminalPublicFiniteBounds
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPublicContextBounds
 import integration.FoundationCompactPAExplicitBoundedWitnessDirectPublicCompilerArity09
 
@@ -38,6 +39,7 @@ open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentDirectTerminalPublicAssemblyBounds
+open FoundationCompactNumericListedDirectFormulaTransformAdjacentDirectTerminalPublicFiniteBounds
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentNextBoundedAtValuationIndexExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentCurrentBoundedAtValuationIndexExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPublicCodeBounds
@@ -69,6 +71,72 @@ noncomputable def
       valuation tokenTable width tokenCount stateBoundary stateCount
       rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
       currentCoordinates currentSize nextCoordinates nextSize hbounded)
+
+noncomputable def
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicFiniteDirectPayloadEnvelopeOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize) : Nat :=
+  explicitBoundedWitnessDirectPublicPayloadEnvelope 9
+    (compactFormulaTransformAdjacentPublicContextCodeBound
+      valuation rowIndexTerm)
+    valueBound
+    (compactFormulaTransformAdjacentStepRawTerminalPublicCodeEnvelope
+      tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+      witnessStart witnessFinish witnessCount valueBound)
+    (compactFormulaTransformAdjacentStepDirectTerminalPublicFiniteAssemblyEnvelope
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hbounded)
+
+theorem
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph_eq_publicFinite
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize)
+    (hindexVariables : rowIndexTerm.freeVariables ⊆ {0}) :
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph
+        valuation tokenTable width tokenCount stateBoundary stateCount
+        rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+        currentCoordinates currentSize nextCoordinates nextSize hbounded =
+      compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicFiniteDirectPayloadEnvelopeOfGraph
+        valuation tokenTable width tokenCount stateBoundary stateCount
+        rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
+        currentCoordinates currentSize nextCoordinates nextSize hbounded := by
+  unfold
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicFiniteDirectPayloadEnvelopeOfGraph
+    compactFormulaTransformAdjacentStepDirectTerminalPublicAssemblyEnvelope
+    compactFormulaTransformAdjacentStepDirectTerminalPublicFiniteAssemblyEnvelope
+  rw [
+    compactFormulaTransformAdjacentStepDirectTerminalPublicAssemblyEnvelopeOfComponents_eq_publicFinite
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize
+      (explicitAdjacentStepDirectTerminalComponentsOfGraph valuation tokenTable
+        width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
+        witnessFinish witnessCount valueBound currentCoordinates currentSize
+        nextCoordinates nextSize hbounded) hindexVariables]
 
 noncomputable def
     compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph
@@ -259,7 +327,50 @@ theorem
     hcoordinates.1
   exact hcoordinates.2
 
+theorem
+    compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le_publicFinite
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound : Nat)
+    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (hcurrent : forall index,
+      adjacentCurrentBoundedWitnessValues
+        ⟨currentCoordinates, currentSize⟩ index <= valueBound)
+    (hnext : forall index,
+      adjacentNextBoundedWitnessValues
+        ⟨nextCoordinates, nextSize⟩ index <= valueBound)
+    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded
+      tokenTable width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound currentCoordinates currentSize nextCoordinates
+      nextSize)
+    (hindexVariables : rowIndexTerm.freeVariables ⊆ {0}) :
+    (compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hcurrent hnext hbounded).payloadLength <=
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicFiniteDirectPayloadEnvelopeOfGraph
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hbounded := by
+  rw [←
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectPayloadEnvelopeOfGraph_eq_publicFinite
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hbounded hindexVariables]
+  exact
+    compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
+      currentSize nextCoordinates nextSize hcurrent hnext hbounded
+
 #print axioms
   compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le
+#print axioms
+  compileCompactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexPublicDirectOfGraph_payloadLength_le_publicFinite
 
 end FoundationCompactNumericListedDirectFormulaTransformAdjacentStepWitnessBoundedPublicDirectCompiler

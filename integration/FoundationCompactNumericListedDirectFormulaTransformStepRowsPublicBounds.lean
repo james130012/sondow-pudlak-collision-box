@@ -6,7 +6,7 @@ import integration.FoundationCompactNumericListedDirectParserSyntaxTermPublicBou
 import integration.FoundationCompactNumericListedDirectParserSyntaxFormulaPublicBounds
 import integration.FoundationCompactNumericListedDirectParserSyntaxInvalidPublicBounds
 import integration.FoundationCompactNumericListedDirectNatListSameRowsPublicBounds
-import integration.FoundationCompactNumericListedDirectFormulaTransformTermOutputRowsGraphPublicBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformTermOutputRowsGraphPublicFiniteBounds
 import integration.FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsPublicBounds
 import integration.FoundationCompactPAHybridConnectiveTransparentBounds
 
@@ -63,25 +63,25 @@ open FoundationCompactNumericListedDirectFormulaTransformTermOutputRowsPublicBou
 open FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsPublicBounds
 
-private abbrev stepRowsZeroValuation : Nat -> Nat :=
+abbrev stepRowsZeroValuation : Nat -> Nat :=
   compactFormulaTransformStepRowsZeroValuation
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate stepRowsZeroValuation formula
 
-private def fourWayPath0PayloadEnvelope
+def fourWayPath0PayloadEnvelope
     (a b c d : ValuationFormula) (resource : Nat) : Nat :=
   transparentHybridDisjunctionLeftPayloadEnvelope stepRowsZeroValuation a
     (b ⋎ (c ⋎ d)) resource
 
-private def fourWayPath1PayloadEnvelope
+def fourWayPath1PayloadEnvelope
     (a b c d : ValuationFormula) (resource : Nat) : Nat :=
   let inner := transparentHybridDisjunctionLeftPayloadEnvelope
     stepRowsZeroValuation b (c ⋎ d) resource
   transparentHybridDisjunctionRightPayloadEnvelope stepRowsZeroValuation a
     (b ⋎ (c ⋎ d)) inner
 
-private def fourWayPath2PayloadEnvelope
+def fourWayPath2PayloadEnvelope
     (a b c d : ValuationFormula) (resource : Nat) : Nat :=
   let inner2 := transparentHybridDisjunctionLeftPayloadEnvelope
     stepRowsZeroValuation c d resource
@@ -90,7 +90,7 @@ private def fourWayPath2PayloadEnvelope
   transparentHybridDisjunctionRightPayloadEnvelope stepRowsZeroValuation a
     (b ⋎ (c ⋎ d)) inner1
 
-private def fourWayPath3PayloadEnvelope
+def fourWayPath3PayloadEnvelope
     (a b c d : ValuationFormula) (resource : Nat) : Nat :=
   let inner2 := transparentHybridDisjunctionRightPayloadEnvelope
     stepRowsZeroValuation c d resource
@@ -180,19 +180,19 @@ private theorem fourWayPath3PayloadBound_le
     (left := a) inner1 _ hinner1
   simpa only [fourWayPath3PayloadEnvelope, inner2, inner1] using houter
 
-private def threeWayPath0PayloadEnvelope
+def threeWayPath0PayloadEnvelope
     (a b c : ValuationFormula) (resource : Nat) : Nat :=
   transparentHybridDisjunctionLeftPayloadEnvelope stepRowsZeroValuation a
     (b ⋎ c) resource
 
-private def threeWayPath1PayloadEnvelope
+def threeWayPath1PayloadEnvelope
     (a b c : ValuationFormula) (resource : Nat) : Nat :=
   let inner := transparentHybridDisjunctionLeftPayloadEnvelope
     stepRowsZeroValuation b c resource
   transparentHybridDisjunctionRightPayloadEnvelope stepRowsZeroValuation a
     (b ⋎ c) inner
 
-private def threeWayPath2PayloadEnvelope
+def threeWayPath2PayloadEnvelope
     (a b c : ValuationFormula) (resource : Nat) : Nat :=
   let inner := transparentHybridDisjunctionRightPayloadEnvelope
     stepRowsZeroValuation b c resource
@@ -342,13 +342,13 @@ noncomputable def compactFormulaTransformStepRowsBranchPayloadEnvelopeFromData
   | term hparser hrows =>
       let termResource := transparentHybridConjunctionPayloadEnvelope
         stepRowsZeroValuation termParserFormula termOutputFormula
-        (compactUnifiedParserSyntaxTermGraphPayloadEnvelope tokenTable width
+        (compactUnifiedParserSyntaxTermPublicFinitePayloadEnvelope tokenTable width
           tokenCount current.parser next.parser stepWitness.slot0
-          stepWitness.term hparser)
-        (compactFormulaTransformTermOutputRowsGraphPayloadEnvelope tokenTable
-          width tokenCount current next mode stepWitness.slot0
-          stepWitness.term.tag stepWitness.term.argument consumedCount
-          witnessStart witnessFinish witnessCount hrows)
+          stepWitness.term)
+        (compactFormulaTransformTermOutputRowsPublicFinitePayloadEnvelope tokenTable
+          width tokenCount current next mode stepWitness.slot0 stepWitness.term.tag
+          stepWitness.term.argument consumedCount witnessStart witnessFinish
+          witnessCount)
       exact threeWayPath1PayloadEnvelope quietFormula termFormula formulaFormula
         termResource
   | formula hparser hrows =>
@@ -650,11 +650,11 @@ theorem
           stepWitness.term.tag stepWitness.term.argument consumedCount
           witnessStart witnessFinish witnessCount hrows
       have hparserResource :=
-        compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_public
+        compactUnifiedParserSyntaxTermExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current.parser next.parser
           stepWitness.slot0 stepWitness.term hparser
       have hrowsResource :=
-        compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_transparent
+        compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
           tokenTable width tokenCount current next mode stepWitness.slot0
           stepWitness.term.tag stepWitness.term.argument consumedCount
           witnessStart witnessFinish witnessCount hrows
