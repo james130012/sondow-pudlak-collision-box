@@ -4,6 +4,10 @@ import integration.FoundationCompactNumericListedDirectSyntaxTaskLayoutExplicitH
 import integration.FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 import integration.FoundationCompactPAExplicitHybridUniversalBranches
 import integration.FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds
+import integration.FoundationCompactPABinaryNumeralAdditionBounds
+import integration.FoundationCompactSyntaxUniformRewritingCodeBounds
+import integration.FoundationCompactPAExplicitBoundedWitnessDirectCompilerUniformBounds
+import integration.FoundationCompactPAEmbeddedPredicateFreeVariables
 
 /-!
 # Explicit hybrid certificate for syntax-task list cons rows
@@ -32,6 +36,7 @@ open FoundationCompactNumericListedDirectSyntaxTaskLayoutExplicitHybridCertifica
 open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
 open FoundationCompactBinaryNumeralTerm
 open FoundationCompactPABinaryNumeralAddition
+open FoundationCompactPABinaryNumeralAdditionBounds
 open FoundationCompactPAValuationTermCompiler
 open FoundationCompactPAValuationBoundedFormulaCompiler
 open FoundationCompactPAValuationContextRewriting
@@ -43,6 +48,12 @@ open FoundationCompactPAExplicitHybridUniversalBranches
 open FoundationCompactPAContextualTermBoundedUniversalCompiler
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
+open FoundationSuccinctFiniteConsistencyTarget
+open FoundationCompactSyntaxTransformationBounds
+open FoundationCompactSyntaxTransformationCodeBounds
+open FoundationCompactSyntaxUniformRewritingCodeBounds
+open FoundationCompactPAExplicitBoundedWitnessDirectCompilerUniformBounds
+open FoundationCompactPAEmbeddedPredicateFreeVariables
 
 private abbrev HybridCertificate := CheckedHybridValuationBoundedFormulaCertificate
 
@@ -155,6 +166,20 @@ private theorem rewriting_ballLT
 private def closedShift : (k : Nat) -> ValuationTerm -> ArithmeticSemiterm Nat k
   | 0, term => term
   | k + 1, term => Rew.bShift (closedShift k term)
+
+abbrev syntaxTaskListConsRowsClosedShift :
+    (k : Nat) -> ValuationTerm -> ArithmeticSemiterm Nat k :=
+  closedShift
+
+theorem syntaxTaskListConsRowsClosedShift_zero (term : ValuationTerm) :
+    syntaxTaskListConsRowsClosedShift 0 term = term := by
+  rfl
+
+theorem syntaxTaskListConsRowsClosedShift_succ
+    (k : Nat) (term : ValuationTerm) :
+    syntaxTaskListConsRowsClosedShift (k + 1) term =
+      Rew.bShift (syntaxTaskListConsRowsClosedShift k term) := by
+  rfl
 
 def unaryNumeralTerm (value : Nat) : ValuationTerm :=
   Semiterm.Operator.operator (Semiterm.Operator.numeral ℒₒᵣ value) ![]
@@ -366,6 +391,293 @@ def compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal
           (#0 : ArithmeticSemiterm Nat 2), closedShift 2 headKindTerm,
           closedShift 2 headBinderArityTerm,
           closedShift 2 headRepeatCountTerm]))
+
+def syntaxTaskListConsHeadTerminalImageCodeEnvelope
+    (termCodeBound : Nat) : Nat :=
+  5 * termCodeBound +
+    (binaryTermCode (#0 : ArithmeticSemiterm Nat 2)).length +
+    (binaryTermCode (#1 : ArithmeticSemiterm Nat 2)).length + 1
+
+def syntaxTaskListConsHeadTerminalBodyCodeEnvelope
+    (termCodeBound : Nat) : Nat :=
+  let imageBound :=
+    syntaxTaskListConsHeadTerminalImageCodeEnvelope termCodeBound
+  let entryCode := uniformRewritingFormulaCodeEnvelope imageBound
+    (binaryFormulaCode
+      (Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val)).length
+  let layoutCode := uniformRewritingFormulaCodeEnvelope imageBound
+    (binaryFormulaCode
+      (Rewriting.emb (ξ := Nat) compactSyntaxTaskDirectLayoutDef.val)).length
+  2 * entryCode + layoutCode + 2 * (binaryNatCode 4).length + 1
+
+private theorem closedShift_two_code_length_le_five_consHead
+    (term : ValuationTerm) (termCodeBound : Nat)
+    (hterm : (binaryTermCode term).length <= termCodeBound) :
+    (binaryTermCode (closedShift 2 term)).length <= 5 * termCodeBound := by
+  have hsymbols : termSymbolCount term <= termCodeBound :=
+    (termSymbolCount_le_binaryTermCode_length term).trans hterm
+  have hfirstRaw := binaryTermCode_bShift_length_le_add_symbols term
+  have hfirst : (binaryTermCode (Rew.bShift term)).length <=
+      3 * termCodeBound := by
+    omega
+  have hshiftedSymbols :
+      termSymbolCount (Rew.bShift term) <= termCodeBound := by
+    rw [termSymbolCount_bShift]
+    exact hsymbols
+  have hsecondRaw :=
+    binaryTermCode_bShift_length_le_add_symbols (Rew.bShift term)
+  change
+    (binaryTermCode (Rew.bShift (Rew.bShift term))).length <=
+      5 * termCodeBound
+  omega
+
+theorem
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal_code_length_le_uniform
+    (tokenTable width tokenCount targetBoundary : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm)
+    (termCodeBound : Nat)
+    (htable : (binaryTermCode (shortBinaryNumeralTerm tokenTable)).length <=
+      termCodeBound)
+    (hwidth : (binaryTermCode (shortBinaryNumeralTerm width)).length <=
+      termCodeBound)
+    (htokenCount :
+      (binaryTermCode (shortBinaryNumeralTerm tokenCount)).length <=
+        termCodeBound)
+    (htargetBoundary :
+      (binaryTermCode (shortBinaryNumeralTerm targetBoundary)).length <=
+        termCodeBound)
+    (hzero : (binaryTermCode (unaryNumeralTerm 0)).length <= termCodeBound)
+    (hone : (binaryTermCode (unaryNumeralTerm 1)).length <= termCodeBound)
+    (hkind : (binaryTermCode headKindTerm).length <= termCodeBound)
+    (hbinder :
+      (binaryTermCode headBinderArityTerm).length <= termCodeBound)
+    (hrepeat :
+      (binaryTermCode headRepeatCountTerm).length <= termCodeBound) :
+    (binaryFormulaCode
+      (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal
+        tokenTable width tokenCount targetBoundary headKindTerm
+        headBinderArityTerm headRepeatCountTerm)).length <=
+      syntaxTaskListConsHeadTerminalBodyCodeEnvelope termCodeBound := by
+  let imageBound :=
+    syntaxTaskListConsHeadTerminalImageCodeEnvelope termCodeBound
+  have himageShift (term : ValuationTerm)
+      (hterm : (binaryTermCode term).length <= termCodeBound) :
+      (binaryTermCode (closedShift 2 term)).length <= imageBound := by
+    exact (closedShift_two_code_length_le_five_consHead term termCodeBound
+      hterm).trans (by
+        unfold imageBound syntaxTaskListConsHeadTerminalImageCodeEnvelope
+        omega)
+  have himageBvar0 :
+      (binaryTermCode (#0 : ArithmeticSemiterm Nat 2)).length <=
+        imageBound := by
+    unfold imageBound syntaxTaskListConsHeadTerminalImageCodeEnvelope
+    omega
+  have himageBvar1 :
+      (binaryTermCode (#1 : ArithmeticSemiterm Nat 2)).length <=
+        imageBound := by
+    unfold imageBound syntaxTaskListConsHeadTerminalImageCodeEnvelope
+    omega
+  let formula1 : ArithmeticSemiformula Nat 2 :=
+    (Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val) ⇜
+      ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        closedShift 2 (unaryNumeralTerm 0),
+        (#1 : ArithmeticSemiterm Nat 2)]
+  let formula2 : ArithmeticSemiformula Nat 2 :=
+    (Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val) ⇜
+      ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        closedShift 2 (unaryNumeralTerm 1),
+        (#0 : ArithmeticSemiterm Nat 2)]
+  let formula3 : ArithmeticSemiformula Nat 2 :=
+    (Rewriting.emb (ξ := Nat) compactSyntaxTaskDirectLayoutDef.val) ⇜
+      ![closedShift 2 (shortBinaryNumeralTerm tokenTable),
+        closedShift 2 (shortBinaryNumeralTerm width),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        (#1 : ArithmeticSemiterm Nat 2), (#0 : ArithmeticSemiterm Nat 2),
+        closedShift 2 headKindTerm, closedShift 2 headBinderArityTerm,
+        closedShift 2 headRepeatCountTerm]
+  have hformula1 :
+      (binaryFormulaCode formula1).length <=
+        uniformRewritingFormulaCodeEnvelope imageBound
+          (binaryFormulaCode
+            (Rewriting.emb (ξ := Nat)
+              compactFixedWidthEntryDef.val)).length := by
+    let rewriting : Rew ℒₒᵣ Nat 4 Nat 2 := Rew.subst
+      ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        closedShift 2 (unaryNumeralTerm 0),
+        (#1 : ArithmeticSemiterm Nat 2)]
+    have hrewriting : RewritingImageCodeBound rewriting imageBound := by
+      constructor
+      · intro coordinate
+        dsimp only [rewriting]
+        rw [Rew.subst_bvar]
+        fin_cases coordinate
+        · exact himageShift _ htargetBoundary
+        · exact himageShift _ htokenCount
+        · exact himageShift _ hzero
+        · exact himageBvar1
+      · intro coordinate
+        dsimp only [rewriting]
+        simp
+    have hraw := binaryFormulaCode_rewriting_length_le_uniform rewriting
+      imageBound hrewriting
+      (Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val)
+    simpa only [formula1, rewriting] using hraw
+  have hformula2 :
+      (binaryFormulaCode formula2).length <=
+        uniformRewritingFormulaCodeEnvelope imageBound
+          (binaryFormulaCode
+            (Rewriting.emb (ξ := Nat)
+              compactFixedWidthEntryDef.val)).length := by
+    let rewriting : Rew ℒₒᵣ Nat 4 Nat 2 := Rew.subst
+      ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        closedShift 2 (unaryNumeralTerm 1),
+        (#0 : ArithmeticSemiterm Nat 2)]
+    have hrewriting : RewritingImageCodeBound rewriting imageBound := by
+      constructor
+      · intro coordinate
+        dsimp only [rewriting]
+        rw [Rew.subst_bvar]
+        fin_cases coordinate
+        · exact himageShift _ htargetBoundary
+        · exact himageShift _ htokenCount
+        · exact himageShift _ hone
+        · exact himageBvar0
+      · intro coordinate
+        dsimp only [rewriting]
+        simp
+    have hraw := binaryFormulaCode_rewriting_length_le_uniform rewriting
+      imageBound hrewriting
+      (Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val)
+    simpa only [formula2, rewriting] using hraw
+  have hformula3 :
+      (binaryFormulaCode formula3).length <=
+        uniformRewritingFormulaCodeEnvelope imageBound
+          (binaryFormulaCode
+            (Rewriting.emb (ξ := Nat)
+              compactSyntaxTaskDirectLayoutDef.val)).length := by
+    let rewriting : Rew ℒₒᵣ Nat 8 Nat 2 := Rew.subst
+      ![closedShift 2 (shortBinaryNumeralTerm tokenTable),
+        closedShift 2 (shortBinaryNumeralTerm width),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        (#1 : ArithmeticSemiterm Nat 2), (#0 : ArithmeticSemiterm Nat 2),
+        closedShift 2 headKindTerm, closedShift 2 headBinderArityTerm,
+        closedShift 2 headRepeatCountTerm]
+    have hrewriting : RewritingImageCodeBound rewriting imageBound := by
+      constructor
+      · intro coordinate
+        dsimp only [rewriting]
+        rw [Rew.subst_bvar]
+        fin_cases coordinate
+        · exact himageShift _ htable
+        · exact himageShift _ hwidth
+        · exact himageShift _ htokenCount
+        · exact himageBvar1
+        · exact himageBvar0
+        · exact himageShift _ hkind
+        · exact himageShift _ hbinder
+        · exact himageShift _ hrepeat
+      · intro coordinate
+        dsimp only [rewriting]
+        simp
+    have hraw := binaryFormulaCode_rewriting_length_le_uniform rewriting
+      imageBound hrewriting
+      (Rewriting.emb (ξ := Nat) compactSyntaxTaskDirectLayoutDef.val)
+    simpa only [formula3, rewriting] using hraw
+  have hinner :
+      (binaryFormulaCode (formula2 ⋏ formula3)).length <=
+        (binaryFormulaCode formula2).length +
+          (binaryFormulaCode formula3).length +
+          (binaryNatCode 4).length := by
+    simp [binaryFormulaCode]
+    omega
+  have houter :
+      (binaryFormulaCode (formula1 ⋏ (formula2 ⋏ formula3))).length <=
+        (binaryFormulaCode formula1).length +
+          (binaryFormulaCode (formula2 ⋏ formula3)).length +
+          (binaryNatCode 4).length := by
+    simp [binaryFormulaCode]
+    omega
+  change
+    (binaryFormulaCode (formula1 ⋏ (formula2 ⋏ formula3))).length <= _
+  dsimp only [imageBound] at hformula1 hformula2 hformula3
+  simp only [syntaxTaskListConsHeadTerminalBodyCodeEnvelope]
+  omega
+
+theorem
+    compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal_freeVariables_eq_empty
+    (tokenTable width tokenCount targetBoundary : Nat)
+    (headKindTerm headBinderArityTerm headRepeatCountTerm : ValuationTerm)
+    (hkind : headKindTerm.freeVariables = ∅)
+    (hbinder : headBinderArityTerm.freeVariables = ∅)
+    (hrepeat : headRepeatCountTerm.freeVariables = ∅) :
+    (compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal
+      tokenTable width tokenCount targetBoundary headKindTerm
+      headBinderArityTerm headRepeatCountTerm).freeVariables = ∅ := by
+  have hshift (term : ValuationTerm)
+      (hterm : term.freeVariables = ∅) :
+      (closedShift 2 term).freeVariables = ∅ := by
+    unfold closedShift
+    exact bShift_freeVariables_eq_empty_of_empty _
+      (bShift_freeVariables_eq_empty_of_empty _ hterm)
+  unfold compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal
+  rw [LO.FirstOrder.Semiformula.freeVariables_and,
+    LO.FirstOrder.Semiformula.freeVariables_and]
+  rw [embeddedSubstitution_freeVariables_eq_empty_of_closed_terms_atArity
+    compactFixedWidthEntryDef.val
+    ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+      closedShift 2 (shortBinaryNumeralTerm tokenCount),
+      closedShift 2 (unaryNumeralTerm 0),
+      (#1 : ArithmeticSemiterm Nat 2)] (by
+        intro coordinate
+        fin_cases coordinate
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (by
+            unfold unaryNumeralTerm
+            simp [LO.FirstOrder.Semiterm.Operator.operator])
+        · simp)]
+  rw [embeddedSubstitution_freeVariables_eq_empty_of_closed_terms_atArity
+    compactFixedWidthEntryDef.val
+    ![closedShift 2 (shortBinaryNumeralTerm targetBoundary),
+      closedShift 2 (shortBinaryNumeralTerm tokenCount),
+      closedShift 2 (unaryNumeralTerm 1),
+      (#0 : ArithmeticSemiterm Nat 2)] (by
+        intro coordinate
+        fin_cases coordinate
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (by
+            unfold unaryNumeralTerm
+            simp [LO.FirstOrder.Semiterm.Operator.operator])
+        · simp)]
+  rw [embeddedSubstitution_freeVariables_eq_empty_of_closed_terms_atArity
+    compactSyntaxTaskDirectLayoutDef.val
+    ![closedShift 2 (shortBinaryNumeralTerm tokenTable),
+      closedShift 2 (shortBinaryNumeralTerm width),
+      closedShift 2 (shortBinaryNumeralTerm tokenCount),
+      (#1 : ArithmeticSemiterm Nat 2), (#0 : ArithmeticSemiterm Nat 2),
+      closedShift 2 headKindTerm, closedShift 2 headBinderArityTerm,
+      closedShift 2 headRepeatCountTerm] (by
+        intro coordinate
+        fin_cases coordinate
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · exact hshift _ (shortBinaryNumeralTerm_freeVariables_eq_empty _)
+        · simp
+        · simp
+        · exact hshift _ hkind
+        · exact hshift _ hbinder
+        · exact hshift _ hrepeat)]
+  simp
+
+#print axioms
+  compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal_code_length_le_uniform
+#print axioms
+  compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsTerminal_freeVariables_eq_empty
 
 def compactAdditiveSyntaxTaskListConsRowsAtValuationHeadTermsBody
     (tokenTable width tokenCount targetBoundary : Nat)

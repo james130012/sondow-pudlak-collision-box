@@ -139,7 +139,7 @@ private theorem rewriting_ballLT
       (rewriting.q ▹ body).bexsLTSucc (rewriting bound) := by
   simp [Semiformula.bexsLTSucc, Semiformula.bexsLT]
 
-private def closedShift :
+def closedShift :
     (k : Nat) -> ValuationTerm -> ArithmeticSemiterm Nat k
   | 0, term => term
   | k + 1, term => Rew.bShift (closedShift k term)
@@ -415,7 +415,7 @@ private def closedShiftRewriting :
         (#1 : ArithmeticSemiterm Nat 5) = #1 := by
   exact Rew.free_bvar_castSucc (1 : Fin 4)
 
-private theorem compactAdditiveNatListSameRowsTerminal_free_alignment
+theorem compactAdditiveNatListSameRowsTerminal_free_alignment
     (tokenTable width tokenCount sourceBoundary targetBoundary : Nat) :
     Rewriting.free
         (compactAdditiveNatListSameRowsTerminal

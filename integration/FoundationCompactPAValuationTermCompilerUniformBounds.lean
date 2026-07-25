@@ -181,7 +181,7 @@ theorem instantiateTerm_code_length_le_uniform
 def valuationTermShortNumeralCodeEnvelope
     (numericBound : Nat) (term : ValuationTerm) : Nat :=
   binaryNumeralTermCodeEnvelope
-    (valuationTermValueEnvelope numericBound term)
+    (Nat.size (valuationTermValueEnvelope numericBound term))
 
 theorem natSize_le_self_uniform (value : Nat) :
     Nat.size value <= value := by
@@ -198,11 +198,11 @@ theorem shortNumeralTerm_code_length_le_uniform
   have hvalue := termValue_le_valuationTermValueEnvelope
     valuation numericBound term hvalues
   have hsize : Nat.size (termValue valuation term) <=
-      valuationTermValueEnvelope numericBound term :=
-    (natSize_le_self_uniform _).trans hvalue
+      Nat.size (valuationTermValueEnvelope numericBound term) :=
+    Nat.size_le_size hvalue
   exact binaryNumeralTerm_code_length_le_envelope
     (termValue valuation term)
-    (valuationTermValueEnvelope numericBound term) hsize
+    (Nat.size (valuationTermValueEnvelope numericBound term)) hsize
 
 def valuationTermEqualityTermCodeEnvelope
     (numericBound : Nat) (term : ValuationTerm) : Nat :=
@@ -505,16 +505,16 @@ def instantiatedTermNormalizationUniformPolynomial
       instantiatedTermNormalizationUniformPolynomial numericBound (args 0) +
         instantiatedTermNormalizationUniformPolynomial numericBound (args 1) +
         binaryNumeralAdditionPayloadPolynomial
-          (valuationTermValueEnvelope numericBound (args 0) +
-            valuationTermValueEnvelope numericBound (args 1)) +
+          (Nat.size (valuationTermValueEnvelope numericBound (args 0)) +
+            Nat.size (valuationTermValueEnvelope numericBound (args 1))) +
         3 * paPrimitiveCostEnvelope
           (additionNormalizationStepTermCodeUniformEnvelope numericBound args)
   | .func .mul args =>
       instantiatedTermNormalizationUniformPolynomial numericBound (args 0) +
         instantiatedTermNormalizationUniformPolynomial numericBound (args 1) +
         binaryNumeralMultiplicationPayloadPolynomial
-          (valuationTermValueEnvelope numericBound (args 0) +
-            valuationTermValueEnvelope numericBound (args 1)) +
+          (Nat.size (valuationTermValueEnvelope numericBound (args 0)) +
+            Nat.size (valuationTermValueEnvelope numericBound (args 1))) +
         3 * paPrimitiveCostEnvelope
           (multiplicationNormalizationStepTermCodeUniformEnvelope
             numericBound args)
@@ -561,12 +561,10 @@ theorem instantiatedTermNormalizationPayloadPolynomial_le_uniform
         valuation numericBound (args 1) hrightVars
       have hwidth : Nat.size (termValue valuation (args 0)) +
           Nat.size (termValue valuation (args 1)) <=
-        valuationTermValueEnvelope numericBound (args 0) +
-          valuationTermValueEnvelope numericBound (args 1) := by
-        have hleftSize :=
-          (natSize_le_self_uniform _).trans hleftValue
-        have hrightSize :=
-          (natSize_le_self_uniform _).trans hrightValue
+        Nat.size (valuationTermValueEnvelope numericBound (args 0)) +
+          Nat.size (valuationTermValueEnvelope numericBound (args 1)) := by
+        have hleftSize := Nat.size_le_size hleftValue
+        have hrightSize := Nat.size_le_size hrightValue
         omega
       have harithmetic :=
         binaryNumeralAdditionPayloadPolynomial_mono_uniform hwidth
@@ -599,12 +597,10 @@ theorem instantiatedTermNormalizationPayloadPolynomial_le_uniform
         valuation numericBound (args 1) hrightVars
       have hwidth : Nat.size (termValue valuation (args 0)) +
           Nat.size (termValue valuation (args 1)) <=
-        valuationTermValueEnvelope numericBound (args 0) +
-          valuationTermValueEnvelope numericBound (args 1) := by
-        have hleftSize :=
-          (natSize_le_self_uniform _).trans hleftValue
-        have hrightSize :=
-          (natSize_le_self_uniform _).trans hrightValue
+        Nat.size (valuationTermValueEnvelope numericBound (args 0)) +
+          Nat.size (valuationTermValueEnvelope numericBound (args 1)) := by
+        have hleftSize := Nat.size_le_size hleftValue
+        have hrightSize := Nat.size_le_size hrightValue
         omega
       have harithmetic :=
         binaryNumeralMultiplicationPayloadPolynomial_mono_uniform hwidth

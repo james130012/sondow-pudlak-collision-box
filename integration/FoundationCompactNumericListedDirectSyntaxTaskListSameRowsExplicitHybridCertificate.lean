@@ -117,6 +117,23 @@ private def closedShift : (k : Nat) -> ValuationTerm -> ArithmeticSemiterm Nat k
   | 0, term => term
   | k + 1, term => Rew.bShift (closedShift k term)
 
+/-- Public transparent name for the exact closed-term shift used in the
+syntax-task same-rows formulas. -/
+abbrev syntaxTaskListSameRowsClosedShift :
+    (k : Nat) -> ValuationTerm -> ArithmeticSemiterm Nat k :=
+  closedShift
+
+theorem syntaxTaskListSameRowsClosedShift_zero
+    (term : ValuationTerm) :
+    syntaxTaskListSameRowsClosedShift 0 term = term := by
+  rfl
+
+theorem syntaxTaskListSameRowsClosedShift_succ
+    (k : Nat) (term : ValuationTerm) :
+    syntaxTaskListSameRowsClosedShift (k + 1) term =
+      Rew.bShift (syntaxTaskListSameRowsClosedShift k term) := by
+  rfl
+
 def compactAdditiveSyntaxTaskListSameRowsClosedFormula
     (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary targetCount : Nat) :
     ValuationFormula :=

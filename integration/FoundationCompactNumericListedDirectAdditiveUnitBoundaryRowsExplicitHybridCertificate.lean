@@ -331,7 +331,7 @@ private def closedShiftRewriting :
         (#1 : ArithmeticSemiterm Nat 3) = #1 := by
   exact Rew.free_bvar_castSucc (1 : Fin 2)
 
-private theorem compactAdditiveUnitBoundaryRowsTerminal_free_alignment
+theorem compactAdditiveUnitBoundaryRowsTerminal_free_alignment
     (tokenCount boundaryTable : Nat) :
     Rewriting.free
         (compactAdditiveUnitBoundaryRowsTerminal tokenCount boundaryTable) =

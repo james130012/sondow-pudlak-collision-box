@@ -1,0 +1,39 @@
+import integration.FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectOriginalTerminalEmbedding
+
+/-! # Alignment of explicit and split public source terminal coordinates -/
+
+open LO FirstOrder LO.FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option autoImplicit false
+set_option Elab.async false
+set_option maxRecDepth 32768
+set_option maxHeartbeats 500000
+
+namespace FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectSourceTerminalSplitAlignment
+
+open FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectSyntax
+open FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectSourceSyntax
+open FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectOriginalTerminalEmbedding
+
+theorem
+    compactParserInitialFinalBoundedDirectExplicitSourceRawTerminal_eq_split :
+    compactParserInitialFinalBoundedDirectExplicitSourceRawTerminal =
+      compactParserInitialFinalBoundedDirectSourceRawTerminal := by
+  unfold compactParserInitialFinalBoundedDirectExplicitSourceRawTerminal
+    compactParserInitialFinalBoundedDirectSourceRawTerminal
+  congr 1
+  funext coordinate
+  fin_cases coordinate <;>
+    simp [compactParserInitialFinalBoundedDirectExplicitSourceTerms,
+      compactParserInitialFinalBoundedDirectSourceRawTerms,
+      compactParserInitialFinalBoundedDirectSourcePublicTerms,
+      compactParserInitialFinalBoundedDirectSourceWitnessTerms,
+      compactParserInitialFinalBoundedDirectReverseIndex,
+      Matrix.vecAppend_eq_ite]
+
+#print axioms
+  compactParserInitialFinalBoundedDirectExplicitSourceRawTerminal_eq_split
+
+end FoundationCompactNumericListedDirectParserInitialFinalBoundedDirectSourceTerminalSplitAlignment

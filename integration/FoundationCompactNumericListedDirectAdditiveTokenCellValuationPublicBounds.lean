@@ -92,11 +92,11 @@ private theorem termValue_arithmeticOne (valuation : Nat -> Nat) :
     termValue valuation (‘1’ : ValuationTerm) = 1 := by
   exact termValue_one valuation ![]
 
-def compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial
+def compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope
     (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
-      ValuationTerm) : Nat :=
+      ValuationTerm)
+    (cursorResource successorResource entryResource : Nat) : Nat :=
   let valuation := zeroValuation
-  let successorTerm : ValuationTerm := ‘!!cursorTerm + 1’
   let cursorFormula : ValuationFormula :=
     “!!cursorTerm < !!tokenCountTerm”
   let successorFormula : ValuationFormula :=
@@ -105,16 +105,66 @@ def compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial
     tokenTableTerm widthTerm cursorTerm valueTerm
   let innerFormula := successorFormula ⋏ entryFormula
   let innerResource := hybridConjunctionStructuralPayloadEnvelope valuation
-    successorFormula entryFormula
-    (compilePositiveRelationPayloadPolynomial valuation Language.Eq.eq
-      ![nextTerm, successorTerm])
-    (compactFixedWidthEntryAtValuationStructuralPayloadPolynomial valuation
-      tokenTableTerm widthTerm cursorTerm valueTerm)
+    successorFormula entryFormula successorResource entryResource
   hybridConjunctionStructuralPayloadEnvelope valuation cursorFormula
-    innerFormula
-    (compilePositiveRelationPayloadPolynomial valuation Language.ORing.Rel.lt
-      ![cursorTerm, tokenCountTerm])
-    innerResource
+    innerFormula cursorResource innerResource
+
+private theorem hybridConjunctionStructuralPayloadEnvelope_mono
+    (valuation : Nat -> Nat) (left right : ValuationFormula)
+    {leftSmall leftLarge rightSmall rightLarge : Nat}
+    (hleft : leftSmall <= leftLarge)
+    (hright : rightSmall <= rightLarge) :
+    hybridConjunctionStructuralPayloadEnvelope valuation left right
+        leftSmall rightSmall <=
+      hybridConjunctionStructuralPayloadEnvelope valuation left right
+        leftLarge rightLarge := by
+  unfold hybridConjunctionStructuralPayloadEnvelope
+  dsimp only
+  omega
+
+theorem compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope_mono
+    (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
+      ValuationTerm)
+    {cursorSmall cursorLarge successorSmall successorLarge entrySmall entryLarge :
+      Nat}
+    (hcursor : cursorSmall <= cursorLarge)
+    (hsuccessor : successorSmall <= successorLarge)
+    (hentry : entrySmall <= entryLarge) :
+    compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope tokenTableTerm
+        widthTerm tokenCountTerm cursorTerm valueTerm nextTerm cursorSmall
+          successorSmall entrySmall <=
+      compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope tokenTableTerm
+        widthTerm tokenCountTerm cursorTerm valueTerm nextTerm cursorLarge
+          successorLarge entryLarge := by
+  unfold compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope
+  exact hybridConjunctionStructuralPayloadEnvelope_mono _ _ _ hcursor
+    (hybridConjunctionStructuralPayloadEnvelope_mono _ _ _ hsuccessor hentry)
+
+def compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial
+    (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
+      ValuationTerm) : Nat :=
+  compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope
+    tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm
+    (compilePositiveRelationPayloadPolynomial zeroValuation
+      Language.ORing.Rel.lt ![cursorTerm, tokenCountTerm])
+    (compilePositiveRelationPayloadPolynomial zeroValuation Language.Eq.eq
+      ![nextTerm, (‘!!cursorTerm + 1’ : ValuationTerm)])
+    (compactFixedWidthEntryAtValuationStructuralPayloadPolynomial zeroValuation
+      tokenTableTerm widthTerm cursorTerm valueTerm)
+
+theorem compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial_eq_envelope
+    (tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm :
+      ValuationTerm) :
+    compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial
+        tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm =
+      compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope
+        tokenTableTerm widthTerm tokenCountTerm cursorTerm valueTerm nextTerm
+        (compilePositiveRelationPayloadPolynomial zeroValuation
+          Language.ORing.Rel.lt ![cursorTerm, tokenCountTerm])
+        (compilePositiveRelationPayloadPolynomial zeroValuation Language.Eq.eq
+          ![nextTerm, (‘!!cursorTerm + 1’ : ValuationTerm)])
+        (compactFixedWidthEntryAtValuationStructuralPayloadPolynomial
+          zeroValuation tokenTableTerm widthTerm cursorTerm valueTerm) := rfl
 
 theorem
     compactAdditiveTokenCellAtValuationExplicitHybridCertificate_structuralPayloadBound_le_public
@@ -230,6 +280,7 @@ theorem
             successorCertificate)
           entryCertificate)) ≤ _
   unfold compactAdditiveTokenCellAtValuationStructuralPayloadPolynomial
+    compactAdditiveTokenCellAtValuationStructuralPayloadEnvelope
   dsimp only
   exact hparts
 

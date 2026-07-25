@@ -1,0 +1,22 @@
+import integration.FoundationCompactNumericListedDirectSyntaxTaskLayoutBinaryInstalledFullyFixedBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropOneRowsExplicitHybridCertificate
+
+/-! # Syntax compatibility of the two native numeral term names -/
+
+open LO FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option autoImplicit false
+set_option Elab.async false
+
+namespace FoundationCompactNumericListedDirectNativeNumeralTermCompatibility
+
+open FoundationCompactNumericListedDirectParserSyntaxFormulaBinaryExplicitHybridCertificate
+open FoundationCompactNumericListedDirectSyntaxTaskListDropFixedNumeralRowsExplicitHybridCertificate
+
+theorem fixedNumeralTerm_eq_nativeNumeralTerm (value : Nat) :
+    fixedNumeralTerm value = nativeNumeralTerm value := by
+  rfl
+
+end FoundationCompactNumericListedDirectNativeNumeralTermCompatibility

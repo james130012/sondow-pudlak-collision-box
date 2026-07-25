@@ -1,6 +1,6 @@
 # 最短证明增长下界：精简证明指导书
 
-更新时间：2026-07-21。
+更新时间：2026-07-25。
 
 ## 1. 主控文件
 
@@ -649,7 +649,744 @@ unit-boundary rows（单位边界行）的分支、有限全称、语义图数�
    完整结构证书现已接入。原 29 个有界见证可重建为同一 40 坐标行环境，
    源/候选长度、内层状态数、最终及相邻状态的 parser/output（解析器/输出）
    列表计数均已有固定多项式控制；当前尚需证明新得到的具体结构资源受同一个
-   固定多项式控制，随后汇总整张矩阵的总结构资源界。
+   固定多项式控制，随后汇总整张矩阵的总结构资源界。`NatListSameRows`
+   （自然数列表同行关系）的四个行值见证现已由固定四元展开关闭：实际
+   `sourceLeft/sourceRight/targetLeft/targetRight` 只通过各自
+   `≤ tokenCount` 使用，不再进入见证前缀资源，也不再作
+   `(tokenCount + 1)^4` 枚举。为避免依赖递归展开造成内存爆炸，任意元通用端点
+   已替换为与规范完全一致的四层显式端点；两级探针均只依赖标准三项。
+   四个 fixed-width entry（定宽表项）和一个 atomic row equality
+   （原子行等式）的五叶终端合取也已压到固定多项式资源；随后又用
+   `index < sourceCount ≤ numericBound` 消去行下标，得到不含行数据和行下标的
+   uniform row resource（统一行资源），全部行的叶资源和严格界为
+   `sourceCount × uniformRowResource`。外层公式的自由变量集合已严格证明为空；
+   分支递归已进一步压成
+   `(sourceCount + 1) × (行资源和 + 3 × 局部装配资源)`，并接回不含具体
+   `rows` 数据的全称编译资源。五叶终端公式的代码长度现由 `bitBound`
+   的显式多项式控制；四层有界存在主体又按 `04 → 03 → 02 → 01`
+   分层编译并以 `rfl` 对齐原主体，最终 `bodyCode` 只依赖
+   `numericBound/bitBound`。finite exhaustion（有限穷举）、weakening
+   （弱化）、disjunction elimination（析取消去）和 cut（切规则）现已逐项收费；
+   实际 shifted-bound equality compiler（移位边界等式编译器）及 closed short
+   universal shell（封闭短全称外壳）也已接入。最外层计数等式与行全称证书最终由
+   固定公式代码界合取，row-data（行数据）和 graph（语义图）公开端点均只依赖
+   `numericBound/bitBound`，且公理画像只有标准三项。`NatListSameRows` 子义务至此
+   闭合；当前局部义务转为把该端点接回 parser/output（解析器/输出）、
+   verifier step（验证器步骤）及 complete direct matrix（完整直接矩阵）的总资源汇总。
+   汇总链中的 `NatListAppendSourcePrefix`（自然数列表追加源前缀）现已整体闭合。
+   单个 `TokenSlice`（令牌切片）的位原子、真假分支、`bitIndex` 和 `offset`
+   双层有限全称、五个闭算术叶、五层合取及存在见证外壳均已由
+   `numericBound/termCode/bitBound` 的显式固定多项式控制；复合起点
+   `start + 1` 和 `targetStart + 1 + leftCount` 始终保留为同一闭项，没有按
+   数值相等偷换成短数词。公开端点
+   `compactFixedWidthTokenSlicesEqAtValuationPayloadEnvelope_le_closedFixed`
+   只依赖标准三项公理。
+
+   两个实际切片见证随后直接从同一个 `hgraph` 取出，并由
+   `appendSourcePrefixTokenSlicesResource_le_fixed` 同时固定；三个算术叶由
+   `appendSourcePrefixArithmeticLeavesResource_le_fixed` 固定。原 13 元
+   `Σ₀` 公式通过一次闭短数词代入得到完整公式代码界和闭公式性，再由通用五叶
+   合取定理支付四次真实装配成本。最终公开端点
+   `compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope_le_fullyFixed`
+   直接约束原
+   `compactAdditiveNatListAppendSourcePrefixGraphPayloadEnvelope`，静态审计无
+   `sorry/admit/axiom`、`tail_gap`、`upper_provider`、`proof_length` 或隐藏
+   valuation 参数，公理画像只有 `propext`、`Classical.choice`、`Quot.sound`。
+   `NatListAtRows` 的真实两游标路线现也已推进到固定子资源层：精确二元有界见证
+   展开已通过；两个 fixed-width boundary entry（定宽边界条目）和一个 token
+   cell（令牌单元）的实际证书均已取得固定资源界，并已送入同一个二元见证编译器。
+   同一具体主体的 `bodyCode` 已由七坐标原公式的固定代入代码界关闭；终端公式闭合，
+   故 valuation context（赋值上下文）代码和为零。进一步把真实 `left/right`
+   安装进二元终端后的完整公式代码，也已由通用二元代入定理压到只依赖
+   `bitBound` 的固定多项式；这些端点的公理画像仍只有标准三项，且没有
+   finite-sum（有限求和）包装。
+   两个 open-index entry scale（开放索引条目尺度）现已压到已有
+   uniform ceiling（统一上限）；终端两层合取、精确二元有界见证、外层
+   `index < count` 守卫和最终合取装配均已支付固定资源成本。公开端点
+   `compactAdditiveNatListAtRowsAtShortIndexExplicitFormulaCertificate_structuralPayloadBound_le_fullyUniform`
+   的上界只依赖 `index/numericBound/bitBound`，不含 `left/right`、
+   finite-sum（有限求和）、`bodyCode`、赋值上下文参数或外部证明长度。
+   该端点及全部新前置的公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`。`NatListAtRows` 子义务至此闭合；
+   它现已接入 `NatListAppendMappedSourcePrefix`（追加映射源前缀）的真实八叶
+   checked certificate（已检查证书）。五个算术叶、两个由同一图见证提取的真实
+   token slice（令牌切片）和一个真实 `NatListAtRows` 行查询叶，经通用八叶右结合
+   合取定理支付全部装配成本。公开端点
+   `compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed`
+   不经过旧 graph envelope（图资源包络），上界只依赖
+   `leftCount/numericBound/bitBound`，不含 `left/right`、有限求和、赋值上下文、
+   外部证明长度或调用者资源参数；公理画像仍只有标准三项。当前局部义务转为在
+   `FormulaTransformFormulaOutputRows`（公式变换输出行）中用该端点替换旧
+   public-finite envelope（公开有限包络），再回接 parser/output（解析器/输出）
+   和 verifier step（验证器步骤）总资源汇总。
+   mapped branch（映射分支）的真实 `FromData` 证书现已完成这次替换，端点
+   `compactFormulaTransformFormulaOutputRowsMappedBranchCertificate_structuralPayloadBound_le_rowsFullyFixed`
+   中的 rows resource（行资源）只依赖
+   `current.outputCount/numericBound/bitBound`。
+   `NegationFormulaTag` 的七个真实原子叶现已统一压到只依赖 `bitBound` 的
+   term-code / payload（项码／载荷）多项式；`8 <= tag` 大标签支的
+   `8 = tag` / `8 < tag` 两个原子及真实析取装配也已闭合。相应端点均通过
+   单文件探针，公理画像只有标准三项。偶数、奇数分支在见证代入后的三叶公式
+   代码界、闭合性及两层真实合取也已分别通过；开放见证体、见证项、存在公式、
+   两支存在量词和偶／奇／大标签三路外壳现亦全部闭合。最终 `OfGraph` 端点
+   `compactNegationFormulaTagExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed`
+   只依赖 `bitBound`，不经过
+   `compactNegationFormulaTagPublicFinitePayloadEnvelope` 或 graph payload
+   envelope（图载荷包络），公理画像只有标准三项。该端点已回接 mapped branch；
+   后者现在同时使用固定 tag/rows resource（标签／行资源）。原始 29 坐标
+   `FormulaOutputRows` 闭公式现也已由显式短二进制数词向量重建；在同一
+   29 坐标环境位界下，完整公式代码受
+   `compactFormulaTransformFormulaOutputRowsFullFormulaCodePolynomial`
+   控制且自由变量集合为空。两个端点的单文件探针通过，公理画像只有标准三项。
+   count/positive（计数／正性）两个实际证书资源现已进一步固定：计数等式
+   直接使用三个闭短数词和一个加法项；正性证书显式支付等号、小于号两个
+   正关系编译器、两次弱化和一次析取引入。其固定界只依赖 `bitBound`，
+   四个端点的单文件探针与公理画像均通过。`otherMode` 内五个模式否定等式
+   也已完全固定。基础端点逐项支付两次项值等式、两次弱化、两次等式对称、
+   反向关系传输、负闭原子源、源弱化及 modus tollens（反证式推理），得到
+   只依赖 `numericBound/termCodeBound` 的
+   `compileNegativeRelationFixedPayloadPolynomial`；没有把具体负关系资源留在
+   结论中。上层再把模式 0/1/2/4/5 的五个真实否定证书和 tail 组成六叶
+   右结合合取，由统一语法预算支付五层连接词成本。基础、原子和六叶端点
+   均通过单文件探针，公理画像只有标准三项。mapped（映射）分支现也已完全
+   固定：29 坐标完整公式预算统一支付 tag/rows tail（标签／输出行尾部）和
+   最外层五级混合合取／析取成本，最终资源只依赖
+   `current.outputCount/numericBound/bitBound`。该端点的单文件探针通过，
+   源码无 `sorry/admit/axiom/sorryAx`，公理画像只有标准三项。
+   rawMode（原样模式）四选一证书也已直接固定：模式 0/1/2/5 的闭等式叶
+   分别经过一至三层真实析取选择，统一资源只依赖 `bitBound`；新路线不再
+   展开旧的 proof-dependent（依赖证明数据的）`rawMode*PayloadEnvelope`。
+   四条直接证书端点和叶／语法分层探针均通过，公理画像只有标准三项。
+   现已进一步把四种模式分别与 AppendSourcePrefix（原样前缀追加）真实证书
+   及完整外层公式装配，原 `FromData.rawZero/rawOne/rawTwo/rawFive` 四个分支
+   均得到只依赖 `numericBound/bitBound` 的固定资源界。公共装配和四个原分支
+   桥的探针通过，公理画像只有标准三项；这不是旁路证书。
+   zero/sameFour 两个剩余分支也已分别用真实 SameRows（同行关系）证书闭合；
+   七个 `CheckedBranchData` 构造子最终统一到
+   `outputRowsAllBranchesFullyFixedPayloadPolynomial`。统一端点的探针通过，
+   公理画像只有标准三项。因此 FormulaOutputRows（公式输出行）节点已完整
+   闭合。当前局部义务转到 StepRows formula 分支的另一半：
+   UnifiedParserSyntaxFormula（统一解析器公式证书）；其
+   tag equality/disequality（标签等式／不等式）及四组二选一标签证书已经
+   从真实原子证书得到只依赖统一 `bitBound` 的固定界，探针和公理画像均通过；
+   `tokensCount ≤ 2` 与 `3 ≤ tokensCount` 两个顺序比较也已直接展开
+   equality/strict-less（等号／严格小于）两条真实证书路径并得到固定界。
+   上述原子层没有调用旧的 branch-data envelope（分支数据包络），全部探针
+   只有标准三项。failure/continue（失败／继续）共享的
+   SyntaxTaskListSameRows（语法任务栈同行）计数等式也已得到固定端点；当前须
+   为原公式中的 `sourceLeft + 1/+2` 和 `targetLeft + 1/+2` 闭复合项扩展
+   AtomicRowEquality（原子行相等）固定界，禁止把它们偷换成语法不同的短数词。
+   这些复合项的闭性、精确求值和统一编码界，以及任务行八个分量均受同一
+   `numericBound` 控制的语义引理，现已通过探针；下一义务精确缩小为推广
+   atomic-row bit body/universal shell（原子行位体／全称壳）的闭项参数端点。
+   现已完成任意受统一项编码界控制的 bit body 公式编码、外层全称公式闭性，
+   以及在逐位分支界给定后全称壳自身的固定资源端点；界等式与全称装配均已
+   内部支付。任意闭复合项的左右位索引和值项现已得到统一编码界、闭性、
+   精确求值和位位置界；四种真假 bit literal（位文字）的真实编译资源也已
+   固定。七个分支公式（四个文字、两个方向析取和最终合取）的统一公式编码界
+   与自由变量 `{0}` 界均已通过探针，公理画像只有标准三项。剩余义务精确为
+   汇总这七个公式的 valuation context（赋值上下文）、weakening（弱化）、
+   disjunction（析取）与 conjunction（合取）装配成本，从而推广
+   `atomicRowEqBranchesTransparentStructuralEnvelope`（原子行逐位真假分支包络）
+   到同一闭复合项参数；随后即可无参数调用已闭合的全称壳。
+   该步现已完成：逐位公开包络、有限求和、透明分支递归、有限穷尽上下文装配
+   和全称壳已依次闭合，最终 universal（全称）端点不暴露 branch bound
+   （分支界）参数。其上层 `CompactAdditiveAtomicRowEqAtValuation` 的四个
+   算术关系叶与一个 universal 叶也已通过五叶闭合取通用装配器得到任意闭项
+   固定界；该端点的探针和公理画像只有标准三项。三个实际 AtomicRow
+   （原子行）公式的统一闭合性、总公式码界和三叶闭合取装配现也已完成，
+   因而完整 `CompactAdditiveSyntaxTaskRowEq`（语法任务行相等）公开包络
+   已得到无调用方资源参数的固定界，单文件探针通过，公理画像仍只有标准三项。
+   当前义务上移到完整 `CompactAdditiveSyntaxTaskListSameRows`
+   （语法任务列表同行）：把四个固定宽度条目、已闭合的 TaskRowEq 行证书、
+   四重有界存在见证、有限行分支、上下文穷尽和最外层全称壳依次接到同一
+   `numericBound/bitBound`（数值界／位宽界），最终给原始 Graph 证书一个
+   无 row data（行数据）和无 branch bound（分支界）参数的固定公共端点。
+   其中 witness compiler（见证编译器）实际使用的四变量 `BranchTerminal`
+   （分支终端）现已与五变量 `Terminal` 严格区分：共享行索引保持为自由变量
+   `&0`，四个条目值为 `#3..#0`。原始分支终端的五叶源公式已得到只依赖
+   `bitBound` 的统一编码界，并以显式公式对齐定理接回原定义；探针和公理画像
+   只有标准三项。四个 fixed-width entry（固定宽度条目）固定资源与
+   TaskRowEq 行资源现已由五叶装配器合成完整 structural payload（结构载荷）；
+   端点
+   `compactAdditiveSyntaxTaskListSameRowsTerminalStructuralPayloadEnvelope_le_fullyFixed`
+   的探针通过，公理画像只有标准三项。当前义务是把该固定终端接入原始
+   `buildExplicitBoundedWitnessHybridCertificate`（显式有界见证编译器），
+   关闭四重存在见证的 branch payload（分支载荷），不保留行数据或叶资源参数。
+   该义务现已闭合：四重见证分支及全部 `sourceCount` 行的资源和都受同一
+   `numericBound/bitBound` 固定界。五变量 source terminal（源终端）与释放行
+   变量后的四变量 branch terminal（分支终端）也已严格分开；源终端码界、
+   四层存在包装后的 universal body（全称体）码界、body 闭性和外层全称闭性
+   均已通过探针，公理画像只有标准三项。为避免依赖类型归约爆炸，四层公式
+   按 `05→04→03→02→01` 分层并证明两套 `closedShift` 完全对齐。
+   有限行 branches（分支递归）现已进一步关闭：真实有限穷举、边界特化、
+   下界矛盾、weakening（弱化）、disjunction elimination（析取消去）与
+   cut（切规则）的完整上下文成本已压到同一固定多项式。随后实际
+   shifted-bound equality compiler（移位边界等式编译器）和 closed short
+   bounded universal shell（闭合短有界全称壳）也已接入。最外层
+   `targetCount = sourceCount` 计数等式与行全称证书最终由固定公式码预算合取。
+   公开 row-data（行数据）端点和原始 Graph（语义图）端点均只依赖
+   `numericBound/bitBound`，不暴露 row data resource（行数据资源）、
+   branch bound（分支界）或调用方公式码参数；全部定向探针的公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`。因此完整
+   `CompactAdditiveSyntaxTaskListSameRows` 子义务已经闭合。
+   为此所需的开放索引五叶装配器也已单独闭合：
+   `transparentHybridFiveConjunctionPayloadEnvelope_le_singletonGeneral`
+   从总公式自由变量 `{0}` 界、`valuation 0 <= numericBound` 和统一公式码界，
+   自动推出四层尾公式的上下文界并支付全部合取装配成本；它不暴露调用方
+   context resource（上下文资源），探针和公理画像只有标准三项。
+   当前局部义务转为把该 Graph 固定端点接入
+   UnifiedParserSyntaxFormula（统一解析器语法公式）的 failure/continue
+   （失败／继续）两个真实分支；随后关闭 binary/quantifier/selected
+   （双目／量词／选中）其余分支，并汇总 parser/output（解析器／输出）与
+   verifier step（验证器步骤）的总结构资源。
+   failure 原 21 坐标证书现已闭合：failed-status（失败状态）、
+   NatListSameRows 和 SyntaxTaskListSameRows 三张真实证书分别使用固定端点，
+   再由原右结合三叶公式支付两次合取成本。失败语义图本身给出
+   `innerStart = next.tasksFinish + 1` 与 `innerStart ≤ tokenCount`，故内部位置界
+   由 `tokenCount ≤ numericBound` 推出，没有作为调用者参数。总公式码先与原
+   21 坐标定义逐字对齐，再由 5／7／7 元三个闭叶码界合成；完整端点公理画像
+   只有标准三项。continue 当前唯一未闭合叶是
+   `NatListDropFixedNumeralRows`（固定数词自然数列表丢弃关系）；必须先把其
+   真实行证书、有限分支、上下文穷举和全称壳压到统一固定界，禁止继续使用
+   仍依赖具体坐标的旧 public-finite envelope（公开有限包络）。
+   其中 continue 实际使用的 `consumed = 1` 已完成根部单行闭合：原生四个
+   索引项 `1+i`、`1+i+1`、`i`、`i+1` 的自由变量和项码界已逐字证明；
+   `sourceCount = 1 + targetCount` 与 `i < targetCount` 又在图内推出四个
+   数值界和位长界，没有新增 caller index bound（调用者索引界）。任意开放
+   索引项的 fixed-width entry（定宽条目）现有统一“资源界＋公式码界”端点；
+   四个真实条目与 AtomicRowEq（原子行相等）第五叶已由 singleton
+   five-conjunction（单自由变量五合取）组合器闭合。最终单行终端端点
+   `compactAdditiveNatListDropOneRowsTerminalStructuralPayloadEnvelope_le_fullyFixed`
+   的公理画像只有标准三项。该终端现已接入原始四重有界存在见证编译器；
+   五变量 source terminal（源终端）代码界、四层 `05→04→03→02→01`
+   witness body（见证体）代码界、body 闭性与外层全称公式闭性均已逐层证明。
+   每个真实分支的固定载荷界又已对 `targetCount` 全部行求和，并接入透明有限
+   分支递归；图内等式 `sourceCount = 1 + targetCount` 自行给出分支数界。
+   上述新增端点的公理画像均只有标准三项。透明分支界现又已接入
+   contextual finite exhaustion（带上下文有限穷举）：有限穷举、边界特化、
+   下界矛盾、弱化、析取消去和 cut 的实际成本均由固定多项式支付。真实
+   shifted-bound equality（移位边界等式）编译器和 closed short bounded
+   universal shell（闭合短有界全称壳）随后也已闭合，公理画像仍只有标准
+   三项。最外层两个闭算术叶 `1 ≤ sourceCount`、
+   `sourceCount = 1 + targetCount` 的原始证书资源和公式码现也已由
+   `bitBound` 固定；前者包含真实的等号／严格小于分支、弱化和析取成本，
+   后者包含真实的加法项与等式编译成本。两次右结合合取随后按原公式
+   `bound ∧ (equality ∧ universal)` 完成装配。闭公式代码、闭性、row-data
+   载荷和原始 Graph 载荷四个总端点的公理画像均只有标准三项。因此
+   `consumed = 1` 的完整 `NatListDropFixedNumeralRows` 子义务已经闭合。
+   该 Graph 固定端点现已接入 parser continue（三叶继续分支）：真实
+   running status（运行状态）、drop-one token list（丢弃一项的令牌列表）
+   和 unchanged task list（不变任务列表）分别取得固定资源界，随后按原
+   右结合三叶公式支付两次合取成本。总端点不再依赖旧的具体坐标
+   public-finite envelope（公开有限包络），公理画像只有标准三项。
+   Formula 的 logical-selected（逻辑标签选中）现也已闭合：标签
+   `{2,3}` 的真实任选其一证书与上述 continue 证书共享同一
+   `numericBound/bitBound`，标签公式和 continue 公式的代码界、闭性及
+   合取装配成本均已显式支付；端点
+   `syntaxFormulaLogicalSelectedCertificate_structuralPayloadBound_le_fullyFixed`
+   的公理画像只有标准三项。invalid-selected（非法标签选中）也已闭合：
+   八个真实标签不等式证书与真实 failure 证书组成原始右结合九叶公式；
+   否定公式代码、全部闭性、九叶总码及八层合取装配均由固定多项式支付。
+   端点
+   `syntaxFormulaInvalidSelectedCertificate_structuralPayloadBound_le_fullyFixed`
+   同样只有标准三项。quantifier（量词）分支现已整体闭合：
+   `SyntaxTaskListConsRows`（语法任务列表头插入关系）的计数叶、头任务两层
+   见证、尾部四层移位行、全部有限分支、上下文穷举、移位等式和 bounded
+   universal shell（有界全称壳）均由固定资源端点给出；随后真实 running
+   status（运行状态）、drop-one token list（丢弃一项的令牌列表）和
+   quantifier task insertion（量词任务插入）按原右结合三叶公式完成装配。
+   总端点
+   `compactUnifiedParserSyntaxFormulaQuantifierExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed`
+   已通过单文件证明探针，公理画像只有 `propext`、`Classical.choice`、
+   `Quot.sound`，没有调用者公式资源、旧 public-finite envelope（公开有限包络）
+   或项目级公设；它与真实 `{6,7}` 标签的合取端点
+   `syntaxFormulaQuantifierSelectedCertificate_structuralPayloadBound_le_fullyFixed`
+   也已通过同一探针。当前精确义务只剩 Formula 的 relation / binary
+   （关系／双目）分支，再把全部 tag path（标签路径）汇总到
+   parser/output（解析器／输出）与 verifier step（验证器步骤）的总结构资源。
+   binary 的三格任务布局现已关闭真实 native `1/0`、short-binary binder、
+   三个 token-cell 和两层内部有界见证。该布局与两个真实 fixed-width
+   boundary entries（定宽边界表项）组成的 task AtRows 三叶终端现也已闭合；
+   对 parser 选中的下标 `0/1`，九项原公式代入、开放终端代码界和零自由变量
+   上下文均已由真实公式结构推出。命名三叶终端、安装证书及通用二元见证安装
+   核心现已拆分编译；两层 bounded witnesses（有界见证）已在真实 `left/right`
+   游标上闭合。固定总界取下标 `0/1` 两个真实包络的最大值，而不是错误地把
+   下标 `0` 的资源复用于下标 `1`。上述端点的单文件探针和公理探针均通过，
+   只有标准三项。index guard（下标守卫）也已从真实 `index < count` 图事实
+   闭合并通过标准三项公理探针。守卫与已安装见证现已按原 AtRows 公式完成
+   合取：模块化证书先在命名公式上装配，再用已证明的公式对齐等式搬运到
+   原项目公式；固定载荷界的公理画像只有标准三项。旧的一体化证书实现无须
+   与新证书对象做昂贵的定义归约比较。两条下标 `0/1` 的完整 task AtRows
+   因而已经闭合；当前义务上移到 binary parser 的 task DropTwo（任务栈丢弃
+   两行）固定端点，随后装配 running、token DropOne、task DropTwo 与两条
+   AtRows 五叶证书。DropTwo 的原始开放五叶终端现已建立模块化显式公式：
+   固定偏移 `2 + index`、`(2 + index) + 1` 的代码成本为常数，四个定宽表项
+   和任务行等式的总公式代码由 `bitBound` 固定；该公式与原终端逐字相等，
+   自由变量严格包含于开放行下标 `{0}`。三个端点的公理画像均只有标准三项。
+   五叶真实证书的结构载荷也已闭合：四个表项分别在真实坐标
+   `2+index`、`3+index`、`index`、`index+1` 上调用定宽编译器，第五叶调用
+   已闭合的三格任务行等式；singleton 五叶装配器显式支付开放下标上下文和
+   四次合取成本。总端点不使用有限枚举包络或调用者资源参数，公理画像仍只有
+   标准三项。四层有界见证现也已由真实四元值
+   `[targetRight,targetLeft,sourceRight,sourceLeft]` 完成安装，且每个值的
+   `≤ tokenCount` 事实直接来自 row data；终端代码、上下文与载荷均使用上述
+   固定端点。全部 `targetCount` 个分支的资源和随后由
+   `2 + targetCount ≤ numericBound` 压到
+   `numericBound × 单分支资源`。两个新端点的公理画像仍只有标准三项。
+   contextual branches（带上下文分支装配）现已显式支付有限穷举、弱化、
+   析取消去与 cut（切规则）的结构成本；外层有限全称又把已闭合分支、
+   shifted-bound equality（移位界等式）和 closed short universal shell
+   （闭短数词全称外壳）汇合。代码长度、自由变量、分支、上下文分支和
+   全称资源五层端点均通过单文件探针，公理画像只有标准三项。
+   `2 ≤ sourceCount` 与 `sourceCount = 2 + targetCount` 两个闭计数叶
+   现也已从真实等号／严格小于、加法和等式编译器闭合；它们与全称叶按原
+   `bound ∧ (equality ∧ universal)` 公式完成右结合。闭公式代码、闭性、
+   row-data 载荷和直接从真实图提取行数据的 Graph payload（图结构载荷）
+   四个总端点均通过探针，公理画像只有标准三项。因此完整 Task DropTwo
+   子义务已闭合。binary parser 的 running、token DropOne、task DropTwo
+   与两条 AtRows 现已组成新的五叶模块证书；它通过原公式对齐等式证明同一
+   22 坐标闭公式，而不要求新旧 AtRows 证明对象定义相等。五个子载荷、
+   五叶闭性、总代码长度和四次合取成本均由共享
+   `numericBound/bitBound` 固定，`tailCount` 界由真实 DropTwo 图等式
+   推出；总端点通过探针且公理画像只有标准三项。真实 `{4,5}` 标签任选
+   其一证书现又与该模块化 binary 证书完成 selected 合取；标签公式、
+   binary 公式、闭性、代码和合取装配成本均已固定，端点公理画像仍只有
+   标准三项。当前局部义务前移到 relation-short / relation-valid /
+   relation-invalid（关系短输入／有效／非法）三子路；关闭后再汇总全部
+   parser tag path（解析器标签路径）到 parser/output 与 verifier step
+   总结构资源。三子路共享的 ArithmeticRelCode valid/invalid（算术关系码
+   有效／非法）完整闭公式现已先取得固定语法端点：arity/code（元数／编码）
+   只需统一 `bitBound`，四个代码长度／闭合性定理均通过受限单文件探针，
+   公理画像只有标准三项。同一关系码的真实正／负证书资源现也已压到固定界：
+   两个有效对 `(2,0)/(2,1)` 的正原子、合取与析取，以及两个非法对的负原子、
+   析取与最终合取均逐层支付；两个原始 `OfGraph` 端点通过探针且仍只有标准
+   三项，不经过旧 public envelope。relation-short（关系短输入）现已直接把
+   真实短比较证书与真实 failure（失败）证书接入完整关系体，完整公式的未选
+   长支只支付固定语法资源；命名证书、固定载荷界、禁用依赖扫描和单模块
+   `.olean` 均通过，公理画像只有标准三项。relation-valid /
+   relation-invalid（关系有效／非法）仍未闭合。其下一根义务是为原解析器实际
+   使用的 `fixedNumeralTerm 1/2` 建立 `NatListAtRows` 固定证书资源；现有
+   fully-uniform（全统一）定理使用定义不同的 `shortBinaryNumeralTerm`，不得
+   靠替换证明对象绕过。该实际公式的完整代码界、终端代码界、终端闭性和安装
+   两个行端点后的代码界现已逐字证明并通过探针。任意闭下标项的定宽表项
+   编译器也已接入原 `fixedNumeralTerm` 终端：两个真实边界表项、真实
+   token-cell（词元单元）及两层合取的统一载荷端点通过受限探针，公理画像
+   只有标准三项，最终资源不含左右行见证值。该终端现已装入两个真实有界存在
+   见证，并与外层 `index < count` 守卫合并；最终原始 `OfGraph` 端点为：
+
+   ```text
+   compactAdditiveNatListAtRowsAtFixedNumeralIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+   ```
+
+   终端证书、见证证书、透明资源桥、二元固定包络及外层合取分别缓存为小模块，
+   全部受限探针通过，公理画像只有 `propext`、`Classical.choice`、`Quot.sound`，
+   静态扫描无 `sorry/axiom`、`tail_gap`、`upper_provider` 或 `proof_length`。
+   本次同时修复一个真实坐标错误：二元见证包络要求代入前二变量 terminal
+   formula（终端公式）的代码界，旧尝试误传了安装两个见证后的闭公式代码界；
+   现已改接
+   `compactAdditiveNatListAtRowsTerminalAtFixedNumeralIndex_code_length_le_fixed`
+   及 `natListAtRowsFixedIndexFormulaCodePolynomial`，不能再使用名称相近但对象不同的
+   installed-terminal（已安装终端）代码界。`fixedNumeralTerm 1/2` 的
+   `NatListAtRows` 精确资源至此闭合；下一义务是分别把它接入
+   relation-valid / relation-invalid（关系有效／非法）的 function/failure
+   （函数解析／失败）长支。这里的 failure 已有无图参数固定端点；function
+   仍须关闭两个不同公式对象，不能把旧 public-finite envelope 当作结果：
+
+   ```text
+   CompactAdditiveNatListDropRows(..., dropCount = 3)
+   CompactAdditiveSyntaxTaskListConsRows(...,
+     taskKind = 2, binder = binderArity, arity = functionArity)
+   ```
+
+   现有完整固定路线只分别覆盖 `dropCount = 1` 和量词任务头
+   `(taskKind,binder,arity) = (1,binderArity+1,0)`。下一顺序固定为：
+   将 drop-one 的计数／行全称证明参数化到常数 3；将 quantifier-cons 的
+   头布局与尾行证明参数化到函数任务三元组；组合
+   `SyntaxTermFunctionFixedNumeral` 固定端点；最后分别装配
+   relation-valid / relation-invalid。任一步若改变原生数词语法或仍保留
+   graph-dependent payload envelope（依赖图的载荷包络），不得标为闭合。
+   drop-three 路线现已完整关闭：原公式中的
+   `3+i`、`(3+i)+1`、`i`、`i+1` 四个开放索引项均保留
+   `fixedNumeralTerm 3`，其自由变量、求值和代码长度定理已通过；由真实
+   `sourceCount = 3 + targetCount` 与 `i < targetCount` 又直接推出四项的
+   `numericBound` 数值界和 `bitBound` 位长界。端点
+   `dropThreeRowsIndexSemanticBounds_of_graph` 不接收额外 index ceiling
+   （索引上限）。在此之上，四个 fixed-width entry（定宽表项）、atomic
+   row equality（原子行相等）、四层有界见证、全部有限行分支、上下文化
+   分支、有界全称壳、`3 ≤ sourceCount` 与
+   `sourceCount = 3 + targetCount` 两个计数叶以及最终右结合三叶公式均已
+   逐层压到固定资源。最终端点为：
+
+   ```text
+   compactAdditiveNatListDropThreeRowsGraphPayloadEnvelope_le_fullyFixed
+   ```
+
+   十一个新模块的受限单文件探针与 `.olean` 缓存均通过，公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`；静态扫描无
+   `sorry/axiom`、`tail_gap`、`upper_provider`、`proof_length`，常数审计
+   也不再残留 consumed=1 的公式参数。函数任务头
+   `(taskKind,binder,arity) = (2,binderArity,functionArity)` 的
+   `SyntaxTaskListConsRows` 固定资源现也已关闭，并与 running-status、
+   token DropThree 和公开闭公式对齐等式组合。最终公开端点为：
+
+   ```text
+   compactUnifiedParserSyntaxTermFunctionFixedNumeralExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+   ```
+
+   证明链拆为真实三叶证书到透明包络、透明包络到统一固定包络、短传递和
+   公开 cast 四层；各层受限单文件探针均通过，公理画像仍只有标准三项。
+   relation-valid / relation-invalid 也已关闭：共同公式树模块从完整关系体
+   的闭性和代码界逐层提取十四个原生子公式事实；valid 路线组合固定
+   `NatListAtRows(1/2)`、关系码正证书和 function 证书，invalid 路线组合
+   同两个 AtRows、关系码负证书和 failure 证书。两条路线均按原右结合语法
+   依次支付六层 connective assembly（联结词装配），`tailCount` 界分别从
+   真实 function/failure 行关系推出，不作为输入包络。最终端点为：
+
+   ```text
+   syntaxFormulaRelationValidBodyCertificate_structuralPayloadBound_le_fullyFixed
+   syntaxFormulaRelationInvalidBodyCertificate_structuralPayloadBound_le_fullyFixed
+   ```
+
+   两端点及公共公式树、选中联结词通用桥均通过受限探针，公理画像仍只有
+   标准三项。relation-short/valid/invalid 三体现也已分别接入真实 `{0,1}`
+   标签证书，得到三个固定资源端点：
+
+   ```text
+   syntaxFormulaRelationShortSelectedCertificate_structuralPayloadBound_le_fullyFixed
+   syntaxFormulaRelationValidSelectedCertificate_structuralPayloadBound_le_fullyFixed
+   syntaxFormulaRelationInvalidSelectedCertificate_structuralPayloadBound_le_fullyFixed
+   ```
+
+   单文件受限探针耗时约 11 秒、峰值约 252 MiB；三个端点均无 `sorryAx`，
+   公理画像只有标准三项。完整五路 tag-branch 的右结合析取树装配现已
+   独立关闭；relation 与 invalid-tag 两个叶子的 graph-free（不要求该分支
+   执行关系成立）固定语法码界也已通过：
+
+   ```text
+   binaryFormulaCode_fiveRightDisjunction_length_le
+   syntaxFormulaRelationSelectedFormula_code_length_le_fixed
+   syntaxFormulaInvalidTagSelectedFormula_code_length_le_fixed
+   ```
+
+   invalid-tag 端点直接使用 failure 公式的 21 坐标代入语法界，不含
+   `hfailure`。logical 的 continue 公式现也已由真实 22 坐标混合项向量
+   直接计费；binary 与 quantifier 的完整公式则由各自 22 坐标短二进制
+   数词代入模板直接计费。五叶汇总后的公开端点为：
+
+   ```text
+   compactUnifiedParserSyntaxFormulaTagBranchExplicitFormula_code_length_le_fullyFixed
+   compactUnifiedParserSyntaxFormulaTagBranchExplicitFormula_freeVariables_eq_empty_fullyFixed
+   ```
+
+   两端点均不要求任何未选分支 graph，受限探针通过且公理画像只有标准
+   三项。最外层 relation 析取装配也已关闭。通用端点先从完整五叶公式提取
+   左右闭性与未选右尾代码界，再把真实 selected certificate（选中证书）装入
+   左支；short/valid/invalid 三个具体端点分别为：
+
+   ```text
+   syntaxFormulaRelationShortTagBranchCertificate_structuralPayloadBound_le_fullyFixed
+   syntaxFormulaRelationValidTagBranchCertificate_structuralPayloadBound_le_fullyFixed
+   syntaxFormulaRelationInvalidTagBranchCertificate_structuralPayloadBound_le_fullyFixed
+   ```
+
+   short 的 `tailCount` 位长由显式数值界推出；valid/invalid 的 `tailCount`
+   数值界分别由真实 function/failure graph 的任务栈关系推出，`bitBound`
+   正性由 `3 <= current.tokensCount` 和状态坐标位长界推出，均未新增外部
+   参数。单文件受限探针约 11 秒，三个端点及通用端点的公理画像都只有
+   `propext`、`Classical.choice`、`Quot.sound`，静态扫描无项目公设、
+   `sorry`、`tail_gap`、`upper_provider` 或 `proof_length`。通用五路右结合
+   析取装配的四个右路径以及
+   logical、binary、quantifier、invalid-tag 四个具体路径现均已关闭；后三
+   路的 `tailCount` 分别由真实 DropRows / ConsRows / SameRows 关系推出，
+   `bitBound` 正性由选中标签或 `tag ≠ 0` 推出。四个端点的受限探针和公理
+   画像均通过。完整 tag 节点至此关闭。`empty ⋎ enough` 外层完整公式的
+   graph-free 代码界与闭性现也已关闭；正式受限探针约 10 秒通过，静态扫描
+   无项目公设或占位证明。empty 左证书、enough 右证书和全部八类 checked-data
+   （已检查分支数据）现已汇总为公开干净入口
+   `compactUnifiedParserSyntaxFormulaBranchCleanHybridCertificateFromData`；
+   其统一显式多项式界
+   `compactUnifiedParserSyntaxFormulaBranchCleanHybridCertificateFromData_structuralPayloadBound_le_fullyFixed`
+   已通过受限探针。该入口在 binary（双子式）构造中直接选用已闭合的 modular
+   certificate（模块化证书），不再把旧 monolithic certificate（单体证书）
+   偷接到模块化资源界；其余七类仍使用原公开构造。最终公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`，禁用项扫描为零。完整
+   parser graph（解析器图关系）到 clean certificate（干净证书）的构造现已
+   闭合；剩余的是该证书的统一固定资源界。其 `UnconsRowsWithSize` 六叶中，
+   positivity / NatSize / tail-area 三个算术叶及 SyntaxTaskList DropOne
+   （任务栈丢弃一行）的九层 graph payload（图负载）链已经通过受限探针。
+   TripleBoundary（三级边界）的实际行终端、实际行资源和、原 hybrid 分支树、
+   上下文有限穷尽、全称外壳及最终 graph envelope（图负载包络）现均已在同一
+   证明对象上得到固定界，未再用 direct `CertifiedPAContextProof` 冒充旧
+   hybrid certificate。ConsRows（头插入行）允许任意三个自然数任务字段，故
+   未以 quantifier/function 特例代替通用图。三条真实
+   `CompactAdditiveTokenCell` 布局关系现已推出全部字段位长和两个内部游标界；
+   三个任意字段均以 short binary numeral（短二进制数词）编译。通用三单元
+   terminal（终端）、两层内部游标安装、左右边界见证安装，以及 count /
+   head / tail-universal 三叶原公式装配均已通过受限探针。头字段使用显式
+   `numericBound + bitBound` 组合位长界，该界由布局关系内部推出，未增加调用者
+   参数。最终 `taskConsGenericCertificate_structuralPayloadBound_le_fullyFixed`
+   公理画像只有 `propext`、`Classical.choice`、`Quot.sound`。
+   `UnconsRowsWithSize` 的六个真实叶子已沿原右结合公式树全部闭合：
+   positivity、DropOne、TripleBoundary、ConsRows、NatSize 与 tail-area。
+   `unconsRowsWithSizeCertificate_structuralPayloadBound_le_fullyFixed`
+   已为原 graph certificate（图证书）给出统一固定多项式界，并精确支付五层
+   conjunction（合取）标签成本；不含调用者资源参数。受限探针约 10 秒通过，
+   静态扫描无 `sorry`、项目公设、`tail_gap`、`upper_provider` 或
+   `proof_length`，两个最终端点的公理画像均只有 `propext`、
+   `Classical.choice`、`Quot.sound`。此前性能故障已定位为缺少
+   `FoundationCompactPABinaryNumeralAddition` 显式命名空间导致的展开器深度
+   搜索，不是数学缺口。接回 clean tail 的首个受限探针进一步确认：该处实际
+   使用 native `1/0`（原生数词）与 short-binary binder（短二进制绑定深度），
+   而上述通用端点使用三个 short-binary 项；两者数值相同但 PA 语法码不同，
+   禁止用重写冒充同一证书。现已证明 clean parser 的 `fixedNumeralTerm`
+   与 binary-layout 的 `nativeNumeralTerm` 是定义相同的原生语法，并复用
+   binary task layout 的真实三单元证书；两个边界表项、三叶 head terminal
+   及两个显式边界见证的安装均已闭合。公开端点
+   `taskConsParserHeadCertificate_structuralPayloadBound_le_fullyFixed`
+   的受限探针通过，静态扫描无禁用项，公理画像只有标准三项。下一唯一局部
+   义务中的 count 与 tail-universal 两叶现也已接入：
+   `taskConsParserCertificate_structuralPayloadBound_le_fullyFixed`
+   在同一原公式上装配真实 count、native parser head 和 tail-universal
+   三条证书，受限探针、禁用项扫描及标准三项公理画像均通过。parser 专用
+   六叶公式码坐标现已定义，并沿原右结合公式树依次闭合
+   `Tail456`、`Tail3456`、`Tail23456` 和最外层 positivity（正性）。
+   最终端点
+   `parserSyntaxFormulaUnconsFullPartsCertificate_structuralPayloadBound_le_fullyFixed`
+   给真实 native `1/0` parser 六叶证书统一固定多项式界。七个资源/紧公式码
+   端点的受限探针通过；公理画像都只有 `propext`、`Classical.choice`、
+   `Quot.sound`，禁用依赖扫描为空。实际 `UnconsRowsWithSize` graph（拆头带
+   大小图）现已提取六个真实分量，并通过原公式 alignment（公式对齐）接到
+   parts certificate（分量证书）。该端点又与 checked branch（已检查分支）
+   和 running-status（运行状态）逐层装配；最终端点
+   `compactUnifiedParserSyntaxFormulaCleanHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed`
+   已给完整 clean parser graph certificate 统一固定多项式结构载荷界。
+   五个 clean-tail / clean-parts / final graph 端点的受限探针、公理画像和
+   禁用依赖扫描全部通过。该 clean formula 证书现已真实接入六路原始
+   `SyntaxStep`（语法步骤）公式，并继续接入保留原生 `index + 1` 项的原始
+   33 坐标 `SyntaxAdjacentStep`（相邻语法步骤）公式。正式端点为：
+
+   ```text
+   compactUnifiedParserSyntaxStepCleanHybridCertificateOfGraph
+   compactParserSyntaxAdjacentStepRowCleanHybridCertificateOfGraph
+   ```
+
+   两层受限单文件探针均通过，公理画像只有 `propext`、
+   `Classical.choice`、`Quot.sound`。这证明 clean formula 不是脱离实际轨迹的
+   旁路证书。当前唯一局部义务是把 `SyntaxStep` 其余五个分支的旧
+   coordinate-dependent public-finite envelope（依赖具体坐标的公开有限包络）
+   也压到同一 `numericBound/bitBound` 固定多项式，再给新的 clean
+   `SyntaxStep / SyntaxAdjacentStep` 证书建立统一资源界。完成后才可提升到
+   行全称证书并接入完整 verifier `StepGraph / BoundedGraph`
+   （验证器步骤图／有界图）矩阵资源，最后与输入表、输入分割、相邻行和
+   初末行汇总。Formula 选中路径现已先完成这项提升：
+
+   ```text
+   compactUnifiedParserSyntaxStepCleanHybridCertificateFromFormulaData_structuralPayloadBound_le_fixed
+   ```
+
+   它直接约束 clean `FromData.formula` 的真实证明对象，并支付从第五叶到
+   六路原始 `SyntaxStep` 析取根部的五次连接器成本；上界使用刚闭合的
+   `cleanParserSyntaxFormulaPartsPayloadPolynomial`，不回退到旧 formula
+   public-finite envelope。受限探针通过，公理画像只有标准三项。其余五条
+   选中路径仍须分别固定；当前先关闭 Invalid 原 25 坐标闭公式的统一代码界，
+   再装配其已具备固定资源的六个真实叶。该项现已完成。新增原子桥直接复用
+   已检查的 native disequality（原生不等式）固定端点，不重新展开昂贵的负
+   关系编译器；完整 Invalid 端点保留 running / Uncons / 三个不等式 /
+   failure 六个原证书，并由六叶通用装配器支付五次合取成本：
+
+   ```text
+   fixedNeCertificate_structuralPayloadBound_le_fullyFixed
+   compactUnifiedParserSyntaxInvalidExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+   compactUnifiedParserSyntaxStepCleanHybridCertificateFromInvalidData_structuralPayloadBound_le_fixed
+   ```
+
+   25 坐标总公式代码界由每个真实证书的
+   `formulaCodeLength <= structuralPayloadBound` 汇总得到，避免展开大代入式。
+   三个端点受限探针通过，公理画像只有标准三项。Invalid 选中证书随后支付
+   五次真实右析取并到达同一 `SyntaxStep` 根部。六条选中路径中现已固定
+   Formula 与 Invalid。为 Done / Empty 两个九叶分支新增的
+   `checkedHybridNineConjunctionPayloadBound_le_closedGeneral` 已通过受限探针，
+   它从九个原证书、九个资源界和闭总公式代码界直接给出固定装配界，不引入
+   新接口。Empty 的两个 `tasksCount = 0` 原子证书现已严格归约到同一个常数
+   资源；输出面积证书也已由真实 `Nat.size` 等式和坐标界压到
+   `completedAreaFixedPayloadPolynomial bitBound`。对应端点为：
+
+   ```text
+   closedEqZeroCertificate_structuralPayloadBound_le_fixed
+   outputBoundaryAreaCertificate_structuralPayloadBound_le_fixed
+   ```
+
+   两者探针和公理画像均通过。继续约束 Empty 原 hybrid 证书会保留对所有
+   `bodyStart` 的旧求和；该旁路现已被同一闭公式的 uniform direct compiler
+   （统一直接编译器）替换。新增九叶直接合取编译器，把八个原 checked
+   certificate（已检查证书）与一个 structured-layout direct proof
+   （结构化布局直接证明）装配为原九叶公式；再由独立 alignment（对齐）层
+   转回原 22 坐标 substitution formula（代入公式）：
+
+   ```text
+   compileDirectNineConjunction
+   compileDirectNineConjunction_payloadLength_le_transparent
+   compileCompactUnifiedParserEmptyUniformDirectContext
+   compileCompactUnifiedParserEmptyUniformDirectOriginalContext
+   ```
+
+   九叶 transparent payload envelope（透明载荷包络）的八次合取成本现已由
+   `compileDirectNineConjunction_payloadLength_le_closedGeneral` 用同一个闭公式
+   代码界统一支付。八个旧叶分别使用自身固定界，structured-layout 叶直接
+   使用 uniform direct fixed bound；最终端点为：
+
+   ```text
+   compileCompactUnifiedParserEmptyUniformDirectContext_payloadLength_le_fixed
+   compileCompactUnifiedParserEmptyUniformDirectOriginalContext_payloadLength_le_fixed
+   ```
+
+   两者约束的正是新直接 proof term（证明项），不是旧求和包络。显式九叶
+   定理约二十三秒，对齐后的原 22 坐标定理约七秒；独立公理探针确认全部新
+   端点只依赖标准三项，禁用依赖扫描无命中。Empty 分支本体随后已支付一次
+   left disjunction（左析取）和一次 right disjunction（右析取），直接接入
+   六路 `SyntaxStep` 显式根公式：
+
+   ```text
+   compileCompactUnifiedParserSyntaxStepFromEmptyDirectContext
+   compileCompactUnifiedParserSyntaxStepFromEmptyDirectContext_payloadLength_le_selected
+   ```
+
+   该选中路径约二十二秒通过，公理画像仍只有标准三项。六条选中路径中现已
+   闭合 Formula、Invalid 与 Empty。Done 的 completed-same-rows（完成状态
+   同排）九叶子图也已改为直接构造：两条完成前缀、两条结构化布局、同排关系、
+   两个精确大小和两个面积界均由真实证书产生，两个布局不再使用旧见证求和：
+
+   ```text
+   compileCompactBinaryNatCompletedStatusSameRowsUniformDirect
+   compileCompactBinaryNatCompletedStatusSameRowsUniformDirect_payloadLength_le_fixed
+   ```
+
+   后一定理约十四秒通过；静态禁用依赖扫描为零，公理画像只有标准三项。
+   该子图现已与 failed-pair（双失败状态）二选一、tokens/tasks 同排两叶
+   组合，并通过统一重写公式码界对齐原 26 坐标公式。26 个环境坐标只要求
+   公共位长界，公式代码、闭性、全部连接器和完整载荷均已压到只依赖
+   `numericBound / bitBound` 的固定多项式：
+
+   ```text
+   compactUnifiedParserDoneClosedFormula_environment_alignment
+   compactUnifiedParserDoneClosedFormula_code_length_le_fixed
+   compileCompactUnifiedParserDoneUniformDirectOriginalContext_payloadLength_le_fixed
+   compileCompactUnifiedParserSyntaxStepFromDoneDirectContext_payloadLength_le_selected
+   ```
+
+   最后一个端点把 Done 作为六路 `SyntaxStep` 第一支，只支付一次左析取。
+   四个关键端点的受限探针、公理画像和禁用依赖扫描均通过，公理画像只有
+   标准三项。六条选中路径现已闭合 Formula、Invalid、Empty、Done；剩余
+   顺序为 Repeat、Term。
+
+   Repeat 已关闭第一批真实组件：原 25 坐标公式的环境代入、闭性和统一公式
+   码固定界；原生零等式与后继等式的固定完整载荷界；以及任务头类型为原生
+   固定数词 `2` 的六叶 `UnconsRowsWithSize`（带大小解构）证书。最后一项没有
+   偷换成语法不同的短二进制数词 `2`，而是从非空、DropOne、TripleBoundary、
+   Function ConsRows、NatSize、面积六个真实叶子重新构造，并逐字对齐原公式：
+
+   ```text
+   compactUnifiedParserSyntaxRepeatClosedFormula_code_length_le_fixed
+   nativeSuccessorEqCertificate_structuralPayloadBound_le_fixed
+   parserSyntaxRepeatUnconsFullFormula_alignment
+   parserSyntaxRepeatUnconsGraphCertificate_structuralPayloadBound_le_fullyFixed
+   ```
+
+   上述端点的单文件受限探针、禁用依赖扫描和公理探针均通过，公理画像只有
+   标准三项。Repeat 的两个 `AtRows`（指定任务行）终端也已关闭：公共终端核心
+   从真实图关系提取左右边界见证并组合两条定宽表项和真实三单元任务布局；
+   固定索引 `0` 使用精确原生 `(0,binderArity,0)` 布局，固定索引 `1` 使用
+   精确原生 `(2,binderArity,decrementedCount)` 布局。原生零并不与短二进制零
+   语法相等，因此另行建立了原生零 terminal/installed（终端／见证安装）编译器，
+   没有用同值改写偷换语法。现已继续完成统一开放 body（终端公式）的公式码界
+   与闭性、真实左右游标的两层有界见证安装、固定索引 `0/1` 的
+   `index < count` 守卫，以及最外层合取和原源公式对齐。两个完整 `AtRows`
+   固定载荷端点及全部中间端点的公理探针均通过，公理画像只有标准三项；
+   无 `sorry`、项目公设或外部载荷参数。两个 `AtRows` 子义务至此闭合。Repeat
+   的零分支已由 `repeatCount = 0` 与真实 `SyntaxTaskListSameRows` 证书直接闭合；
+   正分支已按原顺序组合后继等式、`DropTwo` 和两条 `AtRows` 完整证书。左右两条
+   选中路径又分别接入原 25 坐标公式的统一语法界，定向探针均通过，公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`。这里没有构造未选分支的假证书：
+   已选分支由真实 graph data（图数据）生成，未选分支只作为原析取公式的语法子式
+   计长。当前义务上移到把该分支选择器与 current/next status（当前／下一状态）、
+   token SameRows（词元同行）和已闭合 Uncons（任务栈拆头）四个外层组件合并，
+   随后支付六路 `SyntaxStep` 的第三条选中路径。现又已完成不依赖分支种类的
+   五组件装配器：它按原公式顺序组合两份真实 RunningStatus（运行状态）证书、
+   真实 token SameRows、精确原生任务类型 `2` 的 Uncons 证书和调用者给出的
+   已检查分支证书；完整公式码直接复用原 25 坐标统一固定界。四个公共 graph
+   证书也已接入该装配器并通过受限探针，公理画像仍只有标准三项。当前精确义务
+   只剩把已闭合的零／正选择器分别对齐到原 branch formula（分支公式）后调用
+   公共 graph 端点；完成两条调用即得到完整 Repeat 的两条固定端点。现已进一步
+   完成这两条原分支公式对齐，且统一 `repeatFullGraphCertificate` 已把五组件
+   逐字 cast（公式恒等转换）回原 25 坐标闭公式；分支对齐、完整公式转换和公共
+   graph 资源端点的探针均通过，公理画像只有标准三项。当前只需形成零／正两条
+   最外层命名组合定理（分别把分支资源界传入完整 graph 资源定理），随后即可把
+   Repeat 作为六路 `SyntaxStep` 的第五条选中路径接入。现零／正两条最外层
+   完整 Repeat 命名端点均已形成并通过探针；在实际六路公式顺序中 Repeat 是
+   第三支，因此选中路径精确支付两次右析取和一次左析取。该“两右一左”选择器
+   及其原 `SyntaxStep` 显式公式接口也已闭合，公理画像只有标准三项。当前只剩
+   把零／正完整 Repeat 端点分别代入该接口，形成两条最终 SyntaxStep graph
+   端点；不再存在 Repeat 内部数学叶子。该最终 graph 端点现已闭合：它从真实
+   Repeat 行关系构造 `CompactSyntaxRepeatCheckedBranchData`（已检查分支数据），
+   在 `Type` 层分情况生成零／正完整证书，并把两个固定预算统一压入 `max`；
+   随后严格通过“两右一左”选择器进入原 SyntaxStep 显式公式。定向探针、公理
+   探针和禁用依赖扫描均通过，公理画像只有标准三项。Repeat 路径至此完整关闭，
+   Term（项任务）路径随后也已闭合：七种判定分支、完整 Term graph
+   （项图）和六路 `SyntaxStep`（语法步骤）的第四条路径均得到固定资源界。
+   六个 SyntaxStep 分支现分别产生同一原公式的真实直接 PA 证明对象，并由
+   `syntaxStepAllBranchesClosedFixedResource` 的显式 `max`（最大值）统一：
+
+   ```text
+   compactUnifiedParserSyntaxStepFullyFixedBoundFromData
+   compactUnifiedParserSyntaxStepFullyFixedBoundOfGraph
+   ```
+
+   两个汇总端点及六个分支端点均通过 60 秒受限单文件探针；独立公理探针
+   全部仅含 `propext`、`Classical.choice`、`Quot.sound`，禁用依赖扫描为空。
+   该统一界现已沿两条严格区分的索引路线接入
+   `SyntaxAdjacentStep`（相邻语法步骤）原 33 坐标公式。闭索引端点
+   `compactParserSyntaxAdjacentStepFullyFixedBoundOfGraph` 已通过；开放索引路线
+   又新增任意 valuation（赋值）版 `StateAtRows`（状态指定行）编译器，并把
+   `indexTerm` 与原生 `indexTerm + 1` 分别用于当前／下一行。三个坐标分量及聚合
+   端点 `compactParserSyntaxAdjacentStepAtValuationIndexFullyFixedBoundOfGraph`
+   均通过 60 秒受限探针，公理画像只有标准三项。
+
+   两份 status-valid（状态有效）证书随后与开放索引相邻步骤合成为同一
+   terminal body（终端主体）。其上的 `AdjacentRowBounded`（有界相邻行）
+   27 个见证已按原量词顺序逐项提取、对齐并直接编译；原始终端的自由变量严格
+   包含于 `{0}`，上下文码由公开 `numericBound` 统一支付。最终端点
+   `compactParserSyntaxAdjacentRowBoundedAtValuationIndexFullyFixedBound`
+   直接从同一索引处的原 bounded proposition（有界命题）产生真实 PA 证明，
+   不接收行证书、证明长度或隐藏上界参数。开放索引语法、见证代入、上下文界、
+   27 元编译和最终原公式转换均通过受限探针，公理画像只有
+   `propext`、`Classical.choice`、`Quot.sound`。
+
+   `row universal`（行全称）外壳现也已闭合。原八参数
+   `compactParserSyntaxAdjacentRowsBoundedGraphDef` 被严格对齐为
+   `expDef valueBound tableWidth` 与
+   `∀ rowIndex < rowCount, AdjacentRowBounded(rowIndex)` 的合取；每个全称
+   分支都以 `extendValuation rowIndex zeroValuation` 调用上述开放索引端点，
+   `rowIndex <= numericBound` 仅由
+   `rowIndex < rowCount <= numericBound` 推出。27 见证的公开资源界与行号
+   无关，因此全部分支共享同一叶资源；有限穷尽、短数词边界等式、全称引入
+   和最终合取的完整成本进一步受显式
+   `explicitDirectUniversalBranchesPayloadPolynomial` 控制。最终端点为：
+
+   ```text
+   compileCompactParserSyntaxAdjacentRowsBoundedDirectClosedContext
+   compileCompactParserSyntaxAdjacentRowsBoundedDirectClosedContext_payloadLength_le
+   ```
+
+   语法对齐、单行分支、分支树、多项式包络、全称证明和原图公式端点均通过
+   60 秒受限单文件探针；公理画像仍仅含标准三项，无 `sorryAx`、无项目公设、
+   无证明长度或分支证书输入。当前局部义务已上移到：
+
+   ```text
+   verifier StepGraph / BoundedGraph（验证器步骤图／有界图）完整矩阵
+   ```
+
+   `A04.18` 尚未整体闭合，必须保持黄色。
 2. 由规范接受执行构造同一闭矩阵的 quantitative hybrid certificate（定量混合
    证书），复用已闭合的输入表、公式表、输入分割、相邻行、初末行等端点；最终
    依赖闭包不得到达 `ofSigmaZeroTruth` 或

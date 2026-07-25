@@ -1,0 +1,12 @@
+import integration.FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsRawModeZeroFixedBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsRawModeOneFixedBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsRawModeTwoFixedBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsRawModeFiveFixedBounds
+
+/-!
+# Fixed resources for all four raw output modes
+
+This aggregation module exports the independently checked zero, one, two, and
+five raw-mode certificate compilers.  Each endpoint uses the same fixed syntax
+and payload polynomial and avoids the legacy proof-dependent envelopes.
+-/

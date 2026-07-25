@@ -1,0 +1,61 @@
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsAtomicFullyFixedBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListDropOneRowsFullyFixedBounds
+import integration.FoundationCompactNumericListedDirectAdditiveTripleBoundaryRowsHybridUniversalFullyFixedBounds
+import integration.FoundationCompactNumericListedDirectSyntaxTaskListConsRowsGenericFullyFixedBounds
+import integration.FoundationCompactPAHybridSixConjunctionCertificateClosedGeneralBounds
+
+/-!
+# Fixed resource coordinates for syntax-task-list uncons
+
+This module contains only the numerical envelopes.  Keeping them separate
+prevents later proof elaboration from rebuilding the six checked leaves.
+-/
+
+open LO FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option maxRecDepth 32768
+set_option maxHeartbeats 150000
+set_option Elab.async false
+set_option autoImplicit false
+
+namespace FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsWithSizeFullyFixedBoundsDefinitions
+
+open FoundationSuccinctFiniteConsistencyTarget
+open FoundationCompactPABinaryNumeralAddition
+open FoundationCompactNumericListedDirectNatSizePublicBounds
+open FoundationCompactNumericListedDirectBinaryNatCompletedStatusFixedPolynomialBounds
+open FoundationCompactNumericListedDirectParserStateCoreFullyUniformDirectFixedBounds
+open FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsAtomicFullyFixedBounds
+open FoundationCompactNumericListedDirectSyntaxTaskListDropOneRowsFullyFixedBounds
+open FoundationCompactNumericListedDirectAdditiveTripleBoundaryRowsHybridUniversalFullyFixedBounds
+open FoundationCompactNumericListedDirectSyntaxTaskListConsRowsGenericFullyFixedBounds
+open FoundationCompactPAHybridSixConjunctionClosedGeneralBounds
+
+def unconsRowsWithSizeFormulaCodePolynomial
+    (tokenCount numericBound bitBound : Nat) : Nat :=
+  unconsPositiveFullyFixedPayloadPolynomial bitBound +
+    taskDropOneCompleteFullyFixedPayloadPolynomial numericBound bitBound +
+    tripleBoundaryRowsHybridUniversalFixedPayloadPolynomial numericBound
+      bitBound +
+    taskConsGenericFullyFixedPayloadEnvelope tokenCount numericBound
+      bitBound +
+    compactNatSizeFixedPayloadPolynomial bitBound +
+    parserAreaFixedPayloadPolynomial bitBound +
+    5 * (binaryNatCode 4).length + 1
+
+def unconsRowsWithSizeFullyFixedPayloadPolynomial
+    (tokenCount numericBound bitBound : Nat) : Nat :=
+  hybridSixConjunctionGeneralPayloadEnvelope
+    (unconsRowsWithSizeFormulaCodePolynomial tokenCount numericBound bitBound)
+    (unconsPositiveFullyFixedPayloadPolynomial bitBound)
+    (taskDropOneCompleteFullyFixedPayloadPolynomial numericBound bitBound)
+    (tripleBoundaryRowsHybridUniversalFixedPayloadPolynomial numericBound
+      bitBound)
+    (taskConsGenericFullyFixedPayloadEnvelope tokenCount numericBound
+      bitBound)
+    (compactNatSizeFixedPayloadPolynomial bitBound)
+    (parserAreaFixedPayloadPolynomial bitBound)
+
+end FoundationCompactNumericListedDirectSyntaxTaskListUnconsRowsWithSizeFullyFixedBoundsDefinitions

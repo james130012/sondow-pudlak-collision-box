@@ -609,7 +609,7 @@ noncomputable def compactBinaryNatCompletedStatusExplicitHybridCertificate
           (completedAreaCertificate tokenCount outputCount
             outputBoundarySize hcompleted.2.2.2.2))))
 
-private theorem compactBinaryNatStatusValidBoundedRawTerminal_alignment
+theorem compactBinaryNatStatusValidBoundedRawTerminal_alignment
     (tokenTable width tokenCount start finish
       outputStart outputBoundary outputBoundarySize outputCount : Nat) :
     compactBinaryNatStatusValidBoundedRawTerminal

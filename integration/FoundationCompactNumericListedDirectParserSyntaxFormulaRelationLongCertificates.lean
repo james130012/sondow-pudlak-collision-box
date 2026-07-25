@@ -1,0 +1,4 @@
+import integration.FoundationCompactNumericListedDirectParserSyntaxFormulaRelationValidCertificate
+import integration.FoundationCompactNumericListedDirectParserSyntaxFormulaRelationInvalidCertificate
+
+/-! Checked certificates for both long relation branches. -/

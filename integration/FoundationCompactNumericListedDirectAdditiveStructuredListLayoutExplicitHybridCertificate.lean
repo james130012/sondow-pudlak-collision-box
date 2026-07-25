@@ -164,6 +164,21 @@ private def closedShift :
   | 0, term => term
   | k + 1, term => Rew.bShift (closedShift k term)
 
+/-- Public name for the exact closed-term shift used by boundary-table syntax.
+Downstream direct compilers must share this constructor rather than duplicate
+an extensionally equal term language. -/
+def boundaryTableClosedShift
+    (k : Nat) (term : ValuationTerm) : ArithmeticSemiterm Nat k :=
+  closedShift k term
+
+@[simp] theorem boundaryTableClosedShift_zero (term : ValuationTerm) :
+    boundaryTableClosedShift 0 term = term := rfl
+
+@[simp] theorem boundaryTableClosedShift_succ
+    (k : Nat) (term : ValuationTerm) :
+    boundaryTableClosedShift (k + 1) term =
+      Rew.bShift (boundaryTableClosedShift k term) := rfl
+
 @[simp] private theorem free_bShift2_shortBinaryNumeralTerm (value : Nat) :
     (Rew.free (L := ℒₒᵣ) (n := 1))
         (Rew.bShift (Rew.bShift (shortBinaryNumeralTerm value))) =
@@ -287,6 +302,199 @@ def compactAdditiveBoundaryTableRowBody
   ((compactAdditiveBoundaryTableRowTerminal tokenCount boundaryTable).bexsLTSucc
       (closedShift 2 (shortBinaryNumeralTerm tokenCount))).bexsLTSucc
     (closedShift 1 (shortBinaryNumeralTerm tokenCount))
+
+/-- The terminal after releasing the universal row index.  The two remaining
+bound variables are the right and left boundary values, in that order. -/
+def compactAdditiveBoundaryTableRowDirectTerminal
+    (tokenCount boundaryTable : Nat) : ArithmeticSemiformula Nat 2 :=
+  ((Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val) ⇜
+      ![closedShift 2 (shortBinaryNumeralTerm boundaryTable),
+        closedShift 2 (shortBinaryNumeralTerm tokenCount),
+        closedShift 2 (&0 : ValuationTerm),
+        (#1 : ArithmeticSemiterm Nat 2)]) ⋏
+    (((Rewriting.emb (ξ := Nat) compactFixedWidthEntryDef.val) ⇜
+        ![closedShift 2 (shortBinaryNumeralTerm boundaryTable),
+          closedShift 2 (shortBinaryNumeralTerm tokenCount),
+          closedShift 2 (‘&0 + 1’ : ValuationTerm),
+          (#0 : ArithmeticSemiterm Nat 2)]) ⋏
+      “#1 < #0”)
+
+private theorem substitute_boundaryClosedShift
+    {k : Nat} (values : Fin k -> ValuationTerm)
+    (term : ValuationTerm) :
+    Rew.subst values (closedShift k term) = term := by
+  induction k with
+  | zero =>
+      have hrew : (Rew.subst values : Rew ℒₒᵣ Nat 0 Nat 0) = Rew.id := by
+        apply Rew.ext
+        · intro index
+          exact Fin.elim0 index
+        · intro freeIndex
+          rfl
+      rw [hrew]
+      exact Rew.id_app term
+  | succ k inductionHypothesis =>
+      have hrew :
+          (Rew.subst values).comp Rew.bShift =
+            Rew.subst (fun index : Fin k => values index.succ) := by
+        apply Rew.ext
+        · intro index
+          simp [Rew.comp_app]
+        · intro freeIndex
+          simp [Rew.comp_app]
+      calc
+        Rew.subst values (closedShift (k + 1) term) =
+            ((Rew.subst values).comp Rew.bShift)
+              (closedShift k term) := by
+                simp [closedShift, Rew.comp_app]
+        _ = Rew.subst (fun index : Fin k => values index.succ)
+              (closedShift k term) := by rw [hrew]
+        _ = term := inductionHypothesis _
+
+private def boundaryClosedShiftRewriting :
+    (k : Nat) -> Rew ℒₒᵣ Nat 0 Nat k
+  | 0 => Rew.id
+  | k + 1 => Rew.bShift.comp (boundaryClosedShiftRewriting k)
+
+@[simp] private theorem boundaryClosedShiftRewriting_apply
+    (k : Nat) (term : ValuationTerm) :
+    boundaryClosedShiftRewriting k term = closedShift k term := by
+  induction k with
+  | zero => exact Rew.id_app term
+  | succ k inductionHypothesis =>
+      simp [boundaryClosedShiftRewriting, closedShift, Rew.comp_app,
+        inductionHypothesis]
+
+private theorem free_boundaryClosedShift_shortBinaryNumeralTerm
+    (k value : Nat) :
+    (Rew.free (L := ℒₒᵣ) (n := k))
+        (closedShift (k + 1) (shortBinaryNumeralTerm value)) =
+      closedShift k (shortBinaryNumeralTerm value) := by
+  let leftRewriting : Rew ℒₒᵣ Nat 0 Nat k :=
+    (Rew.free (L := ℒₒᵣ) (n := k)).comp
+      (boundaryClosedShiftRewriting (k + 1))
+  let rightRewriting : Rew ℒₒᵣ Nat 0 Nat k :=
+    boundaryClosedShiftRewriting k
+  have h := Semiterm.rew_eq_of_funEqOn
+    leftRewriting rightRewriting (shortBinaryNumeralTerm value)
+    (fun coordinate => Fin.elim0 coordinate)
+    (fun coordinate hcoordinate => by
+      have : coordinate ∈
+          (shortBinaryNumeralTerm value).freeVariables := hcoordinate
+      rw [shortBinaryNumeralTerm_freeVariables_eq_empty] at this
+      simp at this)
+  simpa [leftRewriting, rightRewriting, Rew.comp_app] using h
+
+private theorem free_boundaryBShift3_shortBinaryNumeralTerm
+    (value : Nat) :
+    (Rew.free (L := ℒₒᵣ) (n := 2))
+        (Rew.bShift (Rew.bShift
+          (Rew.bShift (shortBinaryNumeralTerm value)))) =
+      Rew.bShift (Rew.bShift (shortBinaryNumeralTerm value)) := by
+  change (Rew.free (L := ℒₒᵣ) (n := 2))
+      (closedShift 3 (shortBinaryNumeralTerm value)) =
+    closedShift 2 (shortBinaryNumeralTerm value)
+  exact free_boundaryClosedShift_shortBinaryNumeralTerm 2 value
+
+private theorem boundaryShift_shortBinaryNumeralTerm (value : Nat) :
+    Rew.shift (shortBinaryNumeralTerm value) =
+      shortBinaryNumeralTerm value := by
+  have h := LO.FirstOrder.Semiterm.rew_eq_of_funEqOn
+    (Rew.shift : Rew ℒₒᵣ Nat 0 Nat 0) Rew.id
+    (shortBinaryNumeralTerm value)
+    (fun index => Fin.elim0 index)
+    (fun index hindex => by
+      have : index ∈
+          (shortBinaryNumeralTerm value).freeVariables := hindex
+      rw [shortBinaryNumeralTerm_freeVariables_eq_empty] at this
+      simp at this)
+  simpa using h
+
+/-- Releasing the row index turns the arity-three terminal into the exact
+arity-two terminal consumed by the direct bounded-witness compiler. -/
+theorem compactAdditiveBoundaryTableRowTerminal_free_alignment
+    (tokenCount boundaryTable : Nat) :
+    Rewriting.free
+        (compactAdditiveBoundaryTableRowTerminal tokenCount boundaryTable) =
+      compactAdditiveBoundaryTableRowDirectTerminal
+        tokenCount boundaryTable := by
+  unfold compactAdditiveBoundaryTableRowTerminal
+  unfold compactAdditiveBoundaryTableRowDirectTerminal
+  simp [closedShift, ← TransitiveRewriting.comp_app]
+  constructor
+  · congr 1
+    apply arithmeticRewritingApp_congr
+    apply Rew.ext
+    · intro coordinate
+      fin_cases coordinate <;>
+        simp [free_boundaryBShift3_shortBinaryNumeralTerm,
+          Rew.comp_app, Rew.subst_bvar]
+    · intro coordinate
+      exact Empty.elim coordinate
+  · congr 1
+    apply arithmeticRewritingApp_congr
+    apply Rew.ext
+    · intro coordinate
+      fin_cases coordinate <;>
+        simp [free_boundaryBShift3_shortBinaryNumeralTerm,
+          Rew.comp_app, Rew.subst_bvar]
+    · intro coordinate
+      exact Empty.elim coordinate
+
+/-- Releasing the row index exposes exactly two bounded boundary-value
+witnesses over the direct terminal. -/
+theorem compactAdditiveBoundaryTableRowBody_direct_free_alignment
+    (tokenCount boundaryTable : Nat) :
+    Rewriting.free
+        (compactAdditiveBoundaryTableRowBody tokenCount boundaryTable) =
+      ((compactAdditiveBoundaryTableRowDirectTerminal
+          tokenCount boundaryTable).bexsLTSucc
+        (Rew.bShift (shortBinaryNumeralTerm tokenCount))).bexsLTSucc
+          (shortBinaryNumeralTerm tokenCount) := by
+  unfold compactAdditiveBoundaryTableRowBody
+  simp [Rew.q_free, closedShift, boundaryShift_shortBinaryNumeralTerm,
+    compactAdditiveBoundaryTableRowTerminal_free_alignment]
+
+/-- Substituting the right and left witnesses exposes the two table entries
+and the strict row increase. -/
+theorem compactAdditiveBoundaryTableRowDirectTerminal_substitution_alignment
+    (tokenCount boundaryTable left right : Nat) :
+    (compactAdditiveBoundaryTableRowDirectTerminal tokenCount boundaryTable) ⇜
+        ![shortBinaryNumeralTerm right, shortBinaryNumeralTerm left] =
+      (compactFixedWidthEntryAtValuationFormula
+          (shortBinaryNumeralTerm boundaryTable)
+          (shortBinaryNumeralTerm tokenCount)
+          (&0 : ValuationTerm)
+          (shortBinaryNumeralTerm left) ⋏
+        (compactFixedWidthEntryAtValuationFormula
+            (shortBinaryNumeralTerm boundaryTable)
+            (shortBinaryNumeralTerm tokenCount)
+            (‘&0 + 1’ : ValuationTerm)
+            (shortBinaryNumeralTerm right) ⋏
+          “!!(shortBinaryNumeralTerm left) <
+            !!(shortBinaryNumeralTerm right)”)) := by
+  unfold compactAdditiveBoundaryTableRowDirectTerminal
+  unfold compactFixedWidthEntryAtValuationFormula
+  simp [← TransitiveRewriting.comp_app]
+  constructor
+  · congr 1
+    apply arithmeticRewritingApp_congr
+    apply Rew.ext
+    · intro coordinate
+      fin_cases coordinate <;>
+        simp [Rew.comp_app, Rew.subst_bvar,
+          substitute_boundaryClosedShift]
+    · intro coordinate
+      exact Empty.elim coordinate
+  · congr 1
+    apply arithmeticRewritingApp_congr
+    apply Rew.ext
+    · intro coordinate
+      fin_cases coordinate <;>
+        simp [Rew.comp_app, Rew.subst_bvar,
+          substitute_boundaryClosedShift]
+    · intro coordinate
+      exact Empty.elim coordinate
 
 def compactAdditiveBoundaryTableExplicitFormula
     (tokenCount partCount start finish boundaryTable : Nat) :
