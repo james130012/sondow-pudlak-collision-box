@@ -148,6 +148,36 @@ private noncomputable def valuationLeCertificate
     exact .cast (Semiformula.Operator.le_def _ _).symm
       (.disjunctionRight strict)
 
+abbrev compactAdditiveNatListWitnessRowsZeroValuation : Nat -> Nat :=
+  zeroValuation
+
+noncomputable def compactAdditiveNatListWitnessRowsLeCertificate
+    (leftTerm rightTerm : ValuationTerm)
+    (hle : termValue compactAdditiveNatListWitnessRowsZeroValuation leftTerm ≤
+      termValue compactAdditiveNatListWitnessRowsZeroValuation rightTerm) :
+    CheckedHybridValuationBoundedFormulaCertificate
+      compactAdditiveNatListWitnessRowsZeroValuation
+      “!!leftTerm ≤ !!rightTerm” := by
+  if heq : termValue compactAdditiveNatListWitnessRowsZeroValuation leftTerm =
+      termValue compactAdditiveNatListWitnessRowsZeroValuation rightTerm then
+    let equality :=
+      CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
+        compactAdditiveNatListWitnessRowsZeroValuation Language.Eq.eq
+        ![leftTerm, rightTerm] heq
+    exact .cast (Semiformula.Operator.le_def _ _).symm
+      (.disjunctionLeft equality)
+  else
+    have hlt :
+        termValue compactAdditiveNatListWitnessRowsZeroValuation leftTerm <
+          termValue compactAdditiveNatListWitnessRowsZeroValuation rightTerm :=
+      Nat.lt_of_le_of_ne hle heq
+    let strict :=
+      CheckedHybridValuationBoundedFormulaCertificate.positiveAtomic
+        compactAdditiveNatListWitnessRowsZeroValuation
+        Language.ORing.Rel.lt ![leftTerm, rightTerm] hlt
+    exact .cast (Semiformula.Operator.le_def _ _).symm
+      (.disjunctionRight strict)
+
 /-- Close the exact witness-row predicate directly from its semantic graph. -/
 noncomputable def
     compactAdditiveNatListWitnessRowsExplicitHybridCertificateOfGraph
@@ -160,7 +190,6 @@ noncomputable def
       (compactAdditiveNatListWitnessRowsClosedFormula
         tokenTable width tokenCount start count finish boundaryTable
           boundarySize) := by
-  rw [compactAdditiveNatListWitnessRowsClosedFormula_alignment]
   rcases hrows with ⟨hlayout, hunit, hsizeEq, hsizeBound⟩
   let sizeBoundTerm : ValuationTerm :=
     ‘(!!(shortBinaryNumeralTerm count) + 1) *
@@ -176,13 +205,19 @@ noncomputable def
           (shortBinaryNumeralTerm boundarySize)
           (shortBinaryNumeralTerm boundaryTable) (by
             simpa [termValue_shortBinaryNumeralTerm] using hsizeEq))
-        (valuationLeCertificate
+        (compactAdditiveNatListWitnessRowsLeCertificate
           (shortBinaryNumeralTerm boundarySize) sizeBoundTerm (by
             simpa [sizeBoundTerm, termValue_shortBinaryNumeralTerm,
               termValue_arithmeticAdd, termValue_arithmeticMul,
               termValue_arithmeticOne] using hsizeBound))))
-  simpa only [compactAdditiveNatListWitnessRowsPartsFormula, sizeBoundTerm,
-    FoundationCompactNumericListedDirectAdditiveStructuredListLayoutExplicitHybridCertificate.zeroValuation] using parts
+  let direct : HybridCertificate
+      (compactAdditiveNatListWitnessRowsPartsFormula tokenTable width tokenCount
+        start count finish boundaryTable boundarySize) := by
+    simpa only [compactAdditiveNatListWitnessRowsPartsFormula, sizeBoundTerm,
+      FoundationCompactNumericListedDirectAdditiveStructuredListLayoutExplicitHybridCertificate.zeroValuation] using parts
+  exact CheckedHybridValuationBoundedFormulaCertificate.cast
+    (compactAdditiveNatListWitnessRowsClosedFormula_alignment tokenTable width
+      tokenCount start count finish boundaryTable boundarySize).symm direct
 
 #print axioms compactAdditiveNatListWitnessRowsClosedFormula
 #print axioms compactAdditiveNatListWitnessRowsPartsFormula

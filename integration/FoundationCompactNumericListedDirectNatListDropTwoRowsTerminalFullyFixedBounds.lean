@@ -537,4 +537,3 @@ theorem
   compactAdditiveNatListDropTwoRowsTerminalStructuralPayloadEnvelope_le_fullyFixed
 
 end FoundationCompactNumericListedDirectNatListDropTwoRowsTerminalFullyFixedBounds
-

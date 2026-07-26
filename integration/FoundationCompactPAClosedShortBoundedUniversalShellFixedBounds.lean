@@ -178,13 +178,15 @@ theorem closedShortTermBoundedUniversalFormula_code_length_le_source
     omega)
 
 theorem
-    compileContextualTermBoundedUniversalPayloadEnvelope_short_le_fixed_of_context
+    compileContextualTermBoundedUniversalPayloadEnvelope_termCode_le_fixed_of_context
     (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
     (Gamma : Finset LO.FirstOrder.ArithmeticProposition)
+    (boundTerm : LO.FirstOrder.ArithmeticSemiterm Nat 1)
     (bound numericBound bitBound syntaxCode bodyCode : Nat)
     (boundEqualityResource branchResource boundEqualityBound branchBound : Nat)
     (hbound : bound <= numericBound)
-    (hboundSize : Nat.size bound <= bitBound)
+    (hboundTermCode : (binaryTermCode boundTerm).length <=
+      3 * binaryNumeralTermCodeEnvelope bitBound)
     (hsyntaxBound : bound <= syntaxCode)
     (hbody : (binaryFormulaCode body).length <= bodyCode)
     (hboundEquality : boundEqualityResource <= boundEqualityBound)
@@ -197,12 +199,10 @@ theorem
       (closedShortUniversalShellFormulaPolynomial numericBound bitBound
         syntaxCode bodyCode)) :
     compileContextualTermBoundedUniversalPayloadEnvelope Gamma bound
-        (Rew.bShift (shortBinaryNumeralTerm bound)) body
-        boundEqualityResource branchResource <=
+        boundTerm body boundEqualityResource branchResource <=
       closedShortUniversalShellFixedPayloadPolynomial numericBound bitBound
         syntaxCode bodyCode branchBound boundEqualityBound := by
   let shiftedGamma := Gamma.image Rewriting.shift
-  let boundTerm := Rew.bShift (shortBinaryNumeralTerm bound)
   let originalBound := freedTermBoundFormula boundTerm
   let canonicalBound := finiteBoundFormula bound
   let targetFormula := Rewriting.free body
@@ -237,10 +237,6 @@ theorem
     formulaBound termBound
   have hshiftedCard : shiftedGamma.card <= 1 := by
     exact Finset.card_image_le.trans hGammaCard
-  have hshortCode :
-      (binaryTermCode (shortBinaryNumeralTerm bound)).length <=
-        binaryNumeralTermCodeEnvelope bitBound :=
-    binaryNumeralTerm_code_length_le_envelope bound bitBound hboundSize
   have hrawSource : rawFormulaBound <= sourceFormulaBound := by
     dsimp only [rawFormulaBound, sourceFormulaBound]
     unfold closedShortUniversalShellSourceFormulaPolynomial
@@ -254,14 +250,6 @@ theorem
   have hshiftedFormula' :
       FormulaCodeBound shiftedGamma formulaBound := by
     simpa only [shiftedGamma, formulaBound] using hshiftedFormula
-  have hboundTermShift := binaryTermCode_bShift_length_le_add_symbols
-    (shortBinaryNumeralTerm bound)
-  have hshortSymbols := termSymbolCount_le_binaryTermCode_length
-    (shortBinaryNumeralTerm bound)
-  have hboundTermRaw : (binaryTermCode boundTerm).length <=
-      3 * (binaryTermCode (shortBinaryNumeralTerm bound)).length := by
-    dsimp only [boundTerm]
-    omega
   have hboundTerm : (binaryTermCode boundTerm).length <= termBound := by
     dsimp only [termBound]
     unfold closedShortUniversalShellTermPolynomial
@@ -645,6 +633,50 @@ theorem
   omega
 
 theorem
+    compileContextualTermBoundedUniversalPayloadEnvelope_short_le_fixed_of_context
+    (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
+    (Gamma : Finset LO.FirstOrder.ArithmeticProposition)
+    (bound numericBound bitBound syntaxCode bodyCode : Nat)
+    (boundEqualityResource branchResource boundEqualityBound branchBound : Nat)
+    (hbound : bound <= numericBound)
+    (hboundSize : Nat.size bound <= bitBound)
+    (hsyntaxBound : bound <= syntaxCode)
+    (hbody : (binaryFormulaCode body).length <= bodyCode)
+    (hboundEquality : boundEqualityResource <= boundEqualityBound)
+    (hbranches : branchResource <= branchBound)
+    (hGammaCard : Gamma.card <= 1)
+    (hGammaSource : FormulaCodeBound Gamma
+      (closedShortUniversalShellSourceFormulaPolynomial numericBound bitBound
+        syntaxCode bodyCode))
+    (hshiftedFormula : FormulaCodeBound (Gamma.image Rewriting.shift)
+      (closedShortUniversalShellFormulaPolynomial numericBound bitBound
+        syntaxCode bodyCode)) :
+    compileContextualTermBoundedUniversalPayloadEnvelope Gamma bound
+        (Rew.bShift (shortBinaryNumeralTerm bound)) body
+        boundEqualityResource branchResource <=
+      closedShortUniversalShellFixedPayloadPolynomial numericBound bitBound
+        syntaxCode bodyCode branchBound boundEqualityBound := by
+  let boundTerm := Rew.bShift (shortBinaryNumeralTerm bound)
+  have hshortCode :
+      (binaryTermCode (shortBinaryNumeralTerm bound)).length <=
+        binaryNumeralTermCodeEnvelope bitBound :=
+    binaryNumeralTerm_code_length_le_envelope bound bitBound hboundSize
+  have hshift := binaryTermCode_bShift_length_le_add_symbols
+    (shortBinaryNumeralTerm bound)
+  have hsymbols := termSymbolCount_le_binaryTermCode_length
+    (shortBinaryNumeralTerm bound)
+  have hboundTermCode : (binaryTermCode boundTerm).length <=
+      3 * binaryNumeralTermCodeEnvelope bitBound := by
+    dsimp only [boundTerm]
+    omega
+  simpa only [boundTerm] using
+    (compileContextualTermBoundedUniversalPayloadEnvelope_termCode_le_fixed_of_context
+      body Gamma boundTerm bound numericBound bitBound syntaxCode bodyCode
+      boundEqualityResource branchResource boundEqualityBound branchBound
+      hbound hboundTermCode hsyntaxBound hbody hboundEquality hbranches
+      hGammaCard hGammaSource hshiftedFormula)
+
+theorem
     compileContextualTermBoundedUniversalPayloadEnvelope_empty_short_le_fixed
     (body : LO.FirstOrder.ArithmeticSemiformula Nat 1)
     (bound numericBound bitBound syntaxCode bodyCode : Nat)
@@ -675,6 +707,8 @@ theorem
 
 #print axioms
   closedShortTermBoundedUniversalFormula_code_length_le_source
+#print axioms
+  compileContextualTermBoundedUniversalPayloadEnvelope_termCode_le_fixed_of_context
 #print axioms
   compileContextualTermBoundedUniversalPayloadEnvelope_short_le_fixed_of_context
 #print axioms

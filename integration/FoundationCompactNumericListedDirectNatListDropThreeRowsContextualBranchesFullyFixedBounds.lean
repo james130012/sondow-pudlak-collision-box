@@ -217,4 +217,3 @@ theorem
   compactAdditiveNatListDropThreeRowsContextualBranchesResource_le_fullyFixed
 
 end FoundationCompactNumericListedDirectNatListDropThreeRowsContextualBranchesFullyFixedBounds
-

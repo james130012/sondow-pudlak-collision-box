@@ -241,7 +241,7 @@ theorem
   unfold repeatAtRowsTerminalCertificateOfGraph
     repeatAtRowsTerminalPayloadEnvelope
   change hybridFormulaStructuralPayloadBound
-      (CheckedHybridValuationBoundedFormulaCertificate.cast _ 
+      (CheckedHybridValuationBoundedFormulaCertificate.cast _
         (CheckedHybridValuationBoundedFormulaCertificate.conjunction
           leftCertificate rightPair)) <= _
   simpa only [leftFormula, rightFormula, layoutFormula, leftCertificate,

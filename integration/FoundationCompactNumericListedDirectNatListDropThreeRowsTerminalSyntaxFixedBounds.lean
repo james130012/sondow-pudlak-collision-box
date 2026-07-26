@@ -685,4 +685,3 @@ theorem
   compactAdditiveNatListDropThreeRowsBranchTerminal_freeVariables_subset_singleton
 
 end FoundationCompactNumericListedDirectNatListDropThreeRowsTerminalSyntaxFixedBounds
-

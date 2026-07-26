@@ -188,7 +188,7 @@ theorem
       sameRowsBranchesFullyFixedPayloadPolynomial
     exact Nat.mul_le_mul (by omega) (Nat.add_le_add le_rfl
       (Nat.mul_le_mul_left 3 hlocal))
-  have htransparent : 
+  have htransparent :
       compactAdditiveNatListSameRowsBranchesTransparentEnvelope tokenTable
           width tokenCount sourceBoundary sourceCount targetBoundary rows =
         exactCore := by

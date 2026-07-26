@@ -431,4 +431,3 @@ theorem dropThreeRowsCountEqualityPayloadPolynomial_le_fullyFixed
 #print axioms dropThreeRowsCountEqualityPayloadPolynomial_le_fullyFixed
 
 end FoundationCompactNumericListedDirectNatListDropThreeRowsCountLeavesFullyFixedBounds
-

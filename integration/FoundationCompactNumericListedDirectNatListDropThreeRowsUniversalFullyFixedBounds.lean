@@ -214,4 +214,3 @@ theorem
   compactAdditiveNatListDropThreeRowsUniversalPayloadEnvelope_le_fullyFixed
 
 end FoundationCompactNumericListedDirectNatListDropThreeRowsUniversalFullyFixedBounds
-

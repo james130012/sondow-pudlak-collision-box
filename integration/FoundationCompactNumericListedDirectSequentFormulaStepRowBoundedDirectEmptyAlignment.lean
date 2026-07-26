@@ -1,0 +1,34 @@
+import integration.FoundationCompactNumericListedDirectSequentFormulaStepRowBoundedDirectQuantifierSyntax
+
+/-! # Empty-variable alignment for the bounded sequent-step row -/
+
+open LO FirstOrder LO.FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option autoImplicit false
+set_option Elab.async false
+set_option maxRecDepth 32768
+set_option maxHeartbeats 700000
+
+namespace FoundationCompactNumericListedDirectSequentFormulaStepRowBoundedDirectSyntax
+
+open FoundationCompactNumericListedDirectBoundedEndpointExplicitHybridSupport
+open FoundationCompactNumericListedDirectSequentFormulaStepBoundedFormula
+
+theorem compactSequentFormulaStepRowBoundedDef_eq_emptyRawBody :
+    compactSequentFormulaStepRowBoundedDef.val =
+      compactSequentFormulaStepRowBoundedDirectEmptyRawBody := by
+  unfold compactSequentFormulaStepRowBoundedDef
+  unfold compactSequentFormulaStepRowBoundedEmptyRawBody
+  unfold compactSequentFormulaStepRowBoundedDirectEmptyRawBody
+  unfold compactSequentFormulaStepRowBoundedWitnessFormula
+  unfold sourceBoundedWitnessFormula
+  unfold compactSequentFormulaStepRowBoundedSubstitutionLift
+  unfold sourceSubstitutionLift
+  unfold compactSequentFormulaStepRowBoundedDirectEmptyRawTerminal
+  rfl
+
+#print axioms compactSequentFormulaStepRowBoundedDef_eq_emptyRawBody
+
+end FoundationCompactNumericListedDirectSequentFormulaStepRowBoundedDirectSyntax

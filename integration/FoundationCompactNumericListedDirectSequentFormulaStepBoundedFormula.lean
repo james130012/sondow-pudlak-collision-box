@@ -85,35 +85,56 @@ def CompactSequentFormulaStepRowsBoundedGraph
         tokenTable width tokenCount suffixBoundary suffixCount
           valueBoundary valueCount rowIndex valueBound
 
-def compactSequentFormulaStepRowBoundedDef : 𝚺₀.Semisentence 9 := .mkSigma
-  “tokenTable width tokenCount suffixBoundary suffixCount
-      valueBoundary valueCount rowIndex valueBound.
-    ∃ currentStart <⁺ valueBound,
-    ∃ currentFinish <⁺ valueBound,
-    ∃ currentBoundary <⁺ valueBound,
-    ∃ currentCount <⁺ valueBound,
-    ∃ currentBoundarySize <⁺ valueBound,
-    ∃ nextStart <⁺ valueBound,
-    ∃ nextFinish <⁺ valueBound,
-    ∃ nextBoundary <⁺ valueBound,
-    ∃ nextCount <⁺ valueBound,
-    ∃ nextBoundarySize <⁺ valueBound,
-    ∃ valueStart <⁺ valueBound,
-    ∃ valueFinish <⁺ valueBound,
-    ∃ valueInnerBoundary <⁺ valueBound,
-    ∃ valueInnerCount <⁺ valueBound,
-    ∃ valueBoundarySize <⁺ valueBound,
-    ∃ parserStateBoundary <⁺ valueBound,
-    ∃ parserTableWidth <⁺ valueBound,
-    ∃ parserValueBound <⁺ valueBound,
-      !(compactSequentFormulaStepDef)
-        tokenTable width tokenCount suffixBoundary suffixCount
-        valueBoundary valueCount rowIndex
-        currentStart currentFinish currentBoundary currentCount
-        currentBoundarySize nextStart nextFinish nextBoundary nextCount
-        nextBoundarySize valueStart valueFinish valueInnerBoundary
-        valueInnerCount valueBoundarySize parserStateBoundary
-        parserTableWidth parserValueBound”
+def compactSequentFormulaStepRowBoundedSubstitutionLift
+    {Variable : Type*} {targetArity : Nat} :
+    (depth : Nat) -> ArithmeticSemiterm Variable targetArity ->
+      ArithmeticSemiterm Variable (targetArity + depth)
+  | 0, term => term
+  | depth + 1, term =>
+      Rew.bShift
+        (compactSequentFormulaStepRowBoundedSubstitutionLift depth term)
+
+def compactSequentFormulaStepRowBoundedWitnessFormula
+    {Variable : Type*} {sourceArity : Nat}
+    (bound : ArithmeticSemiterm Variable sourceArity) :
+    (depth : Nat) ->
+      ArithmeticSemiformula Variable (sourceArity + depth) ->
+      ArithmeticSemiformula Variable sourceArity
+  | 0, body => body
+  | depth + 1, body =>
+      compactSequentFormulaStepRowBoundedWitnessFormula bound depth
+        (body.bexsLTSucc
+          (compactSequentFormulaStepRowBoundedSubstitutionLift depth bound))
+
+def compactSequentFormulaStepRowBoundedEmptyRawTerms :
+    Fin 26 -> ArithmeticSemiterm Empty 27 :=
+  ![(#18 : ArithmeticSemiterm Empty 27), #19, #20, #21, #22, #23, #24,
+    #25, #17, #16, #15, #14, #13, #12, #11, #10, #9, #8, #7, #6, #5,
+    #4, #3, #2, #1, #0]
+
+def compactSequentFormulaStepRowBoundedEmptyRawTerminal :
+    ArithmeticSemiformula Empty 27 :=
+  compactSequentFormulaStepDef.val ⇜
+    compactSequentFormulaStepRowBoundedEmptyRawTerms
+
+def compactSequentFormulaStepRowBoundedEmptyRawBody :
+    ArithmeticSemiformula Empty 9 :=
+  compactSequentFormulaStepRowBoundedWitnessFormula
+    (#8 : ArithmeticSemiterm Empty 9) 18
+    compactSequentFormulaStepRowBoundedEmptyRawTerminal
+
+theorem compactSequentFormulaStepRowBoundedEmptyRawBody_sigmaZero :
+    LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
+      compactSequentFormulaStepRowBoundedEmptyRawBody := by
+  simp [compactSequentFormulaStepRowBoundedEmptyRawBody,
+    compactSequentFormulaStepRowBoundedWitnessFormula,
+    compactSequentFormulaStepRowBoundedSubstitutionLift,
+    compactSequentFormulaStepRowBoundedEmptyRawTerminal,
+    compactSequentFormulaStepRowBoundedEmptyRawTerms]
+
+def compactSequentFormulaStepRowBoundedDef : 𝚺₀.Semisentence 9 :=
+  .mkSigma compactSequentFormulaStepRowBoundedEmptyRawBody
+    compactSequentFormulaStepRowBoundedEmptyRawBody_sigmaZero
 
 def compactSequentFormulaStepRowsBoundedGraphDef : 𝚺₀.Semisentence 10 := .mkSigma
   “tokenTable width tokenCount suffixBoundary suffixCount
@@ -192,6 +213,11 @@ set_option maxRecDepth 4096 in
       tokenTable width tokenCount suffixBoundary suffixCount
         valueBoundary valueCount rowIndex _
   simp [compactSequentFormulaStepRowBoundedDef,
+    compactSequentFormulaStepRowBoundedEmptyRawBody,
+    compactSequentFormulaStepRowBoundedWitnessFormula,
+    compactSequentFormulaStepRowBoundedSubstitutionLift,
+    compactSequentFormulaStepRowBoundedEmptyRawTerminal,
+    compactSequentFormulaStepRowBoundedEmptyRawTerms,
     CompactSequentFormulaStepRowBounded, hrow]
 
 @[simp] theorem compactSequentFormulaStepRowsBoundedGraphDef_spec
@@ -238,7 +264,7 @@ set_option maxRecDepth 4096 in
 theorem compactSequentFormulaStepRowBoundedDef_sigmaZero :
     LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0
       compactSequentFormulaStepRowBoundedDef.val := by
-  simp [compactSequentFormulaStepRowBoundedDef]
+  exact compactSequentFormulaStepRowBoundedDef.sigma_prop
 
 theorem compactSequentFormulaStepRowsBoundedGraphDef_sigmaZero :
     LO.FirstOrder.Arithmetic.Hierarchy LO.Polarity.sigma 0

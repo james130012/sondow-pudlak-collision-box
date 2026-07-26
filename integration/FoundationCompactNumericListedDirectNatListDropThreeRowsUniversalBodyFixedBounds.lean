@@ -583,4 +583,3 @@ theorem compactAdditiveNatListDropThreeRowsBody_code_length_le_fixed
 #print axioms compactAdditiveNatListDropThreeRowsBody_code_length_le_fixed
 
 end FoundationCompactNumericListedDirectNatListDropThreeRowsUniversalBodyFixedBounds
-
