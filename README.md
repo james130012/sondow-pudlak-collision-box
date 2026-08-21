@@ -2,7 +2,19 @@
 
 本仓库是一个 Lean 4 研究制品，用于组织围绕 Euler-Mascheroni constant（欧拉-马歇罗尼常数）`gamma` 的 conditional proof-complexity collision framework（条件性证明复杂度对撞框架）。
 
-**当前状态。** 本仓库不声称已经给出 `gamma` irrationality（欧拉常数无理性）的 unconditional proof（无条件证明）。当前最强出口是一个 interface-level conditional collision theorem（接口级条件性对撞定理）：在明确列出的 Sondow collapse（Sondow 坍缩）、Pudlak-Friedman-Buss lower bound（Pudlak-Friedman-Buss 下界）、proof-length calibration（证明长度校准）和 payload truth（载荷真值）输入被提供时，Lean 组合链推出：
+**当前状态。** 本仓库不声称已经给出 `gamma` irrationality（欧拉常数无理性）的 unconditional proof（无条件证明）。`bigN-nature-paper-20260708` release 的当前主成果，是一个 source-calibrated existential big-`N` endpoint（源校准存在性大 `N` 端点）：在显式列出的 S21 proof-length recognition、Sondow/partial verifier trace、rational-branch Sondow parameter、partial-consistency truth、source-minChecked calibration 和 Buss-Pudlak rescaling 输入下，Lean 证明最终 project-length endpoint 返回某个自然数 `N`，并且同一个 `N` 满足 source-side strict gap。主入口是：
+
+```lean
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
+```
+
+该入口定义在：
+
+```text
+integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
+
+这个 big-`N` 结果不是 `N` 的十进制抽取，也不是 `gamma` 无理性的无条件证明。较早的最强 conditional collision theorem（条件性对撞定理）仍然存在：在明确列出的 Sondow collapse（Sondow 坍缩）、Pudlak-Friedman-Buss lower bound（Pudlak-Friedman-Buss 下界）、proof-length calibration（证明长度校准）和 payload truth（载荷真值）输入被提供时，Lean 组合链推出：
 
 ```lean
 ¬ is_rational euler_mascheroni
@@ -38,9 +50,23 @@
 
 - 英文论文草稿：[`paper/paper_new_en.md`](paper/paper_new_en.md)
 - 中文论文草稿：[`paper/paper_new_zh.md`](paper/paper_new_zh.md)
+- 世界级论文改造规划单：[`paper/world_class_revision_plan_zh.md`](paper/world_class_revision_plan_zh.md)
 - 当前状态：[`STATUS.md`](STATUS.md)
+- big-`N` 审计计划：[`docs/bigN_audit_plan_zh.md`](docs/bigN_audit_plan_zh.md)
 - 公理账本：[`AXIOM_LEDGER.md`](AXIOM_LEDGER.md)
 - 审计指南：[`docs/audit_guide.md`](docs/audit_guide.md)
+- big-`N` 主入口：
+
+```text
+integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
+
+- big-`N` 后续数值 handoff 入口：
+
+```text
+integration/SondowProjectMonth11Month12HardResidualElimination.lean
+```
+
 - 主要可调用对撞盒入口：
 
 ```lean
@@ -94,6 +120,16 @@ open BoundedArithmeticLab
 #check PublicCollisionAPI.collision_from_checklist
 EOF
 ```
+
+big-`N` 论文 release 的核心入口可用下面的命令检查：
+
+```bash
+lake build integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+lake build integration.SondowProjectMonth11Month12HardResidualElimination
+```
+
+构建完成后，可通过 `lake env lean --stdin` 导入模块并 `#check` 主定理；
+具体命令见 [`docs/bigN_audit_plan_zh.md`](docs/bigN_audit_plan_zh.md)。
 
 完整构建可作为较重的最终检查：
 

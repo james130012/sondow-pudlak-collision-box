@@ -1,50 +1,156 @@
-# A Lean-Checked Existential Threshold for Sondow-Pudlak Proof Lengths
+# An Existential Sondow-Pudlak Threshold Verified in Lean 4
 
 James^1,*
 
 ^1 Independent researcher.
+
 *Correspondence: through the public repository issue tracker unless a journal
 submission address is supplied.
 
-## Summary
+## Abstract
 
-The irrationality of the Euler-Mascheroni constant remains open. Sondow's criterion converts the rationality hypothesis into a family of checkable arithmetic certificates, while the Pudlak-Friedman-Buss line gives proof-length lower bounds for finite consistency statements. We report a Lean 4 checked Sondow-Pudlak proof-length artifact: from explicit S21 proof-length recognition data, Sondow and partial verifier traces, the half-denominator Sondow tail, partial-consistency truth, source-minChecked calibration, and Buss-Pudlak rescaling, Lean proves that the final project-length endpoint returns a natural-number threshold `N` and that the required source-side strict gap holds at that same `N`. This is not an unconditional proof of the irrationality of Euler's constant, and it is not a decimal extraction of `N`; it is a reproducible formal certificate for the existence of the large threshold required by the current route.
+The irrationality of the Euler-Mascheroni constant remains open.  This paper
+does not claim to settle that problem.  It isolates and verifies, in Lean 4, a
+specific proof-complexity threshold theorem arising in the Sondow-Pudlak route.
+Under explicit S21 proof-length recognition data, verifier traces for the
+Sondow and partial-consistency families, a rational-branch Sondow parameter,
+partial-consistency truth, source-minChecked calibration, and the
+Buss-Pudlak time-constructible rescaling theorem, Lean proves that the final
+project-length endpoint returns a natural number `N` and that the same `N`
+satisfies the required source-side strict gap.  The finite Sondow prefix is
+also identified with a MiniHilbert `minProofCodeSize` prefix, and a companion
+handoff theorem identifies the later numerical route as
+`max upper.upperN (thresholdOf upper.U upper.polynomial)`.  The result is an
+existential formal theorem about the large threshold.  It is not a printed
+decimal value of `N`, and it is not an unconditional proof that
+`gamma` is irrational.
 
-## Main Text
+## 1. Introduction
 
-### Problem
-
-The Euler-Mascheroni constant is
+Let
 
 ```math
-\gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right).
+\gamma=\lim_{n\to\infty}\left(\sum_{k=1}^{n}\frac1k-\log n\right)
 ```
 
-The purpose of the project is not to assert a solution to this open problem in prose. It is to place the Sondow certificate upper side and the Pudlak proof-length lower side in one formal measurement coordinate. The result reported here is an intermediate but substantive formal endpoint: in the current source-calibrated proof-length route, a final threshold `N` exists.
+be the Euler-Mascheroni constant.  Sondow's criterion gives a way of
+turning the rationality hypothesis for `gamma` into structured arithmetic
+certificates.  The Pudlak-Friedman-Buss proof-complexity line gives lower
+bounds for finite consistency statements.  A Sondow-Pudlak collision argument
+can be meaningful only after both sides have been placed in one proof-length
+coordinate, with the same measured proof objects, the same proof-code
+semantics, and the same finite-prefix conventions.
 
-The boundary of the claim is as follows.
+The contribution of the present artifact is a machine-checked endpoint in this
+coordinate problem.  The large `N` formula is no longer a planning statement:
+the release checked here contains a Lean theorem proving the existence of the
+threshold and the strict inequality at that threshold.  The theorem is
+conditional in the standard mathematical sense that it is quantified over
+explicit input packages.  These packages are part of the statement, not hidden
+claims of unconditional availability.
 
-1. Proved: given the root inputs listed in this paper, Lean constructs `N : Nat` and proves the target inequality.
-2. Not proved: a fully expanded decimal natural number `N = ...`.
-3. Not claimed: an unconditional theorem `¬ is_rational euler_mascheroni`.
+The boundary is essential.  The paper proves an existential theorem for the
+large threshold in the current formal route.  It does not extract a decimal
+natural number.  It does not remove every residual proof-complexity input in
+the wider project.  It does not prove the irrationality of `gamma`.
 
-This distinction is central to the audit. An existential threshold theorem can be a serious machine-checked result, but it must not be repackaged as numeric extraction or as a final irrationality proof.
+## 2. Formal Coordinate
 
-### Formal Result
-
-The main formal entry point is in
+The main source file is
 
 ```text
 integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
 ```
 
-The theorem is
+The release studied in this draft is
+
+```text
+bigN-nature-paper-20260708
+```
+
+at commit
+
+```text
+c26cd1d2b3abbc6c3584ab5c2afbd1e953d3cacd
+```
+
+Let
+
+```lean
+h := hrec.toLocalProofCodeSemanticsPackage.toCanonicalCalibrationPackage
+```
+
+be the canonical calibration package obtained from an
+`S21GraftProofLengthRecognitionTheorem`.  The measured source function in the
+main theorem is
+
+```lean
+sourceLength m :=
+  ((h.sondow_proofs.conjIntro h.partial_proofs)
+    |>.rightConjElim
+    |>.minCheckedCodeSize m)
+```
+
+Thus the lower side is not an arbitrary numerical function.  It is the
+MiniHilbert checked-code measurement obtained after conjunction introduction
+and right-conjunction elimination on the Sondow and partial-consistency proof
+families.
+
+For a rational-branch parameter
+
+```lean
+rat : MainSondowRationalParameter
+```
+
+the half-denominator tail threshold is
+
+```lean
+sondowThreshold := max 3 ((rat.q.den + 1) / 2)
+```
+
+and the finite Sondow prefix coefficient is
+
+```lean
+sondowPrefixCoeff :=
+  natPrefixMax h.sondow_proofs.length sondowThreshold
+```
+
+The generated target upper coefficient in the endpoint is
+
+```lean
+max 17 sondowPrefixCoeff + 8
+```
+
+with degree `1`.  This is the coefficient that appears in the source-side
+strict gap.
+
+## 3. Main Theorem
+
+The formal theorem used as the main endpoint is
 
 ```lean
 projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
-Its audited conclusion has the following shape:
+It has the following mathematical content.
+
+**Theorem 1 (source-calibrated existential big-N endpoint).**  Fix internal
+Pudlak scale data.  Assume:
+
+1. an `S21GraftProofLengthRecognitionTheorem`;
+2. verifier-trace soundness for `sondowCertificateValidCode`;
+3. verifier-trace soundness for `partialConsistencyCode`;
+4. a rational-branch parameter `rat : MainSondowRationalParameter`;
+5. `PartialConsistencyAcceptedTruth`;
+6. strict monotonicity of the time-constructible bound;
+7. nonzero Pudlak exponent;
+8. a `MiniHilbert.PartialConsistencySourceMinCheckedCalibration` for the
+   conjunction proof family;
+9. `BussPudlakTimeConstructibleRescalingTheorem`.
+
+Then, with `sourceLength`, `sondowThreshold`, and `sondowPrefixCoeff` as above,
+the final project-length search endpoint returns a natural number `N` such
+that
 
 ```lean
 ∃ N : Nat,
@@ -55,246 +161,249 @@ Its audited conclusion has the following shape:
   (max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
 ```
 
-Here `sourceLength` is not arbitrary. It is the checker measurement obtained from conjunction introduction followed by right-conjunction elimination on the Sondow and partial-consistency proof families:
+where `hsource : SemanticStrongNatLowerBound sourceLength` is not a separate
+input.  It is derived inside the theorem from the source-minChecked
+calibration and the Buss-Pudlak rescaling theorem.
 
-```lean
-sourceLength m :=
-  ((h.sondow_proofs.conjIntro h.partial_proofs)
-    |>.rightConjElim
-    |>.minCheckedCodeSize m)
-```
-
-Likewise, `sondowPrefixCoeff` is not a supplied constant. It is the maximum of a real finite prefix:
-
-```lean
-sondowThreshold := max 3 ((rat.q.den + 1) / 2)
-sondowPrefixCoeff := natPrefixMax h.sondow_proofs.length sondowThreshold
-```
-
-Thus the Lean theorem proves an existential threshold with a traceable origin: the endpoint returns the same `N` as the lower-bound witness, and the strict lower-bound inequality holds at that point.
-
-### Root Inputs
-
-The construction starts from two root inputs.
-
-The first root is the S21/Sondow proof-length recognition side, represented by
-
-```lean
-S21GraftProofLengthRecognitionTheorem
-```
-
-and transported through `toLocalProofCodeSemanticsPackage` and `toCanonicalCalibrationPackage`. The current bridge rewrites the finite-prefix maximum into MiniHilbert proof-code semantics:
-
-```lean
-s21SondowMiniHilbertMinProofCodeSizePrefixMax
-
-S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
-```
-
-This step matters because it moves the residual finite prefix from an abstract proof-family length field to `minProofCodeSize`. It does not compute the final decimal value, but it moves the numeric task onto genuine proof-code semantics.
-
-The second root is the earlier proof-length tail-gap model. The numerical entry point for the final C-line root route is in
-
-```text
-integration/SondowProjectMonth11Month12HardResidualElimination.lean
-```
-
-The theorem is
-
-```lean
-finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
-```
-
-It reduces the final computed collision index to
-
-```lean
-max upper.upperN (thresholdOf upper.U upper.polynomial)
-```
-
-This is the true entry point for the later decimal `N`: one must construct and evaluate `thresholdOf`, not add another outer interface.
-
-### Claim Boundary
-
-Table 1 gives the audited boundary of the manuscript.
-
-| Item | Status | Machine-checked entry |
-| --- | --- | --- |
-| Existence of `N : Nat` | Proved | `projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax` |
-| Source-side strict gap at `N` | Proved | same theorem |
-| Sondow finite prefix rewritten to MiniHilbert `minProofCodeSize` | Proved | `S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax` |
-| Tail-gap numerical entry reduced to `max upper.upperN (thresholdOf ...)` | Proved | `finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf` |
-| Printed decimal value of `N` | Not completed | requires computable `thresholdOf` or executable witness |
-| Unconditional irrationality of `gamma` | Not claimed | outside this manuscript's conclusion |
-
-### Half-Denominator Residual
-
-The half-denominator Sondow tail gives the threshold
-
-```lean
-max 3 ((rat.q.den + 1) / 2)
-```
-
-Under stronger checked-prefix hypotheses, the corresponding endpoint can be reduced further to
-
-```lean
-17 * (max 3 ((rat.q.den + 1) / 2)) + 8
-```
-
-However, `rat.q.den` belongs to the rationality branch. It cannot be discarded as a known external constant without additional construction. The project also proves the finite-prefix obstruction
-
-```lean
-not_sondowCheckedHalfDenPrefix_of_rationalParameter
-```
-
-showing that the checked-prefix premise is not automatic from the rational parameter. This obstruction is part of the theorem boundary; hiding it as "obvious" would change the result.
-
-### Reproducibility
-
-The artifact fixes Lean and Mathlib versions:
-
-```text
-leanprover/lean4:v4.31.0
-mathlib v4.31.0
-```
-
-The minimum reproduction sequence is:
-
-```bash
-git clone https://github.com/james130012/sondow-pudlak-collision-box.git
-cd sondow-pudlak-collision-box
-git checkout codex/month9-10-internal-lower-machine-continuation
-lake exe cache get
-lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
-lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
-```
-
-The older public collision endpoint can be checked with a lightweight probe:
-
-```bash
-lake env lean --stdin <<'EOF'
-import integration.SondowProjectPudlakInstantiation
-
-#check SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSplit
-EOF
-```
-
-The new Month 11/12 theorems are primarily reproduced by source-file type checking. Reviewers who need to print their theorem types through `#check` should first build the two modules:
-
-```bash
-lake build integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
-lake build integration.SondowProjectMonth11Month12HardResidualElimination
-```
-
-and then import the corresponding modules through `lake env lean --stdin`. A full module build replays a large integration dependency chain and is significantly slower than direct source-file checking.
-
-### Why the Decimal N is Still Open
-
-The existential result uses a Prop-level strong lower bound:
-
-```lean
-SemanticStrongNatLowerBound
-```
-
-Lean obtains a witness through
+The theorem is existential and noncomputable at this stage: the witness is the
+classical object
 
 ```lean
 semanticStrongNatLowerBoundClassicalMonomialSearchWitness
 ```
 
-This is enough to prove `∃ N : Nat`, but it is not an executable search procedure. To print a natural number, the development must supply one of the following:
+This suffices for the formal `∃ N : Nat` theorem and for the strict inequality
+at `N`.  It does not provide an executable decimal expansion of `N`.
 
-1. a computable `thresholdOf upper.U upper.polynomial` and a proof that it equals the tail-gap threshold; or
-2. an executable rejection extractor with genuine `extractor.witness` and `extractor.cutoff`.
+## 4. Proof Architecture
 
-The contribution of this manuscript is to close the existential threshold and to reduce the numeric route to these two genuine computational entry points.
+The Lean proof decomposes the endpoint into four audited components.
 
-## References
+**Sondow tail.**  From the rational-branch parameter, the reproof Sondow tail
+is accepted from
 
-1. Sondow, J. Criteria for irrationality of Euler's constant. *Proceedings of the American Mathematical Society* **131**, 3335-3344 (2003).
-2. Buss, S. R. On Godel's theorems on lengths of proofs I: number of lines and speedup for arithmetics. *Journal of Symbolic Logic* **59**, 737-756 (1994).
-3. Pudlak, P. On the lengths of proofs of finitistic consistency statements in first order theories. In *Logic Colloquium 1984* (1986).
-4. Pudlak, P. Improved bounds to the lengths of proofs of finitistic consistency statements. In *Logic and Combinatorics* (1987).
-5. Krajicek, J. & Pudlak, P. The number of proof lines and the size of proofs in first-order logic. *Archive for Mathematical Logic* (1988).
-6. de Moura, L. & Ullrich, S. The Lean 4 theorem prover and programming language. *Automated Deduction - CADE 28* (2021).
-
-## Methods
-
-### Formal Environment
-
-All formal claims are checked in Lean 4 using the repository-pinned toolchain:
-
-```text
-leanprover/lean4:v4.31.0
+```lean
+max 3 ((rat.q.den + 1) / 2)
 ```
 
-The Lake package is `euler_limit`; Mathlib is pinned at revision `v4.31.0` in `lakefile.toml`.
+onward.  The corresponding constructor is
 
-### Verification Protocol
-
-The primary verification protocol is Lean source-file elaboration:
-
-```bash
-lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
-lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+```lean
+mainSondowFullCertificateCheckedTail_ofReproofRationalParameter_halfDen
 ```
 
-The first command checks the existential big-`N` endpoint and the MiniHilbert prefix bridges. The second checks the tail-gap `thresholdOf` handoff theorem.
+**Finite prefix.**  The remaining prefix is not ignored.  It is measured by
+`natPrefixMax` and then contributes to the linear upper coefficient
+`max 17 sondowPrefixCoeff + 8`.
 
-Patch-integrity and whitespace checks are run with:
+**MiniHilbert rewrite.**  The finite prefix is identified with genuine
+MiniHilbert proof-code semantics by
 
-```bash
-git diff --check
+```lean
+S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
 ```
 
-### Axiom and Assumption Audit
+where
 
-The manuscript separates formal composition from remaining mathematical inputs. The older public collision endpoint still depends on explicitly listed external or abstract inputs, including literature Pudlak lower-bound content, payload truth, and root `proof_length`. These dependencies are documented in `AXIOM_LEDGER.md`.
+```lean
+s21SondowMiniHilbertMinProofCodeSizePrefixMax hrec threshold
+```
 
-The existential big-`N` theorem removes the abstract `SemanticStrongNatLowerBound` premise from the publishable endpoint by deriving it from:
+is the prefix maximum of `minProofCodeSize` over the Sondow certificate-valid
+codes generated by the recognition theorem.
+
+**Source lower bound.**  The theorem does not assume a naked
+`SemanticStrongNatLowerBound`.  It builds that lower bound from
 
 ```lean
 PartialConsistencySourceMinCheckedCalibration
 BussPudlakTimeConstructibleRescalingTheorem
 ```
 
-It does not remove all global project assumptions. In particular, the recognition theorem and verifier traces remain explicit inputs.
+and then applies the semantic-strong search witness theorem to the generated
+linear monomial.
 
-### AI-Assisted Manuscript Preparation
+Together these components prove that the endpoint and the source lower-bound
+witness name the same natural number, and that the generated linear monomial
+is strictly below `sourceLength` at that number.
 
-AI-assisted editing was used to reorganize the manuscript and prepare reproducibility instructions. The mathematical and formal claims reported here are tied to Lean source files and are checked by the commands above; no AI-generated mathematical assertion is used as a substitute for a Lean theorem.
+## 5. The Half-Denominator Boundary
 
-## Data Availability
+The half-denominator threshold is a genuine improvement over a full-denominator
+tail, but it leaves a real finite-prefix boundary.  The project proves the
+obstruction
 
-No empirical datasets were generated or analysed. The minimum material needed to verify the claims is the Lean source tree, the pinned Lake configuration, and the paper source files in this repository.
+```lean
+not_sondowCheckedHalfDenPrefix_of_rationalParameter
+```
 
-## Code Availability
+which says that the checked-prefix premise below
 
-The source code is available at:
+```lean
+max 3 ((rat.q.den + 1) / 2)
+```
+
+is not automatic from the rational parameter and the current accepted-code
+semantics.  In particular, the prefix contains index `0`, while no
+rational-parameter full Sondow certificate is accepted there because the
+denominator is positive.
+
+This obstruction is part of the mathematical statement.  Removing it from the
+paper would change the theorem from a checked result into an unproved stronger
+claim.
+
+## 6. Numerical Handoff
+
+The companion numerical handoff theorem is in
+
+```text
+integration/SondowProjectMonth11Month12HardResidualElimination.lean
+```
+
+and is named
+
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+```
+
+It proves that, once a tail-gap threshold function satisfies
+
+```lean
+(proof_length_tail_gap.gap_for_polynomial_upper U hU).threshold =
+  thresholdOf U hU
+```
+
+the final computed collision index in the C-line root route is
+
+```lean
+max upper.upperN (thresholdOf upper.U upper.polynomial)
+```
+
+This is the correct entry point for a later printed natural number.  A decimal
+`N` requires an actual computation of `thresholdOf upper.U upper.polynomial`,
+or an equivalent executable witness.  Adding another prose-level endpoint
+would not solve the numerical problem.
+
+## 7. Claims and Non-Claims
+
+| Statement | Status | Lean evidence |
+| --- | --- | --- |
+| Existence of `N : Nat` for the source-calibrated endpoint | Proved | `projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax` |
+| Strict source-side gap at the same `N` | Proved | same theorem |
+| Derivation of `SemanticStrongNatLowerBound` from source-minChecked calibration and Buss-Pudlak rescaling | Proved inside the main theorem | same theorem |
+| Sondow finite prefix rewritten to MiniHilbert `minProofCodeSize` | Proved | `S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax` |
+| Half-denominator checked-prefix premise is automatic | False in the current semantics | `not_sondowCheckedHalfDenPrefix_of_rationalParameter` |
+| C-line numerical endpoint reduced to `max upper.upperN (thresholdOf ...)` | Proved | `finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf` |
+| Decimal value of `N` | Not completed | needs executable `thresholdOf` or witness extraction |
+| Unconditional irrationality of `gamma` | Not claimed | outside the theorem |
+
+## 8. Reproducibility and Audit Protocol
+
+The repository pins Lean and Mathlib as follows:
+
+```text
+leanprover/lean4:v4.31.0
+mathlib v4.31.0
+```
+
+A clean reproduction from the public release is:
+
+```bash
+git clone https://github.com/james130012/sondow-pudlak-collision-box.git
+cd sondow-pudlak-collision-box
+git checkout bigN-nature-paper-20260708
+lake exe cache get
+lake env lean integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+lake env lean integration/SondowProjectMonth11Month12HardResidualElimination.lean
+```
+
+Reviewers who want targeted theorem probes should first build the corresponding
+modules so that the `.olean` files are available to `lake env lean --stdin`:
+
+```bash
+lake build integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+lake build integration.SondowProjectMonth11Month12HardResidualElimination
+```
+
+They can then run:
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+
+open SondowMainCheckedCodeBridge.SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint
+
+#check projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
+#check S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
+#check not_sondowCheckedHalfDenPrefix_of_rationalParameter
+EOF
+```
+
+and:
+
+```bash
+lake env lean --stdin <<'EOF'
+import integration.SondowProjectMonth11Month12HardResidualElimination
+
+open SondowMainCheckedCodeBridge.SondowProjectMonth11Month12HardResidualElimination
+
+#check finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+EOF
+```
+
+The paper source should also pass:
+
+```bash
+git diff --check
+```
+
+The wider project contains older conditional collision endpoints whose axiom
+boundary is documented in `AXIOM_LEDGER.md`.  The main theorem of this paper is
+more specific: it removes the abstract `SemanticStrongNatLowerBound` premise
+from the publishable big-`N` endpoint, but it still depends on the explicit
+recognition, verifier-trace, rational-branch, partial-truth, calibration, and
+rescaling inputs listed in Theorem 1.
+
+## 9. Data and Code Availability
+
+No empirical datasets are used.  The mathematical artifact consists of the
+Lean source tree, the pinned Lake configuration, and the paper sources in this
+repository.
+
+The code is available at:
 
 ```text
 https://github.com/james130012/sondow-pudlak-collision-box
 ```
 
-The current audit branch is:
+The release audited by this draft is:
 
 ```text
-codex/month9-10-internal-lower-machine-continuation
+https://github.com/james130012/sondow-pudlak-collision-box/releases/tag/bigN-nature-paper-20260708
 ```
 
-For journal submission, the exact accepted commit should be archived in a DOI-minting repository such as Zenodo or Code Ocean, and this section should be updated with the DOI. A GitHub branch or tag is sufficient for immediate public audit, but it is not a substitute for a permanent journal archive.
+For journal submission, the accepted commit and generated paper artifacts
+should be archived in a DOI-minting repository.  The GitHub release is suitable
+for public audit, but it is not a permanent archival substitute.
 
-## Acknowledgements
+## 10. References
 
-No external funding is declared in this draft.
+1. Sondow, J. Criteria for irrationality of Euler's constant. *Proceedings of
+   the American Mathematical Society* **131**, 3335-3344 (2003).
+2. Buss, S. R. On Godel's theorems on lengths of proofs I: number of lines and
+   speedup for arithmetics. *Journal of Symbolic Logic* **59**, 737-756 (1994).
+3. Pudlak, P. On the lengths of proofs of finitistic consistency statements in
+   first order theories. In *Logic Colloquium 1984* (1986).
+4. Pudlak, P. Improved bounds to the lengths of proofs of finitistic
+   consistency statements. In *Logic and Combinatorics* (1987).
+5. Krajicek, J. and Pudlak, P. The number of proof lines and the size of proofs
+   in first-order logic. *Archive for Mathematical Logic* (1988).
+6. de Moura, L. and Ullrich, S. The Lean 4 theorem prover and programming
+   language. In *Automated Deduction - CADE 28* (2021).
 
-## Author Contributions
+## 11. Declarations
 
-J. designed the formal route, implemented the Lean development, prepared the manuscript, and is responsible for the repository release unless additional contributors are added before submission.
-
-## Competing Interests
-
-The author declares no competing interests in this draft.
-
-## Additional Information
-
-Correspondence and requests for materials should be directed through the public repository until a journal submission address is supplied. Supplementary information should include the exact release tag, commit hash, `#print axioms` transcript, and generated PDF/HTML audit artifacts for the submitted version.
+No external funding is declared in this draft.  The author declares no
+competing interests.  AI-assisted editing was used to reorganize the
+manuscript; all mathematical claims in the paper are tied to the Lean source
+files and theorem names listed above.

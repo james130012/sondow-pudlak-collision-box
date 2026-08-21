@@ -1,71 +1,100 @@
 # Project Status
 
-Date: 2026-07-05
+Date: 2026-07-08
 
 ## Current Release Target
 
-`v0.1.7-month7-prooflength-frontier-alpha`: interface-level conditional
-collision box with Month 7 final theorem compression and proof-length
-instantiation boundary metadata.
+`bigN-nature-paper-20260708`: a Lean-checked existential big-`N` endpoint for
+the source-calibrated Sondow-Pudlak project-length route, with paper and audit
+materials organized for independent reproduction.
 
-## Completed at This Stage
+Release commit:
 
-- A callable Lean endpoint exists:
-
-```lean
-SondowMainCheckedCodeBridge.callCollisionBox_from_semanticConventionViaExactSplit
+```text
+c26cd1d2b3abbc6c3584ab5c2afbd1e953d3cacd
 ```
 
-- The endpoint concludes:
+## Current Main Result
+
+The current release adds a publishable big-`N` endpoint:
 
 ```lean
-¬ is_rational euler_mascheroni
+projectLengthS21GraftProofLengthRecognitionSourceCalibratedBigN_exists_of_halfDenTailPrefixMax
 ```
 
-- The endpoint is conditional: it requires explicit Sondow-side, Pudlak-side,
-  proof-length calibration, and payload-truth inputs.
-- The current bridge from project proof-length semantics to exact split
-  minChecked witnesses is implemented and checked.
-- The public repository separates the Lean code, papers, audit guide, and
-  axiom ledger.
-- The Month 1 public bridge closure theorem layer exposes a single public
-  surface for the CnBox/Pudlak concrete route, paper route, release checkpoint,
-  and public-origin equivalences.
-- The public layer includes CnBox target/box equation endpoints, code
-  roundtrip, PA finite-consistency payload equivalence, same-object closure,
-  public gap instantiation, and public collision instantiation.
-- Month 3/Month 4 expose the accepted Sondow object, bounded PA proof
-  predicate interface, and Pudlak theorem-5 exact external boundary through a
-  public completion surface.
-- Month 5/Month 6 expose the computable gap certificate and proof-code checker
-  calibration frontier.
-- Month 7 separates the final contradiction into a proof-length-free
-  `GenericRationalCollisionInputs` skeleton and a project proof-length
-  instantiation layer.
-- Month 7 also exposes `Month7MinimalTheoremSurface`,
-  `Month7CompletionChecklist`, `Month7PreMergeAuditCertificate`,
-  `Month8ProofLengthResidualFrontier`, and
-  `Month8PayloadLiteratureResidualFrontier`.
+defined in:
+
+```text
+integration/SondowProjectMonth11Month12ProjectLengthTargetUpperEndpoint.lean
+```
+
+In explicit input packages consisting of S21 proof-length recognition,
+Sondow/partial verifier traces, a rational-branch Sondow parameter,
+partial-consistency truth, source-minChecked calibration, strict
+time-constructible growth, nonzero exponent, and Buss-Pudlak rescaling, Lean
+proves:
+
+```lean
+∃ N : Nat,
+  endpointN = N ∧
+  N =
+    semanticStrongNatLowerBoundClassicalMonomialSearchWitness
+      sourceLength hsource (max 17 sondowPrefixCoeff + 8) 1 0 ∧
+  (max 17 sondowPrefixCoeff + 8) * (N + 1)^1 < sourceLength N
+```
+
+Here `hsource` is derived from source-minChecked calibration and the
+Buss-Pudlak rescaling theorem inside the main theorem; it is not a separate
+abstract premise of this endpoint.
+
+## Companion Checked Results
+
+- Finite Sondow prefix to MiniHilbert proof-code semantics:
+
+```lean
+S21GraftProofLengthRecognition_sondowPrefixMax_eq_miniHilbertMinProofCodeSizePrefixMax
+```
+
+- Half-denominator prefix obstruction:
+
+```lean
+not_sondowCheckedHalfDenPrefix_of_rationalParameter
+```
+
+- Numerical handoff for the later C-line root route:
+
+```lean
+finalScaleSizeTailGapExactProofGapEndpointCLineRootS21PudlakPA_computed_n_eq_max_thresholdOf
+```
+
+defined in:
+
+```text
+integration/SondowProjectMonth11Month12HardResidualElimination.lean
+```
+
+## Paper and Audit Materials
+
+- English paper: `paper/paper_new_en.md`
+- Chinese paper: `paper/paper_new_zh.md`
+- World-class revision plan: `paper/world_class_revision_plan_zh.md`
+- big-`N` audit plan: `docs/bigN_audit_plan_zh.md`
+- General axiom ledger: `AXIOM_LEDGER.md`
 
 ## Not Claimed
 
-- No unconditional proof of \(\gamma\notin\mathbb Q\) is claimed.
-- No internal proof of Pudlak theorem 5 is claimed.
-- No complete internal construction of PA proof length is claimed.
-- No claim is made that the Month 7 project instantiation has eliminated the
-  `proof_length`, payload-truth, or Pudlak literature residuals.  It isolates
-  them into the Month 8 residual frontiers.
-- No claim is made that natural Sondow certificates themselves already have a
-  known Pudlak/Friedman/Buss lower bound.
+- No unconditional proof of `gamma` irrationality is claimed.
+- No printed decimal value of the big `N` is claimed.
+- No claim is made that all project-level proof-complexity residuals are
+  eliminated.
+- The half-denominator checked-prefix premise is not treated as automatic.
 
 ## Next Research Targets
 
-1. Eliminate or internalize `Month8ProofLengthResidualFrontier` by replacing
-   abstract proof-length instantiation with concrete checker exactness,
-   proof-object encoding, and minProofCodeSize calibration.
-2. Replace payload-truth axioms by structured certificate inputs.
-3. Internalize or cite a precise Pudlak theorem 5 instance matching the local
-   formula family and scale.
-4. Expand the Sondow analytic and verification bridges.
-5. Instantiate the final project gap element and parameter-free Sondow verifier
-   inside the existing Month 1 public bridge closure interface.
+1. Implement or derive an executable `thresholdOf upper.U upper.polynomial`, or
+   an equivalent executable witness extractor, to print a decimal `N`.
+2. Continue auditing the recognition theorem, verifier traces,
+   source-minChecked calibration, and Buss-Pudlak rescaling inputs.
+3. Run and archive targeted `#check`, source-file elaboration, and
+   `#print axioms` transcripts for the release.
+4. Internalize or further document remaining proof-complexity residual inputs.
