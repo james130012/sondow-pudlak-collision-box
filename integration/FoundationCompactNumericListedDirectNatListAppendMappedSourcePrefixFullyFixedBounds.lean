@@ -2,6 +2,7 @@ import integration.FoundationCompactNumericListedDirectNatListAppendMappedSource
 import integration.FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixTokenSlicesFixedBounds
 import integration.FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixFormulaFixedBounds
 import integration.FoundationCompactNumericListedDirectNatListAtRowsFullyUniformBounds
+import integration.FoundationCompactNumericListedDirectNatListAtRowsAtValuationIndexValueFullyFixedBounds
 import integration.FoundationCompactPAHybridEightConjunctionCheckedGeneralBounds
 
 /-!
@@ -26,6 +27,7 @@ namespace FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixFul
 open FoundationSuccinctFiniteConsistencyTarget
 open FoundationCompactBinaryNumeralTerm
 open FoundationCompactPABinaryNumeralAddition
+open FoundationCompactPABinaryNumeralAdditionBounds
 open FoundationCompactPAValuationTermCompiler
 open FoundationCompactPAHybridValuationBoundedFormulaCompiler
 open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds
@@ -40,6 +42,8 @@ open FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixTokenSli
 open FoundationCompactNumericListedDirectNatListAppendMappedSourcePrefixFormulaFixedBounds
 open FoundationCompactNumericListedDirectNatListAtRows
 open FoundationCompactNumericListedDirectNatListAtRowsFullyUniformBounds
+open FoundationCompactNumericListedDirectNatListAtRowsAtValuationIndexValueTerminalFullyFixedBounds
+open FoundationCompactNumericListedDirectNatListAtRowsAtValuationIndexValueFullyFixedBounds
 open FoundationCompactNumericListedDirectTokenSliceExplicitHybridCertificate
 open FoundationCompactNumericListedDirectTokenSlicePublicBounds
 open FoundationCompactPAHybridEightConjunctionCheckedGeneralBounds
@@ -53,7 +57,7 @@ def appendMappedSourcePrefixFullyFixedSyntaxPolynomial
   appendMappedSourcePrefixFullFormulaCodePolynomial bitBound + 1
 
 def appendMappedSourcePrefixFullyFixedPayloadPolynomial
-    (leftCount numericBound bitBound : Nat) : Nat :=
+    (_leftCount numericBound bitBound : Nat) : Nat :=
   hybridEightConjunctionCheckedGeneralPayloadEnvelope
     (appendMappedSourcePrefixFullyFixedSyntaxPolynomial bitBound)
     (appendMappedSourcePrefixArithmeticLeavesFixedPayloadPolynomial bitBound)
@@ -63,7 +67,7 @@ def appendMappedSourcePrefixFullyFixedPayloadPolynomial
     (appendMappedSourcePrefixArithmeticLeavesFixedPayloadPolynomial bitBound)
     (appendMappedSourcePrefixTokenSlicesFixedPayloadPolynomial numericBound
       bitBound)
-    (compactAdditiveNatListAtRowsFullyUniformPayloadPolynomial leftCount
+    (compactAdditiveNatListAtRowsExactValueFullyFixedPayloadPolynomial
       numericBound bitBound)
     (appendMappedSourcePrefixTokenSlicesFixedPayloadPolynomial numericBound
       bitBound)
@@ -184,7 +188,7 @@ theorem
     appendMappedSourcePrefixTokenSlicesFixedPayloadPolynomial numericBound
       bitBound
   let headResource :=
-    compactAdditiveNatListAtRowsFullyUniformPayloadPolynomial leftCount
+    compactAdditiveNatListAtRowsExactValueFullyFixedPayloadPolynomial
       numericBound bitBound
   let syntaxResource :=
     appendMappedSourcePrefixFullyFixedSyntaxPolynomial bitBound
@@ -300,11 +304,19 @@ theorem
         (shortBinaryNumeralTerm leftCount)) leftSliceCount hleftCountBound
       hleftSourceEndpoint hleftTargetEndpoint hleftSourceFinish
       hleftTargetFinish hleftBits
-  let headCertificate :=
-    FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph
-      tokenTable width tokenCount targetBoundary targetCount leftCount mappedHead
-      (shortBinaryNumeralTerm leftCount)
+  let headCertificateRaw :=
+    FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+      zeroValuation tokenTable width tokenCount targetBoundary targetCount
+      leftCount mappedHead (shortBinaryNumeralTerm leftCount)
+      (shortBinaryNumeralTerm mappedHead)
+      (by simp [termValue_shortBinaryNumeralTerm])
       (by simp [termValue_shortBinaryNumeralTerm]) hhead
+  let headCertificate : CheckedHybridValuationBoundedFormulaCertificate
+      zeroValuation
+      (FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.compactAdditiveNatListAtRowsAtValuationIndexFormula
+        tokenTable width tokenCount targetBoundary targetCount mappedHead
+        (shortBinaryNumeralTerm leftCount)) :=
+    .cast (by rfl) headCertificateRaw
   let tailCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
       zeroValuation
@@ -455,12 +467,27 @@ theorem
   have hheadResource :
       hybridFormulaStructuralPayloadBound headCertificate <=
         headResource := by
-    simpa only [headCertificate, headResource] using
-      compactAdditiveNatListAtRowsAtShortIndexExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyUniform
+    rw [show hybridFormulaStructuralPayloadBound headCertificate =
+        hybridFormulaStructuralPayloadBound headCertificateRaw by
+      simp only [headCertificate, hybridFormulaStructuralPayloadBound]]
+    simpa only [headCertificateRaw, headResource] using
+      compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
         tokenTable width tokenCount targetBoundary targetCount leftCount
-        mappedHead numericBound bitBound hhead hwidthBound htokenCountBound
-        htargetCountBound htableSize hwidthSize htokenCountSize
-        htargetBoundarySize htargetCountSize hleftCountSize hmappedHeadSize
+        mappedHead numericBound bitBound (shortBinaryNumeralTerm leftCount)
+        (shortBinaryNumeralTerm mappedHead) hhead
+        (by simp [termValue_shortBinaryNumeralTerm])
+        (by simp [termValue_shortBinaryNumeralTerm])
+        (shortBinaryNumeralTerm_freeVariables_eq_empty leftCount)
+        (shortBinaryNumeralTerm_freeVariables_eq_empty mappedHead)
+        hwidthBound htokenCountBound htargetCountBound htableSize hwidthSize
+        htokenCountSize htargetBoundarySize htargetCountSize hleftCountSize
+        hmappedHeadSize
+        (by
+          simpa only [natListAtRowsExactIndexCodeEnvelope] using
+            binaryNumeralTerm_code_length_le_envelope leftCount bitBound
+              hleftCountSize)
+        (binaryNumeralTerm_code_length_le_envelope mappedHead bitBound
+          hmappedHeadSize)
   have hclosedRaw :=
     compactAdditiveNatListAppendMappedSourcePrefixExplicitFormula_closed
       tokenTable width tokenCount leftStart leftFinish leftCount sourceStart
@@ -583,11 +610,11 @@ theorem
             targetFinish targetBoundary targetCount mappedHead
             ⟨hpositive, hprefix, hsourceWithin, htargetFinish, hcount,
               hleftSlice, hhead, htailSlice⟩) =
-        hybridFormulaStructuralPayloadBound direct := by
+      hybridFormulaStructuralPayloadBound direct := by
     simp only [
       compactAdditiveNatListAppendMappedSourcePrefixExplicitHybridCertificateOfGraph,
       hybridFormulaStructuralPayloadBound, leftSliceCount, tailSliceCount,
-      leftCertificate, headCertificate, tailCertificate,
+      leftCertificate, headCertificateRaw, headCertificate, tailCertificate,
       positiveCertificate, prefixCertificate, sourceWithinCertificate,
       targetFinishCertificate, countCertificate, direct]
   rw [hcertificate]

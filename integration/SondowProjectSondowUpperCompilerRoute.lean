@@ -135,10 +135,12 @@ theorem sidecarSondowCertificateVerifierUpper_fromHalfDenCheckedTail
 /--
 Proof-length-free Sondow proof-code compiler.
 
-This is the cleaner internal target.  It does not mention the root
-`proof_length` constant.  It says that a checked Sondow certificate is compiled
-to an explicit PA/Hilbert proof code whose concrete code length is bounded by the
-verifier predicate size.
+Legacy conditional length interface. It does not mention the root
+`proof_length` constant, but it also does not provide a proof code, a conclusion,
+checker acceptance, or an equality with measured payload length. Consequently,
+this record alone is not a concrete PA/Hilbert compiler and cannot discharge
+the direct finite-consistency upper bridge. See
+`docs/sondow_bridge_feasibility_20260905_zh.md`.
 -/
 structure SondowFullCertificateConcreteProofCodeCompiler : Type where
   codeLength : Nat → Nat

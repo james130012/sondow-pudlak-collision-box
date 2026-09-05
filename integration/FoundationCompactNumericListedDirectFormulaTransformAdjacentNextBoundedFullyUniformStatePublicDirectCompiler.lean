@@ -37,38 +37,39 @@ open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPubl
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPublicContextBounds
 
 noncomputable def
-    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (rowIndexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound : Nat)
-    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
-    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
-    (hnext : CompactFormulaTransformAdjacentNextBounded tokenTable width
-      tokenCount stateBoundary stateCount (termValue valuation rowIndexTerm)
-      mode witnessStart witnessFinish witnessCount valueBound
-      currentCoordinates currentSize) : Nat :=
-  let witness := compactFormulaTransformAdjacentNextBounded_witnessOfGraph
-    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
-    mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
-    currentSize hnext
-  let innerResource :=
-    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
-      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
-      mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound currentCoordinates currentSize witness.coordinates witness.size
-      (compactFormulaTransformAdjacentNextBounded_witnessOfGraph_spec valuation
-        tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
-        witnessStart witnessFinish witnessCount valueBound currentCoordinates
-        currentSize hnext).2
+      bitBound : Nat) : Nat :=
   explicitBoundedWitnessDirectPublicPayloadEnvelope 14
     (compactFormulaTransformAdjacentPublicContextCodeBound valuation rowIndexTerm)
     valueBound
     (compactFormulaTransformAdjacentNextRawTerminalPublicCodeEnvelope tokenTable
       width tokenCount stateBoundary stateCount rowIndexTerm mode witnessStart
       witnessFinish witnessCount valueBound)
-    innerResource
+    (compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound)
+
+noncomputable def
+    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound : Nat)
+    (_currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (_currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (_hnext : CompactFormulaTransformAdjacentNextBounded tokenTable width
+      tokenCount stateBoundary stateCount (termValue valuation rowIndexTerm)
+      mode witnessStart witnessFinish witnessCount valueBound
+      _currentCoordinates _currentSize) : Nat :=
+  compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 noncomputable def
     compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectBoundOfGraph
@@ -201,6 +202,8 @@ noncomputable def
     hcoordinates.1
   simpa only [
     compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph,
+    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope,
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph,
     witness, innerResource, rawBody, bodyCodeBound, contextCodeBound,
     sourceFormula, compilation, rawProof] using hcoordinates.2
 

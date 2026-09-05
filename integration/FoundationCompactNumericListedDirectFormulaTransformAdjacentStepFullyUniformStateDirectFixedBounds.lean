@@ -2,6 +2,7 @@ import integration.FoundationCompactNumericListedDirectFormulaTransformStateAtRo
 import integration.FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexBranchDirectBounds
 import integration.FoundationCompactPAHybridConjunctionGeneralContextBounds
 import integration.FoundationCompactCertifiedContextProofConclusionCodeBounds
+import integration.FoundationCompactNumericListedDirectFormulaTransformStepRowsFullyUniformClosedBounds
 
 /-!
 # Uniform state bounds for one formula-transform adjacent row
@@ -43,9 +44,15 @@ open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformStateAtRows
 open FoundationCompactNumericListedDirectFormulaTransformStateAtRowsExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformStateAtRowsFullyUniformDirectFixedBounds
+open FoundationCompactNumericListedDirectParserStateCoordinateUniformBounds
+open FoundationCompactNumericListedDirectParserSyntaxStepCoordinateFixedBounds
 open FoundationCompactNumericListedDirectFormulaTransformStepFormula
+open FoundationCompactNumericListedDirectFormulaTransformTermOutputRows
+open FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRows
 open FoundationCompactNumericListedDirectFormulaTransformStepExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformStepRowsPublicBounds
+open FoundationCompactNumericListedDirectFormulaTransformStepRowsPublicUniformBounds
+open FoundationCompactNumericListedDirectFormulaTransformStepRowsFullyUniformClosedBounds
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexExplicitHybridCertificate
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepAtValuationIndexPublicBounds
@@ -123,12 +130,23 @@ def compactFormulaTransformAdjacentStepUniformStateAssemblySyntaxPolynomial
   contextResource + currentResource + nextResource + stepResource +
     2 * (binaryNatCode 4).length + 1
 
+def compactFormulaTransformAdjacentStepUniformStepNumericBound
+    (mode witnessStart witnessFinish witnessCount numericBound : Nat) : Nat :=
+  numericBound + mode + witnessStart + witnessFinish + witnessCount + 1
+
+def compactFormulaTransformAdjacentStepUniformStepBitBound
+    (mode witnessStart witnessFinish witnessCount numericBound bitBound : Nat) :
+    Nat :=
+  bitBound + Nat.size
+    (compactFormulaTransformAdjacentStepUniformStepNumericBound mode
+      witnessStart witnessFinish witnessCount numericBound) + 1
+
 noncomputable def
-    compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepPayloadPolynomial
-    (tokenTable width tokenCount : Nat)
+    compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicPayloadPolynomial
+    (tokenCount : Nat)
     (indexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount numericBound bitBound : Nat)
-    (row : CompactFormulaTransformAdjacentStepRow) : Nat :=
+    : Nat :=
   let nextIndexTerm : ValuationTerm := ‘!!indexTerm + 1’
   let currentResource :=
     compactFormulaTransformStateAtRowsFullyUniformDirectFixedPayloadPolynomial
@@ -136,10 +154,14 @@ noncomputable def
   let nextResource :=
     compactFormulaTransformStateAtRowsFullyUniformDirectFixedPayloadPolynomial
       nextIndexTerm numericBound bitBound
-  let stepResource := compactFormulaTransformStepRowsPublicFinitePayloadEnvelope
-    tokenTable width tokenCount row.currentCoordinates row.nextCoordinates mode
-    row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
-    witnessCount
+  let stepNumericBound :=
+    compactFormulaTransformAdjacentStepUniformStepNumericBound mode witnessStart
+      witnessFinish witnessCount numericBound
+  let stepBitBound :=
+    compactFormulaTransformAdjacentStepUniformStepBitBound mode witnessStart
+      witnessFinish witnessCount numericBound bitBound
+  let stepResource := compactFormulaTransformStepRowsFullyUniformPayloadPolynomial
+    tokenCount stepNumericBound stepBitBound
   let syntaxResource :=
     compactFormulaTransformAdjacentStepUniformStateAssemblySyntaxPolynomial
       indexTerm numericBound bitBound stepResource
@@ -147,6 +169,16 @@ noncomputable def
     syntaxResource nextResource stepResource
   hybridConjunctionGeneralPayloadEnvelope syntaxResource currentResource
     nextStepResource
+
+noncomputable def
+    compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepPayloadPolynomial
+    (_tokenTable _width tokenCount : Nat)
+    (indexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount numericBound bitBound : Nat)
+    (_row : CompactFormulaTransformAdjacentStepRow) : Nat :=
+  compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicPayloadPolynomial
+    tokenCount indexTerm mode witnessStart witnessFinish witnessCount
+    numericBound bitBound
 
 noncomputable def
     compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepDirectBound
@@ -175,6 +207,16 @@ noncomputable def
       row.nextCoordinates.parserTasksCount <= numericBound)
     (hnextOutputCount :
       row.nextCoordinates.outputCount <= numericBound)
+    (hcurrentParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.currentCoordinates.parser numericBound)
+    (hcurrentFinish : row.currentCoordinates.finish <= numericBound)
+    (hnextParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.nextCoordinates.parser numericBound)
+    (hnextFinish : row.nextCoordinates.finish <= numericBound)
+    (hwitnessValue : CompactUnifiedParserSyntaxStepWitnessCoordinateValueBound
+      row.stepWitness numericBound)
+    (hconsumedCount : row.consumedCount <= numericBound)
+    (hmappedHead : row.mappedHead <= numericBound)
     (htokenTableSize : Nat.size tokenTable <= bitBound)
     (hstateBoundarySize : Nat.size stateBoundary <= bitBound)
     (hcurrentParserTokensTableSize :
@@ -230,10 +272,14 @@ noncomputable def
   let nextResource :=
     compactFormulaTransformStateAtRowsFullyUniformDirectFixedPayloadPolynomial
       nextIndexTerm numericBound bitBound
-  let stepResource := compactFormulaTransformStepRowsPublicFinitePayloadEnvelope
-    tokenTable width tokenCount row.currentCoordinates row.nextCoordinates mode
-    row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
-    witnessCount
+  let stepNumericBound :=
+    compactFormulaTransformAdjacentStepUniformStepNumericBound mode witnessStart
+      witnessFinish witnessCount numericBound
+  let stepBitBound :=
+    compactFormulaTransformAdjacentStepUniformStepBitBound mode witnessStart
+      witnessFinish witnessCount numericBound bitBound
+  let stepResource := compactFormulaTransformStepRowsFullyUniformPayloadPolynomial
+    tokenCount stepNumericBound stepBitBound
   let syntaxResource :=
     compactFormulaTransformAdjacentStepUniformStateAssemblySyntaxPolynomial
       indexTerm numericBound bitBound stepResource
@@ -256,25 +302,66 @@ noncomputable def
       hnextParserTokensCount hnextParserTasksCount hnextOutputCount
       htokenTableSize hstateBoundarySize hnextParserTokensTableSize
       hnextParserTasksTableSize hnextOutputTableSize hnumericSize hnumericBit
-  let stepCertificate :=
-    compactFormulaTransformStepRowsExplicitHybridCertificateOfGraph tokenTable
-      width tokenCount row.currentCoordinates row.nextCoordinates mode
-      row.stepWitness row.consumedCount row.mappedHead witnessStart witnessFinish
-      witnessCount hstep
+  have hnumericStep : numericBound <= stepNumericBound := by
+    dsimp only [stepNumericBound]
+    unfold compactFormulaTransformAdjacentStepUniformStepNumericBound
+    omega
+  have hbitStep : bitBound <= stepBitBound := by
+    dsimp only [stepBitBound]
+    unfold compactFormulaTransformAdjacentStepUniformStepBitBound
+    omega
+  have hstepNumericSize : Nat.size stepNumericBound <= stepBitBound := by
+    dsimp only [stepNumericBound, stepBitBound]
+    unfold compactFormulaTransformAdjacentStepUniformStepBitBound
+    omega
+  have hstepBitPositive : 1 <= stepBitBound := by
+    dsimp only [stepBitBound]
+    unfold compactFormulaTransformAdjacentStepUniformStepBitBound
+    omega
+  let stepBound :=
+    compactFormulaTransformStepRowsFullyUniformClosedBoundAtValuationOfValueBounds
+      valuation tokenTable width tokenCount row.currentCoordinates
+      row.nextCoordinates mode row.stepWitness row.consumedCount row.mappedHead
+      witnessStart witnessFinish witnessCount stepNumericBound stepBitBound hstep
+      (hwidthBound.trans hnumericStep)
+      ((hwidthBound.trans hnumericBit).trans hbitStep)
+      (htokenCount.trans hnumericStep)
+      (fun coordinate => (hcurrentParserValue coordinate).trans hnumericStep)
+      (hcurrentFinish.trans hnumericStep)
+      (hcurrentOutputTableSize.trans hbitStep)
+      (hcurrentOutputCount.trans hnumericStep)
+      (fun coordinate => (hnextParserValue coordinate).trans hnumericStep)
+      (hnextFinish.trans hnumericStep)
+      (hnextOutputTableSize.trans hbitStep)
+      (hnextOutputCount.trans hnumericStep)
+      (by
+        dsimp only [stepNumericBound]
+        unfold compactFormulaTransformAdjacentStepUniformStepNumericBound
+        omega : mode <= stepNumericBound)
+      (fun coordinate => (hwitnessValue coordinate).trans hnumericStep)
+      (hconsumedCount.trans hnumericStep)
+      (hmappedHead.trans hnumericStep)
+      (by
+        dsimp only [stepNumericBound]
+        unfold compactFormulaTransformAdjacentStepUniformStepNumericBound
+        omega : witnessStart <= stepNumericBound)
+      (by
+        dsimp only [stepNumericBound]
+        unfold compactFormulaTransformAdjacentStepUniformStepNumericBound
+        omega : witnessFinish <= stepNumericBound)
+      (by
+        dsimp only [stepNumericBound]
+        unfold compactFormulaTransformAdjacentStepUniformStepNumericBound
+        omega : witnessCount <= stepNumericBound)
+      (htokenTableSize.trans hbitStep) hstepNumericSize hstepBitPositive
+  let stepProof := stepBound.proof
+  have hstepProof : stepProof.payloadLength <= stepResource :=
+    stepBound.payloadLength_le
   have hstepClosed :=
     compactFormulaTransformStepRowsClosedFormula_freeVariables_eq_empty
       tokenTable width tokenCount row.currentCoordinates row.nextCoordinates
       mode row.stepWitness row.consumedCount row.mappedHead witnessStart
       witnessFinish witnessCount
-  let stepProof := compileClosedHybridAtValuation (target := valuation)
-    stepCertificate hstepClosed
-  have hstepProof : stepProof.payloadLength <= stepResource :=
-    (compileClosedHybridAtValuation_payloadLength_le_structural
-      (target := valuation) stepCertificate hstepClosed).trans
-        (compactFormulaTransformStepRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_publicFinite
-          tokenTable width tokenCount row.currentCoordinates
-          row.nextCoordinates mode row.stepWitness row.consumedCount
-          row.mappedHead witnessStart witnessFinish witnessCount hstep)
   have hcurrentCode :
       (binaryFormulaCode currentFormula).length <= currentResource :=
     (CertifiedPAContextProof.conclusionCodeLength_le_payloadLength
@@ -438,9 +525,10 @@ noncomputable def
     exact castValuationContextProof_payloadLength_eq hformula explicitProof]
   simpa only [
     compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepPayloadPolynomial,
+    compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicPayloadPolynomial,
     nextIndexTerm, currentResource, nextResource, stepResource, syntaxResource,
     nextStepResource, currentFormula, nextFormula, stepFormula,
-    nextStepFormula, explicitFormula, currentBound, nextBound, stepCertificate,
+    nextStepFormula, explicitFormula, currentBound, nextBound, stepBound,
     stepProof, nextStepProof, explicitProof] using hexplicit
 
 theorem
@@ -470,6 +558,16 @@ theorem
       row.nextCoordinates.parserTasksCount <= numericBound)
     (hnextOutputCount :
       row.nextCoordinates.outputCount <= numericBound)
+    (hcurrentParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.currentCoordinates.parser numericBound)
+    (hcurrentFinish : row.currentCoordinates.finish <= numericBound)
+    (hnextParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.nextCoordinates.parser numericBound)
+    (hnextFinish : row.nextCoordinates.finish <= numericBound)
+    (hwitnessValue : CompactUnifiedParserSyntaxStepWitnessCoordinateValueBound
+      row.stepWitness numericBound)
+    (hconsumedCount : row.consumedCount <= numericBound)
+    (hmappedHead : row.mappedHead <= numericBound)
     (htokenTableSize : Nat.size tokenTable <= bitBound)
     (hstateBoundarySize : Nat.size stateBoundary <= bitBound)
     (hcurrentParserTokensTableSize :
@@ -492,6 +590,8 @@ theorem
       hindexVariables hgraph hzero hwidthBound htokenCount hstateCount
       hcurrentParserTokensCount hcurrentParserTasksCount hcurrentOutputCount
       hnextParserTokensCount hnextParserTasksCount hnextOutputCount
+      hcurrentParserValue hcurrentFinish hnextParserValue hnextFinish
+      hwitnessValue hconsumedCount hmappedHead
       htokenTableSize hstateBoundarySize hcurrentParserTokensTableSize
       hcurrentParserTasksTableSize hcurrentOutputTableSize
       hnextParserTokensTableSize hnextParserTasksTableSize hnextOutputTableSize
@@ -505,6 +605,8 @@ theorem
     hindexVariables hgraph hzero hwidthBound htokenCount hstateCount
     hcurrentParserTokensCount hcurrentParserTasksCount hcurrentOutputCount
     hnextParserTokensCount hnextParserTasksCount hnextOutputCount
+    hcurrentParserValue hcurrentFinish hnextParserValue hnextFinish
+    hwitnessValue hconsumedCount hmappedHead
     htokenTableSize hstateBoundarySize hcurrentParserTokensTableSize
     hcurrentParserTasksTableSize hcurrentOutputTableSize
     hnextParserTokensTableSize hnextParserTasksTableSize hnextOutputTableSize

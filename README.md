@@ -4,7 +4,15 @@ This repository is a Lean 4 research artifact for a Sondow-Pudlak
 proof-complexity collision program around the Euler-Mascheroni constant
 `gamma`.
 
-## Current Submission Theorem
+## Active audit status (2026-09-05)
+
+The unconditional result remains open. Follow [STATUS.md](STATUS.md) and
+[the proof graph](docs/checked_minproof_theorem_dependency_graph_zh.pdf).
+The active lower-bound target is G_n = F_{(n+1)^(d*n)}; the Sondow upper
+bound must concern this same family. The historical route below is conditional
+and does not discharge the current graph's open nodes.
+
+## Historical Conditional Submission Theorem
 
 The current submission theorem is
 

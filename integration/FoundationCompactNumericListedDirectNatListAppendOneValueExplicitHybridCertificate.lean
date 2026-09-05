@@ -183,6 +183,17 @@ theorem compactAdditiveNatListAppendOneValueClosedFormula_alignment
     fin_cases coordinate <;>
       simp [Rew.subst_bvar]
 
+theorem
+    compactAdditiveNatListAtRowsAtValuationIndexValue_shortNumeral_alignment
+    (tokenTable width tokenCount boundaryTable count value : Nat)
+    (indexTerm : ValuationTerm) :
+    compactAdditiveNatListAtRowsAtValuationIndexValueFormula tokenTable width
+        tokenCount boundaryTable count indexTerm
+        (shortBinaryNumeralTerm value) =
+      compactAdditiveNatListAtRowsAtValuationIndexFormula tokenTable width
+        tokenCount boundaryTable count value indexTerm := by
+  rfl
+
 theorem arithmeticAddTerm_eq_func
     (left right : ValuationTerm) :
     (‘!!left + !!right’ : ValuationTerm) =
@@ -286,11 +297,22 @@ noncomputable def
           simpa [termValue_shortBinaryNumeralTerm] using hbitIndex
         simpa [termValue_shortBinaryNumeralTerm] using
           hbits offset hoffset bitIndex hbitIndex')
-  let rowCertificate :=
-    compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph
-      tokenTable width tokenCount targetBoundary targetCount sourceCount value
-      (shortBinaryNumeralTerm sourceCount)
+  let rowCertificateExact :=
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+      zeroValuation tokenTable width tokenCount targetBoundary targetCount
+      sourceCount value (shortBinaryNumeralTerm sourceCount)
+      (shortBinaryNumeralTerm value)
+      (by simp [termValue_shortBinaryNumeralTerm])
       (by simp [termValue_shortBinaryNumeralTerm]) hrows
+  let rowCertificate : HybridCertificate
+      (compactAdditiveNatListAtRowsAtValuationIndexFormula tokenTable width
+        tokenCount targetBoundary targetCount value
+        (shortBinaryNumeralTerm sourceCount)) :=
+    .cast
+      (compactAdditiveNatListAtRowsAtValuationIndexValue_shortNumeral_alignment
+        tokenTable width tokenCount targetBoundary targetCount value
+        (shortBinaryNumeralTerm sourceCount))
+      rowCertificateExact
   exact CheckedHybridValuationBoundedFormulaCertificate.conjunction
     (equalityCertificate (shortBinaryNumeralTerm targetFinish)
       (appendOneTargetFinishTerm (shortBinaryNumeralTerm targetStart)

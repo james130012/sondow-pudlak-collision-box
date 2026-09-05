@@ -2,7 +2,7 @@ digraph PudlakCollisionAppendix {
   graph [rankdir=TB, bgcolor="white", splines=polyline, nodesep="0.28",
     ranksep="0.44", pad="0.18", size="10,15!", ratio=compress,
     fontname="Noto Sans CJK SC", fontsize=21,
-    label="附图 05：Pudlak-Buss 下界、索多桥与对撞", labelloc="t"];
+    label="附图 05：纸面条件下界、未证索多桥与对撞", labelloc="t"];
   node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
     fontsize=10.5, color="#777777", fillcolor="#f3f3f3",
     margin="0.14,0.09", penwidth=1.2];
@@ -17,60 +17,60 @@ digraph PudlakCollisionAppendix {
     fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8];
   accepted [node_id="A05.02", status="pending", endpoint_theorem="accepted trace short PA proof",
     source="docs/checked_minproof_appendix_04_pa_quantitative_compiler_zh.dot", appendix="05",
-    next_obligation="wait for appendix 04", label="A05.02 接受计算短证明编译器\n真实证明对象 + 统一多项式界",
+    next_obligation="wait for appendix 04", label="A05.02 接受计算编译器【形式化暂停】\n真实证明对象 + 统一多项式界",
     style="rounded,filled,dashed"];
   conditions [node_id="A05.03", status="pending", endpoint_theorem="Pudlak conditions (0)-(3)",
     source="planned", appendix="05", next_obligation="wait for A05.01/A05.02",
-    label="A05.03 Pudlak 定量条件 (0)-(3)\n固定 p1,p2,p3,q1,q2",
+    label="A05.03 具体定量条件【未完成】\n(0) 已纸面证明；(1)-(3) 等待独立证明",
     style="rounded,filled,dashed"];
   diagonal [node_id="A05.04", status="partial_done", endpoint_theorem="quantitative diagonal specialization",
     source="integration/FoundationCompactParameterizedDiagonalSpecialization.lean", appendix="05",
     next_obligation="instantiate at concrete P_direct",
     label="A05.04 参数化对角实例化\n通用固定证明与短数词实例化已检查",
     fillcolor="#dff2e8", color="#3f7c66"];
-  assembly [node_id="A05.05", status="pending", endpoint_theorem="bounded proof assembly",
+  assembly [node_id="A05.05", status="paper_conditional", endpoint_theorem="bounded proof assembly",
     source="planned", appendix="05", next_obligation="wait for A05.03/A05.04",
-    label="A05.05 有界证明拼接\n原文固定重言式与每次 MP 均计长",
-    style="rounded,filled,dashed"];
-  exponent [node_id="A05.06", status="pending", endpoint_theorem="Pudlak exponent extraction",
+    label="A05.05 条件拼接：纸面推导已写出\n每次 MP 均计长；具体条件尚未建立",
+    style="rounded,filled", fillcolor="#e1edf9", color="#47799e"];
+  exponent [node_id="A05.06", status="paper_conditional", endpoint_theorem="Pudlak exponent extraction",
     source="planned", appendix="05", next_obligation="wait for A05.05",
-    label="A05.06 一致性反证与指数提取\nPudlak 1986 Theorem 3.1",
-    style="rounded,filled,dashed"];
-  buss [node_id="A05.07", status="pending", endpoint_theorem="Buss 1994 Theorem 5",
-    source="planned", appendix="05", next_obligation="wait for A05.06",
-    label="A05.07 time-constructible 重标定\n得到同一有限一致性族超多项式下界",
+    label="A05.06 条件反证与指数提取：纸面完成\n仍依赖具体定量条件和高效固定点",
+    style="rounded,filled", fillcolor="#e1edf9", color="#47799e"];
+  buss [node_id="A05.07", status="pending", endpoint_theorem="perfect-power rescaling",
+    source="integration/FoundationPudlakBussRescaledLowerBoundGate.lean", appendix="05", next_obligation="wait for A05.06",
+    label="A05.07 完美幂重标定（前提待证）\nrho_d(n) = (n+1)^(d*n)；G_n = F_{rho_d(n)}\n纯增长闸门已检查；具体 Pudlak 下界未闭合",
     style="rounded,filled,dashed"];
   lower [node_id="A05.08", status="pending", endpoint_theorem="eventual lower bound",
     source="planned", appendix="05", next_obligation="wait for A05.07",
-    label="A05.08 minProof(F_n) > U(n) eventually",
+    label="A05.08 下界待证：最终无短 G_n 证明\n无证明时 Nat 最小值为 0，不可直接取大于式",
     style="rounded,filled,dashed"];
-  sondow [node_id="A05.09", status="done_boundary", endpoint_theorem="checked Sondow certificates",
-    source="existing Sondow route", appendix="05", next_obligation="same-object bridge",
-    label="A05.09 索多证书层已检查\n不自动等于同对象短 PA 证明",
-    fillcolor="#dff2e8", color="#3f7c66"];
-  bridge [node_id="A05.10", status="pending", endpoint_theorem="Sondow same-object compiler",
-    source="planned", appendix="05", next_obligation="wait for A05.01/A05.02",
-    label="A05.10 索多同对象编译器\n证书 -> 同一 F_n 的真实规范证明",
-    style="rounded,filled,dashed"];
+  sondow [node_id="A05.09", status="paper_source", endpoint_theorem="finite rational checker and ground source PA proofs on paper",
+    source="paper/full_paper_proof_working_zh.md sections 3-4", appendix="05", next_obligation="same-object bridge",
+    label="A05.09 有限源证书：纸面构造\n真假源句短 PA 证明已给出\n旧 Prop 接受不是该有限检查器的实现",
+    fillcolor="#e1edf9", color="#47799e"];
+  bridge [node_id="A05.10", status="paper_open", endpoint_theorem="independent number-theoretic short implication to G_n",
+    source="paper/full_paper_proof_working_zh.md section 7", appendix="05", next_obligation="prove independent mathematical reduction",
+    label="A05.10 关键数学归约【未证】\n有理性下的证书 -> 同一 G_n 的短 PA 证明\n编译器与元理论可靠性均不提供此蕴含",
+    style="rounded,filled", fillcolor="#fff0c9", color="#b37a12", penwidth=2.5];
   upper [node_id="A05.11", status="pending", endpoint_theorem="polynomial upper bound",
     source="planned", appendix="05", next_obligation="wait for A05.10",
-    label="A05.11 minProof(F_n) <= U(n)",
+    label="A05.11 minProof(G_n) <= U(n)",
     style="rounded,filled,dashed"];
   audit [node_id="A05.12", status="pending", endpoint_theorem="same-object audit gate",
     source="planned", appendix="05", next_obligation="wait for lower/upper",
-    label="A05.12 同一 n、F_n、检查器、载荷度量\n无 tail_gap / upper_provider / proof_length",
+    label="A05.12 同一 n、G_n、检查器、载荷度量\n无 tail_gap / upper_provider / proof_length",
     fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed"];
   collision [node_id="A05.13", status="pending", endpoint_theorem="collision contradiction",
     source="planned", appendix="05", next_obligation="wait for A05.12",
-    label="A05.13 U(N) < minProof(F_N) <= U(N)\n最终对撞",
+    label="A05.13 U(N) < minProof(G_N) <= U(N)\n最终对撞",
     style="rounded,filled,dashed", penwidth=2.2];
 
   predicate -> conditions;
   accepted -> conditions;
   conditions -> assembly;
   diagonal -> assembly -> exponent -> buss -> lower;
-  predicate -> bridge;
-  accepted -> bridge;
+  predicate -> bridge [style=dotted, label="只固定目标"];
+  accepted -> bridge [style=dotted, label="只提供编译工具"];
   sondow -> bridge -> upper;
   lower -> audit;
   upper -> audit;

@@ -81,6 +81,33 @@ noncomputable def conjunction
 
 end EmptyContextBoundedProof
 
+/-- An empty-context proof whose public resource is fixed in its type. -/
+structure FixedResourceEmptyContextProof
+    (formula : ValuationFormula) (resource : Nat) where
+  proof : CertifiedPAContextProof ∅ formula
+  payloadLength_le : proof.payloadLength ≤ resource
+
+namespace FixedResourceEmptyContextProof
+
+noncomputable def conjunction
+    {left right : ValuationFormula} {leftResource rightResource : Nat}
+    (leftBound : FixedResourceEmptyContextProof left leftResource)
+    (rightBound : FixedResourceEmptyContextProof right rightResource) :
+    FixedResourceEmptyContextProof (left ⋏ right)
+      (leftResource + rightResource +
+        CertifiedPAContextProof.conjunctionFullAssemblyCost ∅ left right) := by
+  let proof := CertifiedPAContextProof.conjunction
+    leftBound.proof rightBound.proof
+  refine { proof := proof, payloadLength_le := ?_ }
+  exact
+    (CertifiedPAContextProof.conjunction_payloadLength_le
+      leftBound.proof rightBound.proof).trans (by
+        have hleft := leftBound.payloadLength_le
+        have hright := rightBound.payloadLength_le
+        omega)
+
+end FixedResourceEmptyContextProof
+
 private theorem arithmeticAddTerm_eq_func
     (left right : ValuationTerm) :
     (‘!!left + !!right’ : ValuationTerm) =
@@ -220,6 +247,25 @@ private noncomputable def boundedClosedHybridCertificateWithPublicBound
     { resource := publicResource
       proof := structural.proof
       payloadLength_le := structural.payloadLength_le.trans hpublic }
+
+/-- Close a checked hybrid certificate and expose its independently proved
+public resource without rebuilding the certificate tree downstream. -/
+opaque fixedResourceEmptyContextProofOfClosedHybridCertificate
+    {valuation : Nat -> Nat} {formula : ValuationFormula}
+    (certificate :
+      CheckedHybridValuationBoundedFormulaCertificate valuation formula)
+    (hclosed : formula.freeVariables = ∅)
+    (publicResource : Nat)
+    (hpublic :
+      CheckedHybridValuationBoundedFormulaCertificate.hybridFormulaStructuralPayloadBound
+          certificate <=
+        publicResource) :
+    FixedResourceEmptyContextProof formula publicResource := by
+  let bounded := boundedClosedHybridCertificateWithPublicBound certificate
+    hclosed publicResource hpublic
+  refine { proof := bounded.proof, payloadLength_le := ?_ }
+  simpa only [bounded, boundedClosedHybridCertificateWithPublicBound] using
+    bounded.payloadLength_le
 
 private noncomputable def boundedParserProof
     {formula : ValuationFormula} {resource : Nat}
@@ -1128,5 +1174,7 @@ noncomputable def compactSequentFormulaStepSuccessorCountPublicBound
 #print axioms compactSequentFormulaStepNatListWitnessRowsPublicBound
 #print axioms compactSequentFormulaStepNatListAppendSlicesPublicBound
 #print axioms compactSequentFormulaStepSuccessorCountPublicBound
+#print axioms FixedResourceEmptyContextProof.conjunction
+#print axioms fixedResourceEmptyContextProofOfClosedHybridCertificate
 
 end FoundationCompactNumericListedDirectSequentFormulaStepDirectCompiler

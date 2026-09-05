@@ -1,6 +1,13 @@
 # 最短证明增长下界：证明主控书
 
-更新时间：2026-07-26。
+更新时间：2026-07-27。
+
+## 当前工作顺序（2026-09-05）
+
+按用户要求，先完成整条纸面证明，再形式化。暂停后文历史执行顺序中的 Lean 扩展。
+当前主稿为 [统一纸面证明](../paper/full_paper_proof_working_zh.md)。
+本次新增的是纸面有理区间证书与条件下界论证，不能把 M17 或最终结论改为已证。
+后文保留原验证记录，便于纸面路线完成后恢复实现。
 
 ## 1. 目标与边界
 
@@ -645,17 +652,81 @@ compileCompactSequentFormulaStepRowsBoundedDirectClosedExplicitUniformContext_pa
 `propext / Classical.choice / Quot.sound`；没有项目公设、`sorryAx`、
 `tail_gap`、`upper_provider` 或 `proof_length`。因此
 `SequentFormulaStepRowsBoundedGraph` 的显式统一资源节点已经关闭。
-其直接父公式是 `CompactSequentFormulaTraceBoundedGraph`（序列公式解析轨迹
-有界图），还需把计数等式、suffix/value 两张列表边界表良构证明和当前行图
-合取起来。当前第一义务是为两张
-`CompactAdditiveNatListListRowsWellFormed`（自然数列表边界表良构）公式建立
-同样不依赖所选行见证的显式统一资源，再关闭该四项父公式。
+其直接父公式 `CompactSequentFormulaTraceBoundedGraph`（序列公式解析轨迹
+有界图）也已关闭。新增路线从真实
+`CompactAdditiveNatListListRowsWellFormed`（自然数列表边界表良构）数据逐行
+选取语义见证，产生行号无关的直接 PA 证明资源，再经有限分支树和有界全称
+编译回原闭式公式。suffix/value 两张表、计数等式和当前行图随后按原公式的
+右结合次序合取。公开资源只依赖九个原公式坐标；不依赖所选行、三项行见证
+或 `hgraph / hrows` 的证明内容。
+
+当前审计端点为：
+
+```text
+compileCompactAdditiveNatListListRowsDirectUniformClosed_payloadLength_le
+compactSequentFormulaTraceBoundedDirectClosedFormula_alignment
+compileCompactSequentFormulaTraceBoundedDirectClosed_payloadLength_le
+```
+
+上述端点均在 60 秒限制内通过，公理画像只有
+`propext / Classical.choice / Quot.sound`。当前第一义务推进为把该真实轨迹
+证明接入 `SequentFormulaEndpoint`（序列公式解析端点）的原坐标公式与公开
+资源路线。
+
+### 4.9 `SequentFormulaEndpoint` 的 cons 行子图闭合
+
+端点中的
+`compactAdditiveNatListConsRowsClosedFormula`（自然数列表 cons 行闭公式）
+已完成从叶子到原八坐标公式的真实证书与固定载荷界：
+
+```text
+行数等式叶
+  + 两个头部见证
+  + 每个源行的四个尾部见证
+  -> 有限分支树
+  -> bounded universal（有界全称）
+  -> 右结合三叶合取
+  -> 原八坐标闭公式。
+```
+
+最终端点：
+
+```text
+compactAdditiveNatListConsRowsClosedCertificate
+compactAdditiveNatListConsRowsClosedFormula_freeVariables_eq_empty
+compactAdditiveNatListConsRowsClosedCertificate_payload_le_fullyFixed
+```
+
+总载荷界只依赖统一 `numericBound / bitBound`（数值界／位长界），不依赖
+头尾见证值或语义证明内容。分支边界运输和零赋值运输各有通用等式消去引理，
+没有展开整棵证明树。全部受限探针通过，公理画像只有标准三项；无项目公设、
+`sorryAx`、`proof_length`、`tail_gap` 或 `upper_provider`。
+
+`SequentFormulaEndpoint` 已闭合。十二个真实叶证书已经按原公式的右结合顺序
+完成空上下文 PA 合取：三组 witness rows（见证行）、trace（轨迹）、四个
+定宽表项、cons 行、结构化列表布局、自然数大小和面积不等式。装配结果先与
+显式十二叶公式按定义对齐，再经原有 alignment（公式对齐）定理转换回原
+27 坐标闭式公式；`cast`（等式搬运）保持 payloadLength（载荷长度）不变。
+
+最终公开端点为：
+
+```text
+compactSequentFormulaEndpointDirectPublicBoundOfGraph
+```
+
+调用者只需给出真实 `CompactSequentFormulaEndpointGraph`（序列公式端点图）。
+`numericBound / bitBound`（数值界／位长界）由公开坐标的显式和自动生成，
+不再要求外部提供逐项界，也不依赖图证明内容。十二叶装配、原公式回接和公开
+资源端点的受限探针均通过；公理画像只有
+`propext / Classical.choice / Quot.sound`，静态扫描无项目公设、`sorryAx`、
+`proof_length`、`tail_gap` 或 `upper_provider`。当前第一义务进入
+`GuardedInductionSentenceRoute`（带保护归纳句路线）。
 
 后续链保持为：
 
 ```text
 SequentFormulaStepRowsBoundedGraph 显式统一上界（已闭合）
-  -> CompactSequentFormulaTraceBoundedGraph
+  -> CompactSequentFormulaTraceBoundedGraph（已闭合）
   -> SequentFormulaEndpoint（序列公式解析端点）
   -> GuardedInductionSentenceRoute
   -> InductionPAAxiomRuleCheck（归纳 PA 公理规则检查）
@@ -667,6 +738,185 @@ SequentFormulaStepRowsBoundedGraph 显式统一上界（已闭合）
 
 `A04.18` 仍为黄色；这项闭合的是完整 accepted-trace compiler
 （接受轨迹编译器）中的一个真实父节点，不能表述为 Pudlak 下界已经完成。
+
+### 4.10 `FormulaTransform` 项输出失败选择器固定界
+
+`TermOutputRows`（项输出行）的 double-failure / triple-failure
+（双失败／三失败）分支已从具体 `consumedCount / tag / argument /
+binderArity` 坐标下沉为只依赖统一 `bitBound`（位长界）的显式多项式：
+
+```text
+doubleFailurePublicFinitePayloadEnvelope_le_fullyFixed
+tripleFailurePublicFinitePayloadEnvelope_le_fullyFixed
+```
+
+证明逐层关闭短二进制数字项、负等式原子、析取公式码和左右析取路径的
+载荷界；没有把失败选择结果或证明对象作为资源参数。受限探针通过，公理画像
+只有 `propext / Classical.choice / Quot.sound`，静态扫描无项目公设、
+`sorryAx`、`proof_length`、`tail_gap` 或 `upper_provider`。
+
+当前第一义务是把共享失败选择器接入 14 个原始 `CheckedBranchData`
+（已检查分支数据）构造器。共享子组件不按原始构造器计数；14 个构造器全部
+闭合前，不能把 `FormulaTransformStepRows`（公式变换步骤行）或 `A04.18`
+标为闭合。
+
+### 4.11 `AppendTwoValues` 两个真实值项固定界
+
+`TermOutputRows` 共用的双值追加子证书已闭合：
+
+```text
+compactAdditiveNatListAppendTwoValuesAtValuationValuesExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+```
+
+该端点保留两个调用者算术项和第二行
+`successor(sourceCount)`（源计数后继）的原公式语法；统一放大的
+`rowBitBound`（行位长界）同时覆盖后继索引和两个值项代码，不枚举值见证。
+五个叶子经闭公式五重合取界装配，总资源只依赖
+`numericBound / bitBound`。受限探针通过，公理画像只有
+`propext / Classical.choice / Quot.sound`。下一步是逐个关闭 14 个原始
+项输出构造器，再与已闭合的双失败／三失败共享选择器汇总。
+
+### 4.12 `TermOutputRows` 十四个原分支闭合
+
+33 个闭坐标的完整公式码现由一个显式 `bitBound`（位长界）统一控制；完整
+闭式的闭合性和代码界可向任意合取／析取子式下沉。以下十四个原始构造器
+已沿真实公式树完成固定资源装配：
+
+```text
+modeZeroLower   : 三条件守卫 + append [1,0]
+modeZeroShifted : 双条件守卫 + append [1,argument+1]
+modeZeroRaw     : 三重失败 + 双重失败 + 原始前缀
+modeOneShifted  : mode = 1 + 双条件守卫 + append [1,argument+1]
+modeOneRaw      : mode = 1 + 双重失败 + 原始前缀
+modeTwoLower    : mode = 2 + 三条件守卫 + 见证切片
+modeTwoRaw      : mode = 2 + 三重失败 + 原始前缀
+modeFourOne     : mode = 4 + 双条件守卫 + append [argument]
+modeFourSame    : mode = 4 + 双重失败 + 同输出行
+modeFiveCaptured: mode = 5 + 捕获守卫 + append [0,binderArity+argument]
+modeFiveResidual: mode = 5 + 余数守卫 + 固定资源存在见证 + append [1,residual]
+modeFiveRaw     : mode = 5 + 双重失败 + 原始前缀
+zero / other    : 零消费同输出行／五个模式不等式加原始前缀
+  -> 对应 mode 内部路径
+  -> 六路 mode 选择路径
+  -> positive case
+  -> 原 33 坐标闭公式。
+```
+
+最终端点：
+
+```text
+compactFormulaTransformTermOutputRowsModeZeroLowerBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeZeroShiftedBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeZeroRawBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeOneShiftedBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeOneRawBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeTwoLowerBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeTwoRawBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeFourOneBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeFourSameBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeFiveCapturedBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeFiveResidualBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsModeFiveRawBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsZeroBranch_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsOtherBranch_structuralPayloadBound_le_fullyFixed
+```
+
+结论直接约束原始 `FromData` 证书；资源只依赖显式
+`numericBound / bitBound`，不依赖 `hrows` 或其他证明内容。十四个端点均在
+60 秒受限探针内退出码 0，公理画像只有
+`propext / Classical.choice / Quot.sound`。其中余数存在证书逐项关闭两个
+算术原子、追加两行证明、存在见证安装和外层析取路径；没有使用
+`Finset.sum / Finset.sup` 或证明对象参数。单值追加证书也已改由精确索引／
+精确值行编译器产生，资源函数不再含 `sourceCount`（源行数）。当前进度为
+原始构造器 `14/14`。十四路总和资源及真实图端点也已闭合：
+
+```text
+compactFormulaTransformTermOutputRowsExplicitHybridCertificateFromData_structuralPayloadBound_le_fullyFixed
+compactFormulaTransformTermOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+```
+
+两者都只依赖统一 `numericBound / bitBound`；真实图端点直接提取 checked
+data（已检查分支数据），不暴露分支证明参数。对称的 formula-output
+（公式输出）七分支真实图固定界也已闭合。上述新增端点均在 60 秒受限探针
+内退出码 0，公理画像只有标准三项。
+
+`FormulaTransformStepRows` 的六个真实语义分支现已逐一接入：
+
+```text
+quietDone / quietEmpty / quietRepeat / quietInvalid / term / formula
+```
+
+其中 Repeat（重复）分支分别从零次与正次数的真实行图构造证书，再用固定
+`max` 合并资源；没有把重复分支或其上界作为参数。六个分支的受限探针均
+退出码 0，公理画像只有 `propext / Classical.choice / Quot.sound`。六路固定
+界汇总、真实 graph（图关系）端点及无外部界公开端点也已闭合：
+
+```text
+compactFormulaTransformStepRowsFullyFixedBoundFromData
+compactFormulaTransformStepRowsFullyFixedBoundOfGraph
+compactFormulaTransformStepRowsPublicFullyFixedBoundOfGraph
+```
+
+公开端点把 `numericBound` 定义为原 38 坐标的有限和加一，并从该值内部计算
+`bitBound`；33 坐标 term-output（项输出）和 29 坐标 formula-output（公式
+输出）通过显式有限坐标嵌入回到同一 38 坐标，不接收外部界或分支选择。
+最终探针约 28 秒退出码 0，静态扫描无项目公设、`sorryAx`、`proof_length`、
+`tail_gap` 或 `upper_provider`。当前第一义务是把该公开步骤编译器接回
+exact-fuel GuardedInduction（精确燃料守卫归纳）验证器轨迹，关闭 A04.18
+剩余的执行轨迹装配，而不是再扩展 FormulaTransformStepRows。
+
+### 4.13 `FormulaTransform` 相邻行公开统一资源
+
+步骤编译器现已接回真实 `14 + 14 + 9` 有界见证链，并完成有限全称装配：
+
+```text
+FormulaTransformStepRows 六个真实分支
+  -> 9 项步骤见证
+  -> 14 项下一状态见证
+  -> 14 项当前状态见证
+  -> fuel 个相邻行的有限全称证明。
+```
+
+步骤资源先由外部统一 `numericBound / bitBound` 推出 38 坐标位长界；33 项
+term-output（项输出）和 29 项 formula-output（公式输出）通过显式有限坐标
+嵌入复用同一界。随后逐层删除已经失效的 `row / components / hrows`
+（行／组件／行图证明）资源参数。公开端点为：
+
+```text
+compactFormulaTransformStepRowsFullyUniformClosedBoundAtValuationOfValueBounds
+compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicUniversalResource
+compileCompactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalContext_payloadLength_le
+```
+
+最后一个载荷定理仍以真实 `hrows` 构造证明，但结论中的资源函数只含公开
+数值参数；旧资源与公开资源由 `rfl` 等式关闭。9／14／14／全行四层受限
+探针均退出码 0，公理画像只有 `propext / Classical.choice / Quot.sound`。
+当前第一义务是对 `InitialFinalBounded`（初末状态有界子证书）做同等级的
+公开固定界，再与状态计数等式和本节相邻行端点装成完整 trace（轨迹）。
+`A04.18` 仍为黄色。
+
+### 4.14 `FormulaTransform` 成功端点与完整成功轨迹
+
+成功终态路线现已闭合：七个真实端点叶先装入 31 个有界见证，再与状态计数、
+指数值界和 `fuel` 个相邻行的有限全称证明合成原 19 坐标闭公式。公开端点为：
+
+```text
+compactFormulaTransformInitialFinalBoundedClosedDirectBoundOfBounded
+compileCompactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectClosedContext
+compileCompactFormulaTransformTraceBoundedFullyDirect
+compileCompactFormulaTransformTraceBoundedFullyDirect_payloadLength_le
+```
+
+最后两个受限探针分别约 10 秒和 15 秒退出码 0；公理画像只有
+`propext / Classical.choice / Quot.sound`。新增路线静态扫描无项目公设、
+`sorryAx`、`proof_length`、`tail_gap` 或 `upper_provider`，公开载荷不接收
+语义图证明参数。
+
+严格边界：本节闭合的是带明确成功后缀的 `InitialFinalBounded`。归纳规则使用
+总函数语义的 `InitialDefaultFinalBounded`，其中还包含
+`FinalGetDOutputRows`（默认输出终态）分支；二者不能互换。当前第一义务是直接
+编译该默认终态分支，然后复用已绿的相邻行编译器装配
+`CompactFormulaTransformTotalTraceBoundedGraph`。`A04.18` 仍为黄色。
 
 ## 5. 后续固定顺序
 

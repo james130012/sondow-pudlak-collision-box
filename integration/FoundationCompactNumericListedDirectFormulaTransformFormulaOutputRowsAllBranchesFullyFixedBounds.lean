@@ -191,7 +191,42 @@ theorem
         unfold outputRowsAllBranchesFullyFixedPayloadPolynomial
         omega)
 
+theorem
+    compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
+    (tokenTable width tokenCount : Nat)
+    (current next : CompactFormulaTransformStateRowCoordinates)
+    (mode tag consumedCount mappedHead numericBound bitBound : Nat)
+    (hgraph : CompactFormulaTransformFormulaOutputRows tokenTable width
+      tokenCount current next mode tag consumedCount mappedHead)
+    (henvironmentSize : forall coordinate,
+      Nat.size
+        (compactFormulaTransformFormulaOutputRowsEnvironment tokenTable width
+          tokenCount current next mode tag consumedCount mappedHead
+          coordinate) <= bitBound)
+    (hwidthBound : width <= numericBound)
+    (htokenCountBound : tokenCount <= numericBound)
+    (hcurrentOutputCountBound : current.outputCount <= numericBound)
+    (hnumericSize : Nat.size numericBound <= bitBound) :
+    hybridFormulaStructuralPayloadBound
+        (compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph
+          tokenTable width tokenCount current next mode tag consumedCount
+          mappedHead hgraph) <=
+      outputRowsAllBranchesFullyFixedPayloadPolynomial current.outputCount
+        numericBound bitBound := by
+  let data :=
+    compactFormulaTransformFormulaOutputRowsCheckedBranchDataOfGraph tokenTable
+      width tokenCount current next mode tag consumedCount mappedHead hgraph
+  have hfixed :=
+    compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateFromData_structuralPayloadBound_le_fullyFixed
+      tokenTable width tokenCount current next mode tag consumedCount mappedHead
+      numericBound bitBound data henvironmentSize hwidthBound htokenCountBound
+      hcurrentOutputCountBound hnumericSize
+  unfold compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph
+  simpa only [data, hybridFormulaStructuralPayloadBound] using hfixed
+
 #print axioms
   compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateFromData_structuralPayloadBound_le_fullyFixed
+#print axioms
+  compactFormulaTransformFormulaOutputRowsExplicitHybridCertificateOfGraph_structuralPayloadBound_le_fullyFixed
 
 end FoundationCompactNumericListedDirectFormulaTransformFormulaOutputRowsAllBranchesFullyFixedBounds

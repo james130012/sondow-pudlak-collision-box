@@ -36,31 +36,36 @@ open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPubl
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPublicContextBounds
 
 noncomputable def
-    compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (rowIndexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound : Nat)
-    (hcurrent : CompactFormulaTransformAdjacentCurrentBounded tokenTable width
-      tokenCount stateBoundary stateCount (termValue valuation rowIndexTerm)
-      mode witnessStart witnessFinish witnessCount valueBound) : Nat :=
-  let data := compactFormulaTransformAdjacentCurrentBoundedWitnessDataOfGraph
-    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
-    mode witnessStart witnessFinish witnessCount valueBound hcurrent
-  let witness := data.witness
-  let innerResource :=
-    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
-      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
-      mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound witness.coordinates witness.size data.next
+      bitBound : Nat) : Nat :=
   explicitBoundedWitnessDirectPublicPayloadEnvelope 14
     (compactFormulaTransformAdjacentPublicContextCodeBound valuation rowIndexTerm)
     valueBound
     (compactFormulaTransformAdjacentCurrentRawTerminalPublicCodeEnvelope
       tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
       witnessStart witnessFinish witnessCount valueBound)
-    innerResource
+    (compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+      valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+      mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound)
+
+noncomputable def
+    compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound : Nat)
+    (_hcurrent : CompactFormulaTransformAdjacentCurrentBounded tokenTable width
+      tokenCount stateBoundary stateCount (termValue valuation rowIndexTerm)
+      mode witnessStart witnessFinish witnessCount valueBound) : Nat :=
+  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 noncomputable def
     compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectBoundOfGraph
@@ -176,6 +181,8 @@ noncomputable def
     hcoordinates.1
   simpa only [
     compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph,
+    compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope,
+    compactFormulaTransformAdjacentNextBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph,
     data, witness, innerResource, rawBody, bodyCodeBound, contextCodeBound,
     sourceFormula, compilation, rawProof] using hcoordinates.2
 

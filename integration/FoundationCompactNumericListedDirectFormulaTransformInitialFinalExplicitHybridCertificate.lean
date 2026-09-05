@@ -383,8 +383,4 @@ noncomputable def
       inputBoundary inputCount expectedOutputBoundary expectedOutputCount
       expectedSuffixBoundary expectedSuffixCount binderArity witness).symm parts
 
-#print axioms compactFormulaTransformInitialFinalRowsClosedFormula_alignment
-#print axioms
-  compactFormulaTransformInitialFinalRowsExplicitHybridCertificateOfGraph
-
 end FoundationCompactNumericListedDirectFormulaTransformInitialFinalExplicitHybridCertificate

@@ -27,6 +27,8 @@ open FoundationCompactPADirectConnectiveTransparentBounds
 open FoundationCompactPAExplicitBoundedWitnessDirectCompilerFixedArities
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
+open FoundationCompactNumericListedDirectParserStateCoordinateUniformBounds
+open FoundationCompactNumericListedDirectParserSyntaxStepCoordinateFixedBounds
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepFormula
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentStepBoundedFormula
@@ -41,24 +43,16 @@ open FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedExplicitHybr
 open FoundationCompactNumericListedDirectBinaryNatStatusValidBoundedUniformDirectFixedBounds
 
 noncomputable def
-    compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStateAssemblyEnvelopeOfComponents
+    compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStatePublicAssemblyEnvelope
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (rowIndexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound : Nat)
-    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
-    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
-    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
-    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
-    (components : ExplicitAdjacentStepDirectTerminalComponents valuation
-      tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
-      witnessStart witnessFinish witnessCount valueBound currentCoordinates
-      currentSize nextCoordinates nextSize) : Nat :=
+      bitBound : Nat) : Nat :=
   compactFormulaTransformAdjacentStepDirectTerminalBranchPublicAssemblyEnvelope
-    (compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepPayloadPolynomial
-      tokenTable width tokenCount rowIndexTerm mode witnessStart witnessFinish
-      witnessCount numericBound bitBound components.row)
+    (compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicPayloadPolynomial
+      tokenCount rowIndexTerm mode witnessStart witnessFinish witnessCount
+      numericBound bitBound)
     (compactBinaryNatStatusValidBoundedUniformDirectFixedPayloadPolynomial
       numericBound bitBound)
     (compactBinaryNatStatusValidBoundedUniformDirectFixedPayloadPolynomial
@@ -66,6 +60,25 @@ noncomputable def
     (compactFormulaTransformAdjacentStepDirectTerminalAssemblySyntaxResource
       valuation tokenTable width tokenCount stateBoundary stateCount
       rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound)
+
+noncomputable def
+    compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStateAssemblyEnvelopeOfComponents
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound : Nat)
+    (_currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (_currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (_nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (_nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (_components : ExplicitAdjacentStepDirectTerminalComponents valuation
+      tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
+      witnessStart witnessFinish witnessCount valueBound _currentCoordinates
+      _currentSize _nextCoordinates _nextSize) : Nat :=
+  compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStatePublicAssemblyEnvelope
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 theorem
     compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStatePayloadEnvelope_le_assembly
@@ -119,6 +132,8 @@ theorem
       components
   unfold
     compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStateAssemblyEnvelopeOfComponents
+    compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStatePublicAssemblyEnvelope
+    compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepPayloadPolynomial
   unfold
     compactFormulaTransformAdjacentStepDirectTerminalBranchPayloadEnvelope
     compactFormulaTransformAdjacentStepDirectTerminalBranchPublicAssemblyEnvelope
@@ -266,6 +281,97 @@ noncomputable def
     exact
       (Nat.size_le_size
         (hnextOutputBoundaryRaw.trans hvalueBound)).trans hnumericSize
+  have hcurrentParserValueRaw : CompactUnifiedParserStateCoordinateValueBound
+      currentCoordinates.parser numericBound := by
+    intro coordinate
+    fin_cases coordinate
+    · have hvalue := hcurrent (13 : Fin 14)
+      change currentCoordinates.start <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hcurrent (11 : Fin 14)
+      change currentCoordinates.parserFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hcurrent (10 : Fin 14)
+      change currentCoordinates.parserTokensFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hcurrent (9 : Fin 14)
+      change currentCoordinates.parserTasksFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · exact hcurrentParserTokensBoundaryRaw.trans hvalueBound
+    · exact hcurrentParserTokensCountRaw.trans hvalueBound
+    · exact hcurrentParserTasksBoundaryRaw.trans hvalueBound
+    · exact hcurrentParserTasksCountRaw.trans hvalueBound
+  have hcurrentParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.currentCoordinates.parser numericBound := by
+    rw [components.row_current_coordinates]
+    exact hcurrentParserValueRaw
+  have hcurrentFinishRaw := hcurrent (12 : Fin 14)
+  change currentCoordinates.finish <= valueBound at hcurrentFinishRaw
+  have hcurrentRowFinish : row.currentCoordinates.finish <= numericBound := by
+    rw [components.row_current_coordinates]
+    exact hcurrentFinishRaw.trans hvalueBound
+  have hnextParserValueRaw : CompactUnifiedParserStateCoordinateValueBound
+      nextCoordinates.parser numericBound := by
+    intro coordinate
+    fin_cases coordinate
+    · have hvalue := hnext (13 : Fin 14)
+      change nextCoordinates.start <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hnext (11 : Fin 14)
+      change nextCoordinates.parserFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hnext (10 : Fin 14)
+      change nextCoordinates.parserTokensFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := hnext (9 : Fin 14)
+      change nextCoordinates.parserTasksFinish <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · exact hnextParserTokensBoundaryRaw.trans hvalueBound
+    · exact hnextParserTokensCountRaw.trans hvalueBound
+    · exact hnextParserTasksBoundaryRaw.trans hvalueBound
+    · exact hnextParserTasksCountRaw.trans hvalueBound
+  have hnextParserValue : CompactUnifiedParserStateCoordinateValueBound
+      row.nextCoordinates.parser numericBound := by
+    rw [components.row_next_coordinates]
+    exact hnextParserValueRaw
+  have hnextFinishRaw := hnext (12 : Fin 14)
+  change nextCoordinates.finish <= valueBound at hnextFinishRaw
+  have hnextRowFinish : row.nextCoordinates.finish <= numericBound := by
+    rw [components.row_next_coordinates]
+    exact hnextFinishRaw.trans hvalueBound
+  have hwitnessValue : CompactUnifiedParserSyntaxStepWitnessCoordinateValueBound
+      row.stepWitness numericBound := by
+    intro coordinate
+    fin_cases coordinate
+    · have hvalue := components.values_le (8 : Fin 9)
+      change row.stepWitness.slot0 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (7 : Fin 9)
+      change row.stepWitness.slot1 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (6 : Fin 9)
+      change row.stepWitness.slot2 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (5 : Fin 9)
+      change row.stepWitness.slot3 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (4 : Fin 9)
+      change row.stepWitness.slot4 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (3 : Fin 9)
+      change row.stepWitness.slot5 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+    · have hvalue := components.values_le (2 : Fin 9)
+      change row.stepWitness.slot6 <= valueBound at hvalue
+      exact hvalue.trans hvalueBound
+  have hconsumedCountRaw := components.values_le (1 : Fin 9)
+  change row.consumedCount <= valueBound at hconsumedCountRaw
+  have hconsumedCount : row.consumedCount <= numericBound :=
+    hconsumedCountRaw.trans hvalueBound
+  have hmappedHeadRaw := components.values_le (0 : Fin 9)
+  change row.mappedHead <= valueBound at hmappedHeadRaw
+  have hmappedHead : row.mappedHead <= numericBound :=
+    hmappedHeadRaw.trans hvalueBound
   let rowBound :=
     compactFormulaTransformAdjacentStepRowAtValuationIndexUniformStatePublicFiniteStepDirectBound
       valuation tokenTable width tokenCount stateBoundary stateCount
@@ -273,8 +379,10 @@ noncomputable def
       bitBound row hindexVariables components.row_graph hzero hwidthValue
       htokenCount hstateCount hcurrentParserTokensCount
       hcurrentParserTasksCount hcurrentOutputCount hnextParserTokensCount
-      hnextParserTasksCount hnextOutputCount htokenTableSize
-      hstateBoundarySize hcurrentParserTokensTableSize
+      hnextParserTasksCount hnextOutputCount
+      hcurrentParserValue hcurrentRowFinish hnextParserValue hnextRowFinish
+      hwitnessValue hconsumedCount hmappedHead
+      htokenTableSize hstateBoundarySize hcurrentParserTokensTableSize
       hcurrentParserTasksTableSize hcurrentOutputTableSize
       hnextParserTokensTableSize hnextParserTasksTableSize
       hnextOutputTableSize hnumericSize hnumericBit

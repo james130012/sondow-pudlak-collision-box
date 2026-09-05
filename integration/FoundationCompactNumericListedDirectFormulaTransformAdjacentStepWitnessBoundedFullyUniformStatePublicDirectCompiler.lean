@@ -43,25 +43,12 @@ open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPubl
 open FoundationCompactNumericListedDirectFormulaTransformAdjacentRawTerminalPublicContextBounds
 
 noncomputable def
-    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
     (valuation : Nat -> Nat)
     (tokenTable width tokenCount stateBoundary stateCount : Nat)
     (rowIndexTerm : ValuationTerm)
     (mode witnessStart witnessFinish witnessCount valueBound numericBound
-      bitBound : Nat)
-    (currentCoordinates : CompactFormulaTransformStateRowCoordinates)
-    (currentSize : CompactFormulaTransformStateCoreSizeWitness)
-    (nextCoordinates : CompactFormulaTransformStateRowCoordinates)
-    (nextSize : CompactFormulaTransformStateCoreSizeWitness)
-    (hbounded : CompactFormulaTransformAdjacentStepWitnessBounded tokenTable
-      width tokenCount stateBoundary stateCount
-      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
-      witnessCount valueBound currentCoordinates currentSize nextCoordinates
-      nextSize) : Nat :=
-  let components := explicitAdjacentStepDirectTerminalComponentsOfGraph
-    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
-    mode witnessStart witnessFinish witnessCount valueBound currentCoordinates
-    currentSize nextCoordinates nextSize hbounded
+      bitBound : Nat) : Nat :=
   explicitBoundedWitnessDirectPublicPayloadEnvelope 9
     (compactFormulaTransformAdjacentPublicContextCodeBound
       valuation rowIndexTerm)
@@ -69,11 +56,30 @@ noncomputable def
     (compactFormulaTransformAdjacentStepRawTerminalPublicCodeEnvelope
       tokenTable width tokenCount stateBoundary stateCount rowIndexTerm mode
       witnessStart witnessFinish witnessCount valueBound)
-    (compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStateAssemblyEnvelopeOfComponents
+    (compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStatePublicAssemblyEnvelope
       valuation tokenTable width tokenCount stateBoundary stateCount
       rowIndexTerm mode witnessStart witnessFinish witnessCount valueBound
-      numericBound bitBound currentCoordinates currentSize nextCoordinates
-      nextSize components)
+      numericBound bitBound)
+
+noncomputable def
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
+    (valuation : Nat -> Nat)
+    (tokenTable width tokenCount stateBoundary stateCount : Nat)
+    (rowIndexTerm : ValuationTerm)
+    (mode witnessStart witnessFinish witnessCount valueBound numericBound
+      bitBound : Nat)
+    (_currentCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (_currentSize : CompactFormulaTransformStateCoreSizeWitness)
+    (_nextCoordinates : CompactFormulaTransformStateRowCoordinates)
+    (_nextSize : CompactFormulaTransformStateCoreSizeWitness)
+    (_hbounded : CompactFormulaTransformAdjacentStepWitnessBounded tokenTable
+      width tokenCount stateBoundary stateCount
+      (termValue valuation rowIndexTerm) mode witnessStart witnessFinish
+      witnessCount valueBound _currentCoordinates _currentSize _nextCoordinates
+      _nextSize) : Nat :=
+  compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+    valuation tokenTable width tokenCount stateBoundary stateCount rowIndexTerm
+    mode witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 noncomputable def
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectBoundOfGraph
@@ -190,6 +196,8 @@ noncomputable def
     hcoordinates.1
   simpa only [
     compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph,
+    compactFormulaTransformAdjacentStepWitnessBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope,
+    compactFormulaTransformAdjacentStepDirectTerminalFullyUniformStateAssemblyEnvelopeOfComponents,
     components, data, terminalResource, rawBody, bodyCodeBound,
     contextCodeBound, sourceFormula, compilation, rawProof] using
       hcoordinates.2

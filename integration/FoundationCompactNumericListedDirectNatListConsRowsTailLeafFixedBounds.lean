@@ -1,0 +1,5 @@
+import integration.FoundationCompactNumericListedDirectNatListConsRowsTailEntryCodeBound
+import integration.FoundationCompactNumericListedDirectNatListConsRowsTailAtomicRowFixedBounds
+import integration.FoundationCompactNumericListedDirectNatListConsRowsTailAtomicRowCodeBound
+
+/-! # Aggregated fixed leaf resources for natural-list cons tail rows -/

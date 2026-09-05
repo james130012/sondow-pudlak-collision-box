@@ -1,0 +1,46 @@
+import integration.FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectEndpointFreeVariables
+import integration.FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectOriginalSplitAlignment
+import integration.FoundationCompactPAExplicitBoundedWitnessFormulaFreeVariables
+
+/-! # Closedness of the complete thirty-one-witness bounded formula -/
+
+open LO FirstOrder LO.FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option maxRecDepth 32768
+set_option maxHeartbeats 400000
+set_option Elab.async false
+
+namespace FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectFreeVariables
+
+open FoundationCompactPABinaryNumeralAddition
+open FoundationCompactPAExplicitBoundedWitnessFormulaFreeVariables
+open FoundationCompactNumericListedDirectNatListListRowsExplicitHybridCertificate
+open FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedExplicitHybridCertificate
+open FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectSyntax
+open FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectOriginalSplitAlignment
+
+theorem compactFormulaTransformInitialFinalBoundedClosedFormula_freeVariables_eq_empty
+    (tokenTable width tokenCount stateBoundary stateCount fuel
+      inputBoundary inputCount expectedOutputBoundary expectedOutputCount
+      expectedSuffixBoundary expectedSuffixCount binderArity valueBound : Nat) :
+    (compactFormulaTransformInitialFinalBoundedClosedFormula tokenTable width
+      tokenCount stateBoundary stateCount fuel inputBoundary inputCount
+      expectedOutputBoundary expectedOutputCount expectedSuffixBoundary
+      expectedSuffixCount binderArity valueBound).freeVariables = ∅ := by
+  rw [compactFormulaTransformInitialFinalBoundedClosedFormula_alignment_split]
+  exact explicitBoundedWitnessFormula_freeVariables_eq_empty_of_body valueBound
+    31 (compactFormulaTransformInitialFinalBoundedDirectRawTerminal tokenTable
+      width tokenCount stateBoundary stateCount fuel inputBoundary inputCount
+      expectedOutputBoundary expectedOutputCount expectedSuffixBoundary
+      expectedSuffixCount binderArity)
+    (compactFormulaTransformInitialFinalBoundedDirectRawTerminal_freeVariables_eq_empty
+      tokenTable width tokenCount stateBoundary stateCount fuel inputBoundary
+      inputCount expectedOutputBoundary expectedOutputCount
+      expectedSuffixBoundary expectedSuffixCount binderArity)
+
+#print axioms
+  compactFormulaTransformInitialFinalBoundedClosedFormula_freeVariables_eq_empty
+
+end FoundationCompactNumericListedDirectFormulaTransformInitialFinalBoundedDirectFreeVariables

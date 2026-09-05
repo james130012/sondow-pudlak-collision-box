@@ -12,7 +12,7 @@ digraph CheckedMinProofMain {
     ratio=compress,
     fontname="Noto Sans CJK SC",
     fontsize=22,
-    label="最短证明增长下界：主定理依赖图（2026-07-13）",
+    label="纸面证明优先：全局依赖与未证数学桥（2026-09-05）",
     labelloc="t"
   ];
   node [
@@ -37,8 +37,9 @@ digraph CheckedMinProofMain {
     label="状态";
     color="#c8d1d4";
     style="rounded";
-    legend_done [label="绿色：Lean 内核已检查", fillcolor="#dff2e8", color="#3f7c66"];
-    legend_active [label="黄色：唯一当前工作面", fillcolor="#fff0c9", color="#b37a12", penwidth=2.4];
+    legend_done [label="绿色：已有局部检查记录（非本轮全量复核）", fillcolor="#dff2e8", color="#3f7c66"];
+    legend_active [label="黄色：当前纸面数学义务", fillcolor="#fff0c9", color="#b37a12", penwidth=2.4];
+    legend_paper [label="蓝色：纸面局部或条件证明（未新增形式化）", fillcolor="#e1edf9", color="#47799e"];
     legend_pending [label="灰色：等待前置定理", style="rounded,filled,dashed", color="#777777"];
     legend_rejected [label="红色：弃用路线", fillcolor="#f8d9d6", color="#a8443d", style="rounded,filled,dashed"];
   }
@@ -67,7 +68,7 @@ digraph CheckedMinProofMain {
     source="integration/FoundationCompactListedMinProofLength.lean",
     appendix="checked_minproof_appendix_01_syntax_coordinate_zh.dot",
     next_obligation="none",
-    label="M03 检查器诱导的最短长度\n无项目级 proof_length\n最小值由规范接受码实现",
+    label="M03 检查器诱导的最短长度\n存在证明时取最小完整载荷\n无证明时 Nat 返回 0；下界先用无短证明表述",
     fillcolor="#dff2e8", color="#3f7c66"
   ];
 
@@ -76,8 +77,8 @@ digraph CheckedMinProofMain {
     endpoint_theorem="146 checked direct-arithmeticization components",
     source="docs/checked_minproof_theorem_dependency_graph_legacy_20260712_zh.dot",
     appendix="checked_minproof_appendix_03_verifier_predicate_zh.dot",
-    next_obligation="reuse only after the generic proof compiler exists",
-    label="M04 直接算术化的已检查部件\n语法、表格、初终态等 146 项可复用\n尚未形成完整 P_direct",
+    next_obligation="historical reusable components; direct predicate is tracked at M10",
+    label="M04 直接算术化的历史部件\n语法、表格、初终态等 146 项可复用\n完整谓词状态见 M10",
     fillcolor="#dff2e8", color="#3f7c66"
   ];
   branch_route [
@@ -145,77 +146,81 @@ digraph CheckedMinProofMain {
     fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
   ];
   accepted_trace [
-    node_id="M11", status="active",
+    node_id="M11", status="formalization_paused",
     endpoint_theorem="accepted trace -> short certified PA proof of P_direct instance",
     source="integration/FoundationCompactPABoundedFormulaCompiler.lean + integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
     appendix="checked_minproof_appendix_04_pa_quantitative_compiler_zh.dot",
-    next_obligation="instantiate the checked bounded-formula compiler at the fixed P_direct matrix",
-    label="M11【当前】接受轨迹到 PA 短证明\n将已闭合 P_direct 的显式有界矩阵交给 A04.17 编译器\n输出真实 proof object，不是存在性接口\n统一输入完整载荷长度的固定多项式界",
-    fillcolor="#fff0c9", color="#b37a12", penwidth=3.0
+    next_obligation="resume after complete paper proof; direct trace and payload bound remain open",
+    label="M11 接受轨迹编译器【形式化暂停】\n默认终态、总轨迹与载荷多项式界仍待闭合\n该编译器自身不能推出 Sondow 数学桥",
+    fillcolor="#f3f3f3", color="#777777", penwidth="1.2"
   ];
 
   pudlak_conditions [
-    node_id="M12", status="pending",
+    fillcolor="#fff0c9",
+    node_id="M12", status="paper_open",
     endpoint_theorem="Pudlak quantitative conditions (0)-(3)",
-    source="planned",
+    source="paper/full_paper_proof_working_zh.md sections 5-6",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
-    next_obligation="wait for M11",
-    label="M12 Pudlak 条件 (0)-(3)\n同一 P_direct、PA 系统与完整载荷度量\n全部证明变换有固定多项式界",
-    style="rounded,filled,dashed", color="#777777"
+    next_obligation="prove concrete conditions (1)-(3) and remaining quantitative encoding assumptions; fixed point is now proved on paper",
+    label="M12 具体下界条件【纸面核查】\n同一 P_direct、PA 系统与完整载荷\n(0) 已纸面证明；(1)-(3) 等仍待证",
+    style="rounded,filled", color="#b37a12"
   ];
   pudlak_theorem [
-    node_id="M13", status="pending",
+    fillcolor="#e1edf9",
+    node_id="M13", status="paper_conditional",
     endpoint_theorem="Pudlak 1986 Theorem 3.1",
-    source="planned",
+    source="paper/full_paper_proof_working_zh.md section 6",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="quantitative diagonalization and bounded proof assembly",
-    label="M13 Pudlak 定量下界\n对角化 + 有界证明拼接 + 指数提取",
-    style="rounded,filled,dashed", color="#777777"
+    label="M13 条件下界：纸面推导已写出\n以 M12 及高效固定点等为前提\n尚非当前谓词的具体下界",
+    style="rounded,filled", color="#47799e"
   ];
   buss_theorem [
-    node_id="M14", status="pending",
-    endpoint_theorem="Buss 1994 Theorem 5 rescaling",
-    source="planned",
+    fillcolor="#e1edf9",
+    node_id="M14", status="paper_conditional",
+    endpoint_theorem="perfect-power rescaling after concrete Pudlak lower bound",
+    source="paper/full_paper_proof_working_zh.md section 6",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="wait for M13",
-    label="M14 Buss 第 5 定理重标定\n同一有限一致性公式族的超多项式下界",
-    style="rounded,filled,dashed", color="#777777"
+    label="M14 条件重标定：纸面算术已完成\nrho_d(n) = (n+1)^(d*n)；G_n = F_{rho_d(n)}\n具体下界前提仍待证",
+    style="rounded,filled", color="#47799e"
   ];
   lower [
     node_id="M15", status="pending",
-    endpoint_theorem="eventual super-polynomial min-proof lower bound",
+    endpoint_theorem="eventually no accepted G_n proof with payload at most (n+1)^n",
     source="planned",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="wait for M14",
-    label="M15 同对象证明长度下界\nminProof(F_n) > U(n) eventually",
+    label="M15 同对象下界【仍未证】\n最终不存在载荷 ≤ (n+1)^n 的 G_n 证明\n不预设最短长度存在",
     style="rounded,filled,dashed", color="#777777"
   ];
 
   sondow_cert [
-    node_id="M16", status="done_boundary",
-    endpoint_theorem="checked Sondow certificates",
-    source="existing Sondow route",
+    node_id="M16", status="paper_source",
+    endpoint_theorem="finite rational checker and short ground PA source proofs on paper",
+    source="paper/full_paper_proof_working_zh.md sections 3-4",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
-    next_obligation="same-object compiler still required",
-    label="M16 索多已检查证书\n这里只表示证书层已检查\n不等于同对象上界已完成",
-    fillcolor="#dff2e8", color="#3f7c66"
+    next_obligation="independent number-theoretic reduction to G_n",
+    label="M16 有限有理证书【纸面构造】\n真、假源句均有多项式 PA 证明构造\n旧 Prop 接受含 gamma 等式；不能视作此实现",
+    fillcolor="#e1edf9", color="#47799e"
   ];
   sondow_bridge [
-    node_id="M17", status="pending",
-    endpoint_theorem="Sondow certificate -> proof of the same F_n",
-    source="planned",
+    fillcolor="#fff0c9",
+    node_id="M17", status="paper_open",
+    endpoint_theorem="independent short PA implication from Sondow source to same G_n",
+    source="paper/full_paper_proof_working_zh.md section 7",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
-    next_obligation="wait for formula identity M10 and proof compiler M11",
-    label="M17 索多同对象编译器\n证书 -> 同一 F_n 的规范 PA 证明\n给出多项式上界",
-    style="rounded,filled,dashed", color="#777777"
+    next_obligation="supply independent mathematical reduction; M10 and M11 do not imply it",
+    label="M17 关键数学归约【当前未证】\n源证书 -> 同一 G_n 的短 PA 证明\n须独立证明；不能由编译或语法检查代替",
+    style="rounded,filled", color="#b37a12"
   ];
   upper [
     node_id="M18", status="pending",
-    endpoint_theorem="minProof(F_n) <= U(n)",
+    endpoint_theorem="minProof(G_n) <= U(n)",
     source="planned",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="wait for M17",
-    label="M18 同对象多项式上界\nminProof(F_n) <= U(n)",
+    label="M18 同对象多项式上界\nminProof(G_n) <= U(n)",
     style="rounded,filled,dashed", color="#777777"
   ];
   audit_gate [
@@ -224,16 +229,16 @@ digraph CheckedMinProofMain {
     source="planned",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="wait for M15 and M18",
-    label="M19 最终依赖审计\n同一 n、F_n、检查器、完整载荷度量\n无项目公设、无循环输入",
+    label="M19 最终依赖审计\n同一 n、G_n、检查器、完整载荷度量\n无项目公设、无循环输入",
     fillcolor="#e9e3f5", color="#76639a", style="rounded,filled,dashed"
   ];
   collision [
     node_id="M20", status="pending",
-    endpoint_theorem="U(N) < minProof(F_N) <= U(N)",
+    endpoint_theorem="U(N) < minProof(G_N) <= U(N)",
     source="planned",
     appendix="checked_minproof_appendix_05_pudlak_collision_zh.dot",
     next_obligation="wait for M19",
-    label="M20 对撞定理\nU(N) < minProof(F_N) <= U(N)",
+    label="M20 对撞定理\nU(N) < minProof(G_N) <= U(N)",
     fillcolor="#f3f3f3", color="#777777", style="rounded,filled,dashed", penwidth=2.2
   ];
   final [
@@ -258,8 +263,8 @@ digraph CheckedMinProofMain {
   accepted_trace -> pudlak_conditions -> pudlak_theorem -> buss_theorem -> lower;
   minmeasure -> lower [style=dotted];
   sondow_cert -> sondow_bridge -> upper;
-  direct_predicate -> sondow_bridge [style=dotted, label="公式恒等"];
-  accepted_trace -> sondow_bridge [style=dotted, label="同一证明编译器"];
+  direct_predicate -> sondow_bridge [style=dotted, label="只固定目标公式"];
+  accepted_trace -> sondow_bridge [style=dotted, label="只提供编译工具"];
   minmeasure -> upper [style=dotted];
   lower -> audit_gate;
   upper -> audit_gate;

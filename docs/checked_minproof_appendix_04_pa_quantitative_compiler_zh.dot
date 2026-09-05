@@ -10,7 +10,7 @@ digraph PAQuantitativeCompilerAppendix {
     ratio=compress,
     fontname="Noto Sans CJK SC",
     fontsize=21,
-    label="附图 04：真实 PA 定量证明编译器",
+    label="附图 04：PA 编译器历史状态（纸面完成前暂停扩展）",
     labelloc="t"
   ];
   node [shape=box, style="rounded,filled", fontname="Noto Sans CJK SC",
@@ -157,12 +157,12 @@ digraph PAQuantitativeCompilerAppendix {
     fillcolor="#dff2e8", color="#2f6f57", penwidth=2.8
   ];
   accepted [
-    node_id="A04.18", status="active",
+    node_id="A04.18", status="formalization_paused",
     endpoint_theorem="accepted direct verifier trace -> short PA proof",
     source="integration/FoundationCompactPABoundedFormulaCompiler.lean + integration/FoundationCompactNumericListedDirectProofPredicateExactness.lean",
-    appendix="04", next_obligation="instantiate A04.17 at the fixed P_direct bounded matrix",
-    label="A04.18【当前】接受轨迹短证明编译器\nP_direct 的同一公式、检查器与完整载荷度量已闭合\n当前将显式有界矩阵实例化到 A04.17\n目标输出真实 PA proof object 及固定多项式完整载荷界",
-    fillcolor="#fff0c9", color="#b37a12", penwidth=3.0
+    appendix="04", next_obligation="resume after full paper proof; then close default endpoint, total trace and payload bound",
+    label="A04.18【形式化暂停】接受轨迹短证明编译器\nP_direct 的同一公式、检查器与完整载荷度量已闭合\n成功轨迹已有局部记录；默认终态与总轨迹待闭合\n目标输出真实 PA proof object 及固定多项式完整载荷界",
+    fillcolor="#f3f3f3", color="#777777", penwidth=1.2
   ];
 
   honest -> axiom_node -> specialize_node;

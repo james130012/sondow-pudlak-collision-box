@@ -33,7 +33,8 @@ open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybri
 open FoundationCompactCertifiedContextProof
 open FoundationCompactCertifiedContextProof.CertifiedPAContextProof
 
-def zeroValuation : Nat -> Nat := fun _ => 0
+abbrev zeroValuation : Nat -> Nat :=
+  FoundationCompactNumericListedDirectNatListAtRowsExplicitHybridCertificate.zeroValuation
 
 private abbrev HybridCertificate (formula : ValuationFormula) :=
   CheckedHybridValuationBoundedFormulaCertificate zeroValuation formula
@@ -299,11 +300,18 @@ noncomputable def
           simpa [termValue_shortBinaryNumeralTerm] using hbitIndex
         simpa [termValue_shortBinaryNumeralTerm] using
           hleftSpec.2.2.2.2.2 offset hoffset bitIndex hbitIndex')
-  let headCertificate :=
-    compactAdditiveNatListAtRowsAtValuationIndexExplicitHybridCertificateOfGraph
-      tokenTable width tokenCount targetBoundary targetCount leftCount
-      mappedHead (shortBinaryNumeralTerm leftCount)
+  let headCertificateRaw :=
+    compactAdditiveNatListAtRowsAtValuationIndexValueExplicitHybridCertificateOfGraph
+      zeroValuation tokenTable width tokenCount targetBoundary targetCount
+      leftCount mappedHead (shortBinaryNumeralTerm leftCount)
+      (shortBinaryNumeralTerm mappedHead)
+      (by simp [termValue_shortBinaryNumeralTerm])
       (by simp [termValue_shortBinaryNumeralTerm]) hhead
+  let headCertificate : HybridCertificate
+      (compactAdditiveNatListAtRowsAtValuationIndexFormula tokenTable width
+        tokenCount targetBoundary targetCount mappedHead
+        (shortBinaryNumeralTerm leftCount)) :=
+    .cast (by rfl) headCertificateRaw
   let tailCertificate :=
     compactFixedWidthTokenSlicesEqAtValuationExplicitHybridCertificate
       zeroValuation

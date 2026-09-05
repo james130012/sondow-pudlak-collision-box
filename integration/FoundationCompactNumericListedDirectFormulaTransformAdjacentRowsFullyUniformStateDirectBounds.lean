@@ -99,6 +99,16 @@ noncomputable def
       witnessFinish witnessCount valueBound).symm raw
 
 noncomputable def
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchPayloadResource
+    (tokenTable width tokenCount stateBoundary stateCount mode
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound
+      rowIndex : Nat) : Nat :=
+  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelope
+    (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
+    stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
+    witnessFinish witnessCount valueBound numericBound bitBound
+
+noncomputable def
     compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchPayloadResource
     (tokenTable width tokenCount stateBoundary stateCount mode
       witnessStart witnessFinish witnessCount valueBound numericBound bitBound
@@ -106,10 +116,9 @@ noncomputable def
     (_hrow : CompactFormulaTransformAdjacentCurrentBounded
       tokenTable width tokenCount stateBoundary stateCount rowIndex mode
       witnessStart witnessFinish witnessCount valueBound) : Nat :=
-  compactFormulaTransformAdjacentCurrentBoundedAtValuationIndexFullyUniformStatePublicDirectPayloadEnvelopeOfGraph
-    (adjacentRowsBranchValuation rowIndex) tokenTable width tokenCount
-    stateBoundary stateCount (&0 : ValuationTerm) mode witnessStart
-    witnessFinish witnessCount valueBound numericBound bitBound _hrow
+  compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchPayloadResource
+    tokenTable width tokenCount stateBoundary stateCount mode witnessStart
+    witnessFinish witnessCount valueBound numericBound bitBound rowIndex
 
 theorem
     compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchProof_payloadLength_le
@@ -156,19 +165,27 @@ theorem
       htokenTableSize hstateBoundarySize hnumericSize hnumericBit hbitPositive _
 
 noncomputable def
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicLeafPayloadResourceSum
+    (tokenTable width tokenCount stateBoundary stateCount rowCount mode
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
+      Nat) : Nat :=
+  ∑ rowIndex : Fin rowCount,
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchPayloadResource
+      tokenTable width tokenCount stateBoundary stateCount mode witnessStart
+      witnessFinish witnessCount valueBound numericBound bitBound rowIndex
+
+noncomputable def
     compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectLeafPayloadResourceSum
     (tokenTable width tokenCount stateBoundary stateCount rowCount mode
       witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
       Nat)
-    (hrows : forall rowIndex, rowIndex < rowCount ->
+    (_hrows : forall rowIndex, rowIndex < rowCount ->
       CompactFormulaTransformAdjacentCurrentBounded
         tokenTable width tokenCount stateBoundary stateCount rowIndex mode
-        witnessStart witnessFinish witnessCount valueBound) : Nat :=
-  ∑ rowIndex : Fin rowCount,
-    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchPayloadResource
-      tokenTable width tokenCount stateBoundary stateCount mode witnessStart
-      witnessFinish witnessCount valueBound numericBound bitBound rowIndex
-      (hrows rowIndex rowIndex.isLt)
+      witnessStart witnessFinish witnessCount valueBound) : Nat :=
+  compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicLeafPayloadResourceSum
+    tokenTable width tokenCount stateBoundary stateCount rowCount mode
+    witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 theorem
     compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchProof_le_leafSum
@@ -278,23 +295,32 @@ noncomputable def
         (hrows rowIndex hrowIndex))
 
 noncomputable def
-    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchesStructuralEnvelope
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchesStructuralEnvelope
     (tokenTable width tokenCount stateBoundary stateCount rowCount mode
       witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
-      Nat)
-    (hrows : forall rowIndex, rowIndex < rowCount ->
-      CompactFormulaTransformAdjacentCurrentBounded
-        tokenTable width tokenCount stateBoundary stateCount rowIndex mode
-        witnessStart witnessFinish witnessCount valueBound) : Nat :=
+      Nat) : Nat :=
   explicitDirectUniversalBranchesStructuralEnvelope zeroValuation rowCount
     (compactFormulaTransformAdjacentRowsBoundedUniversalBody
       tokenTable width tokenCount stateBoundary stateCount mode witnessStart
       witnessFinish witnessCount valueBound) ∅
     (fun _ =>
-      compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectLeafPayloadResourceSum
+      compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicLeafPayloadResourceSum
         tokenTable width tokenCount stateBoundary stateCount rowCount mode
-        witnessStart witnessFinish witnessCount valueBound numericBound bitBound
-        hrows) rowCount
+        witnessStart witnessFinish witnessCount valueBound numericBound bitBound)
+    rowCount
+
+noncomputable def
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchesStructuralEnvelope
+    (tokenTable width tokenCount stateBoundary stateCount rowCount mode
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
+      Nat)
+    (_hrows : forall rowIndex, rowIndex < rowCount ->
+      CompactFormulaTransformAdjacentCurrentBounded
+        tokenTable width tokenCount stateBoundary stateCount rowIndex mode
+        witnessStart witnessFinish witnessCount valueBound) : Nat :=
+  compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchesStructuralEnvelope
+    tokenTable width tokenCount stateBoundary stateCount rowCount mode
+    witnessStart witnessFinish witnessCount valueBound numericBound bitBound
 
 theorem
     compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranches_structuralPayloadBound_le
@@ -468,14 +494,10 @@ noncomputable def
     rfl) direct
 
 noncomputable def
-    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalResource
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicUniversalResource
     (tokenTable width tokenCount stateBoundary stateCount rowCount mode
       witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
-      Nat)
-    (hrows : forall rowIndex, rowIndex < rowCount ->
-      CompactFormulaTransformAdjacentCurrentBounded
-        tokenTable width tokenCount stateBoundary stateCount rowIndex mode
-        witnessStart witnessFinish witnessCount valueBound) : Nat :=
+      Nat) : Nat :=
   compileContextualTermBoundedUniversalPayloadEnvelope ∅ rowCount
     (Rew.bShift (shortBinaryNumeralTerm rowCount))
     (compactFormulaTransformAdjacentRowsBoundedUniversalBody
@@ -487,10 +509,41 @@ noncomputable def
         (compactFormulaTransformAdjacentRowsBoundedUniversalBody
           tokenTable width tokenCount stateBoundary stateCount mode witnessStart
           witnessFinish witnessCount valueBound))
-      (compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectBranchesStructuralEnvelope
+      (compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicBranchesStructuralEnvelope
         tokenTable width tokenCount stateBoundary stateCount rowCount mode
         witnessStart witnessFinish witnessCount valueBound numericBound
-        bitBound hrows))
+        bitBound))
+
+noncomputable def
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalResource
+    (tokenTable width tokenCount stateBoundary stateCount rowCount mode
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
+      Nat)
+    (_hrows : forall rowIndex, rowIndex < rowCount ->
+      CompactFormulaTransformAdjacentCurrentBounded
+        tokenTable width tokenCount stateBoundary stateCount rowIndex mode
+        witnessStart witnessFinish witnessCount valueBound) : Nat :=
+  compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicUniversalResource
+    tokenTable width tokenCount stateBoundary stateCount rowCount mode
+    witnessStart witnessFinish witnessCount valueBound numericBound bitBound
+
+theorem
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalResource_eq_public
+    (tokenTable width tokenCount stateBoundary stateCount rowCount mode
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound :
+      Nat)
+    (hrows : forall rowIndex, rowIndex < rowCount ->
+      CompactFormulaTransformAdjacentCurrentBounded
+        tokenTable width tokenCount stateBoundary stateCount rowIndex mode
+        witnessStart witnessFinish witnessCount valueBound) :
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalResource
+        tokenTable width tokenCount stateBoundary stateCount rowCount mode
+        witnessStart witnessFinish witnessCount valueBound numericBound bitBound
+        hrows =
+      compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicUniversalResource
+        tokenTable width tokenCount stateBoundary stateCount rowCount mode
+        witnessStart witnessFinish witnessCount valueBound numericBound bitBound :=
+  rfl
 
 theorem
     compileCompactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalContext_payloadLength_le
@@ -519,10 +572,9 @@ theorem
       hrowCount hvalueBound hwidthValue htokenCount hstateCount hareaNumeric
       hareaBit htokenTableSize hstateBoundarySize hnumericSize hnumericBit
       hbitPositive hrows).payloadLength <=
-    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectUniversalResource
+    compactFormulaTransformAdjacentRowsBoundedFullyUniformStateDirectPublicUniversalResource
       tokenTable width tokenCount stateBoundary stateCount rowCount mode
-      witnessStart witnessFinish witnessCount valueBound numericBound bitBound
-      hrows := by
+      witnessStart witnessFinish witnessCount valueBound numericBound bitBound := by
   let body := compactFormulaTransformAdjacentRowsBoundedUniversalBody
     tokenTable width tokenCount stateBoundary stateCount mode witnessStart
     witnessFinish witnessCount valueBound

@@ -1,0 +1,43 @@
+import integration.FoundationCompactNumericListedDirectNatListConsRowsTailUniversalCertificate
+import integration.FoundationCompactPAHybridBoundedUniversalTransparentPayload
+
+/-! # Transparent resource expression of the cons-tail universal -/
+
+open LO FirstOrder LO.FirstOrder.Arithmetic
+
+noncomputable section
+
+set_option maxRecDepth 32768
+set_option maxHeartbeats 100000
+set_option Elab.async false
+set_option autoImplicit false
+
+namespace FoundationCompactNumericListedDirectNatListConsRowsTailUniversalTransparentResources
+
+open FoundationCompactPABinaryNumeralAddition
+open FoundationCompactPAContextualTermBoundedUniversalCompiler
+open FoundationCompactPAContextualTermBoundedUniversalCompilerBounds
+open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds
+open FoundationCompactPAHybridValuationBoundedFormulaCompilerBounds.CheckedHybridValuationBoundedFormulaCertificate
+open FoundationCompactPAHybridBoundedUniversalTransparentPayload
+open FoundationCompactPAValuationContextRewriting
+open FoundationCompactPAValuationShiftedBoundCompilerBounds
+open FoundationCompactPAValuationTermCompiler
+open FoundationCompactNumericListedDirectNatListConsRowsExplicitHybridCertificate
+open FoundationCompactNumericListedDirectNatListConsRowsTailBranchTreeUniformBound
+open FoundationCompactNumericListedDirectNatListConsRowsTailUniversalCertificate
+
+noncomputable def natListConsRowsTailUniversalTransparentPayloadEnvelope
+    (tokenTable width tokenCount sourceBoundary sourceCount targetBoundary : Nat)
+    (rows : (index : Fin sourceCount) ->
+      CompactAdditiveNatListConsTailRowData tokenTable width tokenCount
+        sourceBoundary targetBoundary index) : Nat :=
+  let body := natListConsRowsTailUniversalBody tokenTable width tokenCount
+    sourceBoundary targetBoundary
+  let boundTerm := natListConsRowsTailUniversalBoundTerm sourceCount
+  hybridBoundedUniversalTransparentPayloadEnvelope
+    natListConsRowsTailUniversalZeroValuation boundTerm body
+    (compactAdditiveNatListConsRowsTailUniversalBranchesAtBoundTerm tokenTable
+      width tokenCount sourceBoundary sourceCount targetBoundary rows)
+
+end FoundationCompactNumericListedDirectNatListConsRowsTailUniversalTransparentResources

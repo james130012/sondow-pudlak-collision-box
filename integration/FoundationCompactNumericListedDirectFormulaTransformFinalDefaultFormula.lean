@@ -1,4 +1,5 @@
 import integration.FoundationCompactNumericListedDirectFormulaTransformExactFormula
+import integration.FoundationCompactNumericListedDirectBinaryNatDefaultStatusValidity
 
 /-!
 # Total final result of a formula-transform trace
@@ -26,6 +27,7 @@ open FoundationCompactNumericListedDirectFormulaTransformStateLayout
 open FoundationCompactNumericListedDirectFormulaTransformStateFormula
 open FoundationCompactNumericListedDirectFormulaTransformExactFormula
 open FoundationCompactNumericListedDirectBinaryNatStatusValidity
+open FoundationCompactNumericListedDirectBinaryNatDefaultStatusValidity
 
 def CompactUnifiedParserEmptyFinalStateBounded
     (tokenTable width tokenCount : Nat)
@@ -196,9 +198,9 @@ def CompactFormulaTransformFinalGetDOutputRows
         tokenTable width tokenCount
           expectedOutputBoundary expectedOutputCount
           coordinates.outputBoundary coordinates.outputCount) ∨
-     (¬ CompactUnifiedParserEmptyFinalStateBounded
-        tokenTable width tokenCount coordinates.parser
-          emptyBoundary valueBound) ∧
+     (CompactBinaryNatDefaultStatusValidBounded
+        tokenTable width tokenCount coordinates.parserTasksFinish
+          coordinates.parserFinish valueBound) ∧
       expectedOutputCount = 0)
 
 def compactFormulaTransformFinalGetDOutputRowsDef :
@@ -224,12 +226,9 @@ def compactFormulaTransformFinalGetDOutputRowsDef :
         tokenTable width tokenCount
         expectedOutputBoundary expectedOutputCount
         outputBoundary outputCount) ∨
-     (¬ !(compactUnifiedParserEmptyFinalStateBoundedDef)
-        tokenTable width tokenCount
-        start parserFinish parserTokensFinish parserTasksFinish
-        parserTokensBoundary parserTokensCount
-        parserTasksBoundary parserTasksCount
-        emptyBoundary valueBound) ∧
+     !(compactBinaryNatDefaultStatusValidBoundedDef)
+        tokenTable width tokenCount parserTasksFinish parserFinish
+        valueBound ∧
       expectedOutputCount = 0)”
 
 def compactFormulaTransformFinalGetDOutputRowsEnvironment
@@ -345,11 +344,9 @@ theorem compactFormulaTransformFinalGetDOutputRows_iff
         apply compactFormulaTransformStateOutput_eq_some_iff.mpr
         exact ⟨hstatus, rfl⟩
       simp [hsome]
-    · have hstatus : state.1.2.2 ≠ some (some []) := by
-        intro hstatus
-        exact hdefault.1
-          ((compactUnifiedParserEmptyFinalStateBounded_iff
-            hempty hstate.parserLayout harea hvalueBound').mpr hstatus)
+    · have hstatus : state.1.2.2 ≠ some (some []) :=
+        (compactBinaryNatDefaultStatusValidBounded_iff
+          hstate.parserLayout.statusLayout harea hvalueBound').mp hdefault.1
       have hexpectedEmpty : expectedOutput = [] :=
         List.eq_nil_of_length_eq_zero hdefault.2
       rw [hexpectedEmpty]
@@ -396,14 +393,11 @@ theorem compactFormulaTransformFinalGetDOutputRows_iff
             (compactAdditiveNatListSameRows_iff_eq_of_rows
               hexpectedOutput hstate.outputRows).mpr hexpected)⟩
     · right
-      have hnotEmptyFinal :
-          ¬ CompactUnifiedParserEmptyFinalStateBounded
-            tokenTable width tokenCount coordinates.parser
-              emptyBoundary valueBound := by
-        intro hemptyFinal
-        exact hstatus
-          ((compactUnifiedParserEmptyFinalStateBounded_iff
-            hempty hstate.parserLayout harea hvalueBound).mp hemptyFinal)
+      have hdefaultStatus : CompactBinaryNatDefaultStatusValidBounded
+          tokenTable width tokenCount coordinates.parserTasksFinish
+            coordinates.parserFinish valueBound :=
+        (compactBinaryNatDefaultStatusValidBounded_iff
+          hstate.parserLayout.statusLayout harea hvalueBound).mpr hstatus
       have hdefault :
           (compactExactFormulaTransformResult
             (compactFormulaTransformStateOutput state)).getD [] = [] := by
@@ -421,7 +415,7 @@ theorem compactFormulaTransformFinalGetDOutputRows_iff
                   compactExactFormulaTransformResult, hsuffix]
       have hexpectedEmpty : expectedOutput = [] := by
         rw [hresult, hdefault]
-      exact ⟨hnotEmptyFinal, by simpa [hexpectedEmpty]⟩
+      exact ⟨hdefaultStatus, by simpa [hexpectedEmpty]⟩
 
 #print axioms compactUnifiedParserEmptyFinalStateBoundedDef_spec
 #print axioms compactUnifiedParserEmptyFinalStateBoundedDef_sigmaZero
